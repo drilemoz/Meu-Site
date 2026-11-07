@@ -1,3 +1,9 @@
+## 1.0.75 — Enviar atualização por janela compacta
+
+Em Atualizações, o botão **Enviar atualização** ("Enviar ZIP" no celular) fica junto de Releases. Ele abre uma janela central para selecionar o ZIP, informar a senha administrativa e confirmar a instalação. Durante o envio, a janela mostra progresso real de bytes; após a transferência, mantém indicador de processamento até o servidor responder, sem porcentagem artificial. Erros e resultado ficam no mesmo modal. Fechamento acidental é impedido enquanto a requisição estiver em andamento. Não há migração do banco ou alteração de backups, permissões ou assinatura dos pacotes.
+
+**Teste em hospedagem:** o administrador deve instalar a v1.0.75 usando o formulário antigo da versão publicada; a nova interface surge após a atualização e recarregamento.
+
 ## 1.0.74 — Integridade dos backups / GitHub Actions
 
 Corrigida a regressão do backup que falhava em GitHub Actions: o teste de entradas com nomes duplicados passa a utilizar um ZIP verdadeiro com nomes repetidos, que deve ser recusado pelo validador. O teste antigo não criava essa condição porque a API PHP substituía o mesmo nome. O site e o banco não sofreram alterações funcionais.

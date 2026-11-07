@@ -31,9 +31,10 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   <div class="updater-actions">
     <form method="post" action="<?=h(admin_link('updates'))?>">
       <?=csrf_field()?><input type="hidden" name="operation" value="check">
-      <button class="btn outline" type="submit">↻ Verificar agora</button>
+      <button class="btn outline" type="submit" aria-label="Verificar novas versões">↻ Verificar</button>
     </form>
-    <?php if($hasSource): ?><a class="updater-subtle-link" href="<?=h('https://github.com/'.$source['owner'].'/'.$source['repo'].'/releases')?>" target="_blank" rel="noopener noreferrer">Ver releases ↗</a><?php endif; ?>
+    <?php if($hasSource): ?><a class="updater-subtle-link" href="<?=h('https://github.com/'.$source['owner'].'/'.$source['repo'].'/releases')?>" target="_blank" rel="noopener noreferrer" aria-label="Ver releases no GitHub">Releases ↗</a><?php endif; ?>
+    <button type="button" class="btn primary updater-upload-trigger" data-updater-open="updater-upload-dialog" aria-haspopup="dialog" aria-controls="updater-upload-dialog" <?=!$ready?'disabled title="PHP ZipArchive indisponível"':''?>><span class="updater-upload-trigger-long">Enviar atualização</span><span class="updater-upload-trigger-short">Enviar ZIP</span></button>
   </div>
   <div class="updater-quick-tools" aria-label="Configurações e diagnóstico do atualizador">
     <button type="button" class="updater-quick-link" data-updater-open="updater-source-dialog" aria-haspopup="dialog" aria-controls="updater-source-dialog" title="Configurar fonte oficial">
@@ -47,9 +48,10 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   <?php if($remoteError): ?><div class="alert warning"><?=h($remoteError)?></div><?php endif; ?>
   <?php if(is_file(igua_updater_maintenance())): ?><div class="alert error">Atualização interrompida. Recupere o código antes de continuar.</div><?php endif; ?>
 </section>
+<?php if($hasNewRelease): ?>
 <section class="panel updater-panel" aria-labelledby="updater-install-title">
-  <div class="updater-header"><h2 id="updater-install-title">Instalar atualização</h2>
-    <details class="updater-help"><summary aria-label="Segurança da instalação" title="Segurança da instalação">?</summary><div class="updater-help-content">Pacotes v2 não exigem assinatura digital. A senha administrativa é obrigatória para instalar; o instalador valida SHA-256, caminhos, permissões e revisão do banco e prepara backup. Confira sempre a procedência do ZIP. Se a revisão do banco mudar, a atualização automática é bloqueada.</div></details>
+  <div class="updater-header"><h2 id="updater-install-title">Instalação pelo GitHub</h2>
+    <details class="updater-help"><summary aria-label="Segurança da instalação">?</summary><div class="updater-help-content">Instalações exigem senha administrativa, confirmação e backup. O ZIP v2 pode não ter assinatura, por isso confirme a origem antes de instalar.</div></details>
   </div>
   <?php if($hasDownload): ?>
     <div class="updater-release">
@@ -65,18 +67,33 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   <?php elseif($hasNewRelease): ?>
     <p class="updater-hint">Versão <?=h($release['version'])?> publicada, mas ainda sem ZIP de atualização compatível. Confirme a origem do pacote antes de instalá-lo.</p>
   <?php else: ?><p class="updater-hint">Nenhuma atualização disponível para instalar automaticamente.</p><?php endif; ?>
-  <details class="updater-details">
-    <summary>Instalar ZIP de atualização manualmente</summary>
-    <form class="updater-install-form" data-updater-progress-form method="post" enctype="multipart/form-data" action="<?=h(admin_link('updates'))?>">
-      <?=csrf_field()?><input type="hidden" name="operation" value="upload">
-      <label class="updater-upload-label">Arquivo ZIP de atualização<input type="file" name="update_zip" accept=".zip,application/zip" required></label>
-      <label class="updater-check"><input type="checkbox" name="confirm_install" value="yes" required> Confirmei que o ZIP é de uma fonte confiável e autorizo a instalação.</label>
-      <label>Senha administrativa<input type="password" name="confirm_password" autocomplete="current-password" required></label>
-      <button class="btn primary" type="submit">Validar e instalar</button>
-    </form>
-    <p class="updater-hint">Use <strong>Atualizacao-vX.Y.Z.zip</strong>, nunca o ZIP de hospedagem completa.</p>
-  </details>
 </section>
+<?php endif; ?>
+<dialog id="updater-upload-dialog" class="updater-dialog updater-upload-dialog" aria-labelledby="updater-upload-title" aria-modal="true">
+  <div class="updater-dialog-head">
+    <div class="updater-upload-heading"><span class="updater-upload-icon" aria-hidden="true">⇧</span><div><h2 id="updater-upload-title">Enviar atualização</h2><small>Arquivo ZIP de atualização</small></div></div>
+    <button type="button" class="updater-dialog-close" data-updater-close aria-label="Fechar janela de atualização">×</button>
+  </div>
+  <form id="updater-upload-form" class="updater-install-form updater-upload-form" data-updater-progress-form data-updater-confirm-flow="manual" method="post" enctype="multipart/form-data" action="<?=h(admin_link('updates'))?>">
+    <?=csrf_field()?><input type="hidden" name="operation" value="upload">
+    <div class="updater-form-fields" data-updater-fields>
+      <label class="updater-upload-label">Pacote de atualização<input type="file" name="update_zip" accept=".zip,application/zip" required></label>
+      <label>Senha administrativa<input type="password" name="confirm_password" autocomplete="current-password" required></label>
+      <p class="updater-upload-note">Use <strong>Atualizacao-vX.Y.Z.zip</strong>. O pacote de código-fonte não serve para instalar.</p>
+      <button class="btn primary updater-submit" type="submit">Enviar <span aria-hidden="true">→</span></button>
+    </div>
+    <div class="updater-confirm-step" data-updater-confirm-step hidden>
+      <span class="updater-stage-tag">Confirmação final</span>
+      <p class="updater-confirm-file" data-updater-filename></p>
+      <p>O sistema vai validar o ZIP e preparar backups antes de substituir os arquivos. Não feche a página durante o processamento.</p>
+      <label class="updater-check"><input type="checkbox" name="confirm_install" value="yes" data-updater-ack required disabled> Confirmo que o arquivo é confiável e autorizo a instalação.</label>
+      <div class="updater-confirm-actions">
+        <button type="button" class="btn outline" data-updater-back>Voltar</button>
+        <button type="button" class="btn primary" data-updater-accept>Confirmar e enviar</button>
+      </div>
+    </div>
+  </form>
+</dialog>
 <dialog id="updater-source-dialog" class="updater-dialog" aria-labelledby="updater-source-title" aria-modal="true">
   <div class="updater-dialog-head"><h2 id="updater-source-title">⚙ Fonte oficial</h2><button type="button" class="updater-dialog-close" data-updater-close aria-label="Fechar configurações">×</button></div>
   <div class="updater-source-line"><span class="updater-source-label">GitHub</span><strong><?=h($originLabel)?></strong>

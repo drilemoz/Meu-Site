@@ -1,8 +1,10 @@
+> **Versão 1.0.75:** envio manual de atualização em janela central, com confirmação antes do upload e progresso real. A instalação no servidor exibe atividade sem porcentagem inventada. Consulte `docs/ATUALIZADOR_175.md`.
+
 > **Versão 1.0.74:** correção do teste de ZIP com nomes duplicados usado no workflow de integração MariaDB. Para corrigir o CI, envie o código-fonte completo ao repositório; o ZIP de atualização da hospedagem não contém testes. Consulte `tests/fixtures/README.md`.
 
 **1.0.73 — Correção do pacote de código-fonte:** os arquivos Android inseridos por engano em versões anteriores foram excluídos. Os metadados de importação agora identificam este projeto exclusivamente como portal PHP, e o empacotador passou a usar uma lista de inclusão restritiva. O PHP do portal e o banco permanecem funcionalmente iguais à versão 1.0.72. A compatibilidade do GitHub Manager com projetos PHP precisa ser validada no aparelho.
 
-# Meu Site 1.0.73 — Portal PHP/MySQL
+# Meu Site 1.0.75 — Portal PHP/MySQL
 
 **Novidade 1.0.72:** DNS TXT do Search Console detectável e comparável diretamente pelo painel de Integrações, sem afirmar propriedade Google verificada.
 

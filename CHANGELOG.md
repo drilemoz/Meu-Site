@@ -1,3 +1,12 @@
+## 1.0.75 — 06/11/2026 — Atualização por janela central
+- "Enviar atualização" fica ao lado de "Releases", na barra de ações. Em telas estreitas, o botão apresenta "Enviar ZIP" sem perder o nome acessível da operação.
+- O formulário manual saiu da expansão permanente e abre em `<dialog>` centralizado, com arquivo ZIP, senha e botão Enviar.
+- Antes de transmitir o arquivo, surge uma confirmação explícita; o ZIP só é enviado quando o administrador marca a declaração e pressiona "Confirmar e enviar".
+- O modal exibe bytes e percentual **reais apenas do upload**; durante validação/backup/instalação no PHP utiliza barra indeterminada. Bloqueia fechamento acidental da janela enquanto a requisição estiver ativa.
+- Conclusão e erro permanecem no modal, com "Ver resultado" ou revisão de dados. Não há rolagem forçada nem redirecionamento automático na instalação manual; respostas ambíguas/timeout não geram nova tentativa automática.
+- Mantidos CSRF, reautenticação, limites de ZIP, backup, rollback, revisão 36 do banco, atualização v2 sem assinatura e menus existentes. Sem alteração de schema ou dados privados.
+- Testar `php tests/updater_modal_175.php`, `node tests/updater_modal_175.js`, regressão, PHP-FPM real e validação visual móvel.
+
 ## 1.0.74 — 06/11/2026 — Teste de integridade do ZIP corrigido
 - Corrigido `tests/backup_integrity_133.php`: o caso de nomes duplicados agora usa um ZIP de teste com **duas entradas reais de mesmo nome** no diretório central, em vez de depender de `ZipArchive::addFromString`, que substituía a entrada anterior.
 - O teste inspeciona `numFiles` e `statIndex()` antes de validar, evitando um falso positivo se o fixture perder a duplicidade.

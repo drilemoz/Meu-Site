@@ -105,3 +105,42 @@
 .updater-reset-form{margin:10px 0 0}
 .updater-reset-form .btn{font-size:12px;min-height:36px}
 @media(max-width:560px){.updater-quick-link{flex-basis:145px}.updater-dialog{padding:15px}.updater-dialog .updater-source-form{grid-template-columns:1fr}.updater-dialog .updater-source-form>button{grid-column:auto}}
+
+/* 1.0.75 — Envio manual em janela central, sem crescimento da página. */
+.updater-upload-trigger{border-radius:10px;min-height:42px;box-shadow:0 5px 16px #0c59bf24}
+.updater-upload-trigger-short{display:none}
+.updater-upload-dialog{width:min(450px,calc(100vw - 24px));max-height:min(88dvh,720px);padding:18px;overscroll-behavior:contain;scrollbar-width:thin}
+.updater-upload-dialog .updater-dialog-head{position:sticky;top:-18px;z-index:2;padding:7px 0 13px;background:#fff;border-bottom:1px solid #e3eaf4}
+.updater-upload-heading{display:flex;align-items:center;gap:10px;min-width:0}
+.updater-upload-heading h2{font-size:18px;letter-spacing:-.025em;line-height:1.2}
+.updater-upload-heading small{display:block;font-size:11px;color:#6b7f98;margin-top:2px}
+.updater-upload-icon{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:linear-gradient(140deg,#e9f3ff,#e9f7f1);color:#0c60c6;font-size:25px;font-weight:800}
+.updater-upload-form{gap:0;margin-top:13px!important}
+.updater-form-fields,.updater-confirm-step{display:grid;gap:12px;min-width:0}
+.updater-upload-form .updater-form-fields>label{display:grid;gap:6px;color:#425976;font-size:12px;font-weight:700}
+.updater-upload-form .updater-form-fields input[type="file"],.updater-upload-form .updater-form-fields input[type="password"]{display:block;width:100%;min-width:0;min-height:47px;padding:10px;background:#f6f9fd;color:#253e61;border:1px solid #cfdff2;border-radius:11px;font-size:14px}
+.updater-form-fields[hidden],.updater-confirm-step[hidden]{display:none!important}
+.updater-upload-form .updater-submit{width:100%;min-height:45px;display:flex;justify-content:center;align-items:center;gap:10px;border-radius:11px;font-weight:750}
+.updater-upload-note{margin:0;color:#64758f;font-size:11px;line-height:1.45}
+.updater-confirm-step{border:1px solid #dbe7f6;background:#f6f9fe;border-radius:13px;padding:14px;font-size:13px;color:#344e6e;line-height:1.5}
+.updater-stage-tag{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#1b62b5;font-weight:800}
+.updater-confirm-step p{margin:0}
+.updater-confirm-file{background:#e8f1ff;color:#164d8f;padding:9px 11px;border-radius:10px;overflow-wrap:anywhere;font-weight:750}
+.updater-confirm-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px}
+.updater-confirm-actions .btn{min-height:44px;border-radius:10px}
+.updater-upload-dialog .updater-progress{padding:18px 14px;background:linear-gradient(145deg,#f5faff,#eaf3ff);border-color:#bed5f5;gap:12px;text-align:center;border-radius:15px}
+.updater-upload-dialog .updater-progress-head{flex-direction:column;justify-content:center;gap:3px;font-size:14px}
+.updater-upload-dialog .updater-progress-value{font-size:26px;line-height:1.2;letter-spacing:-.025em;color:#175fc7}
+.updater-upload-dialog .updater-progress progress{height:12px}
+.updater-progress-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.updater-upload-dialog[data-updater-busy="1"] .updater-dialog-close{opacity:.45;cursor:not-allowed}
+@media(max-width:550px){
+ .updater-actions{gap:8px}.updater-actions .btn{padding:8px 10px;font-size:12px;min-height:44px}
+ .updater-upload-trigger-long{display:none}.updater-upload-trigger-short{display:inline}
+ .updater-subtle-link{font-size:12px;min-height:44px;display:inline-flex;align-items:center}
+ .updater-upload-dialog{padding:14px;border-radius:19px;max-height:min(88dvh,700px)}
+ .updater-upload-dialog .updater-dialog-head{top:-14px}
+ .updater-upload-dialog .updater-dialog-close{width:44px;height:44px}
+ .updater-confirm-actions{grid-template-columns:1fr 1.35fr}
+}
+@media(max-width:345px){.updater-actions{gap:6px}.updater-actions .btn{padding:8px 9px}}

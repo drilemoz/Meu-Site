@@ -7,6 +7,7 @@
     else dialog.setAttribute('open', '');
   };
   const closeDialog = (dialog) => {
+    if (dialog.dataset.updaterBusy === '1') return;
     if (typeof dialog.close === 'function') dialog.close();
     else dialog.removeAttribute('open');
   };
@@ -15,6 +16,7 @@
   });
   dialogs.forEach(dialog => {
     dialog.querySelectorAll('[data-updater-close]').forEach(button => button.addEventListener('click', () => closeDialog(dialog)));
+    dialog.addEventListener('cancel', event => { if (dialog.dataset.updaterBusy === '1') event.preventDefault(); });
     dialog.addEventListener('click', (event) => {
       if (event.target !== dialog) return;
       const rect = dialog.getBoundingClientRect();

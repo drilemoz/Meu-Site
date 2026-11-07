@@ -299,3 +299,11 @@ Menu Publicidade: ativações geral e por espaço, anúncios locais com datas, A
 - Com PHP `zip` instalado, conferir 4 nomes via `statIndex` antes de verificar que `media_bundle_verify_manifest()` lança exceção para entradas repetidas. No fallback sem extensão, usar stub apenas como teste de contrato.
 - O empacotador de fonte só pode incluir esse ZIP de fixture, nunca backups reais, ZIPs de versão anterior ou outros projetos; a atualização de hospedagem continua sem a pasta `tests`.
 - Corrigir falhas de GitHub Actions publicando o fonte atualizado no repositório, não apenas o pacote de atualização PHP.
+
+### 1.0.75 — Upload manual em modal
+- "Enviar atualização" deve ficar junto a Releases na barra superior. No celular, abreviação visual "Enviar ZIP" com aria-label completo; preservar atalho de verificar.
+- Formulário de ZIP manual deve permanecer em `<dialog>` e só começar transmissão após etapa de confirmação deliberada, senha, confirmação de origem e CSRF. Não reinserir bloco expansível na página principal.
+- Progresso `XMLHttpRequest.upload` só mostra % durante transferência; após envio, usar barra indeterminada até resposta oficial do PHP. Nenhum retorno 100% equivale a instalação antes do sucesso no servidor.
+- Durante envio/instalação, o diálogo não fecha por botão, backdrop ou Escape. Quando servidor retornar, exibir sucesso ou erro no próprio modal, sem rolar nem redirecionar automaticamente; botão de resultado permite verificar a página.
+- Em erros de resposta ambígua/timeout não repetir POST automaticamente. Permitir rever dados apenas quando o servidor confirmar erro. Preservar caminho de recuperação, backup, limites de ZIP, ACL, CSRF, revisão 36, código PHP e rastreamento.
+- CSS no módulo `09-editorial-admin.css` compilado em `style.css`. Rodar testes `updater_modal_175.php/.js`, `updater_progress_167.js`, testes anteriores e checagem ZIP. Conferir no Chrome Android e PHP-FPM real.
