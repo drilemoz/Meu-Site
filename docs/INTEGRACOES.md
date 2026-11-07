@@ -116,10 +116,16 @@ O acesso à aba não faz requisições externas. Para efetuar uma nova consulta,
 
 ## Google Gemini — API editorial opcional (v1.0.103)
 
-Acesse **Configurações → Integrações e APIs → Catálogo → Google Gemini**. No Google AI Studio, obtenha uma chave (https://aistudio.google.com/api-keys), cole no pop-up, informe o modelo disponível para sua conta (por exemplo `gemini-3.8-flash`), marque Ativar, confirme a senha administrativa e salve. A chave fica em `storage/integrations/gemini-api.json` com acesso restrito fora de `public/`, e não é incluída no código ZIP. Deixe o campo de chave vazio para conservar a já cadastrada. Para apagar, use Remover chave e confirme novamente a senha.
+Acesse **Configurações → Integrações e APIs → Google → Google Gemini**. No Google AI Studio, obtenha uma chave (https://aistudio.google.com/api-keys), cole no pop-up, informe o modelo disponível para sua conta (por exemplo `gemini-3.8-flash`), marque Ativar, confirme a senha administrativa e salve. A chave fica em `storage/integrations/gemini-api.json` com acesso restrito fora de `public/`, e não é incluída no código ZIP. Deixe o campo de chave vazio para conservar a já cadastrada. Para apagar, use Remover chave e confirme novamente a senha.
 
 Depois de salvar, toque **Testar API**. O teste é uma chamada real a `https://generativelanguage.googleapis.com/v1beta/models/MODELO:generateContent` usando o cabeçalho `x-goog-api-key` (não é verificação fictícia de formato). O servidor exige HTTPS, TLS válido, cURL, modelo validado, respostas limitadas e intervalos entre tentativas. Erros 401/403/404/429/503 são explicados sem divulgar o corpo da resposta nem o segredo. O modelo deve ser escolhido conforme a lista atual do Google: https://ai.google.dev/gemini-api/docs/models.
 
 No **Novo cadastro de notícias**, apenas o ícone Gemini ✦ aparece nas etapas Título, Descrição, Matéria e SEO. Cada clique transmite à API título/resumo/corpo informados (limitados) e abre uma janela com sugestão; o conteúdo só entra no formulário após clicar em **Aplicar sugestão** e ainda precisa passar pela revisão/publicação manual. O módulo não verifica fatos, não publica sozinho, não captura fotos ou anexos e não envia texto a cada tecla. A revisão humana deve conferir precisão e consentimento para conteúdo sensível. Desativar a integração conserva o restante do editor e SEO local.
 
 Os testes offline verificam formato, armazenamento, rotas e erros sem usar credencial verdadeira. Na hospedagem, o administrador precisa executar o Testar API com chave própria. O Google pode alterar preços, quotas e modelos.
+
+### Ajustes v1.0.104
+
+O serviço Gemini agora aparece com GA4/AdSense/Search Console na aba **Google**, enquanto o Catálogo contém somente integrações planejadas. **Salvar configuração** e **Testar API** ficam na mesma linha; a remoção exige senha em bloco separado. O botão de teste abre diálogo centralizado e faz POST autenticado/CSRF com resposta JSON, sem trocar de página.
+
+Falha HTTP **503** indica normalmente capacidade temporariamente indisponível no serviço Google. Não equivale a chave inválida. O teste tem no máximo uma nova tentativa curta para erros temporários, cooldown de 30 s entre testes manuais e instruções para conferir modelos/cotas. Erros 401/403/404/429 mantêm diagnósticos distintos e sanitizados. A chave e o corpo bruto da API nunca entram no resultado.

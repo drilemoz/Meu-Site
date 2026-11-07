@@ -43,6 +43,7 @@ function igua_admin_post_module(string $action): ?string {
         'bus_approve_import'=>'bus',
         'bus_ignore_import'=>'bus',
         'bus_stage_import'=>'bus',
+        'bus_import_teixeira'=>'bus',
         'bus_toggle_fixed'=>'bus',
         'archive_election'=>'elections',
         'create_backup'=>'backups',

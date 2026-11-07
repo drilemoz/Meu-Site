@@ -1,3 +1,11 @@
+# Meu Site v1.0.104 — Ônibus Teixeira e teste Gemini
+
+- Ônibus: inclusão **manual, mediante confirmação no painel**, dos 10 trajetos da tabela fotografada da Teixeira em setembro/2026, com 31 grupos de saídas. Já cadastrados são preservados e não duplicados. Rodoviárias como origem/destino; chegada e tarifa não informadas. Feriados em dias úteis não são remapeados automaticamente.
+- Gemini: serviço disponível na aba Google com Salvar configuração e Testar API lado a lado. Remoção separada, protegida por senha. Teste em pop-up com resultado real e orientações por código HTTP, em especial 503 por sobrecarga temporária. Sem expor chave.
+- Schema 37/backup v12 sem mudanças, sem migração; manter backup antes de instalar. Não foi possível validar o fluxo real com MariaDB da hospedagem nem API Gemini com chave do proprietário.
+
+---
+
 # Meu Site v1.0.103 — Integração Gemini no portal
 
 - Card Google Gemini já existente no catálogo foi ativado: credencial API no armazenamento privado, modelo configurável, ativar/desativar, teste manual real e remoção protegida por senha administrativa. API via HTTPS e host fixo; chaves nunca em HTML, URL de requisição ou GitHub.

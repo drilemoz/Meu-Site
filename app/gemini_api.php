@@ -84,8 +84,11 @@ function igua_gemini_extract(array $response): string {
         403=>'Acesso não permitido (403). Confira o projeto, a API e as permissões da chave.',
         404=>'Modelo não encontrado (404). Selecione outro modelo disponível para sua conta.',
         429=>'Limite de cota atingido (429). Consulte os limites da API antes de repetir.',
-        503=>'Gemini temporariamente indisponível (503). Tente mais tarde.'];
-    if($status<200||$status>=300)throw new RuntimeException($tips[$status]??('Gemini retornou HTTP '.$status.'. Verifique modelo, cota ou disponibilidade.'));
+        503=>'HTTP 503: o Google Gemini está temporariamente sem capacidade para este modelo. Aguarde e repita o teste; se persistir, tente outro modelo disponível. Não é prova de chave inválida.',
+        500=>'HTTP 500: falha temporária no processamento pelo Google. Tente novamente mais tarde.',
+        502=>'HTTP 502: falha intermediária no serviço Gemini. Tente novamente mais tarde.',
+        504=>'HTTP 504: o Google não respondeu a tempo. Tente novamente mais tarde.'];
+    if($status<200||$status>=300)throw new RuntimeException($tips[$status]??('Gemini retornou HTTP '.$status.'. Verifique modelo, cota ou disponibilidade.'),$status);
     $data=json_decode((string)($response['body']??''),true,24);
     if(!is_array($data))throw new RuntimeException('Resposta JSON do Gemini inválida.');
     $candidate=$data['candidates'][0]??[];
@@ -108,8 +111,31 @@ function igua_gemini_send(array $credentials,string $prompt,int $maxTokens=600):
     ]));
 }
 function igua_gemini_test(array $credentials): void {
-    igua_gemini_send($credentials,'Responda unicamente: OK',100);
+    // No máximo uma nova tentativa em caso de sobrecarga real: não insistir em 429/403/404.
+    try {igua_gemini_send($credentials,'Responda unicamente: OK',100);}
+    catch(RuntimeException $e){
+        if(in_array($e->getCode(),[500,502,503,504],true)){
+            usleep(700000);
+            igua_gemini_send($credentials,'Responda unicamente: OK',100);
+            return;
+        }
+        throw $e;
+    }
 }
+/** Diagnóstico seguro para exibir em diálogo. Nunca devolve chave ou corpo da resposta. */
+function igua_gemini_diagnostic(Throwable $e): array {
+    $status=(int)$e->getCode();
+    if(!in_array($status,[400,401,403,404,408,429,500,502,503,504],true))$status=0;
+    $advice=match($status){
+        503,500,502,504=>'O serviço Google pode estar sobrecarregado. Aguarde ao menos 30 segundos e tente novamente. Se persistir, experimente outro modelo no Google AI Studio.',
+        429=>'Consulte cotas, limites e faturamento do projeto no Google AI Studio. Aguarde a renovação da cota antes de testar.',
+        404=>'Confira o nome do modelo e se ele está disponível para sua chave; consulte a lista oficial de modelos.',
+        401,403=>'Verifique a chave, as restrições e a permissão do projeto no Google AI Studio.',
+        400=>'Revise o modelo e a configuração de API do projeto.',
+        default=>'Confira a rede da hospedagem, o modelo cadastrado e a Central de Saúde do portal.'};
+    return ['http_status'=>$status?:null,'message'=>$e->getMessage(),'advice'=>$advice];
+}
+
 function igua_gemini_prompt(string $task,string $title,string $summary,string $body): array {
     $jobs=[
         'title'=>['Manchete jornalística clara em uma linha, até 110 caracteres.','title',220],

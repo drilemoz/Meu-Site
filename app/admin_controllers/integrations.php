@@ -36,6 +36,14 @@ if(in_array($action,['integrations_gemini_save','integrations_gemini_remove','in
         igua_gemini_test($credentials);
         $_SESSION['igua_gemini_test']=['ok'=>true,'model'=>$credentials['model'],'time'=>time()];
         igua_security_event('admin_action','gemini_connection_test');
+        if(($_POST['gemini_ajax']??'')==='1'){
+            header('Content-Type: application/json; charset=UTF-8');
+            header('Cache-Control: private, no-store');
+            header('X-Content-Type-Options: nosniff');
+            echo json_encode(['ok'=>true,'status'=>'conectado','model'=>$credentials['model'],
+                'message'=>'A API respondeu ao teste. Isso não garante disponibilidade futura.'],JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         flash('Teste real do Gemini concluído: o modelo respondeu à API.');
     }
     redirect('/admin.php?action=integrations#google-gemini');

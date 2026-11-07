@@ -25,3 +25,13 @@
 @media(max-width:760px){.bus-wizard-shell{border-radius:15px;padding:13px}.bus-wizard-heading h2{font-size:22px}.bus-wizard-heading .btn{padding:8px 10px;font-size:11px}.bus-wizard-progress{gap:5px;margin:14px 0}.bus-wizard-progress span{padding:7px;font-size:11px}.bus-wizard-progress small{font-size:10px}.bus-wizard-progress i{min-width:5px}.bus-wizard-step{min-height:460px;padding:16px}.bus-wizard-icon{margin-bottom:9px}.bus-wizard-explain{margin-bottom:13px}.bus-wizard-fields{grid-template-columns:1fr;gap:11px}.bus-wizard-fields input:not([type=checkbox]),.bus-wizard-fields select{min-height:45px}.bus-wizard-footer{gap:7px;flex-wrap:wrap;padding-top:17px}.bus-wizard-footer-stops{align-items:stretch;flex-wrap:nowrap}.bus-wizard-stop-buttons{flex:1;justify-content:flex-end;gap:5px}.bus-wizard-stop-buttons .btn{font-size:11px;padding:9px 8px}.bus-wizard-footer-stops>.btn{padding:9px 8px;font-size:11px}.bus-wizard-summary-list{grid-template-columns:1fr}.bus-wizard-schedules{padding:13px}.bus-wizard-schedules .panel-heading{flex-wrap:wrap}.bus-wizard-schedule{flex-wrap:wrap}}
 @media(max-width:360px){.bus-wizard-stop-buttons{flex-direction:column;align-items:stretch}.bus-wizard-footer-stops{align-items:center}.bus-wizard-footer-stops>.btn{align-self:flex-end}.bus-wizard-time-fields{grid-template-columns:1fr}}
 
+
+/* v1.0.104 — conferência e importação opcional da tabela Teixeira. */
+.bus-teixeira-import{padding:16px;border:1px solid #cfe2f3;border-radius:15px;background:#f5faff;margin:16px 0}
+.bus-teixeira-import h3{margin:0 0 6px;font-size:1rem;color:#18456d}
+.bus-teixeira-import p{font-size:.85rem;line-height:1.55;margin:7px 0}
+.bus-teixeira-confirm{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.bus-teixeira-confirm label{display:flex;align-items:center;gap:9px;flex:1 1 235px;line-height:1.4;font-size:.81rem}
+.bus-teixeira-confirm input{min-width:20px;min-height:20px;accent-color:#145ef1}
+.bus-teixeira-confirm .btn{min-height:44px;white-space:normal}
+@media(max-width:520px){.bus-teixeira-import{padding:12px}.bus-teixeira-confirm{display:grid;grid-template-columns:minmax(0,1fr)}.bus-teixeira-confirm .btn{width:100%}}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__.'/bus.php';
 require_once __DIR__.'/bus_import.php';
 require_once __DIR__.'/bus_wizard.php';
+require_once __DIR__.'/bus_teixeira_2026.php';
 require_once __DIR__.'/bus_admin/post_import.php';
 require_once __DIR__.'/bus_admin/post_routes.php';
 require_once __DIR__.'/bus_admin/post_departures.php';
@@ -12,6 +13,12 @@ require_once __DIR__.'/bus_admin/view_routes.php';
 
 function bus_admin_post(PDO $db,string $action,array $me): never {
     require_ability('manage_bus',$me);
+    if($action==='bus_import_teixeira'){
+        if(($_POST['teixeira_confirm']??'')!=='1')throw new InvalidArgumentException('Confirme que revisou os horários da tabela Teixeira.');
+        $result=bus_teixeira_2026_import($db);
+        flash('Tabela Teixeira: '.$result['created'].' linhas cadastradas, '.$result['skipped'].' já existentes preservadas. Revise os feriados e confirme a operação com a empresa.');
+        redirect('/admin.php?action=bus');
+    }
     if (in_array($action,['bus_stage_import','bus_approve_import','bus_ignore_import'],true)) bus_admin_post_import($db,$action);
     if (in_array($action,['bus_toggle_fixed','save_bus_wizard','save_bus_route','delete_bus_route'],true)) bus_admin_post_routes($db,$action);
     if (in_array($action,['save_bus_departure','toggle_bus_departure','delete_bus_departure'],true)) bus_admin_post_departures($db,$action);

@@ -1,3 +1,9 @@
+# 1.0.104 (2026-11-07)
+
+- Importador administrativo da fotografia da Viação Teixeira: 10 trajetos e 31 horários agrupados, sem duração/tarifa inventadas, com rodoviárias, proteção contra duplicações e confirmação explícita. Aviso de limitação em feriados. Nenhuma alteração automática dos dados durante o deploy.
+- Google Gemini movido do Catálogo para Serviços Google. Salvar e Testar API alinhados; campo de remoção com senha reorganizado. Teste agora tem pop-up próprio e retorno JSON seguro, com código HTTP específico, orientação sobre 503 temporário e nova tentativa limitada.
+- Regressões PHP/JS e documentação ampliadas. Schema 37 e backup v12 preservados; testes na hospedagem ainda pendentes.
+
 # 1.0.103 (2026-11-07)
 
 - Integração funcional opcional Gemini no card já existente do catálogo de Integrações: chave API privada (sem exposição no browser), modelo editável, senha administrativa para salvar/remover, Testar API e diagnóstico de erros HTTP/cota/TLS.

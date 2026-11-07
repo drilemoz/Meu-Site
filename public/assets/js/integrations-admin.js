@@ -191,11 +191,51 @@
     const input=document.getElementById(button.getAttribute('aria-controls'));
     if(input)input.type=input.type==='password'?'text':'password';
   }));
-  hub.querySelectorAll('[data-gemini-test-form]').forEach(form=>form.addEventListener('submit',()=>{
-    const button=form.querySelector('button[type=submit]');
-    if(button)button.disabled=true;
-    const wait=form.querySelector('[data-gemini-wait]');if(wait)wait.hidden=false;
-  }));
+  // Teste da API Gemini num segundo diálogo compacto, sem recarregar a página nem expor credencial.
+  const geminiTestDialog=hub.querySelector('#gemini-test-dialog');
+  const geminiTestForm=hub.querySelector('[data-gemini-test-form]');
+  const geminiTestResult=geminiTestDialog?.querySelector('[data-gemini-test-result]');
+  const geminiTestRun=geminiTestDialog?.querySelector('[data-gemini-test-run]');
+  let geminiTestBusy=false;
+  let geminiTestOpener=null;
+  if(geminiTestDialog && geminiTestForm && geminiTestResult && geminiTestRun && typeof geminiTestDialog.showModal==='function'){
+    const report=(message,kind='')=>{
+      geminiTestResult.classList.remove('is-error','is-success');
+      if(kind)geminiTestResult.classList.add(kind);
+      geminiTestResult.textContent=message;
+    };
+    hub.querySelectorAll('[data-gemini-test-open]').forEach(button=>button.addEventListener('click',()=>{
+      if(geminiTestBusy)return;
+      geminiTestOpener=button;
+      report('O modelo configurado será consultado agora, somente se você iniciar o teste.');
+      geminiTestRun.disabled=false;
+      if(!geminiTestDialog.open)geminiTestDialog.showModal();
+    }));
+    geminiTestDialog.querySelectorAll('[data-gemini-test-close]').forEach(button=>button.addEventListener('click',()=>{
+      if(!geminiTestBusy)geminiTestDialog.close();
+    }));
+    geminiTestDialog.addEventListener('cancel',event=>{if(geminiTestBusy)event.preventDefault();});
+    geminiTestDialog.addEventListener('close',()=>{if(geminiTestOpener?.isConnected)geminiTestOpener.focus({preventScroll:true});});
+    geminiTestRun.addEventListener('click',async()=>{
+      if(geminiTestBusy)return;
+      geminiTestBusy=true;geminiTestRun.disabled=true;
+      geminiTestDialog.querySelectorAll('[data-gemini-test-close]').forEach(button=>{button.disabled=true;});
+      report('Conectando ao Google Gemini…\nVerificando o modelo e a resposta real da API.');
+      try{
+        const response=await fetch(geminiTestForm.action,{method:'POST',credentials:'same-origin',headers:{Accept:'application/json'},body:new FormData(geminiTestForm)});
+        const type=response.headers.get('content-type')||'';
+        if(!type.includes('application/json'))throw new Error('O servidor não retornou um diagnóstico JSON. Verifique a sessão administrativa ou o PHP da hospedagem.');
+        const data=await response.json();
+        if(response.ok && data.ok){report('Conexão confirmada.\nModelo: '+String(data.model||'configurado')+'\n'+String(data.message||''),'is-success');}
+        else{
+          const http=data.http_status || response.status;
+          const code=http?'HTTP '+http+' · ':'';
+          report(code+String(data.message||'Não foi possível completar o teste.')+'\n'+String(data.advice||'Consulte a Central de Saúde.'),'is-error');
+        }
+      }catch(error){report('Falha ao consultar o servidor do portal. '+(error instanceof Error?error.message:'Verifique conexão e sessão.'),'is-error');}
+      finally{geminiTestBusy=false;geminiTestRun.disabled=false;geminiTestDialog.querySelectorAll('[data-gemini-test-close]').forEach(button=>{button.disabled=false;});}
+    });
+  }
   const feedback=hub.querySelector('[data-int-copy-feedback]');
   const showFeedback=(text)=>{
     const place=modalAvailable && dialog.open?dialog.querySelector('[data-int-dialog-feedback]'):feedback;

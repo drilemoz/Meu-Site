@@ -25,3 +25,11 @@ Continuam disponíveis **Ônibus → Importar DER / ANTT**, a fila de revisão h
 - Migração aditiva cria `bus_routes.fare_amount DECIMAL(9,2) NULL` sem eliminar dados anteriores.
 - Backup lógico v5 inclui a tarifa, os usuários, as notícias e as linhas/paradas/partidas, e aceita restaurar v1–v4. Fotos enviadas devem ser copiadas separadamente.
 - Ainda faltam teste integrado no MariaDB do Termux, verificação visual real no telefone e confronto dos horários com os operadores de ônibus.
+
+## Importação da tabela da Viação Teixeira (v1.0.104)
+
+O painel **Ônibus → Cadastrar tabela Teixeira** carrega, mediante confirmação explícita, 10 rotas e 31 grupos de partidas transcritos da tabela fotografada e datada 14/09/2026. A origem e destino são as rodoviárias de cada cidade, informadas pelo usuário. Chegadas/durações e tarifas permanecem desconhecidas (`NULL`), não estimadas.
+
+A importação é transacional, usa identificadores estáveis e preserva linhas existentes, inclusive linhas manuais Teixeira com o mesmo nome e empresa. Executá-la de novo não duplica seus próprios registros. Após instalar o código, o administrador precisa abrir o painel e confirmar a importação. O ZIP não executa alterações em dados durante a atualização.
+
+**Feriados:** o quadro indica que viagens de sábado, domingo e feriado compartilham horários em certos sentidos. A máscara semanal atual do portal **não possui calendário especial de feriados**, portanto nessas rotas foram incluídos sábados e domingos e registrada observação explícita para confirmar viagens em feriados que caiam em dias úteis. Não interpretar a lista publicada como escala garantida de feriado. Como qualquer fotografia de horários, a tabela pode ficar desatualizada; verifique diretamente com a viação.

@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.103)
+# Diretrizes de manutenção — Meu Site (v1.0.104)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -134,3 +134,10 @@ Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **
 - `integrations_gemini_test` usa chamada `generateContent` real e **manual**; modelo é escolhido pelo administrador, com nome validado e sem URL externa arbitrária. Erros HTTP devem ser tratados com orientação sanitizada e sem resposta bruta.
 - Ícones ✦ no wizard não exibem rótulo visual; manter `aria-label`/`title` e área de toque ≥44px. `news_gemini_suggest` exige `write`, limites e cooldown, apenas solicita texto sob clique explícito; exibir para revisão, nunca aplicar sem aprovação e nunca publicar automaticamente.
 - Sem schema novo (37/backup v12). Testes offline não comprovam conectividade da API ou conta do proprietário; executar teste em hospedagem com chave real após instalar.
+
+## Viação Teixeira e diagnóstico Gemini (v1.0.104)
+
+- As 10 linhas e 31 grupos de partidas fotografados em 14/09/2026 ficam disponíveis para **importação explícita** em Ônibus, após confirmação do administrador. Não inserir registros ao instalar código ou ao carregar o painel; preservar linhas existentes e evitar duplicação pelo `source_key` e identificação manual. Sem chegada/tarifa inventadas.
+- A escala semanal não diferencia feriados que caiam em dias úteis: informar essa limitação sem alegar substituição automática pela escala de sábado/domingo.
+- Gemini é serviço Google funcional, não serviço de Catálogo. O teste manual abre diálogo pequeno e entrega diagnóstico JSON sanitizado em POST CSRF, sem chave nem resposta bruta. 503 indica provável sobrecarga externa, sem implicar erro de credencial; respeitar cooldown e limitar tentativas.
+- Schema 37/backup v12 mantidos. Reexecutar testes `tests/bus_teixeira_204.php`, `tests/gemini_204.php` e `tests/gemini_204.js` junto à regressão total.

@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.103** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.104** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -16,9 +16,15 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
 
+## Versão 1.0.104 — Ônibus Teixeira e teste Gemini
+
+- Na seção **Ônibus**, o administrador pode conferir e cadastrar a tabela fotografada da Teixeira (14/09/2026): 10 trajetos, 31 grupos de partidas, rodoviárias como pontos e nenhuma duração ou tarifa inventadas. A importação é explícita, transacional e não substitui linhas existentes. Atenção: feriados em dias úteis não são alterados automaticamente pela máscara semanal do calendário.
+- Gemini está na aba **Google**, não no Catálogo. Salvar configuração e Testar API estão na mesma linha; a remoção ganhou bloco separado com senha. Testar abre pop-up de resultado e código HTTP real, com orientações para 503/429/404, sem revelar credenciais.
+- A instalação dos arquivos não grava automaticamente horários no banco. Depois de atualizar, use **Ônibus → Cadastrar tabela Teixeira** e confirme. Sem migração, schema 37.
+
 ## Versão 1.0.103 — Google Gemini opcional
 
-- **Configurações → Integrações e APIs → Catálogo → Google Gemini** agora permite cadastrar chave de API em armazenamento privado, configurar modelo, ativar/desativar, remover e executar um **Teste da API** real sob demanda. A chave não aparece no HTML nem no código-fonte.
+- **Configurações → Integrações e APIs → Google → Google Gemini** agora permite cadastrar chave de API em armazenamento privado, configurar modelo, ativar/desativar, remover e executar um **Teste da API** real sob demanda. A chave não aparece no HTML nem no código-fonte.
 - No wizard de notícia os botões Gemini exibem apenas o símbolo **✦**, com acessibilidade por nome e pop-up de revisão da sugestão. O Gemini pode sugerir manchete, resumo, revisão da matéria e descrição SEO, sem preencher ou publicar automaticamente.
 - O Gemini envia texto à API somente depois do clique, com limite de tamanho e frequência; respostas devem ser conferidas, pois a IA pode errar. Modelos, planos, cotas e custos dependem do Google e podem mudar. Sem schema novo, mantendo backup v12.
 

@@ -110,6 +110,16 @@
 @media(max-width:760px){.bus-wizard-shell{border-radius:15px;padding:13px}.bus-wizard-heading h2{font-size:22px}.bus-wizard-heading .btn{padding:8px 10px;font-size:11px}.bus-wizard-progress{gap:5px;margin:14px 0}.bus-wizard-progress span{padding:7px;font-size:11px}.bus-wizard-progress small{font-size:10px}.bus-wizard-progress i{min-width:5px}.bus-wizard-step{min-height:460px;padding:16px}.bus-wizard-icon{margin-bottom:9px}.bus-wizard-explain{margin-bottom:13px}.bus-wizard-fields{grid-template-columns:1fr;gap:11px}.bus-wizard-fields input:not([type=checkbox]),.bus-wizard-fields select{min-height:45px}.bus-wizard-footer{gap:7px;flex-wrap:wrap;padding-top:17px}.bus-wizard-footer-stops{align-items:stretch;flex-wrap:nowrap}.bus-wizard-stop-buttons{flex:1;justify-content:flex-end;gap:5px}.bus-wizard-stop-buttons .btn{font-size:11px;padding:9px 8px}.bus-wizard-footer-stops>.btn{padding:9px 8px;font-size:11px}.bus-wizard-summary-list{grid-template-columns:1fr}.bus-wizard-schedules{padding:13px}.bus-wizard-schedules .panel-heading{flex-wrap:wrap}.bus-wizard-schedule{flex-wrap:wrap}}
 @media(max-width:360px){.bus-wizard-stop-buttons{flex-direction:column;align-items:stretch}.bus-wizard-footer-stops{align-items:center}.bus-wizard-footer-stops>.btn{align-self:flex-end}.bus-wizard-time-fields{grid-template-columns:1fr}}
 
+
+/* v1.0.104 — conferência e importação opcional da tabela Teixeira. */
+.bus-teixeira-import{padding:16px;border:1px solid #cfe2f3;border-radius:15px;background:#f5faff;margin:16px 0}
+.bus-teixeira-import h3{margin:0 0 6px;font-size:1rem;color:#18456d}
+.bus-teixeira-import p{font-size:.85rem;line-height:1.55;margin:7px 0}
+.bus-teixeira-confirm{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.bus-teixeira-confirm label{display:flex;align-items:center;gap:9px;flex:1 1 235px;line-height:1.4;font-size:.81rem}
+.bus-teixeira-confirm input{min-width:20px;min-height:20px;accent-color:#145ef1}
+.bus-teixeira-confirm .btn{min-height:44px;white-space:normal}
+@media(max-width:520px){.bus-teixeira-import{padding:12px}.bus-teixeira-confirm{display:grid;grid-template-columns:minmax(0,1fr)}.bus-teixeira-confirm .btn{width:100%}}
 /* v1.0.8 | Layout fluido, rodapé editorial, formulários institucionais, busca de cidades */
 html,body{max-width:100%;overflow-x:clip}
 .page-main,.admin-main,.panel,.bus-results,.bus-search-surface{min-width:0}
@@ -1672,6 +1682,31 @@ html,body{max-width:100%;overflow-x:clip}
 .int-gemini-service .igua-gemini-actions form{display:grid;gap:8px;min-width:min(100%,180px)}
 .int-gemini-service input[type=password],.int-gemini-service input[type=text]{width:100%;min-width:0;box-sizing:border-box}
 .int-gemini-service .int-service-body{min-width:0}
+
+/* v1.0.104 — Gemini nos Serviços Google, ações compactas e teste em diálogo próprio. */
+.int-gemini-service{grid-column:auto}
+.igua-gemini-main-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.igua-gemini-main-actions .btn{min-width:0;width:100%;white-space:normal;min-height:44px;padding:10px 6px}
+.igua-gemini-danger{border:1px solid #efd7dc;border-radius:12px;background:#fff9fa;padding:12px;display:grid;gap:8px}
+.igua-gemini-danger>strong{font-size:.82rem;color:#8a3340}
+.igua-gemini-danger>p{margin:0}
+.igua-gemini-danger-form{display:grid;gap:8px;min-width:0}
+.igua-gemini-danger-form label{min-width:0;font-size:.76rem}
+.igua-gemini-danger-form input{min-width:0;width:100%;box-sizing:border-box}
+.igua-gemini-danger-form button{justify-self:start;min-height:44px}
+@media(min-width:480px){.igua-gemini-danger-form{grid-template-columns:minmax(0,1fr) auto;align-items:end}}
+.admin-body .int-hub dialog.igua-modal.igua-gemini-test-dialog{width:min(440px,calc(100vw - 32px));height:auto;max-height:min(82dvh,640px);padding:0;border-radius:20px;overflow:hidden}
+.igua-gemini-test-shell{display:flex;flex-direction:column;min-width:0;max-height:min(82dvh,640px)}
+.igua-gemini-test-shell>header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #dfe7ee;gap:12px}
+.igua-gemini-test-shell>header h2{font-size:1.05rem;margin:0}
+.igua-gemini-test-shell>header button{min-height:44px;min-width:44px}
+.igua-gemini-test-body{padding:16px;overflow-y:auto;display:grid;gap:12px}
+.igua-gemini-test-body p{margin:0;font-size:.83rem}
+.igua-gemini-test-body [data-gemini-test-result]{padding:12px;border:1px solid #dce5ef;border-radius:11px;background:#f5f8fc;overflow-wrap:anywhere;white-space:pre-line;font-size:.82rem}
+.igua-gemini-test-body [data-gemini-test-result].is-error{border-color:#ecc9d0;background:#fff1f3;color:#8f2438}
+.igua-gemini-test-body [data-gemini-test-result].is-success{border-color:#b8e3d3;background:#ebfaf2;color:#176b51}
+.igua-gemini-test-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.igua-gemini-test-actions .btn{width:100%;min-height:44px;padding:8px;white-space:normal}
 /* Aplicativos e páginas legais, painel e leitura pública. */
 .legal-admin{max-width:100%;min-width:0}
 .legal-admin-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}

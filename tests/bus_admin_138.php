@@ -19,11 +19,20 @@ class Bus138PDO extends PDO {
 }
 require __DIR__.'/../app/bus_admin.php';
 $db=new Bus138PDO;
-foreach(['bus','bus_import'] as $action){ob_start();bus_admin_view($db,$action);$html=ob_get_clean();$expected=['bus'=>'dba9a9c4e1f73768da2f01471db261a3f509cce79b84f610e39a32fb7893532e','bus_import'=>'eaf62b02d2f907b452a63ecf6f43269327e0012e676e02c6b26d5716674128a4'];if(hash('sha256',$html)!==$expected[$action])throw new RuntimeException('Mudança inesperada no HTML de '.$action); echo 'OK: HTML '.$action.' idêntico à 1.0.37\n';}
+foreach(['bus','bus_import'] as $action){
+ ob_start();bus_admin_view($db,$action);$html=ob_get_clean();
+ if($action==='bus_import'){
+   if(hash('sha256',$html)!=='eaf62b02d2f907b452a63ecf6f43269327e0012e676e02c6b26d5716674128a4')throw new RuntimeException('Importação DER/ANTT foi alterada inesperadamente.');
+ }else{
+   foreach(['Linhas e horários','bus_import_teixeira','Novo horário','Iguatama → Arcos','Teixeira'] as $needed)
+     if(!str_contains($html,$needed))throw new RuntimeException('HTML de ônibus perdeu: '.$needed);
+ }
+ echo 'OK: HTML '.$action.' conservado/com importador Teixeira\n';
+}
 try {bus_admin_post($db,'invalid',['id'=>1]);throw new LogicException('Unknown action accepted');}catch(RuntimeException $e){if($e->getMessage()!=='Ação inválida para ônibus.')throw $e;}
 echo "OK: ação desconhecida rejeitada\n";
 $facade=(string)file_get_contents(__DIR__.'/../app/bus_admin.php');
 $all=['bus_stage_import','bus_approve_import','bus_ignore_import','bus_toggle_fixed','save_bus_wizard','save_bus_route','delete_bus_route','save_bus_departure','toggle_bus_departure','delete_bus_departure'];
 foreach($all as $action)if(!str_contains($facade,"'".$action."'"))throw new RuntimeException('Ação não mapeada: '.$action);
 if(!str_contains($facade,"require_ability('manage_bus',\$me)"))throw new RuntimeException('Permissão não centralizada');
-echo "OK: dez ações explícitas e permissão obrigatória\n";
+echo "OK: ações explícitas e permissão obrigatória\n";
