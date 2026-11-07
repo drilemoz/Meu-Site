@@ -5,6 +5,7 @@ const IGUA_DEVELOPER_NAME = 'Adriedson Lemos';
 const IGUA_DEVELOPER_EMAIL = 'drilemoz@gmail.com';
 const IGUA_DEVELOPER_PHONE_LABEL = '(37) 9 9874-7642';
 const IGUA_DEVELOPER_PHONE_URI = '+5537998747642';
+const IGUA_DEVELOPER_WEBSITE = 'https://adriedsonlemos.vercel.app';
 
 /** Uma única validação para instalação e administração. */
 function igua_validate_brand_name(string $raw): string {
@@ -41,6 +42,7 @@ function igua_developer_footer(): void { ?>
  <h2 id="igDeveloperTitle">Contato do desenvolvedor</h2>
  <p id="igDeveloperDescription">Escolha como entrar em contato com <?= h(IGUA_DEVELOPER_NAME) ?>.</p>
  <div class="ig-dialog-links">
+  <a href="<?= h(IGUA_DEVELOPER_WEBSITE) ?>" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">⌂</span><span><strong>Meu site</strong><small>adriedsonlemos.vercel.app</small></span><span aria-hidden="true">↗</span></a>
   <a href="mailto:<?= h(IGUA_DEVELOPER_EMAIL) ?>"><span aria-hidden="true">✉</span><span><strong>Enviar e-mail</strong><small><?= h(IGUA_DEVELOPER_EMAIL) ?></small></span><span aria-hidden="true">↗</span></a>
   <a href="tel:<?= h(IGUA_DEVELOPER_PHONE_URI) ?>"><span aria-hidden="true">☎</span><span><strong>Ligar</strong><small><?= h(IGUA_DEVELOPER_PHONE_LABEL) ?></small></span><span aria-hidden="true">↗</span></a>
  </div>

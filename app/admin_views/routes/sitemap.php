@@ -19,7 +19,7 @@ $query=function_exists('mb_substr')?mb_substr($query,0,100,'UTF-8'):substr($quer
 $pageRaw=filter_var($_GET['page']??1,FILTER_VALIDATE_INT,['options'=>['min_range'=>1,'max_range'=>999999]]);
 $page=$pageRaw===false?1:(int)$pageRaw;
 $filtered=igua_sitemap_filter($all,$kind,$query);
-$perPage=20;$total=count($filtered);$totalPages=max(1,(int)ceil($total/$perPage));
+$perPage=12;$total=count($filtered);$totalPages=max(1,(int)ceil($total/$perPage));
 $page=min($page,$totalPages);$visible=array_slice($filtered,($page-1)*$perPage,$perPage);
 $counts=array_count_values(array_column($all,'kind'));
 require_once __DIR__.'/../../indexnow.php';
@@ -29,16 +29,47 @@ $indexNowSiteOk=$indexNow!==null && $indexNow['site']===rtrim($siteUrl,'/');
 $indexNowLast=$_SESSION['igua_indexnow_last']??null;
 
 ?>
-<section class="panel sitemap-center" aria-labelledby="sitemap-title">
-  <div class="panel-heading sitemap-heading"><div><h2 id="sitemap-title">Sitemap e Indexação</h2><p class="muted">Consulte as URLs geradas pelo portal e verifique os arquivos de busca. Os resultados não garantem indexação no Google.</p></div><a class="btn outline small" href="<?=h(admin_link('settings'))?>">Configurações SEO</a></div>
-  <div class="sitemap-stats">
-    <div class="sitemap-stat"><small>URLs elegíveis</small><strong><?=count($all)?></strong><span><?= $indexEnabled&&$catalogError===''?'Sitemap ativo nas configurações':'Prévia / indexação desativada' ?></span></div>
-    <div class="sitemap-stat"><small>Notícias</small><strong><?=(int)($counts['noticia']??0)?></strong><span>Publicadas, não demonstrativas</span></div>
-    <div class="sitemap-stat"><small>Páginas de aplicativos</small><strong><?=(int)($counts['aplicativo']??0)?></strong><span>Somente conteúdo publicado</span></div>
+<?php
+require_once __DIR__.'/../../bing_webmaster.php';
+$bingCred=igua_bing_read(IGUA_STORAGE);
+$bingResult=$_SESSION['igua_bing_result']??null;
+?>
+<section class="panel sitemap-center sitemap-compact-home" aria-labelledby="sitemap-title">
+  <div class="panel-heading sitemap-heading"><div><h2 id="sitemap-title">Sitemap e Indexação</h2><p class="muted">Links públicos e serviços de busca em um só lugar.</p></div><a class="btn outline small" href="<?=h(admin_link('settings'))?>">SEO</a></div>
+  <div class="sitemap-compact-stats" aria-label="Resumo do sitemap">
+    <div><strong><?=count($all)?></strong><span>URLs elegíveis</span></div>
+    <div><strong><?=(int)($counts['noticia']??0)?></strong><span>Notícias</span></div>
+    <div><strong><?=(int)($counts['aplicativo']??0)?></strong><span>Páginas de apps</span></div>
   </div>
   <?php if($catalogError!==''): ?><p class="alert warning"><?=h($catalogError)?></p><?php endif; ?>
   <?php if($catalog['overflow']): ?><p class="alert warning">O sitemap atingiu 50.000 URLs. Há mais páginas elegíveis que não cabem no XML atual. Será necessário dividir o sitemap em partes antes de incluir mais URLs; nenhuma publicação foi removida.</p><?php endif; ?>
   <?php if(!$indexEnabled): ?><p class="alert warning">A indexação está desativada. A listagem abaixo é apenas uma prévia: <code>/sitemap.php</code> responde 404 até a ativação em Configurações e SEO.</p><?php endif; ?>
+  <div class="sitemap-shortcuts" aria-label="Ferramentas de indexação">
+    <button type="button" class="btn outline" data-sitemap-open="sitemap-check-dialog"><span aria-hidden="true">◉</span> Verificações <small><?= $diagnostics['sitemap_announced']?'robots OK':'Atenção' ?></small></button>
+    <button type="button" class="btn outline" id="indexnow" data-sitemap-open="sitemap-indexnow-dialog"><span aria-hidden="true">⇪</span> IndexNow <small><?= $indexNowReady&&$indexNowSiteOk?'Preparado':'Configurar' ?></small></button>
+    <button type="button" class="btn outline" id="bing-webmaster" data-sitemap-open="sitemap-bing-dialog"><span aria-hidden="true">▣</span> Bing <small><?= $bingCred!==null?'Chave salva':'Configurar' ?></small></button>
+  </div>
+</section>
+<section class="panel sitemap-center" aria-labelledby="sitemap-urls-title">
+  <div class="panel-heading"><div><h2 id="sitemap-urls-title">Links do sitemap</h2><p class="muted">Consulte, copie ou teste os endereços públicos.</p></div><span class="muted tiny"><?= $total ?> resultado(s)</span></div>
+  <form class="sitemap-search" method="get" action="/admin.php"><input name="action" value="sitemap" type="hidden"><label for="sitemap-query">Buscar URL ou título<input id="sitemap-query" name="q" maxlength="100" value="<?=h($query)?>" placeholder="Nome, notícia, aplicativo..."></label><label for="sitemap-kind">Tipo<select name="kind" id="sitemap-kind"><?php foreach($kinds as $value=>$name): ?><option value="<?=h($value)?>" <?= $kind===$value?'selected':'' ?>><?=h($name)?><?php if($value!=='all'): ?> (<?=(int)($counts[$value]??0)?>)<?php endif; ?></option><?php endforeach; ?></select></label><button class="btn primary small" type="submit">Filtrar</button><a class="btn outline small" href="<?=h(admin_link('sitemap'))?>">Limpar</a></form>
+  <div class="sitemap-url-list">
+    <?php foreach($visible as $item): ?>
+      <article class="sitemap-url-card" aria-label="<?=h(igua_sitemap_kind_title($item['kind']).': '.$item['label'])?>">
+        <div class="sitemap-url-head"><strong><?=h($item['label'])?></strong><span><?=h(igua_sitemap_kind_title($item['kind']))?></span></div>
+        <p class="sitemap-url-link" title="<?=h($item['loc'])?>"><?=h($item['path'])?></p>
+        <div class="sitemap-url-footer"><small><?= $item['lastmod']!==null?'Atualizada em '.h(date('d/m/Y',strtotime($item['lastmod']))):'Data não informada no sitemap' ?></small><div class="sitemap-url-actions"><a class="btn outline small" href="<?=h($item['loc'])?>" target="_blank" rel="noopener noreferrer">Abrir ↗</a><button class="btn outline small" type="button" data-sitemap-copy="<?=h($item['loc'])?>">Copiar</button><button class="btn outline small" type="button" data-sitemap-probe="<?=h($item['path'])?>">Testar HTTP</button></div></div>
+        <small class="sitemap-probe-result" aria-live="polite"></small>
+      </article>
+    <?php endforeach; ?>
+    <?php if(!$visible): ?><p class="muted">Nenhum link encontrado. Altere os filtros ou publique conteúdo elegível.</p><?php endif; ?>
+  </div>
+  <?php if($totalPages>1): ?><nav class="sitemap-pager" aria-label="Paginação dos links"><span>Página <?= $page ?> de <?= $totalPages ?></span><?php if($page>1): ?><a class="btn outline small" href="<?=h(igua_sitemap_admin_query($kind,$query,$page-1))?>">← Anterior</a><?php endif; ?><?php if($page<$totalPages): ?><a class="btn outline small" href="<?=h(igua_sitemap_admin_query($kind,$query,$page+1))?>">Próxima →</a><?php endif; ?></nav><?php endif; ?>
+</section>
+
+<dialog id="sitemap-check-dialog" class="igua-modal igua-modal--wide sitemap-tool-dialog" aria-label="Verificações de indexação">
+  <div class="sitemap-tool-head"><h2>Verificações de indexação</h2><button type="button" class="admin-ui-close" data-sitemap-close aria-label="Fechar Verificações de indexação">×</button></div>
+  <div class="sitemap-tool-scroll">
   <div class="sitemap-site-links">
     <a class="btn outline small" href="/sitemap.php" target="_blank" rel="noopener">Abrir sitemap XML ↗</a>
     <a class="btn outline small" href="/robots.txt" target="_blank" rel="noopener">Abrir robots.txt ↗</a>
@@ -53,8 +84,12 @@ $indexNowLast=$_SESSION['igua_indexnow_last']??null;
   </div>
   <div class="sitemap-online-results" id="sitemap-online-results" aria-live="polite" role="status">Diagnóstico local concluído. Clique em <strong>Verificar online</strong> para conferir o HTTP dos três arquivos pelo navegador.</div>
   <p class="muted tiny">O diagnóstico acima consulta as configurações e os arquivos locais. Para confirmar HTTP 200, use “Verificar online”. Para conhecer cobertura e indexação reais, consulte o <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">Google Search Console ↗</a>. O <a href="<?=h(admin_link('ads'))?>">ads.txt é administrado em Publicidade</a>.</p>
-</section>
-<section class="panel sitemap-center" id="indexnow" aria-labelledby="indexnow-title">
+
+  </div>
+</dialog>
+<dialog id="sitemap-indexnow-dialog" class="igua-modal igua-modal--wide sitemap-tool-dialog" aria-label="IndexNow">
+  <div class="sitemap-tool-head"><h2>IndexNow</h2><button type="button" class="admin-ui-close" data-sitemap-close aria-label="Fechar IndexNow">×</button></div>
+  <div class="sitemap-tool-scroll">
   <div class="panel-heading"><div><h2 id="indexnow-title">IndexNow · avisar buscadores</h2><p class="muted">Notificações manuais para mecanismos participantes, como Bing. O Google não participa. Uma notificação recebida não garante indexação.</p></div><span class="int-state <?= $indexNowReady&&$indexNowSiteOk?'int-ready':'int-off' ?>"><?= $indexNowReady&&$indexNowSiteOk?'Preparado':'Não configurado' ?></span></div>
   <?php if(!$indexEnabled): ?><p class="alert warning">Ative a indexação do portal antes de configurar ou utilizar IndexNow.</p><?php endif; ?>
   <?php if($indexNow!==null): ?>
@@ -74,13 +109,12 @@ $indexNowLast=$_SESSION['igua_indexnow_last']??null;
     </form>
   <?php endif; ?>
   <p class="muted tiny">Não substitui sitemap.xml, Google Search Console, robots.txt ou inspeção real de indexação. <a href="https://www.bing.com/indexnow/getstarted" target="_blank" rel="noopener noreferrer">Como funciona no Bing ↗</a></p>
-</section>
-<?php
-require_once __DIR__.'/../../bing_webmaster.php';
-$bingCred=igua_bing_read(IGUA_STORAGE);
-$bingResult=$_SESSION['igua_bing_result']??null;
-?>
-<section class="panel sitemap-center" id="bing-webmaster" aria-labelledby="bing-title">
+
+  </div>
+</dialog>
+<dialog id="sitemap-bing-dialog" class="igua-modal igua-modal--wide sitemap-tool-dialog" aria-label="Bing Webmaster Tools">
+  <div class="sitemap-tool-head"><h2>Bing Webmaster Tools</h2><button type="button" class="admin-ui-close" data-sitemap-close aria-label="Fechar Bing Webmaster Tools">×</button></div>
+  <div class="sitemap-tool-scroll">
   <div class="panel-heading"><div><h2 id="bing-title">Bing Webmaster Tools</h2><p class="muted">Consulte a verificação do site e os sitemaps informados pelo Bing. Para avisar buscadores sobre notícias, use IndexNow acima.</p></div><span class="int-state <?= $bingCred!==null?'int-ready':'int-off' ?>"><?= $bingCred!==null?'Chave salva':'Não configurado' ?></span></div>
   <div class="sitemap-bing-verification" role="note">
     <strong>Verificação de propriedade (arquivo XML)</strong>
@@ -120,20 +154,6 @@ $bingResult=$_SESSION['igua_bing_result']??null;
     </div>
   <?php else: ?><p class="muted tiny">Nenhuma consulta efetuada nesta sessão. A chave é usada somente no servidor, em chamadas manuais.</p><?php endif; ?>
   <p class="muted tiny">Obtenha a chave em <a href="https://www.bing.com/webmasters" target="_blank" rel="noopener noreferrer">Bing Webmaster Tools ↗</a> → Configurações → API Access. A API de leitura pode mudar; uma consulta bem-sucedida não garante indexação. <a href="https://learn.microsoft.com/en-us/bingwebmaster/getting-access" target="_blank" rel="noopener noreferrer">Ajuda oficial ↗</a></p>
-</section>
-<section class="panel sitemap-center" aria-labelledby="sitemap-urls-title">
-  <div class="panel-heading"><div><h2 id="sitemap-urls-title">Links do sitemap</h2><p class="muted">Pesquise e abra links públicos. A inclusão é automática conforme o estado de publicação de cada conteúdo.</p></div><span class="muted tiny"><?= $total ?> resultado(s)</span></div>
-  <form class="sitemap-search" method="get" action="/admin.php"><input name="action" value="sitemap" type="hidden"><label for="sitemap-query">Buscar URL ou título<input id="sitemap-query" name="q" maxlength="100" value="<?=h($query)?>" placeholder="Nome, notícia, aplicativo..."></label><label for="sitemap-kind">Tipo<select name="kind" id="sitemap-kind"><?php foreach($kinds as $value=>$name): ?><option value="<?=h($value)?>" <?= $kind===$value?'selected':'' ?>><?=h($name)?><?php if($value!=='all'): ?> (<?=(int)($counts[$value]??0)?>)<?php endif; ?></option><?php endforeach; ?></select></label><button class="btn primary small" type="submit">Filtrar</button><a class="btn outline small" href="<?=h(admin_link('sitemap'))?>">Limpar</a></form>
-  <div class="sitemap-url-list">
-    <?php foreach($visible as $item): ?>
-      <article class="sitemap-url-card" aria-label="<?=h(igua_sitemap_kind_title($item['kind']).': '.$item['label'])?>">
-        <div class="sitemap-url-head"><strong><?=h($item['label'])?></strong><span><?=h(igua_sitemap_kind_title($item['kind']))?></span></div>
-        <p class="sitemap-url-link"><?=h($item['loc'])?></p>
-        <div class="sitemap-url-footer"><small><?= $item['lastmod']!==null?'Atualizada em '.h(date('d/m/Y',strtotime($item['lastmod']))):'Data não informada no sitemap' ?></small><div class="sitemap-url-actions"><a class="btn outline small" href="<?=h($item['loc'])?>" target="_blank" rel="noopener noreferrer">Abrir ↗</a><button class="btn outline small" type="button" data-sitemap-copy="<?=h($item['loc'])?>">Copiar</button><button class="btn outline small" type="button" data-sitemap-probe="<?=h($item['path'])?>">Testar HTTP</button></div></div>
-        <small class="sitemap-probe-result" aria-live="polite"></small>
-      </article>
-    <?php endforeach; ?>
-    <?php if(!$visible): ?><p class="muted">Nenhum link encontrado. Altere os filtros ou publique conteúdo elegível.</p><?php endif; ?>
+
   </div>
-  <?php if($totalPages>1): ?><nav class="sitemap-pager" aria-label="Paginação dos links"><span>Página <?= $page ?> de <?= $totalPages ?></span><?php if($page>1): ?><a class="btn outline small" href="<?=h(igua_sitemap_admin_query($kind,$query,$page-1))?>">← Anterior</a><?php endif; ?><?php if($page<$totalPages): ?><a class="btn outline small" href="<?=h(igua_sitemap_admin_query($kind,$query,$page+1))?>">Próxima →</a><?php endif; ?></nav><?php endif; ?>
-</section>
+</dialog>

@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.107** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.108** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,13 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.108 — Sitemap compacto e link do desenvolvedor
+
+- A Central de Sitemap mostra os indicadores e a listagem de URLs na página principal; verificações, IndexNow e Bing abrem em pop-ups compactos, com formulários originais, CSRF e diagnósticos preservados.
+- A lista mostra caminho curto e pagina 12 resultados por vez; as ações Abrir, Copiar e Testar HTTP continuam usando a URL completa original do banco.
+- O contato do desenvolvedor ganhou o link externo HTTPS `https://adriedsonlemos.vercel.app`, sem mudar os canais de e-mail ou telefone.
+- Schema 37 preservado, nenhuma migração nem alteração de conteúdo da hospedagem. As consultas externas são voluntárias.
 
 ## Versão 1.0.107 — Bing verificado por XML e ônibus responsivos
 

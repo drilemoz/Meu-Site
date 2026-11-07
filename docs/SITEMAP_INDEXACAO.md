@@ -46,3 +46,9 @@ Referências: https://learn.microsoft.com/en-us/bingwebmaster/getting-access e h
 ## Verificação da propriedade no Bing (v1.0.107)
 
 O arquivo `public/BingSiteAuth.xml` foi incluído no pacote a partir do documento original enviado pelo administrador. Após instalar, confira `https://iguatama.online/BingSiteAuth.xml` (arquivo acessível sem login, HTTP 200 e XML preservado) e toque em **Verify** no Bing Webmaster Tools. A Central de Sitemap possui um atalho **Ver BingSiteAuth.xml**. O XML é público por exigência do Bing; não é a chave privada da API Bing nem a chave IndexNow. O portal não consegue declarar a propriedade verificada sem a confirmação do serviço.
+
+## Interface compacta (v1.0.108)
+
+Os indicadores e a lista de URLs ficam visíveis. Os atalhos **Verificações**, **IndexNow** e **Bing** abrem pop-ups centrais no mesmo painel. É possível acessar diretamente `admin.php?action=sitemap#indexnow` ou `#bing-webmaster`; as âncoras abrem o diálogo correspondente. Nenhuma consulta HTTP ou notificação é iniciada ao abrir as janelas.
+
+A listagem usa 12 URLs por página. Ela mostra o caminho para poupar espaço no celular, sem alterar o endereço canônico: Copiar e Abrir usam a URL inteira. Diagnósticos de rastreamento não comprovam indexação.

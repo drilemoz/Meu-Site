@@ -126,3 +126,35 @@
 .sitemap-bing-remove{margin-top:10px}
 .sitemap-bing-remove label:has(input[type=checkbox]){display:flex;align-items:center;gap:8px}
 @media(max-width:580px){.sitemap-bing-actions,.sitemap-bing-config,.sitemap-bing-remove{display:grid;width:100%}.sitemap-bing-actions label{min-width:0}.sitemap-bing-actions .btn{width:100%}}
+
+/* 1.0.108 — Sitemap compacto: URLs na tela, ferramentas somente em janelas acessíveis. */
+.sitemap-compact-home{padding-bottom:16px}
+.sitemap-compact-home .panel-heading{margin-bottom:8px}
+.sitemap-compact-home .sitemap-heading p{font-size:.83rem}
+.sitemap-compact-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.sitemap-compact-stats>div{border:1px solid #dce5ee;border-radius:12px;background:#f7faff;padding:11px;display:grid;gap:4px;min-width:0}
+.sitemap-compact-stats strong{font-size:1.35rem;color:#193b63;line-height:1.15}
+.sitemap-compact-stats span{font-size:.72rem;color:#5f748d}
+.sitemap-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:14px}
+.sitemap-shortcuts .btn{min-width:0;min-height:52px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;padding:7px 3px;font-size:.78rem;white-space:normal;text-align:center;line-height:1.2}
+.sitemap-shortcuts .btn small{font-size:.66rem;color:#607791;font-weight:600}
+.sitemap-shortcuts .btn span{font-size:1rem}
+.admin-body dialog.igua-modal.sitemap-tool-dialog{padding:0!important;overflow:hidden!important;max-height:min(85dvh,780px);height:auto;--igua-dialog-width:600px}
+.sitemap-tool-head{padding:11px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;background:#f6f9fc;border-bottom:1px solid #dce6ef}
+.sitemap-tool-head h2{font-size:1.05rem;margin:0}
+.sitemap-tool-scroll{max-height:calc(min(85dvh,780px) - 68px);overflow-x:hidden;overflow-y:auto;padding:15px;overscroll-behavior:contain}
+.sitemap-tool-scroll .panel-heading{align-items:center;margin:0 0 10px}
+.sitemap-tool-scroll .panel-heading h2{font-size:.94rem;margin:0 0 3px}
+.sitemap-tool-scroll .panel-heading p{font-size:.78rem;line-height:1.4;margin:0}
+.sitemap-tool-scroll .sitemap-site-links{margin:2px 0 14px}
+.sitemap-tool-scroll .sitemap-checks{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sitemap-tool-scroll .sitemap-bing-actions{display:grid;gap:8px}
+.sitemap-tool-scroll .sitemap-bing-actions :is(.sitemap-bing-config,.sitemap-bing-remove){width:100%;display:grid;gap:8px}
+.sitemap-tool-scroll .sitemap-bing-actions label{min-width:0}
+.sitemap-tool-scroll .sitemap-bing-actions .btn{width:100%}
+.sitemap-tool-scroll .sitemap-online-results{margin:12px 0}
+.sitemap-center .sitemap-url-link{margin:5px 0;color:#58718e;font-size:.8rem}
+.sitemap-center .sitemap-url-card{padding:11px}
+.sitemap-center .sitemap-url-head strong{font-size:.89rem}
+.sitemap-center .sitemap-url-footer small{font-size:.71rem}
+@media(max-width:480px){.sitemap-tool-scroll .sitemap-checks{grid-template-columns:1fr}.sitemap-compact-stats strong{font-size:1.2rem}.sitemap-shortcuts .btn{font-size:.71rem}.sitemap-url-actions .btn{font-size:.75rem}}

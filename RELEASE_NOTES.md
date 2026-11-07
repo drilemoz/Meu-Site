@@ -1,3 +1,10 @@
+## IguatamaOnline 1.0.108
+
+- Sitemap e Indexação redesenhado para economizar espaço no celular: resumo e URLs na página; Verificações, IndexNow e Bing em pop-ups centralizados com rolagem interna.
+- Busca, filtros, envio IndexNow, teste Bing, diagnóstico HTTP e operações protegidas preservadas. Listagem de 12 URLs por página; link completo continua disponível para copiar/abrir.
+- Contato do desenvolvedor ganhou **Meu site** com link para `https://adriedsonlemos.vercel.app`.
+- Sem migração (schema 37). Recomendado backup antes de instalar. Testes de produção e integrações externas seguem pendentes.
+
 ## IguatamaOnline 1.0.107
 
 - Verificação Bing via arquivo `BingSiteAuth.xml` fornecido pelo proprietário, a ser servido no endereço HTTPS público. A Central de Sitemap oferece acesso direto ao arquivo; finalize no botão **Verify** do Bing Webmaster Tools.

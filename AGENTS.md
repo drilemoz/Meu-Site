@@ -159,3 +159,11 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - A lista administrativa de ônibus usa cartões responsivos em vez da tabela com rolagem lateral, filtro GET por cidade de origem lida da primeira parada e botão Editar percurso que abre o wizard existente. Nenhum registro existente é alterado, e os formulários administrativos/CSRF para fixar linhas permanecem intactos.
 - Schema 37, backup v12 preservados. Executar `tests/bus_bing_207.php` e a suíte completa antes de empacotar.
 
+
+## Atualização 1.0.108
+
+- Central de Sitemap tem uma única lista principal de URLs; diagnósticos locais/HTTP, IndexNow e Bing ficam nos diálogos `sitemap-check-dialog`, `sitemap-indexnow-dialog` e `sitemap-bing-dialog`, abertos por `data-sitemap-open` via `IguaAdminModal`. Preservar o acesso por hash `#indexnow`/`#bing-webmaster` e retorno de foco.
+- Não remover CSRF, senha, ações POST nem sinais de erro dentro dos pop-ups. Testes de HTTP e chamadas Bing/IndexNow seguem somente sob ação do administrador.
+- A listagem exibe caminho curto, mas Abrir/Copiar/Testar mantêm destino completo e checagem de mesma origem. Paginação em 12 por página.
+- Contato do desenvolvedor mantém telefone/e-mail e oferece link externo HTTPS com `noopener noreferrer`.
+- Executar `tests/sitemap_layout_208.php`, regressão PHP/JS completa, verificação CSS/editor, auditoria e integridade ZIP antes de distribuir. Schema 37 sem migrações.

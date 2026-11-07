@@ -2,6 +2,26 @@
   'use strict';
   const root=document.querySelector('.sitemap-center');
   if(!root)return;
+  // Diálogos reutilizáveis: abertura sob ação, âncoras legadas e fechamento acessível.
+  const openTool = (id, trigger) => {
+    const dialog=document.getElementById(id);
+    if(!dialog)return false;
+    return window.IguaAdminModal?.open(dialog, trigger) || false;
+  };
+  document.querySelectorAll('[data-sitemap-open]').forEach(button=>{
+    button.addEventListener('click',()=>openTool(button.getAttribute('data-sitemap-open'),button));
+  });
+  document.querySelectorAll('[data-sitemap-close]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      const dialog=button.closest('dialog');
+      if(dialog)window.IguaAdminModal?.close(dialog);
+    });
+  });
+  const deepLinks={'#indexnow':'sitemap-indexnow-dialog','#bing-webmaster':'sitemap-bing-dialog'};
+  if(deepLinks[window.location.hash]){
+    const source=document.querySelector('[data-sitemap-open="'+deepLinks[window.location.hash]+'"]');
+    if(source)openTool(deepLinks[window.location.hash],source);
+  }
   const status=document.getElementById('sitemap-online-results');
   const fileButton=document.getElementById('sitemap-check-files');
   const paths=['/sitemap.php','/robots.txt','/ads.txt'];

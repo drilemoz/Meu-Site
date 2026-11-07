@@ -1,3 +1,13 @@
+## [1.0.108] - 2026-11-07
+
+### Melhorias
+- Central Sitemap reorganizada em painel resumido, atalhos Verificações/IndexNow/Bing e janelas centralizadas, com busca de URLs como área principal.
+- Paginação mais curta (12), caminho resumido com URL integral preservada nas ações.
+- Contato do desenvolvedor adiciona link externo do portfólio `adriedsonlemos.vercel.app`.
+
+### Segurança e compatibilidade
+- Mantidas consultas sob demanda, validação de origem nos testes HTTP, controles de acesso, senha e CSRF nas integrações e schema 37/backup v12.
+
 ## [1.0.107] - 2026-11-07
 
 ### Alterado
