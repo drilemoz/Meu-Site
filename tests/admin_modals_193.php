@@ -25,5 +25,5 @@ assert193(substr_count($integrations,'data-int-speed-tab=')===2&&substr_count($i
 assert193(str_contains($integrationsJs,'showSpeed(')&&str_contains($integrationsJs,"'ArrowRight'")&&str_contains($integrationsJs,'tabIndex=active?0:-1'),'troca de painel por toque e teclado');
 assert193(substr_count($integrations,'name="pagespeed_strategy"')===1&&str_contains($integrations,'<?=h($strategy)?>'),'mesmo formulário dinâmico para cada estratégia');
 assert193(str_contains($integrations,'csrf_field()')&&str_contains($updates,'confirm_password'),'segurança de formulários preservada');
-assert193(trim(file_get_contents($root.'/VERSION'))==='1.0.94','versionamento sincronizado');
+assert193(trim(file_get_contents($root.'/VERSION'))==='1.0.95','versionamento sincronizado');
 echo "1.0.93: padrões globais, integações, atualizações, publicidade, editor, PageSpeed e segurança OK.\n";

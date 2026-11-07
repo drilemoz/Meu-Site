@@ -1,3 +1,12 @@
+# Meu Site v1.0.95 — Compatibilidade do teste PHP 8.3 no CI
+
+- Corrigido erro fatal ao lidar com uma data inválida na renderização da lista de notícias. A data não é inventada; quando não puder ser interpretada, a interface informa “Data indisponível”.
+- `tests/news_relative_date_195.php` amplia a cobertura para entradas inválidas e datas impossíveis; os testes do wizard 1.0.94 permanecem.
+- Não houve migração de banco, alteração de dados, remoção de recursos nem mudança nas regras de segurança.
+- O workflow anterior falhou antes da integração MariaDB/ZipArchive. Este pacote só deve ser considerado validado em CI depois de um novo run bem-sucedido.
+
+---
+
 # Meu Site v1.0.94 — Wizard, SEO e listas de notícias
 
 - Botão Sair no canto direito do cabeçalho da notícia, sem importação por URL no assistente.

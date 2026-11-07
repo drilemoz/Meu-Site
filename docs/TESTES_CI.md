@@ -75,3 +75,11 @@ O teste agora importa explicitamente os módulos de Publicidade, Editor, Métric
 ## Regressão da Central em janelas (v1.0.89)
 
 Executar `php tests/integrations_modal_189.php` e `node tests/integrations_modal_189.js` para testar abas, navegação de diálogos, preservação de controles e documentação de APIs. A cobertura usa DOM simulado no Node e inspeção estrutural no PHP; confirmar visual e navegação por teclado/Android em navegador real antes de produção.
+
+## Falha no GitHub Actions de 07/11/2026 (correção de código v1.0.95)
+
+O runner Ubuntu 24.04 com PHP 8.3 e MariaDB 11.4 concluiu o checkout e instalou `pdo_mysql` e `zip`. A etapa **Sintaxe e regressão PHP** interrompeu em `tests/news_wizard_194.php`, ao passar `invalid` para `igua_news_relative_date()` em `app/admin_views/partials/news_cards.php`. A construção por `new DateTimeImmutable()` disparou `DateMalformedStringException` e erro fatal secundário ao manipular `xdebug_message`.
+
+A v1.0.95 utiliza `date_create_immutable()`, que retorna `false` para entrada inválida, verifica avisos de parsing e informa “Data indisponível”. A nova regressão `tests/news_relative_date_195.php` cobre tanto datas válidas quanto inválidas, impossíveis, vazias e nulas.
+
+**Verificação pendente:** enviar a v1.0.95 para `main` e aguardar novo workflow. O log recebido não contém execução dos testes integrados de restauração de banco e mídias, portanto nenhum resultado deve ser atribuído a esses testes.

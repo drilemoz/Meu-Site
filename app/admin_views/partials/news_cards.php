@@ -8,8 +8,20 @@ function igua_news_relative_date(array $article, ?DateTimeImmutable $now=null): 
     $isPublished=($article['status']??'')==='published';
     $raw=$isPublished?($article['published_at']??null):($article['created_at']??null);
     if (!is_string($raw)||trim($raw)==='')return $isPublished?'Data indisponível':'Rascunho';
-    try {$date=(new DateTimeImmutable($raw,$tz))->setTimezone($tz);}
-    catch (Exception) {return 'Data indisponível';}
+    // date_create_immutable retorna false quando a entrada é inválida, sem lançar
+    // DateMalformedStringException no PHP 8.3+. Isso também evita o erro
+    // de propriedades dinâmicas observado no runner do CI com data inválida.
+    try {
+        $date = date_create_immutable(trim($raw), $tz);
+        $errors = DateTimeImmutable::getLastErrors();
+    } catch (Throwable) {
+        return 'Data indisponível';
+    }
+    if (!$date instanceof DateTimeImmutable) return 'Data indisponível';
+    if (is_array($errors) && (($errors['warning_count'] ?? 0) > 0 || ($errors['error_count'] ?? 0) > 0)) {
+        return 'Data indisponível'; // rejeita datas ajustadas, como 30/02.
+    }
+    $date = $date->setTimezone($tz);
     $today=$now->setTime(0,0);$day=$date->setTime(0,0);
     $interval=(int)$today->diff($day)->days;
     $future=$day>$today;

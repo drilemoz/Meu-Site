@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.94)
+# Diretrizes de manutenção — Meu Site (v1.0.95)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -93,3 +93,9 @@ Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **
 - `seo-audit.js` usa campos persistidos `url_slug`, `seo_title`, `seo_description` do formulário e cópias temporárias nos pop-ups; cancelar não altera dados, salvar apenas modifica o rascunho. Não misturar dados de IA ou publicar automaticamente.
 - `app/admin_views/partials/news_cards.php` desenha os cartões nas telas Notícias e Visão geral; mantém CSRF, ACL de exclusão/publicação e data relativa no fuso de São Paulo.
 - Na edição do painel inicial, preservar permissões e garantir leitura das datas verdadeiras do banco, nunca datas artificiais.
+
+## Regressão de datas no GitHub Actions (1.0.95)
+
+- `igua_news_relative_date()` não deve lançar `DateMalformedStringException` para datas inválidas. `date_create_immutable()` retorna `false` e a função mostra “Data indisponível”; avisos de data impossível também são rejeitados.
+- Validar `tests/news_relative_date_195.php` **e** `tests/news_wizard_194.php` no PHP 8.3 do GitHub Actions.
+- O log do workflow `integration-mariadb.yml` de 07/11/2026 falhou antes dos testes MariaDB reais; não alegar êxito desses testes antes de novo run aprovado.

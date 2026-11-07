@@ -54,3 +54,7 @@ A regra de integrações que definia `100vw` e `100dvh` no celular foi substitu�
 ### Revisão 1.0.94 — Wizard e publicações
 
 Os seletores nativos de arquivos do wizard não recebem a interface global duplicada. SEO utiliza rascunhos temporários em pop-ups; títulos, slugs e descrições são aplicados somente quando o usuário confirma e não publicam a notícia. Os cartões de Notícias e Visão geral são gerados pelo mesmo componente PHP, com datas relativas calculadas no fuso America/São_Paulo e conferência de CSRF/ACL. Foram aprovados testes PHP/JS locais, sintaxe e integridade de pacotes. O teste em Chromium foi impedido por bloqueio de navegação neste ambiente, portanto não afirmar validação visual automatizada do novo layout; continuam pendentes testes físicos Android, instalação e uploads reais na hospedagem.
+
+### Revisão 1.0.95 — Data inválida na listagem / compatibilidade PHP 8.3
+
+O GitHub Actions falhou antes dos testes com MariaDB real, em `tests/news_wizard_194.php`, ao processar a string `invalid` na função de data relativa. Corrigida a conversão para `date_create_immutable()` com verificação de retorno `false` e avisos. `tests/news_relative_date_195.php` cobre datas válidas, ausentes e impossíveis. Schema 36 e rotinas de backup/restauração não foram modificados; reexecução de CI e validação em produção continuam pendentes.

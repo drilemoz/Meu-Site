@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.94** · PHP 8.1+ · MySQL/MariaDB · schema 36.
+**Versão atual do código-fonte: 1.0.95** · PHP 8.1+ · MySQL/MariaDB · schema 36.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -17,6 +17,8 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
 
 ## Recursos recentes e limites
+
+- **Datas relativas corrigidas (v1.0.95):** o PHP 8.3 do CI falhava quando a regressão simulava uma data inválida em `news_cards.php`. A conversão agora é não-excepcional e rejeita datas malformadas ou impossíveis, exibindo “Data indisponível” sem derrubar o painel. Testes de regressão adicionados; a integração MariaDB precisa ser reexecutada no GitHub Actions. Schema 36 inalterado.
 
 - **Wizard e cartões editoriais (v1.0.94):** o cabeçalho mantém Sair ao lado do título e a importação por URL saiu da interface do novo cadastro. Seleção de capa, galeria, ZIP e anexos sem botões nativos duplicados (mesmos inputs, com proteção de upload e limites preservados). SEO usa quatro ícones e janelas com edição temporária: cancelar descarta alterações, salvar aplica aos campos do wizard sem publicar; diagnóstico oferece correção por etapa e edição SEO local. O painel inicial e a lista de notícias compartilham cartões responsivos, ações com ícone de lixeira e categoria + data relativa no fuso America/São_Paulo. Schema 36 preservado; testar na hospedagem/Android.
 
@@ -60,8 +62,8 @@ for f in tests/*.js; do node "$f" || exit 1; done
 python3 tools/build_css.py --check
 python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
-python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.93.zip
-python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.93-fonte-completo.zip
+python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.95.zip
+python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.95-fonte-completo.zip
 ```
 
 Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).

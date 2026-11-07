@@ -1,3 +1,10 @@
+## [1.0.95] — 2026-11-07
+
+- Corrigida a quebra do PHP 8.3 na suíte GitHub Actions: `igua_news_relative_date()` deixa de construir `DateTimeImmutable` de uma data inválida, evitando `DateMalformedStringException` e o erro fatal secundário de `xdebug_message`.
+- Leitura de datas agora retorna “Data indisponível” para entrada inválida, impossível ou com falha de parsing, sem alterar datas legítimas.
+- Regressão `tests/news_relative_date_195.php` para datas válidas, futuras, ausentes e inválidas; mantida a verificação `news_wizard_194.php`.
+- Metadados, documentação e pacotes sequenciais sincronizados. Nenhuma alteração no schema 36 ou nas rotinas de backup/restauração. A integração completa com MariaDB ainda depende de nova execução no GitHub Actions.
+
 ## [1.0.94] — 2026-11-07
 
 - Wizard editorial com botão Sair alinhado ao título e remoção da importação externa do formulário.
