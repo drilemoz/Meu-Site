@@ -3,9 +3,25 @@
  tabs.forEach((b,i)=>b.addEventListener('click',()=>navigateTo(i)));
  document.querySelector('#news-next').addEventListener('click',()=>navigateTo(active+1));
  document.querySelector('#news-prev').addEventListener('click',()=>navigateTo(active-1));
- function seo(){syncInputs();const field=form.querySelector('[name=seo_description]'),title=form.querySelector('[name=title]').value,summary=form.querySelector('[name=summary]').value,body=blocks.map(b=>b.content).join(' ')||form.querySelector('[name=body]').value;
- let v=(summary||body||title).replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();if(v.length>155){v=v.slice(0,152).replace(/\s+\S*$/,'').trim()+'…';}field.value=v;
- const seoTitle=form.querySelector('[name=seo_title]');if(!seoTitle.value.trim())seoTitle.value=title.slice(0,220);preview();}
+ // Foco em frases inteiras: não inserir reticências artificiais nem cortar palavras.
+ function seo(){
+   syncInputs();
+   const field=form.querySelector('[name=seo_description]'),title=form.querySelector('[name=title]').value.trim();
+   const summary=form.querySelector('[name=summary]').value.trim();
+   const body=blocks.map(b=>b.content).join(' ')||form.querySelector('[name=body]').value;
+   const clean=s=>String(s).replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+   const sentence=clean(summary||body||title);
+   let proposed=sentence;
+   if([...proposed].length>155){
+     const sentences=proposed.match(/[^.!?]+[.!?]+(?=\s|$)/gu)||[];
+     const first=sentences.map(clean).find(s=>[...s].length<=155&&[...s].length>=35);
+     proposed=first||clean(title);
+   }
+   if([...proposed].length>320)proposed=''; // exige revisão manual, nunca uma frase truncada.
+   field.value=proposed;
+   const seoTitle=form.querySelector('[name=seo_title]');if(!seoTitle.value.trim())seoTitle.value=title.slice(0,220);
+   preview();form.dispatchEvent(new Event('input',{bubbles:true}));
+ }
  function categorySuggestion(){
    const title=form.querySelector('[name=title]').value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
    const rules=[['Segurança',/acidente|colisao|roubo|furto|incendio|policia|bombeiro|crime/],['Empregos',/emprego|vaga|contratacao|concurso|processo seletivo/],['Esportes',/futebol|campeonato|jogo|time|atleta|gol/],['Política',/prefeitura|vereador|camara|prefeito|eleicao|projeto de lei/],['Eventos',/festival|show|festa|evento|feira cultural/],['Saúde',/hospital|vacinacao|saude|medico|posto de saude/],['Educação',/escola|aluno|educacao|professor|universidade/],['Cultura',/cultura|teatro|exposicao|artista/],['Cidade',/obra|bairro|transito|rodovia|agua|energia/]];

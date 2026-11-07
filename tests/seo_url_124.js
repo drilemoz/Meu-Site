@@ -17,5 +17,5 @@ const view=require('./support/news_editor_view_source.js')();
 assert.match(view,/name="url_slug"/,'campo editorial disponível');
 assert.match(view,/id="news-url-preview"/,'prévia do endereço disponível');
 assert.match(view,/id="news-generate-slug"/,'geração manual do slug disponível');
-assert.equal((view.match(/data-tab="/g)||[]).length,3,'três etapas do editor');
+assert.equal((view.match(/data-tab="/g)||[]).length,9,'nove etapas do editor');
 console.log('OK: normalização real do JavaScript, prévia do slug e editor 3 etapas.');

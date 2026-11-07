@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.89)
+# Diretrizes de manutenção — Meu Site (v1.0.90)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -37,6 +37,13 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 - Preservar dados reais e marcar conteúdo de demonstração. Horários de ônibus não devem ser inventados; fontes e notícias exigem revisão humana. Não modificar dados reais durante inspeções de SEO.
 
 - Na Central 1.0.89, preservar `<dialog>` e navegação acessível: abas, `?`, formulários movidos (não clonados), links profundos, botões Voltar e Fechar, proteção CSRF e scripts gerais do painel. Não voltar a abrir cartões rolando a página.
+
+## Wizard de notícias (1.0.90)
+
+- Cadastro com 9 passos e revisão final; preservar nomes de campos, ACL, CSRF e validações no controlador.
+- Arquivo ZIP de fotos só é aceito com ZipArchive, até 10 imagens e limites explícitos; nunca extrair nomes/caminhos do ZIP diretamente. A importação ocorre na mesma transação da notícia.
+- Capa sugerida a partir da primeira imagem se não houver outra escolhida. Fotos e arquivos locais só são persistidos após salvar; autosave textual não guarda uploads.
+- Publicação escolhida somente no último passo; validar modo e agendamento também no servidor. Schema continua 36, sem migração.
 
 ## Testes obrigatórios
 

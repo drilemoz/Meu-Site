@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.89** · PHP 8.1+ · MySQL/MariaDB · schema 36.
+**Versão atual do código-fonte: 1.0.90** · PHP 8.1+ · MySQL/MariaDB · schema 36.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -17,6 +17,9 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
 
 ## Recursos recentes e limites
+
+- **Wizard de notícias (v1.0.90):** nova tela exclusiva com nove passos (título, descrição, matéria, fotos, créditos, anexos, classificação, SEO e revisão/publicação), prévias de arquivos do celular, galerias múltiplas, ZIP de imagens com inspeção/limites, capa automática se não houver outra, resumo SEO local sem reticências artificiais e escolha final de salvar, publicar ou agendar. A API Gemini ainda **não está conectada**. Autosave mantém apenas campos de texto; fotografias, ZIPs e anexos devem ser enviados ao salvar, com os limites da hospedagem. Schema permanece 36.
+
 
 - **Central de Integrações em janelas (v1.0.89):** corrige o atributo quebrado das abas; GA4, AdSense, Search Console e PageSpeed abrem em diálogo centralizado no desktop e em tela inteira no celular. Formulários, credenciais, relatórios, sugestões, histórico, verificação por metatag e os botões `?` usam navegação interna com Voltar e Fechar, sem rolagem forçada da página. Guias oficiais explicam onde obter IDs, permissões e como habilitar as APIs; preserva consultas apenas sob demanda e a autorização dos provedores.
 
@@ -47,8 +50,8 @@ for f in tests/*.js; do node "$f" || exit 1; done
 python3 tools/build_css.py --check
 python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
-python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.89.zip
-python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.89-fonte-completo.zip
+python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.90.zip
+python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.90-fonte-completo.zip
 ```
 
 Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).

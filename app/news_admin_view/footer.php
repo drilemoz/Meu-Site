@@ -1,3 +1,27 @@
-    <div class="news-editor-footer"><button type="button" class="btn outline" id="news-prev" hidden>← Voltar</button><small id="news-save-status" aria-live="polite">Alterações ainda não salvas</small><button type="button" class="btn outline" id="news-next">Avançar →</button><button class="btn primary" id="news-submit" type="submit" hidden>Salvar notícia ✓</button></div>
+    <section class="news-editor-step" data-step="review" hidden>
+      <p class="news-question-tag">PASSO 9 · REVISÃO E PUBLICAÇÃO</p>
+      <h3>Confira a notícia antes de finalizar</h3><p class="muted">Você pode voltar a qualquer etapa para corrigir informações. O salvamento não publica sem sua escolha.</p>
+      <div class="news-review-card" aria-live="polite">
+        <p class="news-review-eyebrow" id="news-review-category">Categoria</p>
+        <h4 id="news-review-title">Título da reportagem</h4>
+        <p id="news-review-summary">Resumo da reportagem</p>
+        <div id="news-review-body" class="news-review-body"></div>
+        <div class="news-review-counts" id="news-review-counts"></div>
+      </div>
+      <fieldset class="news-publish-choice"><legend>O que deseja fazer com esta notícia?</legend>
+        <label><input type="radio" name="publication_choice" value="draft" <?= ($row['status']??'draft')==='draft'?'checked':'' ?>> <span>Salvar como rascunho<small>Não aparece publicamente.</small></span></label>
+        <?php if(role_allowed((string)$me['role'],'publish')): ?>
+        <label><input type="radio" name="publication_choice" value="now" <?= ($row['status']??'')==='published' && strtotime((string)($row['published_at']??''))<=time()?'checked':'' ?>> <span>Publicar agora<small>Fica disponível no portal assim que salvar.</small></span></label>
+        <label><input type="radio" name="publication_choice" value="scheduled" <?= ($row['status']??'')==='published' && strtotime((string)($row['published_at']??''))>time()?'checked':'' ?>> <span>Agendar publicação<small>Será exibida na data e hora selecionadas.</small></span></label>
+        <?php endif; ?>
+      </fieldset>
+      <div id="news-schedule-control" class="news-schedule-control" hidden>
+        <label>Data e horário (America/São Paulo)<input name="publish_at" type="datetime-local" value="<?= h(!empty($row['published_at'])?date('Y-m-d\TH:i',strtotime($row['published_at'])):'') ?>"></label>
+        <small>O horário deve estar no futuro. Verifique o fuso da hospedagem.</small>
+      </div>
+      <input type="hidden" name="status" value="<?= h((string)($row['status']??'draft')) ?>">
+      <p class="news-inline-help">Antes de publicar, confirme fatos, direitos de uso das imagens, fontes e créditos. A prévia SEO não garante a aparência final no Google.</p>
+    </section>
+    <div class="news-editor-footer"><button type="button" class="btn outline" id="news-prev" hidden>← Voltar</button><small id="news-save-status" aria-live="polite">Alterações ainda não salvas</small><button type="button" class="btn outline" id="news-next">Continuar →</button><button class="btn primary" id="news-submit" type="submit" hidden>Finalizar notícia ✓</button></div>
   </form>
 </div>

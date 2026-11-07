@@ -30,7 +30,7 @@ foreach($contracts as $name=>$minimumParams){
     modules132($reflection->getNumberOfParameters()>=$minimumParams && str_contains($reflection->getFileName(),'/app/news_editor/'),
         'API estável no módulo: '.$name);
 }
-modules132(substr_count((string)igua_news_editor_view_source(),'data-tab="')===3,'Editor continua com três etapas');
+modules132(substr_count((string)igua_news_editor_view_source(),'data-tab="')===9,'Editor continua com três etapas');
 modules132(news_seo_description('Teste','Resumo confirmado','Texto')==='Resumo confirmado','SEO preservado');
 modules132(count(normalize_news_blocks('[{"kind":"paragraph","content":"Conteúdo"}]'))===1,'Validação dos blocos preservada');
 echo "Refatoração editorial v1.0.32: contratos verificados.\n";

@@ -48,7 +48,7 @@ function makeEditorHarness() {
     }
   };
   const start = editor.indexOf(" const newMediaPane=document.querySelector('#news-new-media-preview');");
-  const end = editor.indexOf(" function snapshot()", start);
+  const end = editor.indexOf(" // Miniaturas locais", start);
   assert(start !== -1 && end > start, 'Trecho de prévia do editor deve existir');
   const code = editor.slice(start, end);
   const esc = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));

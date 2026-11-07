@@ -1,3 +1,13 @@
+## [1.0.90] — 2026-11-07
+
+- Novo assistente editorial mobile-first de nove etapas, com perguntas em tela dedicada, progresso acessível, revisão e decisão final de rascunho, publicação imediata ou agendamento.
+- Separação de título, descrição, corpo, fotos, créditos, anexos, classificação, SEO e revisão mantendo campos existentes e editores avançados.
+- Galeria e capa da biblioteca preservadas; seleção múltipla de fotos diretas com miniaturas locais. Importação de ZIP de fotos com validação de entradas, MIME, dimensões, quantidade e tamanho no servidor; sem extrair caminhos fornecidos no ZIP.
+- Seleção automática da primeira foto vinculada como capa quando habilitada e sem outra capa.
+- Sugestão SEO conservadora com frases completas ou fallback ao título, sem reticências artificiais. Prévia permanece estimada e Gemini não é chamado.
+- Nenhuma migração do schema 36. Testes estruturais atualizados para o novo fluxo e módulos consolidados.
+- Limites: uploads locais não integram o autosave; ZIP necessita extensão ZipArchive e limites suficientes no PHP; validação em hospedagem e com arquivos reais ainda pendente.
+
 ## 1.0.89 — 07/11/2026 — Pop-ups e documentação das Integrações
 
 - Corrigido HTML inválido no atributo de navegação da Central (`data-integrations-nav`), que quebrava a inicialização das abas e exibia várias seções na sequência.

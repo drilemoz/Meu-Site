@@ -33,3 +33,29 @@
    el.addEventListener('change',()=>previewFiles(el.dataset.uploadInput));
    el.addEventListener('news:files-ready',()=>previewFiles());
  });
+
+ // Miniaturas locais, sem enviar arquivos antes da confirmação final.
+ const localPhotoPreview=document.querySelector('#news-local-photo-preview');
+ let photoObjectUrls=[];
+ function refreshLocalPhotos(){
+   photoObjectUrls.forEach(url=>URL.revokeObjectURL(url));photoObjectUrls=[];
+   localPhotoPreview.replaceChildren();
+   const input=form.querySelector('[name="gallery_files[]"]');
+   const cover=form.querySelector('[name="image"]');
+   const files=[...cover.files,...input.files];
+   files.slice(0,10).forEach((file,index)=>{
+     if(!/^image\/(jpeg|png|webp)$/.test(file.type))return;
+     const url=URL.createObjectURL(file);photoObjectUrls.push(url);
+     const figure=document.createElement('figure');const img=document.createElement('img');
+     img.src=url;img.alt=`Prévia da foto ${index+1}`;img.loading='lazy';
+     const caption=document.createElement('figcaption');caption.textContent=file.name+(index===0?' · sugerida para capa':'');
+     figure.append(img,caption);localPhotoPreview.append(figure);
+   });
+   const archive=form.querySelector('[name="photo_zip"]');
+   if(archive.files.length){const hint=document.createElement('p');hint.className='muted tiny';hint.textContent='ZIP selecionado: '+archive.files[0].name+'. As fotos serão verificadas e adicionadas após salvar.';localPhotoPreview.append(hint);}
+ }
+ for(const input of form.querySelectorAll('[name="gallery_files[]"],[name="image"],[name="photo_zip"]')){
+   input.addEventListener('change',refreshLocalPhotos);
+   input.addEventListener('news:files-ready',refreshLocalPhotos);
+ }
+ window.addEventListener('pagehide',()=>photoObjectUrls.forEach(url=>URL.revokeObjectURL(url)));

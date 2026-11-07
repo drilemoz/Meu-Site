@@ -12,4 +12,5 @@ require_once __DIR__.'/news_editor/format.php';
 require_once __DIR__.'/news_editor/import.php';
 require_once __DIR__.'/news_editor/library.php';
 require_once __DIR__.'/news_editor/media.php';
+require_once __DIR__.'/news_editor/zip.php';
 require_once __DIR__.'/news_editor/revisions.php';

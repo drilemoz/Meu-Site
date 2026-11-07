@@ -1,22 +1,19 @@
-    <section class="news-editor-step active" data-step="details">
-      <h3>1. Sobre o que é a notícia?</h3><p class="muted">Só quatro campos para começar. Título, resumo, categoria e situação.</p>
-      <div class="form-grid">
-        <label class="full">Manchete<input name="title" maxlength="220" value="<?= h($row['title']) ?>" required placeholder="Título claro, específico e verificável"></label>
-        <label class="full">Resumo para leitores<textarea name="summary" maxlength="480" rows="3" placeholder="O principal fato em uma ou duas frases"><?= h($row['summary']) ?></textarea></label>
-        <label>Categoria principal<select name="category_id" required><option value="">Selecione</option><?php foreach($cats as $c): ?><option value="<?= (int)$c['id'] ?>" <?= selected((string)$row['category_id'],(string)$c['id']) ?>><?= h($c['name']) ?></option><?php endforeach; ?></select></label>
-        <div class="full" id="news-category-suggest" aria-live="polite"></div>
-        <label>Situação<select name="status"><option value="draft" <?= selected($row['status'],'draft') ?>>Rascunho</option><?php if(role_allowed($me['role'],'publish')): ?><option value="published" <?= selected($row['status'],'published') ?>>Publicar</option><?php endif; ?></select></label>
-      </div>
-      <details class="news-optional" <?= $extra?'open':'' ?>><summary>⚙️ Mais opções: categorias, fonte, autor e agendamento</summary><div class="form-grid">
+    <section class="news-editor-step" data-step="classify" hidden>
+      <p class="news-question-tag">PASSO 7 · CLASSIFICAÇÃO</p>
+      <h3>Em qual categoria entra esta notícia?</h3><p class="muted">Escolha a categoria principal. Outras informações são opcionais.</p>
+      <div class="form-grid"><label class="full">Categoria principal<select name="category_id" required><option value="">Selecione uma categoria</option><?php foreach($cats as $c): ?><option value="<?= (int)$c['id'] ?>" <?= selected((string)$row['category_id'],(string)$c['id']) ?>><?= h($c['name']) ?></option><?php endforeach; ?></select></label><div class="full" id="news-category-suggest" aria-live="polite"></div></div>
+      <details class="news-optional" <?= $extra?'open':'' ?>><summary>Mais opções: fonte, autor e categorias adicionais</summary><div class="form-grid">
         <div class="full"><label class="news-field-title">Categorias adicionais <a href="/admin.php?action=categories">+ Criar categoria</a></label><div class="news-category-chips"><?php foreach($cats as $c): ?><label><input type="checkbox" name="extra_categories[]" value="<?= (int)$c['id'] ?>" <?= in_array((int)$c['id'],$extra,true)?'checked':'' ?>> <?= h($c['name']) ?></label><?php endforeach; ?></div></div>
-        <label>Publicação programada (horário local)<input name="publish_at" type="datetime-local" value="<?= h(!empty($row['published_at'])?date('Y-m-d\TH:i',strtotime($row['published_at'])):date('Y-m-d\TH:i')) ?>"><small>Se for futura e a situação estiver Publicar, a notícia aparecerá somente na data escolhida.</small></label>
         <label>Assinatura<select name="author_profile_id"><option value="0">Conta / Redação</option><?php foreach($profiles as $p): ?><option value="<?= (int)$p['id'] ?>" <?= selected((string)($row['author_profile_id']??''),(string)$p['id']) ?>><?= h($p['name']) ?></option><?php endforeach; ?></select></label>
         <label>Fonte cadastrada<select name="source_id"><option value="0">Informar manualmente</option><?php foreach($sources as $s): ?><option value="<?= (int)$s['id'] ?>" <?= selected((string)($row['source_id']??''),(string)$s['id']) ?>><?= h($s['name']) ?></option><?php endforeach; ?></select></label>
         <label>Nome da fonte<input name="source_name" maxlength="160" value="<?= h($row['source_name']) ?>"></label>
         <label>URL da fonte (HTTPS)<input name="source_url" type="url" maxlength="600" value="<?= h($row['source_url']) ?>"></label>
       </div></details>
-      <details class="news-optional news-publish-options"><summary>⚙️ SEO e destaque (opcional)</summary>
-        <p class="muted">O resumo e a manchete serão usados automaticamente quando os campos SEO estiverem vazios.</p>
+    </section>
+    <section class="news-editor-step" data-step="seo" hidden>
+      <p class="news-question-tag">PASSO 8 · BUSCADORES</p>
+      <h3>Como a notícia poderá aparecer no Google?</h3><p class="muted">Prévia ilustrativa: o Google pode exibir outro título, trecho ou comprimento. Nenhuma IA externa é chamada nesta versão.</p>
+      <p class="news-inline-help">Modo atual: sugestões locais. Estrutura preparada para integrar o Gemini futuramente, sem chave obrigatória.</p>
       <div class="news-url-control"><label class="full" for="news-url-slug">Nome do endereço (slug)<input id="news-url-slug" name="url_slug" maxlength="<?= $id?240:120 ?>" autocomplete="off" value="<?= h($row['slug']??'') ?>" placeholder="Gerado automaticamente da manchete"></label><button type="button" class="btn outline small" id="news-generate-slug">Gerar da manchete</button></div>
       <small class="news-url-preview-label">Prévia do endereço:</small><code id="news-url-preview" class="news-url-preview" data-pretty="<?= setting('seo_pretty_urls','0')==='1'?'1':'0' ?>"><?= h(url(['p'=>'noticia','slug'=>(string)(($row['slug']??'')?:'exemplo-da-noticia')])) ?></code>
       <?php if($id): ?><small class="caption-hint">Endereço publicado: <a href="<?= h(url(['p'=>'noticia','slug'=>(string)$row['slug']])) ?>" target="_blank" rel="noopener"><?= h((string)$row['slug']) ?> ↗</a>. Ao mudar o slug, links antigos redirecionam para o novo.</small><?php else: ?><small class="caption-hint">Pode deixar vazio para gerar automaticamente. Um endereço não pode pertencer a outra notícia, nem ser um link histórico.</small><?php endif; ?>
@@ -26,5 +23,4 @@
       <div class="news-seo-preview"><small>Prévia aproximada nos buscadores</small><strong id="news-preview-title"><?= h($row['seo_title']?:$row['title']) ?></strong><span id="news-preview-desc"><?= h($row['seo_description']?:$row['summary']) ?></span></div>
       <?php if(role_allowed($me['role'],'publish')): ?><label class="checkbox-line"><input type="checkbox" name="featured" value="1" <?= !empty($row['featured'])?'checked':'' ?>> <span>Destacar na página inicial</span></label><?php endif; ?>
 
-      </details>
     </section>

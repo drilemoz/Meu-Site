@@ -36,7 +36,7 @@ const document = {querySelector(s) {if(s==='#news-save-status')return status; if
 let blocks=[{kind:'paragraph',heading:'',content:'Texto salvo',collapsed:false}];
 const script = `(()=>{${editor.slice(start,end)};return {snapshot,restoreDraft};})()`;
 const api=vm.runInNewContext(script,{form,document,FormData:FakeFormData,File:FakeFile,
-  updateSource(){},syncInputs(){},render(){},loadVisual(){},preview(){},categorySuggestion(){},
+  updateSource(){},syncInputs(){},render(){},loadVisual(){},preview(){},categorySuggestion(){},updateCounters(){},updatePublication(){},
   get blocks(){return blocks;},set blocks(v){blocks=v;}});
 const saved=api.snapshot();
 assert.equal(saved.fields.title,'Manchete original');

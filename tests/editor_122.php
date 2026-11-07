@@ -6,7 +6,7 @@ $view=igua_news_editor_view_source();
 $editor=file_get_contents($root.'/public/assets/js/news-editor.js');
 $upload=file_get_contents($root.'/public/assets/js/news-upload.js');
 function test122(bool $ok,string $msg): void {if(!$ok)throw new RuntimeException('FALHOU: '.$msg);echo "OK: $msg\n";}
-test122(substr_count($view,'data-tab="')===3&&substr_count($view,'data-step="')===3,'Fluxo editorial continua com somente três etapas');
+test122(substr_count($view,'data-tab="')===9&&substr_count($view,'data-step="')===9,'Fluxo editorial continua com nove etapas');
 test122(str_contains($view,'name="gallery_files[]"')&&str_contains($view,'name="attachment_files[]"'),'Nomes de campos da API de upload preservados');
 test122(str_contains($editor,'captureNewMediaDetails')&&str_contains($editor,'data-new-caption')&&str_contains($editor,'data-new-credit'),'Campos de legenda e crédito preservados na prévia');
 test122(str_contains($editor,"previewFiles(el.dataset.uploadInput)")&&str_contains($editor,"previewFiles());"),'Substituição de arquivos e conclusão da otimização tratados separadamente');

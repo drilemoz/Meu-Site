@@ -35,31 +35,31 @@ foreach([0,42] as $id){
     $row['id']=$id;
     if($id){$row['image']='demo-cidade.jpg';$row['status']='published';}
     ob_start();news_admin_editor($db,$row,$me,$profiles,$sources,$cats);$html=(string)ob_get_clean();
-    view137_assert(substr_count($html,'data-tab="')===3,'3 tabs');
-    view137_assert(substr_count($html,'data-step="')===3,'3 steps');
+    view137_assert(substr_count($html,'data-tab="')===9,'9 tabs');
+    view137_assert(substr_count($html,'data-step="')===9,'9 steps');
     view137_assert(substr_count($html,'name="csrf"')===2,'CSRF forms');
     view137_assert(str_contains($html,'&lt;script&gt;inseguro&lt;/script&gt;'),'escape XSS');
     view137_assert(!str_contains($html,'<script>inseguro</script>'),'não inserir script');
     view137_assert(str_contains($html,'name="id" value="'.$id.'"'),'id editor');
     view137_assert(str_contains($html,'name="library_cover"')&&str_contains($html,'name="attachment_files[]"'),'media fields');
-    view137_assert(str_contains($html,'name="status"')&&str_contains($html,'value="published"'),'publish allowed');
+    view137_assert(str_contains($html,'name="status"')&&str_contains($html,'name="publication_choice"'),'publish allowed');
     view137_assert(str_contains($html,'name="seo_title"')&&str_contains($html,'name="seo_description"'),'SEO preserved');
     view137_assert(str_contains($html,'name="extra_categories[]"'),'extra categories');
     view137_assert(str_contains($html,'id="news-draft-initial"'),'draft script');
     view137_assert(str_contains($html,'news-editor.js'),'editor asset');
     if($id){view137_assert(str_contains($html,'Histórico de revisões'),'revisions view');view137_assert(str_contains($html,'Índice Google') && str_contains($html,'page=article%3A42'),'atalho do editor apenas na notícia publicada');}
     else {view137_assert(!str_contains($html,'Histórico de revisões'),'no revisions new');view137_assert(!str_contains($html,'Índice Google'),'sem atalho em rascunho novo');}
-    $expected=$id===0?'44a081f8f95aae4ccfb83fbc3cd8abe014ebf45ef1d38892cd242548b0e2622f':'289d34809e6cbbed004d5e13509287d3cddfef5ad1b2a7b2c42f3f05dc76d8b9';
-    view137_assert(hash('sha256',$html)===$expected,'HTML conforme snapshot atualizado na 1.0.85');
-    echo 'render-'.($id===0?'new':'existing').': SHA-256 conforme snapshot da 1.0.85 ('.strlen($html).' bytes)' .PHP_EOL;
+    $expected=$id===0?'39d26ba8d8aff01c7a28ccddfa66ccfac0cf1eafbb5bc748204ffe08a09dcd35':'28140b3de6800c1da50cc2e5a32baf0ba75986bb4452834bc5793a545a48ba43';
+    view137_assert(hash('sha256',$html)===$expected,'HTML conforme snapshot do wizard 1.0.90');
+    echo 'render-'.($id===0?'new':'existing').': SHA-256 conforme snapshot da 1.0.90 ('.strlen($html).' bytes)' .PHP_EOL;
 }
 if (is_file($root.'/app/news_admin_view/header.php')){
     $view=igua_news_editor_view_source();
     $parts=array_map('trim',explode("\n",file_get_contents($root.'/tools/news_editor_view.sha256')));
     $hash=explode(' ', $parts[0])[0];
-    view137_assert(hash('sha256',$view)===$hash,'templates conforme snapshot de 1.0.65');
-    view137_assert(substr_count($view,'data-tab="')===3,'somente 3 tabs nos templates');
-    view137_assert(substr_count($view,'data-step="')===3,'somente 3 etapas nos templates');
+    view137_assert(hash('sha256',$view)===$hash,'templates conforme snapshot de 1.0.90');
+    view137_assert(substr_count($view,'data-tab="')===9,'9 abas nos templates');
+    view137_assert(substr_count($view,'data-step="')===9,'9 etapas nos templates');
     $facade=file_get_contents($root.'/app/news_admin_view.php');
     foreach(['prepare.php','header.php','details.php','blocks.php','media.php','footer.php','revisions.php','scripts.php'] as $name){
         view137_assert(str_contains($facade,"/news_admin_view/{$name}"),'partial '.$name);

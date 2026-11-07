@@ -1,11 +1,9 @@
-# Meu Site v1.0.89 — Central de Integrações com janelas e ajudas completas
+# Meu Site 1.0.90 — Novo assistente de notícias
 
-- Corrige o bug HTML das abas da Central de Integrações que permitia mostrar seções empilhadas.
-- GA4, AdSense, Search Console e PageSpeed passam a abrir em pop-up central no desktop e em tela inteira no celular. Rolagem dentro da janela; cabeçalho e controles permanecem acessíveis.
-- Pop-ups internos com Voltar para credenciais Google, OAuth AdSense, verificação por metatag, listas e relatórios, sugestões do PageSpeed, inspeção de indexação, histórico e botões `?`. Preserva formulários reais (não clonados) e fluxos CSRF.
-- Quatro guias completos com links oficiais explicam onde encontrar IDs, como autorizar APIs, permissões e significado de resultados.
-- Sem alterações de schema (36), dados privados, armazenamento de credenciais, integrações reais ou cotas. Nenhuma API é chamada automaticamente ao abrir uma janela.
+A partir de **Nova notícia**, o cadastro abre um wizard com nove passos. O fluxo pergunta o título, a pequena descrição, a matéria, fotos, créditos, anexos, categoria e SEO antes de mostrar uma revisão completa. Somente na última etapa é feita a escolha entre salvar rascunho, publicar agora ou agendar.
 
-**Pacotes:** `Atualizacao-v1.0.89.zip` (hospedagem) e `Meu-Site-v1.0.89-fonte-completo.zip` (GitHub Manager).
+**Fotos:** biblioteca, envio múltiplo, prévia local e opção de ZIP de até 10 imagens (JPG/PNG/WebP), validado pelo PHP. A primeira foto vinculada poderá virar a capa automaticamente. O servidor precisa de ZipArchive, suporte a uploads e limites compatíveis.
 
-**Validação:** testes locais PHP/JS, sintaxe, CSS e manifestos ZIP. Teste visual em navegador Android e fluxos reais com hospedagem/Google continuam pendentes. O pacote v2 sem assinatura digital exige verificação de origem antes de instalar.
+**SEO:** descrição local baseada em frases completas, sem cortes automáticos com reticências; prévia aproximada. Gemini ainda não está integrado.
+
+**Compatibilidade:** schema MySQL 36 inalterado; nomes de campos, anexos, biblioteca, segurança, revisão e rascunhos existentes preservados. O autosave guarda texto, mas não guarda arquivos locais selecionados. Recomendado criar backup antes de atualizar e testar o fluxo completo em celular e hospedagem antes de usar em produção.

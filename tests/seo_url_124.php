@@ -57,5 +57,5 @@ check_url124(str_contains(file_get_contents($root.'/public/index.php'),'header(\
 check_url124(str_contains(file_get_contents($root.'/app/admin_controllers/news.php'),'article_record_slug_change')&&str_contains(file_get_contents($root.'/app/admin_controllers/news.php'),'$db->beginTransaction()'),'mudança de slug participa da transação editorial');
 check_url124(str_contains(file_get_contents($root.'/public/.htaccess'),'RewriteRule ^(noticia|categoria)'),'Apache tem rota de notícia e categoria');
 check_url124(is_file($root.'/public/router.php'),'PHP Termux possui roteador opcional');
-check_url124(substr_count(igua_news_editor_view_source(),'data-tab="')===3,'editor mantém três etapas');
+check_url124(substr_count(igua_news_editor_view_source(),'data-tab="')===9,'editor mantém três etapas');
 echo "SEO URL 1.0.24: verificações isoladas aprovadas; migração MySQL e navegador pendentes.\n";

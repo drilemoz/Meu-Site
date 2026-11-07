@@ -59,5 +59,5 @@ $index=(string)file_get_contents(__DIR__.'/../public/index.php');
 a126(str_contains($index,'archive_listing(') && !str_contains($index,'ORDER BY a.published_at DESC LIMIT 30'),'portal usa listagens paginadas e remove limite fixo de 30');
 a126(str_contains($index,'archive_link(\'categoria\',archive_page_number('),'301 do modo amigável preserva os filtros e a página');
 a126(str_contains((string)file_get_contents(__DIR__.'/../public/.htaccess'),'[L,QSA]'),'Apache conserva ?period= e ?page= em URLs amigáveis');
-a126(substr_count((string)igua_news_editor_view_source(),'data-tab="')===3,'fluxo editorial mantém apenas três etapas');
+a126(substr_count((string)igua_news_editor_view_source(),'data-tab="')===9,'assistente contém nove etapas');
 echo "Arquivo 1.0.26: verificações locais concluídas, integração MariaDB pendente.\n";

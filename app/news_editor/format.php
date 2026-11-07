@@ -2,11 +2,21 @@
 declare(strict_types=1);
 /** IguaNews: serviço editorial, módulo format. Requer bootstrap.php no ponto de entrada. */
 
+/** Meta descrição local: preserva frases completas; se nenhuma cabe, pede revisão
+ * por meio do fallback ao título, em vez de inventar um final com reticências.
+ * O Google controla o snippet e pode mostrar outro trecho.
+ */
 function news_seo_description(string $title,string $summary,string $body): string {
-    $basis=trim($summary)!==''?$summary:($body!==''?$body:$title);
-    $v=trim(preg_replace('/\s+/u',' ',strip_tags($basis))??'');
-    if(ulen($v)>155){$v=usub($v,0,152);$v=trim(preg_replace('/\s+\S*$/u','',$v)?:$v).'…';}
-    return $v;
+    $clean=static fn(string $s):string=>trim(preg_replace('/\s+/u',' ',strip_tags($s))??'');
+    $v=$clean($summary!==''?$summary:($body!==''?$body:$title));
+    if(ulen($v)<=155)return $v;
+    preg_match_all('/[^.!?]+[.!?]+(?=\s|$)/u',$v,$matches);
+    foreach($matches[0]??[] as $sentence){
+        $sentence=$clean($sentence);
+        if(ulen($sentence)>=35&&ulen($sentence)<=155)return $sentence;
+    }
+    $safeTitle=$clean($title);
+    return ulen($safeTitle)<=155?$safeTitle:'';
 }
 
 function news_inline_format(string $text): string {

@@ -38,7 +38,7 @@
      }
    }
    if(Array.isArray(data.blocks))blocks=data.blocks;
-   render();loadVisual();preview();categorySuggestion();if(typeof window!=='undefined')window.dispatchEvent(new Event('igua:seo-refresh'));
+   render();loadVisual();preview();categorySuggestion();updateCounters();updatePublication();if(typeof window!=='undefined')window.dispatchEvent(new Event('igua:seo-refresh'));
    status.textContent='Rascunho recuperado. Confira fotos, anexos e campos antes de publicar.';
  }
  document.querySelector('#recover-news-draft')?.addEventListener('click',()=>{

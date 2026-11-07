@@ -43,5 +43,5 @@ audit_ok(str_contains($source,'<link rel="canonical"')&&str_contains($source,'\'
 $auditPanel=file_get_contents($root.'/app/seo_admin.php');
 audit_ok(str_contains($auditPanel,'a.author_id=?')&&str_contains($auditPanel,'LIMIT 40'),'Central SEO restringe rascunhos de redatores e limita consulta');
 audit_ok(!str_contains($auditPanel,'UPDATE articles'),'auditoria não altera conteúdo das notícias');
-audit_ok(substr_count(igua_news_editor_view_source(),'data-tab="')===3,'editor continua com 3 etapas');
+audit_ok(substr_count(igua_news_editor_view_source(),'data-tab="')===9,'editor agora contém 9 etapas');
 echo "Central SEO 1.0.25: testes locais concluídos. Integração com MariaDB permanece pendente.\n";

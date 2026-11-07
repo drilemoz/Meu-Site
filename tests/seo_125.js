@@ -13,7 +13,7 @@ assert.equal(seoAudit({...base,seo_title:'Í'.repeat(100)}).checks[0].ok,false);
 assert.equal(seoAudit({...base,summary:'',seo_description:'Curta',body:''}).checks[3].ok,false);
 const view=require('./support/news_editor_view_source.js')();
 assert.match(view,/id="news-seo-audit"/);
-assert.equal((view.match(/data-tab="/g)||[]).length,3);
+assert.equal((view.match(/data-tab="/g)||[]).length,9);
 assert.match(view,/seo-audit\.js/);
 const js=fs.readFileSync(path.join(root,'public/assets/js/seo-audit.js'),'utf8');
 assert.match(js,/textContent=/,'resultados de fontes variáveis não devem ser injetados como HTML');

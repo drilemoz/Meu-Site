@@ -2,7 +2,7 @@
 $newsActions=['articles','new','edit','seo','categories','authors','sources'];
 $configActions=['settings','integrations','backups','updates','maintenance'];
 ?>
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Painel <?= h(igua_brand_name()) ?></title><link rel="stylesheet" href="/assets/css/style.css?v=<?=h(igua_updater_version())?>"></head><body class="admin-body">
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Painel <?= h(igua_brand_name()) ?></title><link rel="stylesheet" href="/assets/css/style.css?v=<?=h(igua_updater_version())?>"></head><body class="admin-body <?= in_array($action,['new','edit'],true)?'news-wizard-page':'' ?>">
 <div class="admin-layout">
   <header class="admin-shell-header">
     <a href="/admin.php" class="admin-shell-brand"><span class="brand-mark" aria-hidden="true">◒</span><span><?=h(igua_brand_name())?><small>PAINEL DA REDAÇÃO</small></span></a>

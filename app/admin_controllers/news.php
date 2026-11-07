@@ -38,6 +38,13 @@ declare(strict_types=1);
             if($blocks&&ulen($body)<10)$body=blocks_plain_text($blocks);
             if($summary==='')$summary=news_seo_description($title??'', '',$body);
             $cat=(int)($_POST['category_id']??0);$status=in_array($_POST['status']??'',['draft','published'],true)?$_POST['status']:'draft';
+            // Decisão final obrigatória do assistente, validada novamente no servidor.
+            $publicationChoice=(string)($_POST['publication_choice']??'');
+            if($publicationChoice!==''){
+                if(!in_array($publicationChoice,['draft','now','scheduled'],true))throw new RuntimeException('Escolha de publicação inválida.');
+                if($publicationChoice!=='draft'&&!role_allowed((string)$me['role'],'publish'))throw new RuntimeException('Sem permissão para publicar.');
+                $status=$publicationChoice==='draft'?'draft':'published';
+            }
             if(!role_allowed($me['role'],'publish'))$status='draft';
             $profile=(int)($_POST['author_profile_id']??0);$sourceId=(int)($_POST['source_id']??0);
             if($profile){$st=$db->prepare('SELECT id FROM author_profiles WHERE id=?');$st->execute([$profile]);if(!$st->fetchColumn())throw new RuntimeException('Autor editorial inválido.');}
@@ -52,6 +59,8 @@ declare(strict_types=1);
                 if(!$parsed||$parsed->format('Y-m-d\TH:i')!==$when||$parsed->format('Y')<'2000'||$parsed->format('Y')>'2100')throw new RuntimeException('Data ou horário de publicação inválido.');
                 $publishAt=$parsed->format('Y-m-d H:i:s');
             }
+            if($publicationChoice==='now')$publishAt=date('Y-m-d H:i:s');
+            if($publicationChoice==='scheduled' && ($when===''||strtotime($publishAt)<=time()))throw new RuntimeException('Escolha data e horário futuros para agendar.');
             $libraryCover=trim((string)($_POST['library_cover']??''));
             if($libraryCover!==''){
                 if(!empty($_FILES['image']['name']))throw new RuntimeException('Escolha a foto da biblioteca ou envie uma nova capa, não ambas.');
@@ -94,10 +103,22 @@ declare(strict_types=1);
                 save_article_extras($db,$id,(array)($_POST['extra_categories']??[]),$blocks);
                 news_media_update($db,$id,$_POST);
                 news_library_attach_gallery($db,$id,(array)($_POST['library_gallery']??[]));
+                // Primeiro fotos diretas, depois o ZIP. Todas integram a transação.
                 foreach(['gallery_files'=>'image','attachment_files'=>'attachment'] as $field=>$kind){
                     if(isset($_FILES[$field])) news_media_upload($db,$id,$_FILES[$field],$kind,
                         (array)($_POST[$kind==='image'?'new_image_caption':'new_attachment_caption']??[]),
                         (array)($_POST[$kind==='image'?'new_image_credit':'new_attachment_credit']??[]),$onCreated);
+                }
+                news_photo_zip_import($db,$id,$_FILES['photo_zip']??null,$onCreated);
+                if(empty($image) && isset($_POST['auto_cover'])){
+                    $first=$db->prepare("SELECT filename,caption,credit FROM article_media WHERE article_id=? AND kind='image' ORDER BY sort_order,id LIMIT 1");
+                    $first->execute([$id]);$picked=$first->fetch();
+                    if($picked){
+                        $image=(string)$picked['filename'];
+                        $autoCaption=$caption!==''?$caption:(string)$picked['caption'];
+                        $autoCredit=$credit!==''?$credit:(string)$picked['credit'];
+                        $db->prepare('UPDATE articles SET image=?,image_caption=?,image_credit=? WHERE id=?')->execute([$image,$autoCaption,$autoCredit,$id]);
+                    }
                 }
                 $db->prepare('DELETE FROM article_drafts WHERE user_id=? AND article_id IN (?,0)')->execute([(int)$me['id'],$id]);
                 $commitStarted=true;
