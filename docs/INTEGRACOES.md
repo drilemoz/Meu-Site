@@ -1,4 +1,4 @@
-# Integrações, Analytics e verificações — versão 1.0.76
+# Integrações, Analytics e verificações — versão 1.0.77
 
 A Central de Integrações é acessível em **Configurações → Integrações e APIs** e requer permissão de gerenciamento de configurações. O projeto preserva schema MySQL 36.
 

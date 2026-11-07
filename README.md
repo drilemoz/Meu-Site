@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.76** · PHP 8.1+ · MySQL/MariaDB · schema 36.
+**Versão atual do código-fonte: 1.0.77** · PHP 8.1+ · MySQL/MariaDB · schema 36.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -22,6 +22,7 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - **Métricas:** Hoje, 24h, 7, 30 e 90 dias; GA4 opcional com consentimento. A Data API usa uma conta de serviço privada e pode consultar eventos apenas quando configurada. Veja [INTEGRACOES](docs/INTEGRACOES.md).
 - **Search Console:** registro DNS TXT e metatag têm diagnósticos locais; isso não confirma uma propriedade verificada na conta do Google.
 - **Segurança:** histórico e bloqueios administrativos parciais pelo PHP; não substitui logs do servidor ou WAF.
+- **CI MariaDB:** corrigido na 1.0.77 o teste de cookie de login persistente, simulando HTTPS e preservando headers. A aplicação continua rejeitando cookies persistentes sob HTTP remoto.
 - **Backup:** a operação **Gerar backup agora** salva **somente o banco**; **Baixar pacote completo ZIP** reúne banco e mídias **referenciadas no banco**. Nenhuma das duas opções é backup integral da hospedagem. Veja [BACKUP](docs/BACKUP.md).
 
 ## Instalação e atualização
@@ -39,8 +40,8 @@ for f in tests/*.js; do node "$f" || exit 1; done
 python3 tools/build_css.py --check
 python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
-python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.76.zip
-python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.76-fonte-completo.zip
+python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.77.zip
+python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.77-fonte-completo.zip
 ```
 
-Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.76](docs/AUDITORIA_176.md).
+Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).

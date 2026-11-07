@@ -7,6 +7,9 @@ if(PHP_SAPI!=='cli'||getenv('IGUA_TEST_ALLOW_WRITE')!=='YES_ISOLATED_DB'||
    !extension_loaded('pdo_mysql')){
     fwrite(STDERR,"Teste bloqueado: exige MariaDB local e banco isolado igua_ci_*.\n");exit(2);
 }
+// O CLI de integração precisa manter os headers disponíveis até emitir o cookie.
+// Bufferizar aqui (antes dos check140 que imprimem resultados) evita headers_sent.
+ob_start();
 require_once __DIR__.'/../../app/bootstrap.php';
 require_once __DIR__.'/../../app/schema.php';
 require_once __DIR__.'/../../app/schema_migrations.php';
@@ -24,11 +27,23 @@ try {
     $db->prepare("INSERT INTO users (name,email,password_hash,role,active) VALUES (?,?,?,'admin',1)")->execute(['Teste 140',$email,$pass]);
     $uid=(int)$db->lastInsertId();
     $_SERVER['REMOTE_ADDR']='127.0.0.1';$_SERVER['SERVER_NAME']='127.0.0.1';
+    // O CLI não é um servidor HTTPS. Simular explicitamente o transporte seguro
+    // para testar o token no banco SEM relaxar a proteção do código de produção.
+    unset($_SERVER['HTTPS']);
+    check140(!igua_remember_is_secure_transport(),'CLI sem HTTPS bloqueia login persistente');
+    $_SERVER['HTTPS']='on';
+    check140(igua_remember_is_secure_transport(),'HTTPS simulado autoriza cookie Secure');
+    check140(!headers_sent(),'headers preservados antes de emitir cookie no CLI');
     $_SESSION=[];
-    check140(igua_remember_issue($db,['id'=>$uid,'password_hash'=>$pass]),'cookie de sessão emitido e hash no banco');
+    check140(igua_remember_issue($db,['id'=>$uid,'password_hash'=>$pass]),'token persistente gravado e setcookie aceito sob HTTPS simulado');
     $q=$db->prepare('SELECT selector,validator_hash FROM admin_remember_tokens WHERE user_id=?');$q->execute([$uid]);$token=$q->fetch();
     check140(is_array($token) && strlen($token['validator_hash'])===64,'hash persistido');
     igua_remember_revoke_user($db,$uid);
     $q->execute([$uid]);check140($q->fetch()===false,'logout/alteração revoga token real');
     check140(!in_array('admin_remember_tokens',BACKUP_TABLES,true),'segredos fora do backup');
-} finally {if($uid>0)$db->prepare('DELETE FROM users WHERE id=?')->execute([$uid]);}
+} finally {
+    if($uid>0)$db->prepare('DELETE FROM users WHERE id=?')->execute([$uid]);
+    unset($_SERVER['HTTPS']);
+    // Exibe os diagnósticos apenas após as chamadas que dependem de headers.
+    if (ob_get_level()>0) ob_end_flush();
+}

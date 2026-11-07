@@ -1,4 +1,4 @@
-# Atualizações e recuperação — versão 1.0.76
+# Atualizações e recuperação — versão 1.0.77
 
 ## Pacotes
 

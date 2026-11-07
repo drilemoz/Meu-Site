@@ -1,4 +1,4 @@
-# Backup e restauração — Meu Site 1.0.76
+# Backup e restauração — Meu Site 1.0.77
 
 O portal possui **dois formatos distintos**; escolher o formato errado pode deixar imagens e anexos de fora.
 

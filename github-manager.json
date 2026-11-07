@@ -2,7 +2,7 @@
   "product": "Meu Site",
   "name": "meu_site",
   "displayName": "Meu Site",
-  "version": "1.0.76",
+  "version": "1.0.77",
   "packageFormat": 2,
   "projectType": "web",
   "framework": "PHP",

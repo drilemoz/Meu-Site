@@ -1,3 +1,10 @@
+## 1.0.77 — 07/11/2026 — Correção da integração de login persistente no CI
+- Corrigido `tests/integration/remember_mariadb_140.php`: o runner CLI agora simula explicitamente HTTPS antes de testar a emissão do cookie, sem liberar cookies em HTTP na aplicação.
+- Saída de verificações do teste é bufferizada até a operação de cookie terminar, evitando `headers already sent`.
+- Adicionado `tests/remember_cli_headers_177.php` para reproduzir e evitar regressões desse cenário sem depender de MariaDB.
+- Os logs do workflow #4 confirmaram integração real MariaDB/ZipArchive de backup e restauração aprovada; a falha seguinte ocorreu somente no ensaio de login persistente.
+- Sem mudanças de schema (36), regras de cookies de produção, interfaces ou arquivos privados. GitHub Actions real ainda precisa ser reexecutado.
+
 ## 1.0.76 — 07/11/2026 — Auditoria completa e documentação atual
 - Inventariados código, scripts, GitHub Actions, configuração, testes, backups e pacotes; confirmada identidade web/PHP e ausência de Android/Uai Cortes.
 - Limpeza de arquivos Markdown históricos (relatórios `VALIDACAO_*`, inventários `RELATORIO_*` e guias antigos) e centralização em `docs/INDICE.md`, `BACKUP.md`, `ATUALIZADOR.md`, `INTEGRACOES.md` e `TESTES_CI.md`.
