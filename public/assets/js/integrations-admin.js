@@ -33,20 +33,23 @@
   window.addEventListener('hashchange',fromHash);
   activate('google');
   if(location.hash)fromHash();
-  // Os três testes consultam serviços externos apenas após POST protegido por CSRF.
+  // Consultas externas somente após POST protegido por CSRF.
   for(const [selector,waiting] of [
     ['[data-dns-test-form]','[data-dns-wait]'],
+    ['[data-search-console-test-form]','[data-search-console-wait]'],
+    ['[data-url-inspection-form]','[data-url-inspection-wait]'],
     ['[data-ga4-test-form]','[data-ga4-wait]'],
     ['[data-pagespeed-test-form]','[data-pagespeed-wait]']
   ]){
-    const form=hub.querySelector(selector);
-    if(!form)continue;
-    form.addEventListener('submit',()=>{
+    // PageSpeed possui dois formulários; ambos mostram seu próprio andamento.
+    const all=Array.from(hub.querySelectorAll(selector));
+    const forms=all.length?all:(hub.querySelector(selector)?[hub.querySelector(selector)]:[]);
+    forms.forEach(form=>form.addEventListener('submit',()=>{
       const button=form.querySelector('button[type=submit]');
       const wait=form.querySelector(waiting);
       if(button){button.disabled=true;button.textContent='Consultando…';}
       if(wait)wait.hidden=false;
-    });
+    }));
   }
   const feedback=hub.querySelector('[data-int-copy-feedback]');
   hub.querySelectorAll('[data-int-copy]').forEach(button=>button.addEventListener('click',async()=>{

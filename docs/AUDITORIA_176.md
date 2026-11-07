@@ -37,3 +37,7 @@ Foram removidos **77 arquivos Markdown históricos ou substituídos**, especialm
 ## O que estes testes NÃO comprovam
 
 Sem `pdo_mysql`/`ZipArchive` e sem acesso administrativo à hospedagem, não houve restauração real em MariaDB, teste de interface no Chrome Android, login real, upload real na produção nem verificação de recepção dos dados Google. Os resultados locais são evidência de regressão estática/automatizada, não certificação de ausência de vulnerabilidades ou falhas em produção.
+
+## Revisão v1.0.86 — Relatórios GA4
+- Adicionado relatório sob demanda com quatro consultas em lote à Analytics Data API, sem alterar banco schema 36, consentimento público, Search Console, PageSpeed e atualização do site.
+- Validações offline de JWT/escopo, classificação das métricas, tratamento de ausência, TTL, ACL/CSRF e escaping de dados externos. O ambiente local não acessa uma propriedade real do Google nem substitui o teste de hospedagem ou no celular.

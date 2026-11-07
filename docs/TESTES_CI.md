@@ -1,4 +1,4 @@
-# Testes e integração MariaDB — versão 1.0.81
+# Testes e integração MariaDB — versão 1.0.83
 
 ## Comandos locais
 
@@ -11,7 +11,7 @@ python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
 ```
 
-Testes novos: `php tests/pagespeed_181.php` (transportes simulados, validação de URL pública, erros e expiração) e `node tests/integrations_181.js` (navegação e UX). A API PageSpeed externa **não** é consultada pelos testes automáticos, evitando cotas, rede variável e falsos positivos.
+Testes de integrações: `php tests/pagespeed_181.php` (transportes simulados, validação de URL pública, erros e expiração), `php tests/pagespeed_182.php` (estratégias mobile/desktop, quatro categorias, cache isolado e retrocompatibilidade), `php tests/pagespeed_183.php` (notas, recomendações condicionadas e interface), `node tests/integrations_181.js` (navegação e UX) e `node tests/integrations_182.js` (progresso separado de cada formulário). A API PageSpeed externa **não** é consultada pelos testes automáticos, evitando cotas, rede variável e falsos positivos.
 
 ## GitHub Actions
 
@@ -55,3 +55,11 @@ O teste de login persistente passou. A etapa MariaDB foi interrompida posteriorm
 O workflow confirmou **backup e restauração com MariaDB + ZipArchive real**, login persistente e eleições. A falha final ocorreu em `tests/integration/news_indexes_mariadb_146.php`: a simulação de revisão 35→36 chamava `migrate_ads_schema()` sem carregar `app/ads.php`. O mesmo cenário exigia também módulos do editor e métricas.
 
 O teste agora importa explicitamente os módulos de Publicidade, Editor, Métricas, sessão persistente e Eleições e checa as funções antes de `ALTER TABLE articles DROP INDEX...` (DDL com auto-commit). `php tests/integration_bootstrap_179.php` valida esses imports sem alterar um banco. Resta reexecutar o workflow para confirmar a migração e os cinco padrões EXPLAIN com MariaDB real. Nunca executar os testes de integração num banco da hospedagem.
+
+## Search Console real (v1.0.84)
+
+`tests/search_console_api_184.php` e `tests/search_console_api_184.js` cobrem JWT OAuth com escopo `webmasters.readonly`, propriedade autorizada, URLs permitidas, datas, relatórios, escaping/CSRF e andamento visual. Os dados são simulados, sem realizar requisição externa nem expor a conta de serviço. A validação real requer PHP cURL/OpenSSL, Search Console API habilitada e permissão da conta de serviço na propriedade.
+
+## Inspeção individual Search Console (v1.0.85)
+
+`tests/search_console_inspection_185.php` e `tests/search_console_inspection_185.js` validam o novo fluxo: origem URL do banco, rejeição de rascunhos/demonstrações/URLs arbitrárias, OAuth somente leitura e propriedade autorizada, status indexado/excluído/erro/desconhecido, cache limitado, sem segredos no HTML e indicador de carregamento. Dados de API e RSA são simulados. Não substitui requisição real nem browser Android.

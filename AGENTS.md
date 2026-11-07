@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.81)
+# Diretrizes de manutenção — Meu Site (v1.0.86)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -27,13 +27,14 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 - CSS é fonte modular (16 módulos); alterar `public/assets/css/modules/` e executar `tools/build_css.py`. Editor JS usa 8 módulos; alterar fonte e executar `tools/build_news_editor.py`.
 - AdSense e GA4 têm IDs em configuração **única** na Central de Integrações; campos antigos não podem apagar esses valores. Publicidade e analytics próprios mantêm seus switches independentes.
 - GA4 só carrega no público quando configurado e após consentimento; respeitar GPC/DNT e revogação. Chaves de serviço Google ficam em `storage/integrations/` e a consulta à API é sob demanda com autorização administrativa.
-- O PageSpeed Insights oferece consulta HTTPS externa somente sob ação do administrador, apenas para o domínio público salvo em SEO, sem segredo armazenado e com cache/limites de consulta. A nota Lighthouse é de laboratório, não tráfego real.
-- Search Console DNS TXT/metatag e inspeção de páginas são verificações **locais**; registro encontrado não comprova propriedade no Google, nem indexação. Não habilitar HTTP remoto arbitrário/SSRF.
+- O GA4 1.0.86 consulta relatório de audiência apenas sob demanda por administradores, usando `batchRunReports` (quatro relatórios em uma chamada); OAuth somente leitura, propriedade validada, cache em sessão por até uma hora e limites entre tentativas, sem persistir tokens. Dados GA4 de propriedade não se confundem com métricas internas nem com o fluxo específico do portal.
+- O PageSpeed Insights oferece consultas HTTPS externas para celular e computador, independentes e somente sob ação do administrador, apenas para o domínio público salvo em SEO, sem segredo armazenado e com cache/limites de consulta por dispositivo. As notas Lighthouse são de laboratório, não tráfego real.
+- Search Console DNS TXT/metatag e inspeção de páginas são verificações **locais**. A Search Console API 1.0.84 tem consulta **real, sob demanda**, somente leitura, com OAuth da conta de serviço Google compartilhada com GA4, permissão explícita da propriedade e URL derivada de SEO. Na 1.0.85 a URL Inspection API inspeciona **somente URLs canônicas de notícias publicadas**, derivadas do banco, com autorização de leitura e cache restrito à notícia/propriedade. Não promete teste ao vivo nem solicita indexação. Não expor JWT/token/credencial; usar endpoints Google fixos e expirar cache em sessão. Não habilitar HTTP remoto arbitrário/SSRF.
 - Preservar dados reais e marcar conteúdo de demonstração. Horários de ônibus não devem ser inventados; fontes e notícias exigem revisão humana. Não modificar dados reais durante inspeções de SEO.
 
 ## Testes obrigatórios
 
-Executar antes de empacotar, incluindo `tests/pagespeed_181.php`, `tests/integrations_181.js`, `tests/remember_cli_headers_177.php`, `tests/integration_bootstrap_178.php` e `tests/integration_bootstrap_179.php` e `tests/release_workflow_180.js` para prevenir a regressão de HTTPS/headers no CLI:
+Executar antes de empacotar, incluindo `tests/ga4_audience_186.php`, `tests/search_console_api_184.php`, `tests/search_console_api_184.js`, `tests/search_console_inspection_185.php`, `tests/search_console_inspection_185.js`, `tests/pagespeed_181.php`, `tests/pagespeed_182.php`, `tests/integrations_181.js`, `tests/integrations_182.js`, `tests/remember_cli_headers_177.php`, `tests/integration_bootstrap_178.php` e `tests/integration_bootstrap_179.php` e `tests/release_workflow_180.js` para prevenir a regressão de HTTPS/headers no CLI:
 
 ```sh
 for x in tests/*.php; do php "$x" || exit 1; done

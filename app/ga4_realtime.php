@@ -72,7 +72,7 @@ function igua_ga4_delete_service_account(string $path): void {
 function igua_ga4_google_post(string $url,array $headers,array $body,bool $form=false): array {
     if(!function_exists('curl_init'))throw new RuntimeException('A extensão cURL está indisponível na hospedagem.');
     $allowed=$url==='https://oauth2.googleapis.com/token'
-        || preg_match('~^https://analyticsdata\.googleapis\.com/v1beta/properties/[1-9][0-9]{3,19}:run(?:Realtime)?Report$~D',$url);
+        || preg_match('~^https://analyticsdata\.googleapis\.com/v1beta/properties/[1-9][0-9]{3,19}:(?:run(?:Realtime)?Report|batchRunReports)$~D',$url);
     if(!$allowed)throw new RuntimeException('Endpoint da API não permitido.');
     $payload=$form?http_build_query($body,'','&',PHP_QUERY_RFC3986):json_encode($body,JSON_THROW_ON_ERROR);
     $ch=curl_init($url);
@@ -125,15 +125,9 @@ function igua_ga4_metric(array $response,string $name): int {
     }
     return $sum;
 }
-/**
- * Teste explicitamente acionado pelo admin. $transport injetável permite testes offline.
- * Os totais pertencem à propriedade, não provam que o stream G- do portal gerou os eventos.
- */
-function igua_ga4_test_receiving(array $credentials,string $property,?callable $transport=null,?int $now=null): array {
-    $property=igua_ga4_property_id($property);
-    if($property==='')throw new InvalidArgumentException('Informe o ID numérico da propriedade GA4.');
+/** OAuth JWT de curta duração. O token jamais deve ser guardado em sessão ou exibido no HTML. */
+function igua_ga4_access_token(array $credentials,callable $transport,int $now): string {
     $credentials=igua_ga4_decode_service_account(json_encode($credentials,JSON_THROW_ON_ERROR));
-    $transport=$transport??'igua_ga4_google_post';$now=$now??time();
     $header=rtrim(strtr(base64_encode(json_encode(['alg'=>'RS256','typ'=>'JWT'],JSON_THROW_ON_ERROR)),'+/','-_'),'=');
     $claims=['iss'=>$credentials['client_email'],'scope'=>'https://www.googleapis.com/auth/analytics.readonly',
         'aud'=>'https://oauth2.googleapis.com/token','iat'=>$now-30,'exp'=>$now+3300];
@@ -146,6 +140,18 @@ function igua_ga4_test_receiving(array $credentials,string $property,?callable $
     $token=$auth['access_token']??null;
     if(!is_string($token) || !preg_match('/^[a-zA-Z0-9._~+\/-]{10,4096}$/D',$token))
         throw new RuntimeException('Google não forneceu um token de acesso válido.');
+    return $token;
+}
+
+/**
+ * Teste explicitamente acionado pelo admin. $transport injetável permite testes offline.
+ * Os totais pertencem à propriedade, não provam que o stream G- do portal gerou os eventos.
+ */
+function igua_ga4_test_receiving(array $credentials,string $property,?callable $transport=null,?int $now=null): array {
+    $property=igua_ga4_property_id($property);
+    if($property==='')throw new InvalidArgumentException('Informe o ID numérico da propriedade GA4.');
+    $transport=$transport??'igua_ga4_google_post';$now=$now??time();
+    $token=igua_ga4_access_token($credentials,$transport,$now);
     $endpoint='https://analyticsdata.googleapis.com/v1beta/properties/'.$property;
     $headers=['Authorization: Bearer '.$token];
     $live=igua_ga4_google_response($transport($endpoint.':runRealtimeReport',$headers,
@@ -157,4 +163,84 @@ function igua_ga4_test_receiving(array $credentials,string $property,?callable $
     return ['status'=>$liveEvents>0?'realtime':($recentEvents>0?'recent':'empty'),
         'realtime_events'=>$liveEvents,'realtime_users'=>$liveUsers,'recent_events'=>$recentEvents,
         'property_id'=>$property,'last_event_date'=>igua_ga4_last_event_date($recent), 'checked_at'=>date('d/m/Y H:i:s',$now)];
+}
+
+/** Valores inteiros não negativos em respostas GA4, limitados para evitar overflow e conteúdo inesperado. */
+function igua_ga4_safe_number(mixed $value): ?int {
+    if(!is_string($value) || !preg_match('/^[0-9]{1,15}$/D',$value))return null;
+    return (int)$value;
+}
+function igua_ga4_report_metric(array $response,array $row,string $metric): ?int {
+    $headers=array_column($response['metricHeaders']??[],'name');
+    $index=array_search($metric,$headers,true);
+    return $index===false?null:igua_ga4_safe_number($row['metricValues'][$index]['value']??null);
+}
+/** Não retorna conteúdo bruto arbitrário da API nem endereços fornecidos por usuários. */
+function igua_ga4_report_rows(array $report,string $dimension,string $metric,int $limit=10): array {
+    $headers=array_column($report['dimensionHeaders']??[],'name');
+    $index=array_search($dimension,$headers,true);
+    if($index===false)return [];
+    $result=[];
+    foreach(array_slice(is_array($report['rows']??null)?$report['rows']:[],0,min($limit,12)) as $row){
+        if(!is_array($row))continue;
+        $value=$row['dimensionValues'][$index]['value']??null;
+        $count=igua_ga4_report_metric($report,$row,$metric);
+        if(!is_string($value) || $count===null)continue;
+        $label=trim($value);
+        if($label==='' || str_starts_with($label,'RESERVED_'))continue;
+        $label=preg_replace('/[\x00-\x1F\x7F]/u',' ',$label);
+        if(!is_string($label))continue;
+        // Evitar registros imensos em sessão e renderização, sem exigir mbstring.
+        if(strlen($label)>240)$label=function_exists('mb_strcut')?mb_strcut($label,0,240,'UTF-8'):substr($label,0,240);
+        $result[]=['label'=>$label,'count'=>$count];
+    }
+    return $result;
+}
+/**
+ * Relatório sob demanda. Um OAuth + batchRunReports com quatro consultas na mesma propriedade.
+ * Sem persistência no banco, varreduras automáticas, tokens ou respostas brutas em sessão.
+ */
+function igua_ga4_audience_report(array $credentials,string $property,?callable $transport=null,?int $now=null): array {
+    $property=igua_ga4_property_id($property);
+    if($property==='')throw new InvalidArgumentException('Informe o ID numérico da propriedade GA4.');
+    $transport=$transport??'igua_ga4_google_post';$now=$now??time();
+    $token=igua_ga4_access_token($credentials,$transport,$now);
+    $dateRanges=[['startDate'=>'28daysAgo','endDate'=>'yesterday']];
+    $requests=[
+        ['dateRanges'=>$dateRanges,'metrics'=>[['name'=>'activeUsers'],['name'=>'sessions'],['name'=>'screenPageViews']]],
+        ['dateRanges'=>$dateRanges,'dimensions'=>[['name'=>'pageTitle']], 'metrics'=>[['name'=>'screenPageViews']], 'limit'=>'10',
+            'orderBys'=>[['metric'=>['metricName'=>'screenPageViews'],'desc'=>true]]],
+        ['dateRanges'=>$dateRanges,'dimensions'=>[['name'=>'sessionDefaultChannelGroup']], 'metrics'=>[['name'=>'sessions']], 'limit'=>'8',
+            'orderBys'=>[['metric'=>['metricName'=>'sessions'],'desc'=>true]]],
+        ['dateRanges'=>$dateRanges,'dimensions'=>[['name'=>'deviceCategory']], 'metrics'=>[['name'=>'activeUsers']], 'limit'=>'5',
+            'orderBys'=>[['metric'=>['metricName'=>'activeUsers'],'desc'=>true]]],
+    ];
+    $endpoint='https://analyticsdata.googleapis.com/v1beta/properties/'.$property.':batchRunReports';
+    $data=igua_ga4_google_response($transport($endpoint,['Authorization: Bearer '.$token],['requests'=>$requests],false),'relatórios GA4');
+    $reports=$data['reports']??null;
+    if(!is_array($reports) || count($reports)!==4)throw new RuntimeException('Google não retornou os quatro relatórios esperados.');
+    foreach($reports as $report){
+        if(!is_array($report) || isset($report['error']))throw new RuntimeException('Resposta incompleta dos relatórios GA4.');
+    }
+    $summary=null;
+    if(isset($reports[0]['rows'][0]) && is_array($reports[0]['rows'][0])){
+        $row=$reports[0]['rows'][0];
+        $users=igua_ga4_report_metric($reports[0],$row,'activeUsers');
+        $sessions=igua_ga4_report_metric($reports[0],$row,'sessions');
+        $views=igua_ga4_report_metric($reports[0],$row,'screenPageViews');
+        if($users!==null && $sessions!==null && $views!==null)
+            $summary=['users'=>$users,'sessions'=>$sessions,'views'=>$views];
+    }
+    return ['property_id'=>$property,'checked_at'=>$now,'summary'=>$summary,
+        'pages'=>igua_ga4_report_rows($reports[1],'pageTitle','screenPageViews',10),
+        'channels'=>igua_ga4_report_rows($reports[2],'sessionDefaultChannelGroup','sessions',8),
+        'devices'=>igua_ga4_report_rows($reports[3],'deviceCategory','activeUsers',5)];
+}
+/** Resumo limitado ao ID da propriedade e TTL de uma hora. */
+function igua_ga4_audience_last(array $session,string $property,?int $now=null): ?array {
+    $report=$session['igua_ga4_audience_last']??null;
+    if(!is_array($report) || ($report['property_id']??'')!==$property)return null;
+    $now=$now??time();$checked=$report['checked_at']??null;
+    if(!is_int($checked) || $checked>$now || ($now-$checked)>3600)return null;
+    return $report;
 }

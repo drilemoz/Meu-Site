@@ -33,7 +33,7 @@ $sources=[['id'=>3,'name'=>'Fonte de teste']];
 function view137_assert(bool $ok,string $message):void {if(!$ok)throw new RuntimeException($message);}
 foreach([0,42] as $id){
     $row['id']=$id;
-    if($id) $row['image']='demo-cidade.jpg';
+    if($id){$row['image']='demo-cidade.jpg';$row['status']='published';}
     ob_start();news_admin_editor($db,$row,$me,$profiles,$sources,$cats);$html=(string)ob_get_clean();
     view137_assert(substr_count($html,'data-tab="')===3,'3 tabs');
     view137_assert(substr_count($html,'data-step="')===3,'3 steps');
@@ -47,11 +47,11 @@ foreach([0,42] as $id){
     view137_assert(str_contains($html,'name="extra_categories[]"'),'extra categories');
     view137_assert(str_contains($html,'id="news-draft-initial"'),'draft script');
     view137_assert(str_contains($html,'news-editor.js'),'editor asset');
-    if($id)view137_assert(str_contains($html,'Histórico de revisões'),'revisions view');
-    else view137_assert(!str_contains($html,'Histórico de revisões'),'no revisions new');
-    $expected=$id===0?'96606d506d28eb285d6c5d43bbd65a8a93920406a5479b419c29fe432f7780ed':'c5c7fa66fafd5741eb2a7d74c08c32d0b1cc2d90eb58d7a96efc8018c22383f2';
-    view137_assert(hash('sha256',$html)===$expected,'HTML conforme snapshot validado na 1.0.65');
-    echo 'render-'.($id===0?'new':'existing').': SHA-256 conforme snapshot da 1.0.65 ('.strlen($html).' bytes)' .PHP_EOL;
+    if($id){view137_assert(str_contains($html,'Histórico de revisões'),'revisions view');view137_assert(str_contains($html,'Índice Google') && str_contains($html,'page=article%3A42'),'atalho do editor apenas na notícia publicada');}
+    else {view137_assert(!str_contains($html,'Histórico de revisões'),'no revisions new');view137_assert(!str_contains($html,'Índice Google'),'sem atalho em rascunho novo');}
+    $expected=$id===0?'44a081f8f95aae4ccfb83fbc3cd8abe014ebf45ef1d38892cd242548b0e2622f':'289d34809e6cbbed004d5e13509287d3cddfef5ad1b2a7b2c42f3f05dc76d8b9';
+    view137_assert(hash('sha256',$html)===$expected,'HTML conforme snapshot atualizado na 1.0.85');
+    echo 'render-'.($id===0?'new':'existing').': SHA-256 conforme snapshot da 1.0.85 ('.strlen($html).' bytes)' .PHP_EOL;
 }
 if (is_file($root.'/app/news_admin_view/header.php')){
     $view=igua_news_editor_view_source();

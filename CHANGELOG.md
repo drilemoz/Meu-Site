@@ -1,3 +1,41 @@
+## 1.0.86 — 07/11/2026 — Relatórios de audiência e conteúdo no GA4
+- Central de Integrações GA4 ganhou botão **Consultar audiência**, com métricas oficiais `activeUsers`, `sessions` e `screenPageViews` para 28 dias completos até ontem; listas de `pageTitle`, `sessionDefaultChannelGroup` e `deviceCategory` agrupadas por métricas específicas.
+- Uma autenticação JWT com escopo mínimo e uma chamada `batchRunReports` para quatro relatórios na mesma propriedade; HTTPS com whitelist de endpoint, SSL, timeout e limite de resposta. Nenhum token ou chave entra em sessão, HTML, banco ou pacote.
+- Cache estritamente privado de até 1 hora amarrado à propriedade, limite de 90 segundos entre tentativas e 3 minutos entre resultados bem-sucedidos; erros não sobrescrevem resultado anterior válido.
+- Interface responsiva com três métricas e listas expansíveis de páginas, canais e dispositivos; nomes externos escapados e totais ausentes não tratados como zeros medidos. Mantidos GA4 de tempo real, Search Console, PageSpeed, AdSense, consentimento e schema 36.
+- Testes `tests/ga4_audience_186.php` cobrem JWT, token, lote, escopo, ordenação, parsing, cache, ACL, CSRF, erro HTTP, ausência de dados e XSS. API real, permissões Google e visual Android ainda pendentes.
+
+## 1.0.85 — 07/11/2026 — Inspeção individual de notícias no Search Console
+- Nova consulta manual à URL Inspection API oficial, autenticada com o mesmo OAuth de leitura `webmasters.readonly` já utilizado no relatório Search Console. Confirma permissão `sites.list` antes da inspeção e usa somente endpoint Google HTTPS fixo.
+- Na aba **Páginas**, permite selecionar notícia real e publicada e consultar o estado da versão no índice Google. A URL é derivada do slug e das configurações HTTPS oficiais do banco; POST contém somente ID seletor, nunca uma URL externa enviada pelo navegador. Bloqueia rascunhos, demonstrações, URL inválida e indexação global desativada.
+- Mostra indexada / excluída / problema / inconclusiva, detalhes de cobertura, regras robots/noindex, busca HTTP, última varredura e canônicas quando retornados. Orientações são condicionais aos problemas realmente informados pelo Google. O resultado não é inspeção de URL ao vivo nem pedido de indexação.
+- Atalho de **Índice Google** no editor de notícias publicadas, somente para quem pode gerenciar configurações; inclusive notícias antigas fora da seleção dos 35 mais recentes.
+- Cache resumido e seguro na sessão (uma hora), vinculado à notícia, URL e propriedade, com intervalos de 90/180 segundos; sem tokens, chave Google ou JSON bruto, e tratamento de erros/permissões sem exibir corpo da API.
+- Preservados GA4, PageSpeed, DNS/metatag, relatórios Search Console, schema 36, CI de Releases e pacote ZIP v2. Testes offline para URLs, token/permissões, respostas, escaping HTML e indicador JavaScript. Sem teste real da API ou navegador Android na hospedagem.
+
+## 1.0.84 — 07/11/2026 — Search Console API real sob demanda
+- Integração de leitura autorizada à Search Console API para domínio ou prefixo HTTPS derivados de `seo_site_url`. O administrador salva o tipo de propriedade e consulta resultados sob demanda, sem permitir URL arbitrária.
+- Reutiliza a conta de serviço privada Google da integração GA4, com OAuth JWT de escopo `webmasters.readonly` e verificação de permissão via `sites.list` antes de buscar dados. O e-mail da conta precisa ser adicionado **separadamente** ao Search Console, e a API deve estar ativada no Google Cloud.
+- Relatório agregado dos 28 dias completos até três dias antes da consulta (datas no fuso do Pacífico), com cliques, impressões, CTR, posição média, principais pesquisas e páginas. Sem linhas, não inventa zeros nem prova de indexação; o Google pode atrasar, omitir e anonimizar dados.
+- Resumo em sessão administrativa por até 1 hora, limites entre tentativas, HTTPS com cURL/TLS, endpoints fixos, CSRF e ACL; nenhuma credencial é enviada à página ou salva em backup.
+- Preservados DNS TXT, metatag, GA4, AdSense, PageSpeed, workflow de Releases e banco revisionado em schema 36. Adicionados testes offline da API/JWT, permissões, URLs e interface mobile.
+- Limitações: API externa e comportamento visual Android ainda dependem de testes na hospedagem, com extensão cURL, OpenSSL e conta autorizada.
+
+## v1.0.83 — 07/11/2026
+
+- PageSpeed Insights solicita e exibe as quatro categorias oficiais para celular e computador, tratando ausências como indisponíveis.
+- Resumo de recomendações em português condicionado a auditorias efetivamente reprovadas; botão expansível e interface mobile-first.
+- Sem migração de dados (schema 36), sem alteração em autenticação, GA4 ou AdSense; consulta permanece manual e limitada.
+- Adicionada regressão offline da API, auditorias, UI e compatibilidade de cache.
+
+## 1.0.82 — 07/11/2026 — Comparação PageSpeed em celular e computador
+- Central de Integrações com dois cartões compactos e independentes para **Celular** e **Computador**, cada qual com botão de consulta, nota Lighthouse, horário e métricas FCP/LCP/CLS retornadas.
+- A API PageSpeed v5 recebe `strategy=mobile` ou `strategy=desktop` validado por whitelist; URL HTTPS oficial do portal permanece fixa, sem parâmetros livres, redirecionamentos ou armazenamento de credenciais.
+- Cache em sessão e limitação de consultas por dispositivo (3 minutos após resultado, 90 segundos entre tentativas), sem misturar pontuações; o resultado mobile legado continua legível por até 1 hora.
+- Progresso de envio individual nos formulários, resumo compacto na Central e Diagnóstico; notas continuam de laboratório, sem alegar CrUX real ou que um dispositivo seja objetivamente melhor.
+- Novos testes offline `tests/pagespeed_182.php` e `tests/integrations_182.js`; ajuste do teste estático 1.0.81 para o roteador com duas estratégias.
+- Sem mudanças em schema 36, GA4, DNS, AdSense, dados privados, autenticação, consentimento, backup ou automação de GitHub Releases. Teste PageSpeed real na hospedagem e UI Android ainda pendentes.
+
 ## 1.0.81 — 07/11/2026
 - PageSpeed Insights v5 operacional, somente por consulta do administrador, URL canônica HTTPS validada e requisição fixa/sem redirecionamentos, limites de uso, resultado resumido por sessão e sem persistência de relatórios externos.
 - Central de Integrações com cartões de acesso rápido, botões para copiar identificadores públicos e estado/andamento do teste mobile; sem confundir configuração local com aprovação ou métricas de usuários reais.

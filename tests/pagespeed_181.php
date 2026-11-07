@@ -45,6 +45,6 @@ $controller=(string)file_get_contents(__DIR__.'/../app/admin_controllers/integra
 $view=(string)file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php');
 check181(str_contains($site,"'integrations_pagespeed_test'=>'manage_settings'") && str_contains($routes,"'integrations_pagespeed_test'=>'integrations'"),'rota protegida por autorização e roteador POST');
 check181(str_contains($site,'check_csrf();') && str_contains($view,'data-pagespeed-test-form') && str_contains($view,'csrf_field()'),'CSRF e formulário PageSpeed presentes');
-check181(str_contains($controller,'igua_pagespeed_check($cfg)') && str_contains($controller,"'igua_pagespeed_attempt'"),'consulta manual sujeita a intervalo mínimo');
+check181(str_contains($controller,'igua_pagespeed_check($cfg,null,null,$strategy)') && str_contains($controller,"'igua_pagespeed_attempts'"),'consulta manual por dispositivo sujeita a intervalo mínimo');
 check181(!str_contains($view,'data-pagespeed-api-key') && !str_contains($view,'pagespeed_api_key'),'nenhuma chave ou credencial falsa apresentada');
 echo 'PageSpeed 1.0.81: URLs seguras, chamada allowlisted, mocks de API, erros, expiração e rotas protegidas aprovados.'.PHP_EOL;
