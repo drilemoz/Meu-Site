@@ -63,14 +63,14 @@ foreach($slots as $slot){
   <details class="ad-quick-help"><summary aria-label="Ajuda sobre métricas de campanhas" title="Ajuda">?</summary><p>Cliques locais são estimativas agregadas, não faturamento. Receitas do AdSense devem ser consultadas no Google.</p></details>
 </section>
 
-<dialog class="ad-dialog" id="ad-type" aria-labelledby="ad-type-title"><div class="ad-dialog-inner">
+<dialog class="igua-modal igua-modal--medium ad-dialog" id="ad-type" aria-labelledby="ad-type-title"><div class="ad-dialog-inner">
   <div class="ad-dialog-top"><h2 id="ad-type-title">Nova publicidade</h2><button type="button" class="ad-dialog-close" data-ad-close aria-label="Fechar">✕</button></div>
   <button type="button" class="ad-type-choice" data-ad-new="local"><strong>🏪 Anúncio local</strong><small>Empresa, banner, link, período e posição.</small></button>
   <button type="button" class="ad-type-choice" data-ad-new="adsense"><strong>◈ Bloco Google AdSense</strong><small>Associe uma unidade de anúncio do Google a uma das posições.</small></button>
   <details class="ad-quick-help"><summary aria-label="Ajuda sobre formatos de publicidade" title="Ajuda">?</summary><p>O Google seleciona os anúncios AdSense. Para empresas locais, use o cadastro de anúncio local.</p></details>
 </div></dialog>
 
-<dialog class="ad-dialog" id="ad-local" aria-labelledby="ad-local-title"><div class="ad-dialog-inner">
+<dialog class="igua-modal igua-modal--medium ad-dialog" id="ad-local" aria-labelledby="ad-local-title"><div class="ad-dialog-inner">
   <div class="ad-dialog-top"><h2 id="ad-local-title">Novo anúncio local</h2><button type="button" class="ad-dialog-close" data-ad-close aria-label="Fechar">✕</button></div>
   <form method="post" id="ad-local-form" action="/admin.php?action=ads_save_campaign" enctype="multipart/form-data" class="stacked-form">
     <?=csrf_field()?><input type="hidden" name="id" value="0">
@@ -97,7 +97,7 @@ foreach($slots as $slot){
   </form>
 </div></dialog>
 
-<dialog class="ad-dialog" id="ad-new-adsense" aria-labelledby="ad-new-adsense-title"><div class="ad-dialog-inner">
+<dialog class="igua-modal igua-modal--medium ad-dialog" id="ad-new-adsense" aria-labelledby="ad-new-adsense-title"><div class="ad-dialog-inner">
   <div class="ad-dialog-top"><h2 id="ad-new-adsense-title">Novo bloco AdSense</h2><button type="button" class="ad-dialog-close" data-ad-close aria-label="Fechar">✕</button></div>
   <p class="muted tiny">Configure o ID de editor <code>ca-pub</code> na engrenagem antes de ativar um bloco.</p>
   <form method="post" action="/admin.php?action=ads_save_slot" class="stacked-form">
@@ -110,7 +110,7 @@ foreach($slots as $slot){
 </div></dialog>
 
 <?php foreach($slots as $slot):$slug=(string)$slot['slug'];if(!ad_valid_slot($slug))continue; ?>
-<dialog class="ad-dialog" id="ad-slot-<?=h($slug)?>" aria-labelledby="ad-slot-title-<?=h($slug)?>"><div class="ad-dialog-inner">
+<dialog class="igua-modal igua-modal--medium ad-dialog" id="ad-slot-<?=h($slug)?>" aria-labelledby="ad-slot-title-<?=h($slug)?>"><div class="ad-dialog-inner">
   <div class="ad-dialog-top"><h2 id="ad-slot-title-<?=h($slug)?>"><?=h(strtoupper($slug).' · '.AD_SLOTS[$slug][0])?></h2><button type="button" class="ad-dialog-close" data-ad-close aria-label="Fechar">✕</button></div>
   <p class="muted tiny"><?=h(AD_SLOTS[$slug][1])?></p>
   <form method="post" action="/admin.php?action=ads_save_slot" class="stacked-form">
@@ -125,7 +125,7 @@ foreach($slots as $slot){
 </div></dialog>
 <?php endforeach; ?>
 
-<dialog class="ad-dialog" id="ad-settings" aria-labelledby="ad-settings-title"><div class="ad-dialog-inner">
+<dialog class="igua-modal igua-modal--medium ad-dialog" id="ad-settings" aria-labelledby="ad-settings-title"><div class="ad-dialog-inner">
   <div class="ad-dialog-top"><h2 id="ad-settings-title">⚙ Configurações de publicidade</h2><button type="button" class="ad-dialog-close" data-ad-close aria-label="Fechar">✕</button></div>
   <details class="ad-advanced" open><summary>Configuração geral</summary><div class="ad-advanced-fields">
     <form method="post" action="/admin.php?action=ads_save_settings" class="stacked-form">

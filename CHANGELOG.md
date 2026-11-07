@@ -1,3 +1,21 @@
+## [1.0.94] — 2026-11-07
+
+- Wizard editorial com botão Sair alinhado ao título e remoção da importação externa do formulário.
+- Correção dos inputs de imagem, galeria, ZIP e anexos sem duplicação de seletores pelo JavaScript compartilhado.
+- SEO reorganizado em quatro botões compactos e pop-ups reutilizáveis; alterações de título, descrição e slug só são aplicadas ao formulário após confirmação, sem publicar.
+- Diagnóstico com pontuação, edição local de SEO e atalhos às etapas apropriadas. Botão de confirmação no rodapé direito.
+- Lista de notícias e publicações recentes do painel compartilham cartões responsivos com ações, exclusão por ícone de lixeira e categoria seguida de data relativa no fuso de Brasília.
+- Testes adicionais de HTML, JS, datas, upload e versionamento; sem migração de schema (36).
+
+## [1.0.93] — 2026-11-07
+
+- Introduzidas as classes reutilizáveis `igua-modal` (narrow/medium/wide) e o controlador `admin-dialogs.js` para abertura, fechamento, foco, bloqueio de rolagem e interação com o fundo. Menu drawer de navegação não usa o componente.
+- Os diálogos de Google Analytics 4, AdSense, Search Console, PageSpeed, atualizador, publicidade, avisos e editor passam ao mesmo padrão: cartão central com margens laterais, botão X com alvo de 44px, cores, bordas e tamanhos coerentes.
+- Corrigido o modo antigo de integrações `100vw × 100dvh` em celulares; rolagem contida no conteúdo, cabeçalho/rodapé disponíveis, prevenção de estouro de largura de campos e texto longo.
+- PageSpeed reorganizado em abas internas Celular/Computador com seleção por toque e teclado, sem requisições automáticas; ambas as medições continuam independentes, com CSRF e cache inalterados.
+- Preservados formulários reais e dados configurados, diálogos de ajuda aninhados, controle de permissões, envio ZIP, progresso do atualizador, recuperação de foco e caminhos de compatibilidade quando API de diálogo nativo não está disponível.
+- Testes e documentação atualizados; schema 36 sem migração. Validação de layout em Chromium headless com fixture, sem autenticação real na hospedagem nem teste físico Android.
+
 ## [1.0.92] — 2026-11-07
 
 - Atualizador redesenhado: removidos o link Releases, os cartões Fonte oficial e Servidor e o formulário de instalação GitHub fora do modal. Ações principais Visualizar e Enviar ZIP.

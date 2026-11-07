@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.92)
+# Diretrizes de manutenção — Meu Site (v1.0.94)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -76,6 +76,20 @@ python3 tools/audit_project.py
 
 Verificar CRC, conteúdo, manifesto SHA-256, ausência de segredos e arquivos de outro projeto e compatibilidade do pacote v2. A integração real exige PHP + `pdo_mysql` + `ZipArchive` com MariaDB isolado e teste em navegador; não declarar produção validada sem evidência. Documentar limitações em `docs/AUDITORIA_176.md` e notas de release.
 
+## Componentes de pop-up (1.0.94)
+
+- Para novos diálogos administrativos de conteúdo, usar `<dialog class="igua-modal igua-modal--narrow|--medium|--wide">`. O CSS compartilhado está ao fim de `public/assets/css/modules/16-security.css` e o JS genérico em `public/assets/js/admin-dialogs.js`, carregado no início do painel. Menu de navegação e seletor de mídia não são janelas de conteúdo e preservam comportamento específico.
+- Ao abrir/fechar, preferir `window.IguaAdminModal.open(dialog, opener)`/`.close(dialog)` com fallback nativo. Proteger fechamento durante operações marcadas como ocupadas. Jamais clonar formulários de integração ou suprimir CSRF/permissões.
+- PageSpeed permite trocar apenas o painel visível com `data-int-speed-tab` e `data-int-speed-panel`; a troca não dispara requisições, portanto testes permanecem sob demanda.
+- Regredir em navegador desktop e mobile: dimensões do pop-up, foco, teclado, fechamento Escape, rolagem interna, abas e formulários.
+
 ## Google Drive
 
 Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **dois** ZIPs novos antes de excluir os anteriores, e verificar que a pasta contém somente a versão atual. Nunca apagar arquivos de outros projetos.
+
+## Correções editoriais e listas (1.0.94)
+
+- inputs de arquivo dentro de `.news-upload-tile` são seletores acessíveis compactos; `file-inputs.js` não deve criar `.igua-file-picker` dentro deles. Os outros formulários preservam o botão global.
+- `seo-audit.js` usa campos persistidos `url_slug`, `seo_title`, `seo_description` do formulário e cópias temporárias nos pop-ups; cancelar não altera dados, salvar apenas modifica o rascunho. Não misturar dados de IA ou publicar automaticamente.
+- `app/admin_views/partials/news_cards.php` desenha os cartões nas telas Notícias e Visão geral; mantém CSRF, ACL de exclusão/publicação e data relativa no fuso de São Paulo.
+- Na edição do painel inicial, preservar permissões e garantir leitura das datas verdadeiras do banco, nunca datas artificiais.

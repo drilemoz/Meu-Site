@@ -2,6 +2,7 @@
 (()=>{'use strict';
  const enhance=(root=document)=>root.querySelectorAll('input[type="file"]:not([data-file-enhanced])').forEach(input=>{
   input.dataset.fileEnhanced='1';
+  if(input.closest('.news-upload-tile')){input.dataset.fileEnhanced='custom';input.classList.add('igua-native-file');return;}
   const wrapper=document.createElement('span');wrapper.className='igua-file-picker';
   const button=document.createElement('button');button.type='button';button.className='igua-file-button';button.textContent='📎 Escolher arquivo'+(input.multiple?'s':'');
   const status=document.createElement('span');status.className='igua-file-name';status.setAttribute('aria-live','polite');status.textContent='Nenhum arquivo';

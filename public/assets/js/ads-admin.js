@@ -23,6 +23,7 @@
   const overlap = (aStart, aEnd, bStart, bEnd) => (!aEnd || aEnd >= bStart) && (!bEnd || bEnd >= aStart);
   const closeAll = () => dialogs.forEach(dialog => {
     if (dialog.open) {
+      if (typeof window !== 'undefined' && window.IguaAdminModal?.close?.(dialog)) return;
       if (typeof dialog.close === 'function') dialog.close();
       else dialog.removeAttribute('open');
     }
@@ -31,8 +32,10 @@
     const dialog = get(key);
     if (!dialog) return;
     closeAll();
-    if (typeof dialog.showModal === 'function') dialog.showModal();
-    else dialog.setAttribute('open', '');
+    if (!(typeof window !== 'undefined' && window.IguaAdminModal?.open?.(dialog))) {
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    }
     const focus = dialog.querySelector('input:not([type="hidden"]),select,button[data-ad-close]');
     focus?.focus({ preventScroll: true });
   };

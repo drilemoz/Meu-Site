@@ -65,7 +65,7 @@
     }
     stack.push({node,title:modalTitle(node),moved:[]});
     moveIntoDialog(stack[stack.length-1]);
-    if(!dialog.open){dialog.showModal();document.body?.classList.add('int-modal-open');}
+    if(!dialog.open){if(!window.IguaAdminModal?.open?.(dialog,initialFocus))dialog.showModal();document.body?.classList.add('int-modal-open');}
     dialog.querySelector('[data-int-dialog-close]')?.focus({preventScroll:true});
     return true;
   };
@@ -102,6 +102,36 @@
         if(node?.matches(modalSelector) && openModal(node))event.preventDefault();
       }
     });
+  }
+  // PageSpeed: selecionar dispositivos só altera o painel visível; nunca faz chamadas à API.
+  const speedBar=hub.querySelector('[data-int-speed-tabs]');
+  if(speedBar){
+    const speedTabs=Array.from(speedBar.querySelectorAll('[data-int-speed-tab]'));
+    const speedGrid=hub.querySelector('[data-int-speed-grid]');
+    const speedPanels=speedGrid?Array.from(speedGrid.querySelectorAll('[data-int-speed-panel]')):[];
+    if(speedTabs.length===2 && speedPanels.length===2){
+      const showSpeed=(device,moveFocus=false)=>{
+        speedTabs.forEach(tab=>{
+          const active=tab.dataset.intSpeedTab===device;
+          tab.setAttribute('aria-selected',String(active));
+          tab.tabIndex=active?0:-1;
+          if(active && moveFocus)tab.focus({preventScroll:true});
+        });
+        speedPanels.forEach(item=>{item.hidden=item.dataset.intSpeedPanel!==device;});
+      };
+      speedTabs.forEach(tab=>{
+        tab.addEventListener('click',()=>showSpeed(tab.dataset.intSpeedTab));
+        tab.addEventListener('keydown',event=>{
+          if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+          event.preventDefault();
+          const index=speedTabs.indexOf(tab);
+          const next=event.key==='Home'?0:event.key==='End'?speedTabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+speedTabs.length)%speedTabs.length;
+          showSpeed(speedTabs[next].dataset.intSpeedTab,true);
+        });
+      });
+      speedGrid.classList.add('int-speed-tabs-ready');
+      showSpeed('mobile');
+    }
   }
   const fromHash=()=>{
     let hash;

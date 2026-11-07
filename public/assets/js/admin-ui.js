@@ -57,14 +57,14 @@
     return new Promise(resolve => {
       const finished = () => { pending = false; resolve(confirmDialog.returnValue === 'confirm'); };
       confirmDialog.addEventListener('close', finished, { once: true });
-      confirmDialog.showModal();
+      if (!window.IguaAdminModal?.open?.(confirmDialog)) confirmDialog.showModal();
     });
   }
   function notify(message) {
     if (!messageDialog || typeof messageDialog.showModal !== 'function') { window.alert(message); return Promise.resolve(); }
     document.getElementById('admin-message-text').textContent = String(message);
     if (messageDialog.open) messageDialog.close();
-    messageDialog.showModal();
+    if (!window.IguaAdminModal?.open?.(messageDialog)) messageDialog.showModal();
     return new Promise(resolve => messageDialog.addEventListener('close', () => resolve(), { once: true }));
   }
   // Campos obrigatórios dentro de seções recolhidas precisam ficar visíveis antes da validação nativa.

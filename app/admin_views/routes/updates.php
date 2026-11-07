@@ -38,7 +38,7 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   <?php if($remoteError): ?><div class="alert warning"><?=h($remoteError)?></div><?php endif; ?>
   <?php if(is_file(igua_updater_maintenance())): ?><div class="alert error">Atualização interrompida. Recupere o código antes de continuar.</div><?php endif; ?>
 </section>
-<dialog id="updater-github-dialog" class="updater-dialog updater-upload-dialog updater-github-dialog" aria-labelledby="updater-github-title" aria-modal="true">
+<dialog id="updater-github-dialog" class="igua-modal igua-modal--narrow updater-dialog updater-upload-dialog updater-github-dialog" aria-labelledby="updater-github-title" aria-modal="true">
   <div class="updater-dialog-head">
     <div class="updater-upload-heading"><span class="updater-upload-icon" aria-hidden="true">↻</span><div><h2 id="updater-github-title">Atualização pelo GitHub</h2><small>Consulta, novidades e instalação</small></div></div>
     <button type="button" class="updater-dialog-close" data-updater-close aria-label="Fechar janela">×</button>
@@ -83,7 +83,7 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
     </details>
   </div>
 </dialog>
-<dialog id="updater-upload-dialog" class="updater-dialog updater-upload-dialog" aria-labelledby="updater-upload-title" aria-modal="true">
+<dialog id="updater-upload-dialog" class="igua-modal igua-modal--narrow updater-dialog updater-upload-dialog" aria-labelledby="updater-upload-title" aria-modal="true">
   <div class="updater-dialog-head">
     <div class="updater-upload-heading"><span class="updater-upload-icon" aria-hidden="true">⇧</span><div><h2 id="updater-upload-title">Enviar atualização</h2><small>Arquivo ZIP de atualização</small></div></div>
     <button type="button" class="updater-dialog-close" data-updater-close aria-label="Fechar janela de atualização">×</button>
@@ -108,7 +108,7 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
     </div>
   </form>
 </dialog>
-<dialog id="updater-source-dialog" class="updater-dialog" aria-labelledby="updater-source-title" aria-modal="true">
+<dialog id="updater-source-dialog" class="igua-modal igua-modal--narrow updater-dialog" aria-labelledby="updater-source-title" aria-modal="true">
   <div class="updater-dialog-head"><h2 id="updater-source-title">⚙ Fonte oficial</h2><button type="button" class="updater-dialog-close" data-updater-close aria-label="Fechar configurações">×</button></div>
   <div class="updater-source-line"><span class="updater-source-label">GitHub</span><strong><?=h($originLabel)?></strong>
     <?php if($hasSource): ?><span class="updater-tag"><?=($source['origin']??'')==='manual'?'Personalizado':'Detectado'?></span><?php endif; ?>
@@ -128,7 +128,7 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   </form>
   <?php endif; ?>
 </dialog>
-<dialog id="updater-check-dialog" class="updater-dialog" aria-labelledby="updater-check-title" aria-modal="true">
+<dialog id="updater-check-dialog" class="igua-modal igua-modal--narrow updater-dialog" aria-labelledby="updater-check-title" aria-modal="true">
   <div class="updater-dialog-head"><h2 id="updater-check-title">Vistoria do servidor</h2><button type="button" class="updater-dialog-close" data-updater-close aria-label="Fechar vistoria">×</button></div>
   <p class="updater-hint">Verifica extensões, permissões e o banco sem modificar dados. As cotas e a continuidade do PHP-FPM dependem da hospedagem.</p>
   <div class="updater-compact-result <?= $preflight['ok']?'updater-good':'updater-bad' ?>">

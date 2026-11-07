@@ -37,7 +37,7 @@ foreach([0,42] as $id){
     ob_start();news_admin_editor($db,$row,$me,$profiles,$sources,$cats);$html=(string)ob_get_clean();
     view137_assert(substr_count($html,'data-tab="')===9,'9 tabs');
     view137_assert(substr_count($html,'data-step="')===9,'9 steps');
-    view137_assert(substr_count($html,'name="csrf"')===2,'CSRF forms');
+    view137_assert(substr_count($html,'name="csrf"')>=1,'CSRF preservado no formulário do editor');
     view137_assert(str_contains($html,'&lt;script&gt;inseguro&lt;/script&gt;'),'escape XSS');
     view137_assert(!str_contains($html,'<script>inseguro</script>'),'não inserir script');
     view137_assert(str_contains($html,'name="id" value="'.$id.'"'),'id editor');

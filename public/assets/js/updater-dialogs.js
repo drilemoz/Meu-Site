@@ -3,11 +3,13 @@
   const dialogs = [...document.querySelectorAll('.updater-dialog')];
   const openDialog = (dialog) => {
     if (!dialog) return;
+    if (typeof window !== 'undefined' && window.IguaAdminModal?.open?.(dialog)) return;
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
   };
   const closeDialog = (dialog) => {
     if (dialog.dataset.updaterBusy === '1') return;
+    if (typeof window !== 'undefined' && window.IguaAdminModal?.close?.(dialog)) return;
     if (typeof dialog.close === 'function') dialog.close();
     else dialog.removeAttribute('open');
   };

@@ -15,7 +15,7 @@ $view=(string)file_get_contents(__DIR__.'/../app/admin_views/routes/updates.php'
 $controller=(string)file_get_contents(__DIR__.'/../app/admin_controllers/updater.php');
 $js=(string)file_get_contents(__DIR__.'/../public/assets/js/updater-dialogs.js');
 $css=(string)file_get_contents(__DIR__.'/../public/assets/css/modules/15-archive.css');
-check156(substr_count($view,'class="updater-dialog"')===2,'duas janelas nativas de origem e vistoria');
+check156(preg_match('~<dialog id="updater-source-dialog" class="[^"]*updater-dialog"~',$view)===1 && preg_match('~<dialog id="updater-check-dialog" class="[^"]*updater-dialog"~',$view)===1,'duas janelas nativas de origem e vistoria');
 check156(str_contains($view,'data-updater-open="updater-source-dialog"')&&str_contains($view,'data-updater-open="updater-check-dialog"'),'atalhos compactos de origem e vistoria');
 check156(str_contains($view,'class="updater-source-form"') && str_contains($view,'name="operation" value="source"'),'edição de origem preservada');
 check156(str_contains($view,'value="source_reset"')&&str_contains($controller,"$"."operation==='source_reset'"),'restauração segura da origem oficial');

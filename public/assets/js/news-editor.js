@@ -75,6 +75,7 @@
    if(active===steps.length-1)updateReview();
    if(scroll){document.querySelector('.news-step-nav').scrollIntoView({block:'start',behavior:'auto'});stepNav.hidden=true;stepsToggle.setAttribute('aria-expanded','false');}
  }
+ window.IguaNewsGoToStep=(index)=>changeTab(index,{scroll:true});
  function hasText(){updateSource();syncInputs();return !!(form.querySelector('[name=body]').value.trim()||blocks.some(b=>b.content.trim()));}
  function canLeave(index){
    if(index===0){const field=form.querySelector('[name=title]');if(!field.checkValidity()){changeTab(0);field.reportValidity();return false;}}
@@ -169,9 +170,9 @@
  document.querySelector('#news-next').addEventListener('click',()=>navigateTo(active+1));
  document.querySelector('#news-prev').addEventListener('click',()=>navigateTo(active-1));
  // Foco em frases inteiras: não inserir reticências artificiais nem cortar palavras.
- function seo(){
+ function proposeSeoDescription(){
    syncInputs();
-   const field=form.querySelector('[name=seo_description]'),title=form.querySelector('[name=title]').value.trim();
+   const title=form.querySelector('[name=title]').value.trim();
    const summary=form.querySelector('[name=summary]').value.trim();
    const body=blocks.map(b=>b.content).join(' ')||form.querySelector('[name=body]').value;
    const clean=s=>String(s).replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
@@ -183,7 +184,13 @@
      proposed=first||clean(title);
    }
    if([...proposed].length>320)proposed=''; // exige revisão manual, nunca uma frase truncada.
-   field.value=proposed;
+   return proposed;
+ }
+ window.IguaNewsSEOProposal=proposeSeoDescription;
+ function seo(){
+   const field=form.querySelector('[name=seo_description]');
+   field.value=proposeSeoDescription();
+   const title=form.querySelector('[name=title]').value.trim();
    const seoTitle=form.querySelector('[name=seo_title]');if(!seoTitle.value.trim())seoTitle.value=title.slice(0,220);
    preview();form.dispatchEvent(new Event('input',{bubbles:true}));
  }
@@ -214,7 +221,7 @@
     updateSlugPreview();slugInput.dispatchEvent(new Event('change',{bubbles:true}));
  });
  updateSlugPreview();
- document.querySelector('#news-generate-seo').addEventListener('click',seo);
+ document.querySelector('#news-generate-seo')?.addEventListener('click',seo);
  ['title','summary','seo_title','seo_description'].forEach(k=>form.querySelector(`[name=${k}]`).addEventListener('input',preview));form.querySelector('[name=title]').addEventListener('input',categorySuggestion);
  // Preserva legendas/créditos de um grupo ao selecionar arquivos no outro.
  // Uma seleção nova limpa apenas os metadados do grupo substituído; a otimização

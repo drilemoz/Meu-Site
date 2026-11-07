@@ -371,3 +371,69 @@
   .int-dialog-scroll{padding:12px;scrollbar-gutter:auto}
   .int-dialog-footer{padding:7px 12px calc(8px + env(safe-area-inset-bottom,0px))}
 }
+
+/* 1.0.93 — design system reutilizável para pop-ups administrativos.
+   Aplicar a classe igua-modal somente aos diálogos de conteúdo; menu drawer não usa este layout. */
+.admin-body.igua-modal-open{overflow:hidden}
+.admin-body dialog.igua-modal{
+  --igua-dialog-width:560px;
+  box-sizing:border-box;position:fixed;inset:0;margin:auto;
+  width:min(var(--igua-dialog-width),calc(100vw - 24px));min-width:0;max-width:calc(100vw - 24px);
+  height:auto;max-height:min(88dvh,780px);border:1px solid #d3e2ef;border-radius:19px;
+  background:#fff;color:#1c3551;box-shadow:0 24px 74px rgba(8,28,55,.34);overscroll-behavior:contain;
+}
+.admin-body dialog.igua-modal:not([open]){display:none!important}
+.admin-body dialog.igua-modal::backdrop{background:rgba(9,24,43,.64);backdrop-filter:blur(2px)}
+.admin-body dialog.igua-modal.igua-modal--narrow{--igua-dialog-width:450px}
+.admin-body dialog.igua-modal.igua-modal--wide{--igua-dialog-width:690px}
+.admin-body dialog.igua-modal *, .admin-body dialog.igua-modal *::before,.admin-body dialog.igua-modal *::after{box-sizing:border-box}
+.admin-body dialog.igua-modal :is(form,section,article,div,label,p,h2,h3,ul,li){min-width:0;max-width:100%;overflow-wrap:anywhere}
+.admin-body dialog.igua-modal :is(input:not([type=checkbox]):not([type=radio]),select,textarea,button,progress){max-width:100%;min-width:0}
+.admin-body dialog.igua-modal :is(pre,code){white-space:pre-wrap;overflow-wrap:anywhere}
+.admin-body dialog.igua-modal :is(button,a,input,textarea,select,summary):focus-visible{outline:3px solid #479adf;outline-offset:2px}
+.admin-body dialog.igua-modal :is(.int-dialog-x,.int-dialog-back,.updater-dialog-close,.ad-dialog-close,.admin-ui-close){
+  display:grid;place-items:center;flex:none;width:44px;min-width:44px;height:44px;min-height:44px;
+  border:1px solid #d4e1ed;border-radius:12px;background:#fff;color:#245475;line-height:1;cursor:pointer;
+}
+/* Integrações: nunca mais abrir em 100vw x 100dvh no celular. */
+.admin-body .int-hub dialog.igua-modal.int-dialog{padding:0;overflow:hidden}
+.admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-shell{height:auto;max-height:min(88dvh,780px);min-height:0;display:flex;flex-direction:column}
+.admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-scroll{flex:0 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:auto;padding:16px}
+.admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-header{padding:10px 14px;flex:0 0 auto}
+.admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-footer{padding:9px 14px;flex:0 0 auto}
+.admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-panel{width:100%;min-width:0}
+.admin-body .int-hub dialog.igua-modal.int-dialog :is(.int-service-body,.int-form,.int-live-panel,.int-speed-grid,.int-speed-device,.int-speed-target,.int-speed-report,.int-speed-categories,.int-sc-row){min-width:0;max-width:100%}
+.admin-body .int-hub dialog.igua-modal.int-dialog .int-guide-row{gap:8px}
+.admin-body .int-hub dialog.igua-modal.int-dialog .int-guide-row strong{min-width:0;overflow-wrap:anywhere}
+/* Publicidade: cabeçalho e botões estáveis, mantendo formulários originais. */
+.admin-body dialog.igua-modal.ad-dialog{padding:0;overflow-y:auto}
+.admin-body dialog.igua-modal.ad-dialog .ad-dialog-inner{width:100%;min-width:0;padding:16px}
+.admin-body dialog.igua-modal.ad-dialog .ad-dialog-top{position:sticky;top:-16px;z-index:2;background:#f7fbff;padding:10px 16px;margin:-16px -16px 0;border-bottom:1px solid #dce8f2}
+.admin-body dialog.igua-modal.ad-dialog .ad-dialog-top h2{font-size:1.05rem;overflow-wrap:anywhere}
+.admin-body dialog.igua-modal.ad-dialog .ad-dialog-footer{position:sticky;bottom:-16px;z-index:2;padding:10px 0 12px;background:#fff}
+/* Atualizador: mesmo raio, fundo e X da Central; preserva formulários e progresso. */
+.admin-body dialog.igua-modal.updater-dialog{padding:16px;overflow-y:auto}
+.admin-body dialog.igua-modal.updater-dialog .updater-dialog-head{position:sticky;top:-16px;z-index:3;margin:-16px -16px 12px;padding:10px 16px;background:#f7fbff;border-bottom:1px solid #dce8f2}
+.admin-body dialog.igua-modal.updater-dialog .updater-dialog-head h2{font-size:1.05rem;overflow-wrap:anywhere}
+/* Edição e mensagens básicas seguem o mesmo cartão sem alterar a lógica de confirmação. */
+.admin-body dialog.igua-modal.news-seo-dialog,.admin-body dialog.igua-modal.admin-ui-dialog{padding:17px;overflow-y:auto}
+/* PageSpeed: abas internas, sem executar medições ao trocar de dispositivo. */
+.int-speed-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:3px 0 12px}
+.int-speed-tab{min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid #d1dfed;background:#f3f7fc;color:#4c6580;border-radius:11px;font-size:.85rem;font-weight:750;cursor:pointer}
+.int-speed-tab[aria-selected=true]{background:#e2efff;color:#155a9e;border-color:#86b4e4}
+.int-speed-tab:focus-visible{outline:3px solid #479adf;outline-offset:2px}
+.int-speed-grid.int-speed-tabs-ready{display:block}
+.int-speed-grid.int-speed-tabs-ready>.int-speed-device[hidden]{display:none!important}
+.int-speed-grid.int-speed-tabs-ready>.int-speed-device{width:100%;min-width:0}
+@media(max-width:650px){
+ .admin-body dialog.igua-modal{max-height:calc(100dvh - 28px);width:calc(100vw - 24px);max-width:calc(100vw - 24px);border-radius:18px}
+ .admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-shell{max-height:calc(100dvh - 28px)}
+ .admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-scroll{padding:12px}
+ .admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-header{padding:9px 12px}
+ .admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-footer{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px))}
+ .admin-body dialog.igua-modal.ad-dialog .ad-dialog-inner{padding:14px}
+ .admin-body dialog.igua-modal.ad-dialog .ad-dialog-top{top:-14px;margin:-14px -14px 0;padding:9px 14px}
+ .admin-body dialog.igua-modal.ad-dialog .ad-dialog-footer{bottom:-14px}
+ .admin-body dialog.igua-modal.updater-dialog .updater-dialog-head{top:-16px}
+}
+@media(prefers-reduced-motion:reduce){.admin-body dialog.igua-modal::backdrop{backdrop-filter:none}}

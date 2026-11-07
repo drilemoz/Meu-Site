@@ -20,8 +20,8 @@ v160(str_contains($layout,'id="admin-confirm-dialog"') && str_contains($layout,'
 v160(str_contains($js,'e.stopImmediatePropagation()') && str_contains($js,"confirmDialog.returnValue = 'cancel'") && str_contains($js,'approved.add(btn)'),'ação confirmada somente após aceitação; Escape não aprova');
 v160(str_contains($main,"!document.body.classList.contains('admin-body')"),'confirmação pública legada preservada, admin usa diálogos próprios');
 v160(str_contains($article,'id="news-filter-dialog"') && str_contains($article,'id="news-filter-open"'),'lupa abre filtros em janela');
-v160(str_contains($article,'class="action-cell"') && str_contains($article,'news-inline-toggle') && str_contains($article,'article-status-cell'),'quatro comandos alinhados e situação visível');
-v160(substr_count($article,'csrf_field()')>=5 && str_contains($article,'can_edit_article'),'ações editoriais permanecem autenticadas');
+v160(str_contains($article,'igua_news_admin_card(') && is_file($root.'/app/admin_views/partials/news_cards.php') && str_contains(file_get_contents($root.'/app/admin_views/partials/news_cards.php'),'news-card-delete'),'cartões compartilham quatro ações editoriais');
+v160(str_contains(file_get_contents($root.'/app/admin_views/partials/news_cards.php'),'csrf_field()') && str_contains(file_get_contents($root.'/app/admin_views/partials/news_cards.php'),'can_edit_article'),'ações editoriais preservam CSRF e permissões');
 v160(str_contains($user,'admin-collapsible-form') && str_contains($user,"\$editing?'open'") && str_contains($user,'save_user'),'formulário usuário recolhido e pré-preenchido em edição');
 v160(str_contains($elections,'admin-collapsible-form') && str_contains($elections,"\$selected?'open'") && str_contains($elections,'save_election'),'eleições recolhidas, edição e submissão preservadas');
 v160(str_contains($media,'media-upload-details') && str_contains($css,'.media-window{display:flex;flex-direction:column;height:100dvh'),'biblioteca em tela cheia com envio recolhido');

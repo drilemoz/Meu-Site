@@ -289,10 +289,14 @@ $integrationHistory=$integrationHistory??[];
 
         <div class="int-hint-row"><span>Teste cada dispositivo separadamente, somente quando solicitado</span><details class="compact-help"><summary aria-label="Ajuda PageSpeed Insights">?</summary><div class="compact-help-content">Usa a URL pública HTTPS salva em Geral e SEO. O Google executa simulações Lighthouse com perfis diferentes de celular e computador e retorna desempenho, acessibilidade, boas práticas e SEO quando disponíveis. As notas são de laboratório, não medições da experiência de todos os visitantes. Cada botão pode acionar uma requisição e consumir cota.</div></details></div>
         <div class="int-speed-target"><span>URL analisada</span><strong><?=h($pageSpeedUrl!==''?$pageSpeedUrl:'Configure a URL HTTPS em Geral e SEO')?></strong><?php if($pageSpeedUrl===''): ?><a href="<?=h(admin_link('settings'))?>">Configurar URL ↗</a><?php endif; ?></div>
-        <div class="int-speed-grid">
+        <div class="int-speed-tabs" role="tablist" data-int-speed-tabs aria-label="Escolha o dispositivo para a medição PageSpeed">
+          <button type="button" class="int-speed-tab" id="int-speed-tab-mobile" data-int-speed-tab="mobile" role="tab" aria-selected="true" aria-controls="int-speed-mobile">▣ Celular</button>
+          <button type="button" class="int-speed-tab" id="int-speed-tab-desktop" data-int-speed-tab="desktop" role="tab" aria-selected="false" aria-controls="int-speed-desktop">▤ Computador</button>
+        </div>
+        <div class="int-speed-grid" data-int-speed-grid>
           <?php foreach(['mobile'=>'Celular','desktop'=>'Computador'] as $strategy=>$deviceLabel): ?>
             <?php $speedResult=$pageSpeedResults[$strategy]??null; ?>
-            <section class="int-speed-device" aria-label="Diagnóstico PageSpeed para <?=h($deviceLabel)?>">
+            <section class="int-speed-device" id="int-speed-<?=h($strategy)?>" data-int-speed-panel="<?=h($strategy)?>" role="tabpanel" aria-labelledby="int-speed-tab-<?=h($strategy)?>" aria-label="Diagnóstico PageSpeed para <?=h($deviceLabel)?>">
               <div class="int-speed-device-head"><strong><?= $strategy==='mobile'?'▣':'▤' ?> <?=h($deviceLabel)?></strong><small><?= $speedResult!==null?'Última medição':'Ainda não testado' ?></small></div>
               <?php if($speedResult!==null): ?>
                 <div class="int-speed-report" role="status" aria-label="Último teste PageSpeed em <?=h($deviceLabel)?>">
@@ -442,7 +446,7 @@ $integrationHistory=$integrationHistory??[];
       ] as $item): ?><div class="int-future"><span aria-hidden="true"><?=h($item[0])?></span><div><strong><?=h($item[1])?></strong><small><?=h($item[2])?></small></div><em>Em breve</em></div><?php endforeach; ?>
     </div>
   </section>
-  <dialog id="int-dialog" class="int-dialog" aria-labelledby="int-dialog-title" aria-modal="true">
+  <dialog id="int-dialog" class="igua-modal igua-modal--medium int-dialog" aria-labelledby="int-dialog-title" aria-modal="true">
     <div class="int-dialog-shell">
       <header class="int-dialog-header">
         <button type="button" class="int-dialog-back" data-int-dialog-back aria-label="Voltar ao conteúdo anterior" hidden>←</button>

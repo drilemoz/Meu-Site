@@ -1,3 +1,25 @@
+# Meu Site v1.0.94 — Wizard, SEO e listas de notícias
+
+- Botão Sair no canto direito do cabeçalho da notícia, sem importação por URL no assistente.
+- Uploads de Capa/Fotos/ZIP/Anexos em botões exclusivos, sem controles globais duplicados.
+- Ferramentas SEO com quatro ícones e pop-ups para slug, geração de descrição, edição de título/descrição e diagnóstico com correção.
+- O diagnóstico permite alterar e aplicar ajustes ao rascunho, com botão Salvar à direita; Cancelar não modifica os campos da notícia.
+- Notícias cadastradas e publicações recentes compartilham cartões responsivos, ícone de lixeira, categoria e tempo relativo conforme data real.
+- Sem alteração do schema 36; testes na hospedagem e no Android pendentes.
+
+---
+
+# Meu Site v1.0.93 — Pop-ups padronizados no painel
+
+- Todas as janelas de conteúdo principais do painel passam a seguir o mesmo padrão visual, usando um componente reutilizável.
+- Corrigidas as janelas gigantes de Google Analytics 4, AdSense, Search Console e PageSpeed no celular: agora centralizadas, com margens, limite de altura e rolagem interna, sem deslocamento horizontal por campos compridos.
+- PageSpeed agora mostra Celular e Computador em abas próprias; alternar abas não consulta a API e não altera resultados existentes.
+- Janelas de atualização, publicidade, avisos e editor recebem os mesmos cantos, cores, dimensões e botão de fechar, preservando seus formulários e operações.
+- Verificações de segurança, confirmação de senha, CSRF e progresso real de atualização permanecem. Banco schema 36 inalterado.
+- Testes locais e simulação de layout em Chromium executados. Necessário validar em dispositivo Android real e hospedagem antes de considerar a implantação aprovada.
+
+---
+
 # Meu Site v1.0.92 — Atualizações pelo GitHub em janela única
 
 - Tela principal mais enxuta: **Visualizar** e **Enviar ZIP**, sem link Releases nem cartões de origem/servidor.

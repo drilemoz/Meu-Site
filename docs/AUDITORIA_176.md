@@ -45,3 +45,12 @@ Sem `pdo_mysql`/`ZipArchive` e sem acesso administrativo à hospedagem, não hou
 ### Verificação 1.0.91
 
 Foram adicionados testes de contrato de anexos e da UI simplificada, além de executar os conjuntos PHP/JS e validação do build de CSS/editor. O ambiente local não tem `pdo_mysql` nem `ZipArchive`; por isso, uploads HTTP reais, autenticação MariaDB, extração do ZIP/Office e testes de interface num Android real **não** foram validados. Esses testes permanecem necessários após implantar na hospedagem.
+
+### Revisão 1.0.93 — Pop-ups do painel
+
+A regra de integrações que definia `100vw` e `100dvh` no celular foi substituída, para os diálogos com classe `igua-modal`, por cartão centralizado com altura limitada e rolagem interna. O componente é CSS/JS puro, sem chamadas externas. O PageSpeed foi dividido em abas acessíveis, mantendo os formulários e limites existentes. Testes locais validam estrutura e comandos; testes de responsividade via Chromium headless com fixture demonstraram largura 366px para viewport 390px, sem rolagem horizontal da página. O resultado não garante identidade visual em aparelhos Android específicos, e os fluxos autenticados GA4/PageSpeed na hospedagem permanecem pendentes.
+
+
+### Revisão 1.0.94 — Wizard e publicações
+
+Os seletores nativos de arquivos do wizard não recebem a interface global duplicada. SEO utiliza rascunhos temporários em pop-ups; títulos, slugs e descrições são aplicados somente quando o usuário confirma e não publicam a notícia. Os cartões de Notícias e Visão geral são gerados pelo mesmo componente PHP, com datas relativas calculadas no fuso America/São_Paulo e conferência de CSRF/ACL. Foram aprovados testes PHP/JS locais, sintaxe e integridade de pacotes. O teste em Chromium foi impedido por bloqueio de navegação neste ambiente, portanto não afirmar validação visual automatizada do novo layout; continuam pendentes testes físicos Android, instalação e uploads reais na hospedagem.

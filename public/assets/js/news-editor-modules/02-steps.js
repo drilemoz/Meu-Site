@@ -39,6 +39,7 @@
    if(active===steps.length-1)updateReview();
    if(scroll){document.querySelector('.news-step-nav').scrollIntoView({block:'start',behavior:'auto'});stepNav.hidden=true;stepsToggle.setAttribute('aria-expanded','false');}
  }
+ window.IguaNewsGoToStep=(index)=>changeTab(index,{scroll:true});
  function hasText(){updateSource();syncInputs();return !!(form.querySelector('[name=body]').value.trim()||blocks.some(b=>b.content.trim()));}
  function canLeave(index){
    if(index===0){const field=form.querySelector('[name=title]');if(!field.checkValidity()){changeTab(0);field.reportValidity();return false;}}
