@@ -1,0 +1,35 @@
+/* 1.0.24 | Controle de endereço editorial e prévia SEO, sem rolagem horizontal */
+.news-url-control{display:flex;flex-wrap:wrap;gap:9px;align-items:end;margin:13px 0 7px}
+.news-url-control>label{flex:1 1 210px;min-width:0}
+.news-url-control>button{flex:0 0 auto;max-width:100%;white-space:normal}
+.news-url-preview-label{display:block;margin-top:10px;color:#5c6d83}
+.news-url-preview{display:block;padding:10px 11px;overflow-wrap:anywhere;word-break:break-word;border:1px solid #dae6f9;background:#f6f9ff;border-radius:9px;font-size:12px;color:#1754a7}
+@media(max-width:600px){.news-url-control>button{width:100%;justify-content:center}}
+
+/* 1.0.25 | Central de SEO e checklist editorial responsivo */
+.seo-center,.seo-article-card{min-width:0}
+.seo-site-status,.seo-filter,.seo-card-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seo-site-status{margin:12px 0}
+.seo-status{display:inline-flex;min-width:0;max-width:100%;overflow-wrap:anywhere;background:#eff5fc;border:1px solid #d7e4f4;color:#345577;border-radius:999px;padding:6px 10px;font-size:12px}
+.seo-status.is-ok{background:#e8f8f1;color:#116348;border-color:#bee8d3}
+.seo-status.is-warning{background:#fff7e5;color:#8a5900;border-color:#f1dfa9}
+.seo-filter{margin-top:12px}.seo-filter-active{background:#e9f2fe!important;color:#1656ab!important}
+.seo-article-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,295px),1fr));gap:12px;margin:13px 0}
+.seo-article-card{margin:0!important}
+.seo-article-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.seo-article-head h3{font-size:15px;line-height:1.4;margin:4px 0 7px;overflow-wrap:anywhere}
+.seo-slug{font-size:11px;color:#537497;overflow-wrap:anywhere;word-break:break-word}
+.seo-score{flex:0 0 auto;background:#eef5ff;border:1px solid #cee0fa;color:#164d97;border-radius:12px;padding:7px 9px;text-align:center}
+.seo-score strong{font-size:22px}.seo-score small{font-size:11px}
+.seo-issues summary{font-size:12px;font-weight:650;color:#8a5d12;cursor:pointer;margin:12px 0 5px}
+.seo-issues ul,.seo-checklist{margin:7px 0 11px;padding-left:20px;font-size:12px;line-height:1.55}
+.seo-issues li{margin:4px 0;overflow-wrap:anywhere}
+.seo-card-actions{margin-top:12px}.seo-card-actions .btn{min-height:38px}
+.seo-success{font-size:12px;color:#126648}
+.seo-editor-audit{margin:12px 0;padding:12px;border:1px solid #dce6f4;border-radius:12px;background:#f7faff}
+.seo-audit-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#news-seo-score{font-weight:750;color:#205c9a;background:#e3efff;padding:5px 9px;border-radius:8px;font-size:13px}
+.seo-checklist{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:7px}
+.seo-checklist li{border:1px solid #dfe9f5;border-radius:8px;padding:7px 9px;background:#fff;overflow-wrap:anywhere}
+.seo-checklist .ok{color:#187047}.seo-checklist .warn{color:#8a611c}
+@media(max-width:560px){.seo-center .panel-heading{flex-wrap:wrap}.seo-site-status{align-items:stretch}.seo-status{border-radius:9px}.seo-card-actions .btn{flex:1 1 110px}}

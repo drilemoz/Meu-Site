@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin.php
+Disallow: /setup.php
+
+# Sitemap disponivel em /sitemap.php apos configurar SEO no painel.

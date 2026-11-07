@@ -1,0 +1,27 @@
+/storage/config.php
+/storage/config.*.tmp
+/storage/backups/*
+!/storage/backups/.gitkeep
+/storage/media/*
+!/storage/media/.gitkeep
+/public/uploads/*
+!/public/uploads/.htaccess
+!/public/uploads/.gitkeep
+*.log
+.DS_Store
+
+/storage/analytics.key
+/storage/geoip/*.mmdb
+
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# Estado privado de limite de login (não inclui dados de contas nem IP bruto).
+/storage/security/*
+!/storage/security/.gitkeep
+!/storage/security/login/
+/storage/security/login/*
+!/storage/security/login/.gitkeep
+
+# Chaves de conta de serviço Google (fora do backup e do ZIP)
+/storage/integrations/*

@@ -1,0 +1,12 @@
+{
+  "product": "Meu Site",
+  "name": "meu_site",
+  "displayName": "Meu Site",
+  "version": "1.0.73",
+  "packageFormat": 2,
+  "projectType": "web",
+  "framework": "PHP",
+  "language": "PHP",
+  "repository": "drilemoz/Meu-Site",
+  "entrypoint": "public/index.php"
+}

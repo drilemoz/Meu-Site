@@ -1,0 +1,78 @@
+/* v1.0.8 | Layout fluido, rodapé editorial, formulários institucionais, busca de cidades */
+html,body{max-width:100%;overflow-x:clip}
+.page-main,.admin-main,.panel,.bus-results,.bus-search-surface{min-width:0}
+.bus-search-form input[type=search]{width:100%;min-width:0;height:51px;border:1px solid #cbd9ee;border-radius:11px;background:white;color:#17365f;padding:0 13px;font-size:15px;outline-offset:2px}
+.bus-search-form input[type=search]:focus{border-color:#216ff0;box-shadow:0 0 0 3px #1d64ec1a}
+.bus-search-form input::placeholder{color:#8999ae}
+.bus-next-duration{display:inline-flex;align-items:center;gap:8px;background:#ffffff18;border:1px solid #ffffff35;border-radius:11px;padding:7px 13px;margin:0 0 15px;font-weight:750;font-size:13px;color:#f7faff}
+.bus-admin-heading h2{font-size:22px;margin:0 0 5px}.bus-admin-heading p{max-width:670px;line-height:1.55;font-size:13px;margin:0}
+.bus-admin-heading{width:100%;min-width:0;margin-bottom:16px}
+.bus-admin-actions{display:flex;justify-content:flex-start;flex-wrap:wrap;gap:10px;margin:18px 0 21px}
+.bus-admin-actions .btn{min-height:43px;padding:10px 14px;font-size:13px;white-space:nowrap}
+.bus-admin-overview .table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+.bus-admin-overview table{min-width:710px}
+.bus-admin-overview .alert.warning{line-height:1.55}
+.site-footer{background:#f4f7fd;border-top:1px solid #dae5f4}
+.footer-new{padding-top:40px;padding-bottom:20px}
+.footer-new-top{display:grid;grid-template-columns:minmax(195px,.75fr) minmax(0,1.75fr);gap:clamp(24px,5vw,90px);padding-bottom:30px}
+.footer-wordmark{font-size:27px;font-weight:850;letter-spacing:-.06em;color:#143478;line-height:1.15}
+.footer-wordmark span{color:#0567f4}
+.footer-identity p{font-size:13px;color:#72829a;line-height:1.7;margin:10px 0 16px;max-width:260px}
+.footer-place{display:inline-block;font-size:12px;color:#425a7e;background:#e8eef8;border-radius:20px;padding:7px 11px}
+.footer-new-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,2.8vw,35px)}
+.footer-new-nav>div{display:flex;flex-direction:column;align-items:flex-start;min-width:0;gap:11px}
+.footer-new-nav strong{color:#163157;font-size:13px;margin-bottom:5px}
+.footer-new-nav a{color:#5b6c85;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+.footer-new-nav a:hover,.footer-new-nav a:focus-visible{color:var(--blue);text-decoration:underline}
+.footer-new-bottom{border-top:1px solid #dde6f2;padding-top:17px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.footer-new-bottom small{color:#8290a5;font-size:11px;line-height:1.6}
+.footer-new-bottom .footer-admin-gear{margin-left:auto;flex:0 0 40px;width:40px;height:40px;color:#6d82a2;font-size:22px;background:white;border-color:#d3deed}
+.info-hero{padding:clamp(28px,4vw,55px) 0 24px;max-width:850px}
+.info-eyebrow{display:block;letter-spacing:.13em;font-size:11px;color:#0f64d9;font-weight:800}
+.info-hero h1{font-size:clamp(29px,4vw,47px);margin:9px 0 8px}
+.info-hero p{color:#65748c;font-size:clamp(14px,1.5vw,17px)}
+.info-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(215px,.8fr);gap:24px;align-items:start;margin-bottom:45px}
+.info-card,.info-side{border-radius:17px;border:1px solid #e0e8f4;background:white;box-shadow:0 7px 26px #14274709;padding:clamp(20px,3.5vw,35px)}
+.info-card h2{margin:0 0 10px;font-size:24px}
+.info-side{background:#f4f8ff;color:#335173}
+.info-side-icon{font-size:28px;color:#1767dd}
+.info-side h3{margin:10px 0}
+.info-side p{font-size:13px;color:#596d89;line-height:1.7}
+.contact-form{display:grid;gap:15px;margin-top:21px}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.contact-form label{display:grid;gap:6px;font-size:13px;font-weight:700;color:#3b4f6d}
+.contact-form input:not([type=checkbox]),.contact-form select,.contact-form textarea{width:100%;min-width:0;border:1px solid #cdd8ea;background:#fff;border-radius:11px;padding:11px 12px;color:#253b5d;font-size:15px}
+.contact-form input:focus-visible,.contact-form textarea:focus-visible,.contact-form select:focus-visible{outline:2px solid #2372ed}
+.contact-form textarea{resize:vertical}
+.contact-form .contact-consent{display:flex;align-items:flex-start;gap:10px;font-size:12px;font-weight:450;line-height:1.65}
+.contact-consent input{accent-color:#1765e8;margin-top:3px}
+.contact-consent a,.legal-content a{color:#0d61d5;font-weight:750;text-decoration:underline}
+.contact-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.contact-form>.btn{justify-self:start;min-height:45px}
+.legal-content{max-width:910px;margin:0 auto 45px}
+.legal-content h2{font-size:20px;margin:25px 0 9px}
+.legal-content p{color:#475975;font-size:15px;line-height:1.78}
+@media(max-width:760px){
+ .container{width:calc(100% - 24px);max-width:100%}
+ .admin-main{padding:20px 12px 70px;width:100%;min-width:0}
+ .panel{padding:17px 14px;max-width:100%;min-width:0}
+ .bus-admin-heading h2{font-size:20px}
+ .bus-admin-heading p{font-size:13px;line-height:1.6}
+ .bus-admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0}
+ .bus-admin-actions .btn{padding:10px 8px;font-size:11px;white-space:normal;text-align:center}
+ .bus-admin-overview .table-wrap{margin-top:15px}
+ .footer-new{padding:30px 0 105px}
+ .footer-new-top{grid-template-columns:1fr;gap:23px}
+ .footer-identity p{margin:5px 0 11px}
+ .footer-new-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}
+ .footer-new-bottom{padding-top:18px}
+ .footer-new-bottom small{font-size:10px}
+ .bus-search-form input[type=search]{height:48px}
+ .bus-next-duration{font-size:12px}
+ .info-layout{grid-template-columns:1fr;gap:16px}
+ .info-hero{padding-top:22px}
+ .info-card,.info-side{padding:20px 16px}
+ .contact-grid{grid-template-columns:1fr}
+ .legal-content h2{font-size:18px}
+}
+

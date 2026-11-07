@@ -1,0 +1,56 @@
+/* IguaNews 1.0.1: instalador em três etapas, inspirado no fluxo WordPress. */
+.setup-wizard {max-width:750px}
+.wizard-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:5px 0 30px}
+.wizard-steps span{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;padding:9px 4px;border-radius:10px;background:#f2f5fa;color:#6e7f96;font-size:12px;font-weight:700;white-space:nowrap}
+.wizard-steps b{width:23px;height:23px;flex-shrink:0;display:grid;place-items:center;border-radius:50%;background:#e1e8f1;font-size:11px;color:#61748e}
+.wizard-steps .current{background:#eaf2ff;color:#155bd1}
+.wizard-steps .current b{background:#1265ec;color:#fff}
+.wizard-steps .complete{background:#eaf6ef;color:#15714a}
+.wizard-steps .complete b{background:#13965e;color:#fff}
+.requirements-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;border-radius:12px;padding:13px 16px;background:#f3f7ff;color:#143566;margin:24px 0 12px;font-size:13px}
+.requirements-summary span{color:#687991;font-size:11px}
+.requirements-list{display:grid;gap:8px;margin-bottom:20px}
+.requirement-item{display:flex;gap:13px;align-items:flex-start;padding:15px;border:1px solid #e5ebf3;border-radius:12px;background:#fff}
+.requirement-icon{width:27px;height:27px;flex:0 0 27px;display:grid;place-items:center;border-radius:50%;background:#e1f5ec;color:#137f4f;font-weight:900}
+.requirement-item.failed{border-color:#f1c8c7;background:#fffafa}
+.requirement-item.failed .requirement-icon{background:#ffe2e0;color:#b42c39}
+.requirement-item.optional .requirement-icon{background:#fff0d5;color:#9b6410}
+.requirement-item h2{font-size:14px;margin:0 0 2px;font-weight:750;letter-spacing:-.01em;color:#1a2c4d}
+.requirement-item h2 small{font-size:10px;font-weight:500;color:#8a97aa}
+.requirement-item p{font-size:12px;margin:0;color:#63748d}
+.requirement-fix{font-size:12px;line-height:1.6;margin-top:8px;color:#683f3f}
+.requirement-item.optional .requirement-fix{color:#765b33}
+.wizard-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;margin-top:16px}
+.wizard-actions .btn{margin:0;text-align:center;min-height:42px}
+.setup-success{background:#ebf8f1;color:#116b42;border:1px solid #bce5cf}
+.setup-diagnosis{margin:10px 0 17px;border:1px solid #e4e8ee;border-radius:11px;padding:15px 18px;background:#f8faff;font-size:13px;color:#354863;line-height:1.6}
+.setup-diagnosis ul{margin:8px 0 0;padding-left:20px}
+.setup-wizard code{font-size:11px;overflow-wrap:anywhere}
+@media(max-width:600px){.wizard-steps{gap:4px;margin-bottom:25px}.wizard-steps span{font-size:10px;gap:4px;padding:8px 2px}.wizard-steps b{width:19px;height:19px;flex-basis:19px}.requirements-summary{flex-direction:column;align-items:flex-start}.requirement-item{padding:12px}.requirement-item h2{font-size:13px}.requirement-item p{font-size:11px}.wizard-actions .btn{flex:1;font-size:12px}}
+
+/* 1.0.2 | Assistente de instalação: rotas de provisionamento e migração. */
+.setup-route-list{display:grid;gap:14px;margin:19px 0}
+.setup-route{background:#fff;border:1px solid #e2e9f5;border-radius:17px;overflow:hidden;box-shadow:0 6px 20px rgba(21,50,98,.04)}
+.setup-route[open]{border-color:#bcd3fc;box-shadow:0 10px 28px rgba(13,89,204,.08)}
+.setup-route summary{list-style:none;cursor:pointer;display:flex;gap:14px;align-items:center;padding:18px 20px;outline-offset:-3px}
+.setup-route summary::-webkit-details-marker{display:none}
+.setup-route summary>span:nth-child(2){display:flex;flex-direction:column;min-width:0;gap:1px;flex:1}
+.setup-route summary strong{font-size:16px;color:#182d50;line-height:1.3}
+.setup-route summary small{font-size:12px;color:#74849b;line-height:1.4}
+.setup-route-symbol{width:43px;height:43px;border-radius:12px;background:linear-gradient(145deg,#327aff,#075bdd);color:#fff;display:grid;place-items:center;font-size:23px;flex-shrink:0;box-shadow:0 5px 10px #296aef29}
+.setup-route-symbol.route-secondary{background:#e9f1ff;color:#1560e4;box-shadow:none}
+.route-chevron{color:#91a0b6;font-size:25px;transition:transform .18s}
+.setup-route[open] .route-chevron{transform:rotate(180deg)}
+.route-detail{padding:4px 20px 21px;border-top:1px solid #eef2f8}
+.route-detail>.muted:first-child{padding-top:14px;margin-bottom:16px;font-size:13px}
+.route-detail .setup-form{display:grid;gap:8px}
+.route-detail .form-grid{gap:12px}
+.route-detail .form-grid label{font-size:13px}
+.route-detail .alert{margin:0;font-size:12px}
+.route-detail .wizard-actions{margin-top:11px}
+.route-detail .btn.primary{min-height:44px}
+.setup-trust{display:flex;gap:9px;align-items:flex-start;margin-top:25px;padding:13px 15px;color:#60738f;background:#f5f8fc;border-radius:12px;font-size:11.5px;line-height:1.55}
+.setup-trust span{font-size:16px;flex-shrink:0}
+.setup-wizard .form-grid input[type=file]{padding:11px;background:#f8faff}
+@media(max-width:600px){.setup-route summary{padding:15px 13px;gap:9px}.setup-route summary strong{font-size:14px}.setup-route summary small{font-size:11px}.setup-route-symbol{width:37px;height:37px;font-size:19px}.route-detail{padding:3px 13px 17px}.route-detail .wizard-actions .btn{width:100%;flex:1}.route-detail .form-grid{gap:10px}.setup-trust{font-size:11px}}
+

@@ -1,0 +1,3 @@
+ form.addEventListener('submit',e=>{updateSource();syncInputs();const body=form.querySelector('[name=body]');if(!body.value.trim()&&!blocks.some(b=>b.content.trim())){changeTab(1,{scroll:true});e.preventDefault();status.textContent='Adicione um bloco ou escreva o texto completo.';return;}if(!form.querySelector('[name=summary]').value.trim()){form.querySelector('[name=summary]').value=(blocks.map(x=>x.content).join(' ')||body.value).slice(0,240);}if(!form.querySelector('[name=seo_description]').value.trim())seo();submitting=true;});
+ render();loadVisual();preview();categorySuggestion();changeTab(0);
+})();
