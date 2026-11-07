@@ -1,3 +1,14 @@
+# Meu Site v1.0.99 — Publicação de páginas legais e data automática
+
+- Pop-ups de confirmação e conteúdo centralizados, com altura ajustada ao texto, rolagem interna quando necessária e sem ocupar desnecessariamente o celular.
+- Separadas Informações e Páginas do aplicativo. Cartões com botões compactos de Editar, Prévia/Visualizar, Copiar e Publicar.
+- **Publicar tudo** salva as três revisões principais numa única transação: erros não deixam publicação parcial. Rascunhos não alteram automaticamente a versão pública.
+- A data de **Última atualização** deriva de `legal_app_revisions.created_at` (momento da publicação), sem ser digitada no texto. Reutilizar conteúdo idêntico não altera a data.
+- Modelos novos do Uai Cortes revisados sem instruções PREENCHER nem datas fixas; opção de atualizar somente rascunhos antigos intactos, preservando edições existentes. A conformidade jurídica depende de revisão do administrador.
+- Schema 37, backup v12 e recursos antigos preservados. Testes de integração em MariaDB/hospedagem ainda necessários.
+
+---
+
 # Meu Site v1.0.98 — Links para visualizar páginas de aplicativos
 
 - Nos cartões de páginas legais, **Ver página** abre o endereço real em nova aba somente se aplicativo e página estiverem publicados.

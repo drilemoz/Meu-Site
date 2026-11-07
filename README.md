@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.98** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.99** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.99 — Páginas legais, publicação e datas automáticas
+
+- **Última atualização** das páginas públicas vem da data real de criação da revisão publicada no MariaDB. Salvar rascunho não altera a data pública. Na edição, a revisão ativa e a data são informadas automaticamente, sem campos manuais.
+- **Aplicativos:** cartão com Páginas, Copiar e Publicar; Informações em tela própria. Na tela de páginas, Editar, Visualizar/Prévia, Copiar e Publicar dividem uma linha no celular.
+- **Publicar tudo:** publicação transacional de apresentação, privacidade e termos. Valida texto, dados de responsável e e-mail antes de gravar qualquer revisão. Reutiliza a revisão publicada quando seu conteúdo não mudou; exige confirmação explícita.
+- **Uai Cortes:** rascunhos novos sem marcações PREENCHER ou datas fictícias, mantendo somente informações técnicas fundamentadas. O botão Atualizar modelos originais reconhece rascunhos *intactos* das versões anteriores, sem substituir páginas personalizadas ou publicadas. Os textos exigem revisão do responsável antes de disponibilização pública.
+- **Pop-ups administrativos:** estilo compartilhado com altura intrínseca e máximo de 82dvh, centrado em telas móveis e com rolagem somente para conteúdo extenso. Sem mudança de schema (37) ou backup (v12).
 
 ## Versão 1.0.98 — Visualizar páginas de aplicativos
 

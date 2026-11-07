@@ -31,6 +31,25 @@ try{
     $collision=false;try{igua_app_assert_slug($db,$base.'-a');}catch(InvalidArgumentException){$collision=true;}
     legal196mysql($collision,'colisão de slug bloqueada');
     $firstSlug=$base.'-a';$otherSlug=$base.'-b';
+    // 1.0.99: publicações criam data somente quando conteúdo mudou, nunca por salvar rascunho.
+    $q=$db->prepare('SELECT * FROM legal_app_pages WHERE app_id=? ORDER BY id');$q->execute([$ids[1]]);$draftPages=$q->fetchAll(PDO::FETCH_ASSOC);
+    $bodyForTest='Esta página de integração possui texto suficientemente completo para validar publicação e revisar as datas da revisão publicada.';
+    $db->beginTransaction();
+    foreach($draftPages as $row){
+        $db->prepare('UPDATE legal_app_pages SET draft_title=?,draft_body=?,draft_seo_description=? WHERE id=?')
+          ->execute(['Página de teste '.$row['slug'],$bodyForTest,'Descrição SEO de integração',(int)$row['id']]);
+    }
+    $db->commit();
+    $q=$db->prepare('SELECT * FROM legal_app_pages WHERE app_id=? FOR UPDATE');
+    $db->beginTransaction();$q->execute([$ids[1]]);$rows=$q->fetchAll(PDO::FETCH_ASSOC);
+    foreach($rows as $row)legal196mysql(igua_app_publish_snapshot($db,$row,0)===1,'primeira revisão do app de teste');
+    $db->commit();
+    $q=$db->prepare('SELECT * FROM legal_app_pages WHERE app_id=? FOR UPDATE');
+    $db->beginTransaction();$q->execute([$ids[1]]);$rows=$q->fetchAll(PDO::FETCH_ASSOC);
+    foreach($rows as $row)legal196mysql(igua_app_publish_snapshot($db,$row,0)===null,'sem revisão nova para conteúdo idêntico');
+    $db->commit();
+    $q=$db->prepare('SELECT COUNT(*) FROM legal_app_revisions r JOIN legal_app_pages p ON p.id=r.page_id WHERE p.app_id=?');$q->execute([$ids[1]]);
+    legal196mysql((int)$q->fetchColumn()===3,'datas das três revisões inalteradas para conteúdo idêntico');
     legal196mysql(igua_app_public($db,$firstSlug,'inicio')===null,'rascunho nunca servido ao público');
     $q=$db->prepare('SELECT id,slug FROM legal_app_pages WHERE app_id=? ORDER BY id');$q->execute([$ids[0]]);
     $pages=$q->fetchAll(PDO::FETCH_ASSOC);

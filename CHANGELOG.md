@@ -1,3 +1,12 @@
+# 1.0.99 (2026-11-07)
+
+- Pop-ups de conteúdo administrativos reduzidos à altura real do texto, centralizados com limite de viewport; preservada rolagem interna, foco, autenticação e CSRF.
+- Aplicativos e Páginas Legais: Informações do app em tela própria; páginas, cópia e publicação em botões compactos, com ações individuais alinhadas.
+- Publicar tudo: preflight e publicação das três páginas principais numa transação, sem aplicar alterações parciais; revisão idêntica não muda a data publicada.
+- Última atualização pública calculada da revisão ativa no banco; salvar/editar rascunho não muda data pública.
+- Modelos Uai Cortes sem PREENCHER e sem datas fixas; migração conservadora de modelos originais por hash, não modifica conteúdo personalizado ou publicado.
+- Testes PHP de segurança, modelos, data, roteamento e painel e simulação de popup no Chromium. Schema 37 e backup v12 mantidos.
+
 # 1.0.98 (2026-11-07)
 
 - Aplicativos e Páginas Legais: ação **Ver página** para páginas efetivamente publicadas, em nova aba.

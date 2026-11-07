@@ -12,7 +12,7 @@ foreach(['home','privacy','terms'] as $kind){
  a197(!preg_match('/<script|<iframe|javascript:/i',$data['body']),'Sem HTML ativo');
  a197(str_contains(igua_app_render_markdown($data['body']),'<h2>'),'Markdown renderiza no servidor');
 }
-a197(str_contains($examples['privacy']['body'],'PREENCHER:') && str_contains($examples['terms']['body'],'PREENCHER:'),'Modelos jurídicos exigem revisão');
+a197(!str_contains($examples['privacy']['body'],'PREENCHER:') && !str_contains($examples['terms']['body'],'PREENCHER:') && !str_contains($examples['privacy']['body'],'Última atualização:'),'Modelos jurídicos objetivos sem instruções ou data fixa embutida');
 a197(str_contains(igua_app_legal_template('privacy','Outro aplicativo'),'PREENCHER:'),'Outros apps não herdam texto Uai');
 a197(str_contains(file_get_contents(__DIR__.'/../app/admin_controllers/apps_legal.php'),'igua_app_apply_uai_examples'),'Carregamento somente por POST explícito');
-echo "OK: três modelos Uai e rascunhos protegidos de publicação acidental\n";
+echo "OK: três modelos Uai, datas automáticas e revisão editorial necessária\n";

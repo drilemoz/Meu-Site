@@ -100,6 +100,40 @@ function igua_app_legal_template(string $kind,string $name): string {
     if($name==='Uai Cortes')return (string)(igua_uai_legal_examples()[$kind]['body'] ?? '');
     return igua_app_generic_legal_template($kind,$name);
 }
+/** Reconhece somente os modelos antigos intactos; nunca altera texto personalizado. */
+function igua_app_uai_legacy_model_untouched(string $kind,string $body): bool {
+    $hashes=[
+        'home'=>'2199372ce8b83f834f08c765df91bdb468c8f4de3f7605f14434eaad79bb5f22',
+        'privacy'=>'ab5efcede2d5428aa06d156aea4548c9bd389e563a4e10e2317b66d1c169fcd8',
+        'terms'=>'351ba8e9794d0a4745c5574ee0736f65443d789ce0db4ac1c9a88ee355cb0d77',
+    ];
+    return isset($hashes[$kind]) && hash_equals($hashes[$kind],hash('sha256',$body));
+}
+/** Valida sem publicar; usado na publicação de uma ou de várias páginas. */
+function igua_app_assert_legal_publishable(array $page): void {
+    if(trim((string)($page['draft_title']??''))==='' || ulen(trim((string)($page['draft_body']??'')))<40)
+        throw new InvalidArgumentException('Preencha título e texto antes de publicar.');
+    if(preg_match('/\bPREENCHER\s*:/iu',(string)$page['draft_body']))
+        throw new InvalidArgumentException('Existe uma instrução PREENCHER no rascunho. Revise o texto ou atualize o modelo original antes de publicar.');
+}
+/** Publicação transacional. Reutiliza uma revisão apenas se texto, título e SEO forem idênticos. */
+function igua_app_publish_snapshot(PDO $db,array $page,int $userId): ?int {
+    igua_app_assert_legal_publishable($page);
+    $id=(int)$page['id'];
+    if($page['status']==='published' && (int)($page['published_revision_id']??0)>0){
+        $q=$db->prepare('SELECT title,body,seo_description FROM legal_app_revisions WHERE id=? AND page_id=? LIMIT 1');
+        $q->execute([(int)$page['published_revision_id'],$id]);$live=$q->fetch();
+        if($live && $live['title']===$page['draft_title'] && $live['body']===$page['draft_body'] && $live['seo_description']===$page['draft_seo_description'])return null;
+    }
+    $q=$db->prepare('SELECT COALESCE(MAX(revision_number),0) FROM legal_app_revisions WHERE page_id=?');
+    $q->execute([$id]);$number=(int)$q->fetchColumn()+1;
+    $db->prepare('INSERT INTO legal_app_revisions (page_id,revision_number,title,body,seo_description,created_by) VALUES (?,?,?,?,?,?)')
+        ->execute([$id,$number,$page['draft_title'],$page['draft_body'],$page['draft_seo_description'],$userId>0?$userId:null]);
+    $revision=(int)$db->lastInsertId();
+    $db->prepare("UPDATE legal_app_pages SET published_revision_id=?,status='published' WHERE id=?")
+       ->execute([$revision,$id]);
+    return $number;
+}
 /**
  * Preenche modelos somente após ação administrativa explícita. Páginas modificadas
  * pelo usuário, revisões publicadas e outros aplicativos permanecem intocados.
@@ -118,7 +152,7 @@ function igua_app_apply_uai_examples(PDO $db,int $id): array {
             if(!isset($samples[$kind]))continue;
             $body=(string)$page['draft_body'];
             if($page['status']!=='draft' || $page['published_revision_id']!==null ||
-               ($body!=='' && $body!==igua_app_generic_legal_template($kind,'Uai Cortes'))){$skipped++;continue;}
+               ($body!=='' && $body!==igua_app_generic_legal_template($kind,'Uai Cortes') && !igua_app_uai_legacy_model_untouched($kind,$body))){$skipped++;continue;}
             $model=$samples[$kind];
             $update=$db->prepare('UPDATE legal_app_pages SET draft_title=?,draft_body=?,draft_seo_description=? WHERE id=?');
             $update->execute([$model['title'],$model['body'],$model['seo'],(int)$page['id']]);$updated++;

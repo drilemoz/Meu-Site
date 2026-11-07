@@ -1,4 +1,4 @@
-<?php if(in_array($action,['legal_apps','legal_app_edit','legal_page_edit'],true)): require __DIR__.'/routes/legal_apps.php'; ?>
+<?php if(in_array($action,['legal_apps','legal_app_edit','legal_app_info','legal_page_edit'],true)): require __DIR__.'/routes/legal_apps.php'; ?>
 <?php elseif(in_array($action,['bus','bus_edit','bus_import'],true)): bus_admin_view($db,$action); ?>
 <?php elseif($action==='ads'): ad_admin_view($db); ?>
 <?php elseif($action==='media'): ?><?php media_admin_modal(true); ?>

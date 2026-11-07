@@ -1612,3 +1612,44 @@ html,body{max-width:100%;overflow-x:clip}
 .legal-app-links a{padding:9px 13px;border-radius:10px;border:1px solid #cfdceb;text-decoration:none}
 .legal-app-links [aria-current=page]{color:#fff;background:#175db7;border-color:#175db7}
 @media(max-width:650px){.legal-fields-two{grid-template-columns:1fr}.legal-app-card-top{flex-wrap:wrap}.legal-app-heading{align-items:flex-start}.legal-app-logo{width:64px;height:64px}.legal-page-actions{width:100%;gap:6px}.legal-page-actions .btn{font-size:.84rem}.legal-action-row form{max-width:100%}.legal-admin .btn{min-height:44px}}
+
+/* 1.0.99: diálogos de conteúdo do painel sempre centrados e com altura de acordo
+   com o conteúdo. Isso prevalece sobre antigos estilos de janela em tela cheia.
+   A rolagem fica dentro da janela somente quando o conteúdo for extenso. */
+.admin-body dialog.igua-modal[open]{
+  box-sizing:border-box;inset:0;margin:auto;
+  width:min(var(--igua-dialog-width,560px),calc(100vw - 28px));
+  max-width:calc(100vw - 28px);min-width:0;
+  height:fit-content!important;min-height:0!important;
+  max-height:min(82dvh,740px);overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;border-radius:18px;
+}
+.admin-body dialog.igua-modal.admin-ui-dialog[open] form{height:auto!important;min-height:0!important}
+.admin-body dialog.igua-modal.igua-modal--narrow[open]{--igua-dialog-width:450px}
+.admin-body dialog.igua-modal.igua-modal--wide[open]{--igua-dialog-width:690px}
+.admin-body .int-hub dialog.igua-modal.int-dialog[open]{overflow:hidden}
+.admin-body .int-hub dialog.igua-modal.int-dialog .int-dialog-shell{height:auto;min-height:0;max-height:min(82dvh,740px)}
+.admin-body dialog.igua-modal#legal-preview-dialog[open]{padding:0;overflow:hidden}
+.admin-body dialog.igua-modal#legal-preview-dialog .legal-preview-content{overflow:auto;max-height:min(60dvh,520px)}
+
+/* Ações acessíveis sem quebra de linha nos cartões e rodapé de publicação. */
+.legal-compact-actions{display:grid;width:100%;gap:7px;margin-top:12px;align-items:stretch}
+.legal-three-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.legal-four-actions{grid-template-columns:repeat(4,minmax(0,1fr))}
+.legal-overview-actions{grid-template-columns:repeat(auto-fit,minmax(115px,1fr))}
+.legal-publication-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.legal-compact-actions form{display:flex;min-width:0;width:100%;margin:0}
+.legal-compact-actions .btn,.legal-compact-actions button{width:100%;min-width:0;min-height:44px;text-align:center;display:flex;align-items:center;justify-content:center;padding:9px 5px;font-size:.85rem;line-height:1.22;overflow-wrap:anywhere}
+.legal-compact-actions .legal-revision-status{display:flex;align-items:center;justify-content:center;min-width:0;padding:8px 3px;background:#eef2f7;border-radius:10px;font-size:.81rem;font-weight:700;color:#516580;text-align:center}
+.legal-page-row .legal-page-actions{flex-basis:100%;width:100%;margin-top:4px}
+.legal-review-checklist{border:1px solid #d5e4ef;border-radius:12px;padding:11px 13px;background:#f7fbff;margin-top:12px;color:#2d4b6a}
+.legal-review-checklist summary{cursor:pointer;font-weight:700}
+.legal-review-checklist p{font-size:.91rem;margin:9px 0 1px}
+.legal-date-status{border-top:1px solid #e1e9f1;margin:14px 0 0;padding-top:12px;font-size:.85rem}
+@media(max-width:650px){
+  .admin-body dialog.igua-modal[open]{width:min(var(--igua-dialog-width,560px),calc(100vw - 28px));max-width:calc(100vw - 28px);height:fit-content!important;max-height:min(82dvh,740px);min-height:0!important}
+  .legal-three-actions,.legal-four-actions{gap:5px}
+  .legal-three-actions .btn{font-size:.82rem;padding:9px 3px}
+  .legal-four-actions .btn{font-size:clamp(.64rem,2.6vw,.78rem);padding:9px 2px;letter-spacing:-.01em}
+  .legal-publication-actions .btn,.legal-publication-actions .legal-revision-status{font-size:.77rem}
+}

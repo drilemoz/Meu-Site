@@ -3,7 +3,7 @@ declare(strict_types=1);
 /** Lista explícita de ações POST e seus controladores privados; nunca incluir caminhos vindos da URL. */
 function igua_admin_post_module(string $action): ?string {
     static $routes = [
-        'save_legal_app'=>'apps_legal', 'publish_legal_app'=>'apps_legal',
+        'save_legal_app'=>'apps_legal', 'publish_legal_app'=>'apps_legal', 'publish_legal_all'=>'apps_legal',
         'delete_legal_app'=>'apps_legal', 'create_legal_page'=>'apps_legal',
         'save_legal_page'=>'apps_legal', 'publish_legal_page'=>'apps_legal',
         'unpublish_legal_page'=>'apps_legal', 'restore_legal_revision'=>'apps_legal',

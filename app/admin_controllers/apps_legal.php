@@ -60,11 +60,36 @@ if($action==='publish_legal_app'){
     flash($status==='published'?'Aplicativo publicado.':'Aplicativo retirado do público. As versões foram preservadas.');
     redirect('/admin.php?action=legal_app_edit&id='.$id);
 }
+if($action==='publish_legal_all'){
+    $id=(int)($_POST['id']??0);
+    if(($_POST['confirm']??'')!=='1') throw new InvalidArgumentException('Confirme a publicação de todas as páginas.');
+    $db->beginTransaction();
+    try {
+        $q=$db->prepare('SELECT * FROM legal_apps WHERE id=? FOR UPDATE');$q->execute([$id]);$app=$q->fetch();
+        if(!$app)throw new InvalidArgumentException('Aplicativo não encontrado.');
+        if(trim((string)$app['developer_name'])==='' || !filter_var((string)$app['support_email'],FILTER_VALIDATE_EMAIL))
+            throw new InvalidArgumentException('Informe responsável e e-mail de suporte antes de publicar.');
+        $q=$db->prepare("SELECT * FROM legal_app_pages WHERE app_id=? AND slug IN ('inicio','privacidade','termos') FOR UPDATE");
+        $q->execute([$id]);$pages=[];foreach($q->fetchAll() as $item)$pages[$item['slug']]=$item;
+        foreach(['inicio','privacidade','termos'] as $slug){
+            if(!isset($pages[$slug]))throw new InvalidArgumentException('Falta a página obrigatória '.$slug.'.');
+            igua_app_assert_legal_publishable($pages[$slug]);
+        }
+        $changed=0;
+        foreach(['inicio','privacidade','termos'] as $slug){
+            if(igua_app_publish_snapshot($db,$pages[$slug],(int)$me['id'])!==null)$changed++;
+        }
+        $db->prepare("UPDATE legal_apps SET status='published',published_at=COALESCE(published_at,NOW()) WHERE id=?")->execute([$id]);
+        $db->commit();
+    }catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
+    flash('Aplicativo e páginas publicados. '.$changed.' nova(s) revisão(ões). As datas exibidas refletem a última publicação de cada página.');
+    redirect('/admin.php?action=legal_app_edit&id='.$id);
+}
 if($action==='load_uai_legal_examples'){
     $id=(int)($_POST['id']??0);
     if(($_POST['confirm']??'')!=='1')throw new InvalidArgumentException('Confirme a inclusão dos modelos.');
     $count=igua_app_apply_uai_examples($db,$id);
-    flash('Modelos carregados em '.$count['updated'].' página(s) ainda não editadas. '.$count['skipped'].' página(s) preservada(s). Revise os campos PREENCHER antes de publicar.');
+    flash('Modelos carregados em '.$count['updated'].' página(s) ainda não editadas. '.$count['skipped'].' página(s) preservada(s). Confira o texto e os fatos antes de publicar.');
     redirect('/admin.php?action=legal_app_edit&id='.$id);
 }
 if($action==='delete_legal_app'){
@@ -100,22 +125,14 @@ if($action==='publish_legal_page'){
     $id=(int)($_POST['id']??0);$page=igua_app_find_page($db,$id);
     if(!$page)throw new InvalidArgumentException('Página não encontrada.');
     if(($_POST['confirm']??'')!=='1')throw new InvalidArgumentException('Confirme a publicação.');
-    if(trim($page['draft_title'])==='' || ulen(trim($page['draft_body']))<40)throw new InvalidArgumentException('Preencha título e texto antes de publicar.');
-    if(preg_match('/\bPREENCHER\s*:/iu',$page['draft_body']))throw new InvalidArgumentException('Substitua todas as instruções PREENCHER antes de publicar.');
     $db->beginTransaction();
     try {
-        $lock=$db->prepare('SELECT id FROM legal_app_pages WHERE id=? FOR UPDATE');$lock->execute([$id]);
-        $page=igua_app_find_page($db,$id);
-        if(!$page || trim((string)$page['draft_title'])==='' || ulen(trim((string)$page['draft_body']))<40 || preg_match('/\bPREENCHER\s*:/iu',$page['draft_body'])) throw new InvalidArgumentException('O rascunho precisa estar completo antes da publicação.');
-        $last=$db->prepare('SELECT COALESCE(MAX(revision_number),0) FROM legal_app_revisions WHERE page_id=?');$last->execute([$id]);
-        $num=(int)$last->fetchColumn()+1;
-        $q=$db->prepare('INSERT INTO legal_app_revisions (page_id,revision_number,title,body,seo_description,created_by) VALUES (?,?,?,?,?,?)');
-        $q->execute([$id,$num,$page['draft_title'],$page['draft_body'],$page['draft_seo_description'],(int)$me['id']]);
-        $revision=(int)$db->lastInsertId();
-        $db->prepare("UPDATE legal_app_pages SET published_revision_id=?,status='published' WHERE id=?")->execute([$revision,$id]);
+        $lock=$db->prepare('SELECT * FROM legal_app_pages WHERE id=? FOR UPDATE');$lock->execute([$id]);
+        $locked=$lock->fetch();if(!$locked)throw new InvalidArgumentException('Página não encontrada.');
+        $num=igua_app_publish_snapshot($db,$locked,(int)$me['id']);
         $db->commit();
     }catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
-    flash('Página publicada como revisão '.$num.'.');redirect('/admin.php?action=legal_page_edit&id='.$id);
+    flash($num===null?'Página já estava publicada com este conteúdo.':'Página publicada como revisão '.$num.'.');redirect('/admin.php?action=legal_page_edit&id='.$id);
 }
 if($action==='unpublish_legal_page'){
     $id=(int)($_POST['id']??0);$page=igua_app_find_page($db,$id);

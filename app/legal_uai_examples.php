@@ -50,8 +50,6 @@ MD
             'body'=><<<'MD'
 # Política de Privacidade do Uai Cortes
 
-**Modelo para revisão antes da publicação. Última atualização: PREENCHER: data da revisão final.**
-
 Esta política descreve o uso de informações pelo aplicativo Android Uai Cortes, desenvolvido por Adriedson Aparecido Lemos. Contato: [drilemoz@gmail.com](mailto:drilemoz@gmail.com).
 
 ## 1. Arquivos e projetos
@@ -70,19 +68,17 @@ Funcionalidades opcionais de IA podem enviar os textos, legendas, áudios, image
 
 ## 4. Diagnóstico
 
-O aplicativo oferece diagnóstico técnico local opcional. A implementação procura registrar estados, eventos e categorias de falhas sem incluir tokens nem o conteúdo dos projetos. PREENCHER: confirmar se há outros serviços de telemetria, suas finalidades e destinos, caso existam.
+O aplicativo dispõe de diagnóstico técnico local opcional, que registra eventos e categorias de falhas no próprio dispositivo, procurando não registrar tokens nem conteúdo dos projetos. Solicitações explícitas a APIs externas são enviadas ao respectivo serviço; as condições de privacidade de cada provedor também se aplicam.
 
 ## 5. Armazenamento, retenção e exclusão
 
-Projetos, preferências e registros de publicações podem permanecer no dispositivo. Vídeos publicados ficam sujeitos ao armazenamento e às regras da plataforma de destino. PREENCHER: confirmar períodos de retenção, como remover cada categoria de dado e eventuais cópias de segurança.
+Projetos, configurações e registros de publicação são mantidos localmente enquanto não forem removidos pelas funções do app ou pelo gerenciamento de dados do Android. Não existe um prazo único de expiração para todos os arquivos. Exportações em pastas compartilhadas do dispositivo e cópias de segurança realizadas pelo usuário podem precisar ser removidas separadamente. Vídeos enviados a plataformas externas seguem as respectivas políticas e opções de exclusão.
 
 ## 6. Revogar a autorização e solicitar exclusão
 
 A autorização da Conta Google pode ser revista ou revogada em [Conexões com apps e serviços de terceiros](https://myaccount.google.com/connections). Revogar o acesso não apaga automaticamente vídeos publicados no YouTube nem todos os registros locais.
 
-PREENCHER: documentar e testar o procedimento dentro do Uai Cortes para desconectar o YouTube, apagar dados autorizados e atender solicitações de exclusão. Não declarar que esse fluxo está pronto sem testá-lo.
-
-Solicitações relacionadas a informações tratadas pelo responsável: [drilemoz@gmail.com](mailto:drilemoz@gmail.com).
+Para deixar de autorizar novas operações, revogue o acesso do aplicativo nas configurações da Conta Google. Dados locais associados ao uso do YouTube, como identificadores de canais e histórico de envios, podem permanecer no aparelho até a limpeza dos dados do aplicativo; a revogação não os apaga automaticamente. Para solicitar orientações sobre dados sob responsabilidade do desenvolvedor, escreva para [drilemoz@gmail.com](mailto:drilemoz@gmail.com).
 
 ## 7. Segurança e direitos
 
@@ -90,7 +86,7 @@ São utilizados os mecanismos de proteção disponíveis no Android e nas integr
 
 ## 8. Atualizações
 
-A política pode ser atualizada quando houver mudanças técnicas ou nas práticas de tratamento. A versão pública deve informar a data real da última revisão.
+Esta política poderá mudar quando as funcionalidades ou práticas de tratamento forem alteradas. A data da última atualização é exibida automaticamente nesta página, com base na revisão efetivamente publicada.
 
 [Termos de Serviço](/uaicortes/termos)
 MD
@@ -100,8 +96,6 @@ MD
             'seo'=>'Consulte os termos do Uai Cortes sobre edição de vídeos, uso de conteúdo, integrações com YouTube e responsabilidades do usuário.',
             'body'=><<<'MD'
 # Termos de Serviço do Uai Cortes
-
-**Modelo para revisão antes da publicação. Última atualização: PREENCHER: data da revisão final.**
 
 O Uai Cortes é um aplicativo Android de edição, exportação e preparação de conteúdo audiovisual, desenvolvido por Adriedson Aparecido Lemos.
 
@@ -145,7 +139,7 @@ Contato: [drilemoz@gmail.com](mailto:drilemoz@gmail.com)
 
 Projeto: [Uai Cortes no GitHub](https://github.com/drilemoz/UAI-Cortes)
 
-PREENCHER: confirmar eventuais condições adicionais, canais de suporte e a data final da publicação.
+A data da última atualização destes Termos é apresentada automaticamente pelo portal, a partir da revisão publicada.
 MD
         ],
     ];

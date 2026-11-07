@@ -69,3 +69,13 @@ O arquivo `app/legal_uai_examples.php` fornece exemplos de apresentação, Polí
 Para Uai Cortes previamente criado pela v1.0.96, acesse **Aplicativos e Páginas Legais → Uai Cortes → Carregar exemplos do Uai Cortes**. A ação altera apenas páginas em rascunho com texto inicial intacto ou vazio e completa campos de cadastro vazios. Conteúdo já editado ou publicado não é substituído.
 
 As instruções `PREENCHER:` sobre dados pessoais, retenção e revogação devem ser revisadas e removidas após confirmação dos fluxos reais. O backend bloqueia publicar páginas que ainda contêm essa marca. O conteúdo atual não constitui parecer jurídico e a plataforma Google pode exigir comprovações adicionais.
+
+
+## Novidades v1.0.99: publicação e datas
+
+- A data pública "Última atualização" é gerada a partir de `legal_app_revisions.created_at` da revisão publicada. **Salvar rascunho não muda a data**, nem a visualização. Publicação de conteúdo alterado cria nova revisão com nova data. Ao republicar texto idêntico, a revisão/data existente é reutilizada.
+- `Publicar tudo` valida antes da transação as três páginas obrigatórias (`inicio`, `privacidade`, `termos`), contato válido e responsável. Uma falha cancela a operação inteira. Páginas adicionais são publicadas individualmente.
+- **Informações** agora têm tela própria, acessível no resumo do aplicativo. As quatro ações compactas dos cartões de páginas mantêm confirmação e controle de acesso.
+- O botão **Atualizar modelos originais** do Uai Cortes migra somente rascunhos não publicados cujo SHA-256 corresponda exatamente ao modelo antigo, ou texto genérico intacto. Textos personalizados e revisões anteriores são preservados. Não executa automaticamente no banco ao fazer deploy.
+- Textos de privacidade/termos exigem revisão responsável antes de publicar. Nenhum recurso de OAuth/YouTube é declarado além do que o código analisado sustenta. A interface oferece checklist de revisão, sem transformar hipótese em fato legal.
+- Sem migração nova: schema 37 e backup v12. Se a instalação atual tiver schema 36, a atualização assistida continua obrigatória.
