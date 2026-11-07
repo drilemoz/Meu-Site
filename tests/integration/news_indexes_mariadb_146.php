@@ -15,6 +15,13 @@ require_once __DIR__.'/../../app/schema_migrations.php';
 require_once __DIR__.'/../../app/news_archive.php';
 require_once __DIR__.'/../../app/news_query_plans.php';
 require_once __DIR__.'/../../app/article_workflow.php';
+// igua_migrate_schema() repete migrações de módulos importados por install_schema().
+// Este teste roda em outro processo CLI e precisa carregá-los explicitamente.
+require_once __DIR__.'/../../app/ads.php';
+require_once __DIR__.'/../../app/news_editor.php';
+require_once __DIR__.'/../../app/analytics.php';
+require_once __DIR__.'/../../app/auth_remember.php';
+require_once __DIR__.'/../../app/elections/schema.php';
 $db=connection(['host'=>getenv('IGUA_TEST_DB_HOST'),'port'=>getenv('IGUA_TEST_DB_PORT')?:3306,
     'database'=>$name,'username'=>getenv('IGUA_TEST_DB_USER'),'password'=>getenv('IGUA_TEST_DB_PASSWORD')]);
 function check146mysql(bool $condition,string $message):void {
@@ -29,6 +36,17 @@ function indexes146(PDO $db):array {
 check146mysql(igua_schema_revision($db)===36,'esquema 36 instalado');
 $indices=indexes146($db);
 check146mysql(isset($indices['idx_public_featured'],$indices['idx_public_popular']),'ambos os índices estão presentes');
+// Confirmar todas as funções ANTES de efetuar DDL auto-commit no banco isolado.
+$migrationFunctions146=[
+    'migrate_article_fields', 'migrate_editorial_schema', 'migrate_bus_schema',
+    'migrate_ads_schema', 'migrate_news_schema', 'migrate_article_slug_schema',
+    'migrate_analytics_schema', 'igua_remember_schema', 'meu_elections_schema',
+    'igua_migrate_public_news_indexes',
+];
+foreach ($migrationFunctions146 as $function) {
+    if (!function_exists($function)) throw new RuntimeException('Dependência da migração ausente antes do DDL: '.$function);
+}
+check146mysql(true,'dependências de migração importadas antes da alteração de índices');
 // Simula atualização 35->36 no ambiente isolado, inclusive após DDL parcial.
 $db->exec('ALTER TABLE articles DROP INDEX idx_public_featured');
 $db->prepare('UPDATE settings SET value=? WHERE name=?')->execute(['35',IGUA_SCHEMA_REVISION_KEY]);

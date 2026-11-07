@@ -1,4 +1,4 @@
-# Testes e integração MariaDB — versão 1.0.78
+# Testes e integração MariaDB — versão 1.0.79
 
 ## Comandos locais
 
@@ -32,3 +32,9 @@ Para validar a correção sem banco: `php tests/remember_cli_headers_177.php`. P
 ## Falha do workflow de 07/11/2026 (corrigida no código v1.0.78)
 
 O teste de login persistente passou. A etapa MariaDB foi interrompida posteriormente em `tests/integration/elections_mariadb_141.php` porque a função `igua_schema_revision()` de `app/schema_migrations.php` não havia sido importada explicitamente. A correção adiciona o `require_once` faltante; `tests/integration_bootstrap_178.php` detecta futuras regressões sem banco. O teste de prévia da Central de Integrações também recebeu seus dados sintéticos completos. Resta confirmar a execução real no GitHub Actions.
+
+## Falha do workflow #6 (corrigida no código v1.0.79)
+
+O workflow confirmou **backup e restauração com MariaDB + ZipArchive real**, login persistente e eleições. A falha final ocorreu em `tests/integration/news_indexes_mariadb_146.php`: a simulação de revisão 35→36 chamava `migrate_ads_schema()` sem carregar `app/ads.php`. O mesmo cenário exigia também módulos do editor e métricas.
+
+O teste agora importa explicitamente os módulos de Publicidade, Editor, Métricas, sessão persistente e Eleições e checa as funções antes de `ALTER TABLE articles DROP INDEX...` (DDL com auto-commit). `php tests/integration_bootstrap_179.php` valida esses imports sem alterar um banco. Resta reexecutar o workflow para confirmar a migração e os cinco padrões EXPLAIN com MariaDB real. Nunca executar os testes de integração num banco da hospedagem.

@@ -1,3 +1,10 @@
+## 1.0.79 — 07/11/2026 — Dependências do teste de migração de índices
+- Corrigida a falha no teste `tests/integration/news_indexes_mariadb_146.php`: `igua_migrate_schema()` chama migrações de Publicidade, Editor, URLs e Métricas. O processo CLI agora carrega explicitamente `ads.php`, `news_editor.php`, `analytics.php`, `auth_remember.php` e `elections/schema.php` junto dos módulos anteriores.
+- Adicionado preflight que verifica todas as funções de migração **antes de remover índices** no banco MariaDB isolado; uma dependência ausente não deixa o banco de teste parcialmente modificado.
+- Criada regressão offline `tests/integration_bootstrap_179.php` que verifica imports e ordenação do preflight sem realizar SQL.
+- Os logs do workflow #6 confirmaram backup, restauração, autenticação persistente e eleições aprovados, com falha apenas no ensaio final de migração dos índices. Sem alteração em PHP de produção, schema 36, mídias ou banco da hospedagem.
+- A execução real do teste final na infraestrutura GitHub Actions ainda precisa ser confirmada.
+
 ## 1.0.78 — 07/11/2026 — Integração eleitoral e prévia de serviços no CI
 - Corrigida a inclusão ausente de `app/schema_migrations.php` no teste eleitoral MariaDB (`elections_mariadb_141.php`), que falhava com `Call to undefined function igua_schema_revision()` após o teste de login persistente passar.
 - Acrescentada regressão `tests/integration_bootstrap_178.php` que verifica a dependência antes do workflow real.

@@ -1,9 +1,8 @@
-# Meu Site v1.0.78 — Integração MariaDB: teste eleitoral corrigido
+# Meu Site v1.0.79 — Correção do teste de índices MariaDB
 
-- `elections_mariadb_141.php` importa explicitamente `app/schema_migrations.php` antes de consultar a revisão do banco.
-- Regressão offline para checar o contrato de importação das migrações.
-- Renderização da Central de Integrações no CI recebe dados fictícios completos, sem avisos de variáveis ausentes.
-- Cabeçalho da Central exibe a versão atual dinamicamente.
-- Autenticação, backups, uploads, central Google, atualizador e revisão SQL 36 preservados. Nenhuma alteração na estrutura do banco.
+- O workflow #6 falhou ao simular a migração 35→36 porque `news_indexes_mariadb_146.php` não importava os módulos de Publicidade, Editor e Métricas usados por `igua_migrate_schema()`.
+- Corrigidos imports dos módulos de Publicidade, Editor, Métricas, login persistente e Eleições, com checagem de dependências antes do DDL no banco isolado.
+- Regressão offline `tests/integration_bootstrap_179.php` evita que a mesma falha volte ao CI.
+- O portal em produção, a estrutura MySQL 36, autenticação, backup e atualizador não tiveram lógica alterada.
 
-**Validação**: sintaxe, testes PHP/JavaScript, CSS/editor e integridade dos pacotes. A integração com MariaDB real e o workflow GitHub Actions devem ser executados novamente para confirmar a correção no ambiente CI.
+**Validação**: testes locais de PHP e JavaScript, sintaxe, CSS/editor, auditoria e ZIP. Reexecutar o workflow GitHub Actions para validar MariaDB real nesta versão.
