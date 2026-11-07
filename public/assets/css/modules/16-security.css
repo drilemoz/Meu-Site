@@ -327,3 +327,47 @@
 .int-health-events strong{min-width:0;overflow-wrap:anywhere;color:var(--int-ink)}
 .int-health-events span{color:#50677f}.int-health-events time{color:#718198;grid-column:1/-1;font-size:.66rem}
 @media(min-width:700px){.int-health-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* v1.0.89 — Integrações: diálogos no topo da tela, sem empurrar o documento. */
+.int-modal-open{overflow:hidden}
+.int-hub .int-open-inspection{display:none}
+.int-hub.int-modal-ready .int-open-inspection{display:inline-flex;align-items:center;justify-content:center;min-height:44px}
+.int-hub.int-modal-ready section.int-index-api{display:none}
+.int-guide-row{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f0f8ff;border:1px solid #d5e8f8;padding:8px 10px;border-radius:12px;color:#315c83;font-size:.78rem}
+.int-guide-row .int-guide-help{margin:0;flex:none}
+.int-hub .int-dialog{position:fixed;inset:0;margin:auto;border:1px solid #d0e2ef;border-radius:20px;padding:0;background:#fff;color:#17334d;box-shadow:0 28px 88px rgba(5,24,50,.35);width:min(780px,calc(100vw - 40px));max-width:100vw;max-height:min(88dvh,900px);overflow:hidden}
+.int-hub .int-dialog:not([open]){display:none}
+.int-hub .int-dialog::backdrop{background:rgba(12,27,46,.65);backdrop-filter:blur(2px)}
+.int-dialog-shell{display:flex;flex-direction:column;height:min(88dvh,900px);min-height:0;min-width:0}
+.int-dialog-header{display:flex;align-items:center;gap:10px;flex:0 0 auto;padding:13px 16px;border-bottom:1px solid #dce9f4;background:#f6fbff}
+.int-dialog-header h2{min-width:0;flex:1;margin:0;font-size:1.07rem;line-height:1.3;color:#163958;overflow-wrap:anywhere}
+.int-dialog-header button{width:44px;min-width:44px;height:44px;border:1px solid #d5e4ef;background:white;color:#245478;border-radius:12px;font-size:1.35rem;cursor:pointer}
+.int-dialog-header .int-dialog-x{font-size:1.6rem}
+.int-dialog-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:16px;scrollbar-gutter:stable}
+.int-dialog-panel{display:grid;gap:12px;min-width:0;overflow-wrap:anywhere}
+.int-dialog-panel.int-service,.int-dialog-panel.int-credentials,.int-dialog-panel.int-sc-list,.int-dialog-panel.int-health-history{padding:0;background:transparent;border:0;box-shadow:none;border-radius:0}
+.int-dialog-panel > .int-service-body{padding:0;border:0}
+.int-dialog-panel.int-sc-list>.int-sc-row{margin-block:4px}
+.int-dialog-panel .int-credentials-inner{display:grid;gap:10px}
+.int-dialog-panel .int-credentials-inner p{line-height:1.55;overflow-wrap:anywhere}
+.int-dialog-footer{display:flex;flex:0 0 auto;justify-content:flex-end;border-top:1px solid #dce9f4;background:#f9fcff;padding:9px 16px}
+.int-dialog-footer button{min-width:105px;min-height:44px}
+.int-dialog-feedback{font-size:.8rem;background:#e7f6ff;color:#225474;padding:8px 14px}
+.int-dialog .compact-help-content{position:static!important;inset:auto!important;display:block!important;width:auto!important;max-width:100%!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;line-height:1.65!important;font-size:.88rem!important;color:#2c4860!important}
+.int-dialog-panel.compact-help>.compact-help-content{display:block!important}
+.int-dialog-panel.compact-help h3{margin:8px 0 5px;color:#183b60;font-size:1.02rem}
+.int-dialog-panel.compact-help ol{padding-left:22px;margin:8px 0 12px}
+.int-dialog-panel.compact-help li{padding:3px 0}
+.int-dialog-panel.compact-help code{white-space:normal;overflow-wrap:anywhere}
+.int-dialog-panel.compact-help a{color:#1167ac;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+.int-dialog [hidden]{display:none!important}
+.int-dialog :is(input,select,textarea){max-width:100%;min-width:0}
+.int-dialog :is(button,a,input,select,textarea):focus-visible{outline:3px solid #41a4e6;outline-offset:2px}
+@media(max-width:650px){
+  .int-hub .int-dialog{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border:0;border-radius:0;inset:0;margin:0}
+  .int-dialog-shell{height:100dvh;max-height:100dvh}
+  .int-dialog-header{padding:10px 12px}
+  .int-dialog-header h2{font-size:1rem}
+  .int-dialog-scroll{padding:12px;scrollbar-gutter:auto}
+  .int-dialog-footer{padding:7px 12px calc(8px + env(safe-area-inset-bottom,0px))}
+}

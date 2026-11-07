@@ -30,6 +30,8 @@
   const openHashSection = () => {
     if (!location.hash) return;
     const target = document.getElementById(location.hash.substring(1));
+    // A Central de Integrações usa janelas próprias; não expandir o cartão no fundo.
+    if (target?.closest?.('#integrations-hub')) return;
     if (target?.tagName === 'DETAILS') target.open = true;
   };
   openHashSection();

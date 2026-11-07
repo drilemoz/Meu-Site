@@ -71,3 +71,7 @@ O teste agora importa explicitamente os módulos de Publicidade, Editor, Métric
 ## Diagnóstico de integrações (v1.0.88)
 
 `php tests/integration_diagnostics_188.php` exercita o mapeamento de serviços, classificação segura de erros, limite de eventos, estado local versus teste externo, histórico de sessão e renderização do painel sem credenciais ou rede. A cobertura não substitui testes de APIs reais ou testes visuais em Android.
+
+## Regressão da Central em janelas (v1.0.89)
+
+Executar `php tests/integrations_modal_189.php` e `node tests/integrations_modal_189.js` para testar abas, navegação de diálogos, preservação de controles e documentação de APIs. A cobertura usa DOM simulado no Node e inspeção estrutural no PHP; confirmar visual e navegação por teclado/Android em navegador real antes de produção.

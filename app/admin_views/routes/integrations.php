@@ -49,7 +49,7 @@ $integrationHistory=$integrationHistory??[];
     <a href="#google-search"><span>Search Console</span><strong><?=h($searchStatus)?></strong></a>
     <a href="#google-pagespeed"><span>PageSpeed</span><strong><?= ($pageSpeedMobile!==null?'Cel '.(int)$pageSpeedMobile['score']:'Cel —').' · '.($pageSpeedDesktop!==null?'PC '.(int)$pageSpeedDesktop['score']:'PC —') ?></strong></a>
   </div>
-  <nav class="int-tabs data-integrations-nav aria-label="Seções da Central de Integrações">
+  <nav class="int-tabs" data-integrations-nav aria-label="Seções da Central de Integrações">
     <button type="button" class="is-active" aria-pressed="true" data-int-target="google"><span aria-hidden="true">◈</span> Google</button>
     <button type="button" aria-pressed="false" data-int-target="diagnostico"><span aria-hidden="true">◉</span> Diagnóstico</button>
     <button type="button" aria-pressed="false" data-int-target="paginas"><span aria-hidden="true">▤</span> Páginas</button>
@@ -61,6 +61,14 @@ $integrationHistory=$integrationHistory??[];
     <details class="int-service int-ga" id="google-ga4">
       <summary><span class="int-service-icon" aria-hidden="true">▥</span><span class="int-service-copy"><strong>Google Analytics 4</strong><small>Medição e consentimento</small></span><span class="int-state <?= $gaOn?'int-on':'int-off' ?>"><?= $gaOn?'Ativo':'Desligado' ?></span><span class="int-chevron" aria-hidden="true"></span></summary>
       <div class="int-service-body">
+        <div class="int-guide-row"><strong>Configurar Google Analytics 4</strong><details class="compact-help int-guide-help"><summary aria-label="Guia completo: onde obter IDs e configurar Google Analytics 4" title="Como configurar o GA4?">?</summary><div class="compact-help-content">
+          <h3>Onde obter os identificadores</h3>
+          <ol><li>Acesse <a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer">Google Analytics</a> e selecione a propriedade do portal.</li><li>Em <strong>Administrador → Fluxos de dados → Web</strong>, copie o ID de medição no formato <code>G-...</code>.</li><li>Em <strong>Administrador → Detalhes da propriedade</strong>, copie o <strong>ID numérico da propriedade</strong>. É diferente do ID de medição.</li></ol>
+          <h3>Para consultar dados pela API</h3><ol><li>No <a href="https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud</a>, ative a Analytics Data API.</li><li>Em <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer">Contas de serviço</a>, crie uma conta e gere uma chave JSON privada.</li><li>Na propriedade GA4, em <strong>Gerenciamento de acesso à propriedade</strong>, adicione o e-mail da conta de serviço como <strong>Leitor</strong>.</li><li>Abra <strong>Conta de serviço Google</strong> nesta janela e importe o JSON com sua senha administrativa.</li></ol>
+          <p><strong>Privacidade:</strong> o rastreamento público permanece sujeito ao consentimento do visitante; relatórios são dados da propriedade e podem incluir outros fluxos. Nunca publique o JSON no GitHub.</p>
+          <p><a href="https://support.google.com/analytics/answer/12270356?hl=pt-BR" target="_blank" rel="noopener noreferrer">Ajuda oficial: localizar o ID G-</a> · <a href="https://developers.google.com/analytics/devguides/reporting/data/v1/quickstart" target="_blank" rel="noopener noreferrer">Guia oficial da Data API</a></p>
+        </div></details></div>
+
         <div class="int-hint-row"><span>Rastreamento configurado no portal</span><details class="compact-help"><summary aria-label="Ajuda de privacidade GA4">?</summary><div class="compact-help-content">O Google só carrega após consentimento explícito, conforme as preferências de privacidade. Os relatórios externos são consultados manualmente e não interferem nas métricas internas.</div></details></div>
         <form method="post" action="/admin.php?action=integrations_save_ga4" class="int-form"><?= csrf_field() ?>
           <label class="int-switch"><input type="checkbox" name="ga4_enabled" value="1" <?=$gaOn?'checked':''?>><span>Ativar GA4</span></label>
@@ -144,6 +152,13 @@ $integrationHistory=$integrationHistory??[];
     <details class="int-service int-ads" id="google-adsense">
       <summary><span class="int-service-icon" aria-hidden="true">◇</span><span class="int-service-copy"><strong>Google AdSense</strong><small>Identidade da conta</small></span><span class="int-state <?= $adOn?'int-ready':'int-off' ?>"><?= $adOn?'ID salvo':'Pendente' ?></span><span class="int-chevron" aria-hidden="true"></span></summary>
       <div class="int-service-body">
+        <div class="int-guide-row"><strong>Configurar Google AdSense</strong><details class="compact-help int-guide-help"><summary aria-label="Guia completo: ID ca-pub, OAuth e relatórios AdSense" title="Como configurar o AdSense?">?</summary><div class="compact-help-content">
+          <h3>Onde obter o ca-pub</h3><ol><li>Acesse <a href="https://www.google.com/adsense/" target="_blank" rel="noopener noreferrer">Google AdSense</a> com a conta responsável.</li><li>Abra <strong>Conta → Configurações → Informações da conta</strong> e copie o ID do editor (<code>pub-...</code>); neste painel use <code>ca-pub-...</code>.</li><li>Salvar o ID não ativa anúncios e não significa que o site foi aprovado. Gerencie posições separadamente em Publicidade.</li></ol>
+          <h3>Para consultar receita e impressões</h3><ol><li>No <a href="https://console.cloud.google.com/apis/library/adsense.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud</a>, habilite a AdSense Management API.</li><li>Configure a tela de consentimento OAuth e crie um <strong>cliente OAuth 2.0 para aplicativo da Web</strong> em <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Credenciais</a>.</li><li>Copie exatamente a URL de retorno exibida em <strong>Conectar conta AdSense</strong> para os URIs autorizados.</li><li>Salve ID/segredo do cliente com senha administrativa e autorize a conta Google.</li></ol>
+          <p><strong>Importante:</strong> AdSense não usa a conta de serviço do GA4. O acesso do portal usa <code>adsense.readonly</code>. Receita estimada não representa pagamento recebido.</p>
+          <p><a href="https://developers.google.com/adsense/management/direct_requests" target="_blank" rel="noopener noreferrer">Documentação oficial OAuth do AdSense</a></p>
+        </div></details></div>
+
         <div class="int-hint-row"><span>O ID é compartilhado com Publicidade</span><details class="compact-help"><summary aria-label="Ajuda do AdSense">?</summary><div class="compact-help-content">Salvar o ID publica apenas a identificação para análise. Não ativa anúncios nem garante aprovação. A ativação das posições continua em Publicidade.</div></details></div>
         <form method="post" action="/admin.php?action=integrations_save_adsense" class="int-form"><?= csrf_field() ?>
           <label for="int-adsense-id">ID do editor<input id="int-adsense-id" name="adsense_publisher" value="<?=h($cfg['adsense_publisher'])?>" maxlength="23" pattern="ca-pub-[0-9]{16}" placeholder="ca-pub-1234567890123456"></label>
@@ -197,6 +212,13 @@ $integrationHistory=$integrationHistory??[];
     <details class="int-service int-search" id="google-search">
       <summary><span class="int-service-icon" aria-hidden="true">⌕</span><span class="int-service-copy"><strong>Search Console</strong><small>Tráfego da Busca · DNS e metatag</small></span><span class="int-state <?=h($searchStatusClass)?>"><?=h($searchStatus)?></span><span class="int-chevron" aria-hidden="true"></span></summary>
       <div class="int-service-body">
+        <div class="int-guide-row"><strong>Configurar Google Search Console</strong><details class="compact-help int-guide-help"><summary aria-label="Guia completo: Search Console, DNS, metatag e permissões" title="Como configurar o Search Console?">?</summary><div class="compact-help-content">
+          <h3>Onde verificar a propriedade</h3><ol><li>Acesse <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">Google Search Console</a> e escolha <strong>Adicionar propriedade</strong>.</li><li>Para <strong>Domínio</strong>, copie o TXT <code>google-site-verification=...</code> e cadastre no DNS do domínio. Para <strong>Prefixo de URL</strong>, é possível usar a metatag fornecida pelo Google.</li><li>Espere a propagação DNS e finalize a verificação dentro do Search Console. Encontrar um TXT no portal não confirma a propriedade na sua conta.</li></ol>
+          <h3>Relatórios e inspeção por API</h3><ol><li>No <a href="https://console.cloud.google.com/apis/library/searchconsole.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud</a>, ative a Search Console API.</li><li>Em <strong>Configurações → Usuários e permissões</strong> da propriedade, adicione o e-mail da mesma conta de serviço configurada no GA4, com acesso à propriedade.</li><li>Escolha no painel a propriedade correspondente: domínio ou prefixo HTTPS. Consulte os dados manualmente.</li></ol>
+          <p><strong>Indexação:</strong> a inspeção pela API informa a última versão conhecida pelo Google; não testa o site ao vivo e não envia pedido de indexação.</p>
+          <p><a href="https://support.google.com/webmasters/answer/34592?hl=pt-BR" target="_blank" rel="noopener noreferrer">Ajuda oficial: adicionar propriedade</a> · <a href="https://developers.google.com/webmaster-tools/v1/urlInspection.index/inspect" target="_blank" rel="noopener noreferrer">API de inspeção</a></p>
+        </div></details></div>
+
         <section class="int-sc-api" aria-labelledby="int-sc-api-title">
           <div class="int-method-heading"><strong id="int-sc-api-title">Desempenho na Pesquisa Google</strong><details class="compact-help"><summary aria-label="Ajuda sobre relatórios Search Console">?</summary><div class="compact-help-content">Consulta real à API Search Console, apenas ao clicar. Exige a Search Console API habilitada no Google Cloud e que a conta de serviço Google tenha acesso à propriedade. O TXT do DNS não concede essa permissão. Relatórios podem ter atraso, anonimização e linhas omitidas.</div></details></div>
           <div class="int-live-status"><span class="int-live-badge <?= $ga4CredentialsReady?'is-ready':'is-waiting' ?>"><?= $ga4CredentialsReady?'Conta Google cadastrada':'Conta Google não cadastrada' ?></span><span class="int-live-badge <?= $searchApiLast!==null?'is-ready':'is-waiting' ?>"><?= $searchApiLast!==null?'Consulta autorizada':'API não consultada' ?></span></div>
@@ -258,6 +280,13 @@ $integrationHistory=$integrationHistory??[];
     <details class="int-service int-speed" id="google-pagespeed">
       <summary><span class="int-service-icon" aria-hidden="true">◷</span><span class="int-service-copy"><strong>PageSpeed Insights</strong><small>4 notas Lighthouse · celular + PC</small></span><span class="int-state <?= $pageSpeedAny?'int-ready':'int-off' ?>"><?= $pageSpeedAny?'Medido':'Não testado' ?></span><span class="int-chevron" aria-hidden="true"></span></summary>
       <div class="int-service-body">
+        <div class="int-guide-row"><strong>Entender o PageSpeed</strong><details class="compact-help int-guide-help"><summary aria-label="Guia completo: PageSpeed, notas, LCP, CLS e problemas comuns" title="Como funciona o PageSpeed?">?</summary><div class="compact-help-content">
+          <h3>Como executar e interpretar</h3><ol><li>Configure a URL HTTPS oficial do portal em <strong>Geral e SEO</strong>.</li><li>Escolha <strong>Medir celular</strong> ou <strong>Medir computador</strong>; as estratégias são independentes.</li><li>As notas de <strong>desempenho, acessibilidade, boas práticas e SEO técnico</strong> vão de 0 a 100, quando retornadas. 90–100 é bom, 50–89 precisa de atenção e abaixo de 50 é ruim na escala Lighthouse.</li></ol>
+          <h3>Métricas úteis</h3><p><strong>LCP:</strong> tempo até o maior elemento visível carregar. <strong>CLS:</strong> estabilidade visual (movimentos inesperados). <strong>FCP:</strong> primeiro conteúdo pintado. Valores mudam conforme conexão, dispositivo e teste.</p>
+          <p>As notas Lighthouse são medições de laboratório; não provam experiência de todos os visitantes nem indexação no Google. A API pode aplicar limites; consultas frequentes podem exigir chave. O portal executa análises apenas sob demanda.</p>
+          <p><a href="https://pagespeed.web.dev/" target="_blank" rel="noopener noreferrer">Abrir PageSpeed</a> · <a href="https://developers.google.com/speed/docs/insights/v5/get-started" target="_blank" rel="noopener noreferrer">API oficial</a></p>
+        </div></details></div>
+
         <div class="int-hint-row"><span>Teste cada dispositivo separadamente, somente quando solicitado</span><details class="compact-help"><summary aria-label="Ajuda PageSpeed Insights">?</summary><div class="compact-help-content">Usa a URL pública HTTPS salva em Geral e SEO. O Google executa simulações Lighthouse com perfis diferentes de celular e computador e retorna desempenho, acessibilidade, boas práticas e SEO quando disponíveis. As notas são de laboratório, não medições da experiência de todos os visitantes. Cada botão pode acionar uma requisição e consumir cota.</div></details></div>
         <div class="int-speed-target"><span>URL analisada</span><strong><?=h($pageSpeedUrl!==''?$pageSpeedUrl:'Configure a URL HTTPS em Geral e SEO')?></strong><?php if($pageSpeedUrl===''): ?><a href="<?=h(admin_link('settings'))?>">Configurar URL ↗</a><?php endif; ?></div>
         <div class="int-speed-grid">
@@ -372,6 +401,7 @@ $integrationHistory=$integrationHistory??[];
         </div>
       <?php endforeach; ?>
     </div>
+    <button type="button" class="btn outline int-open-inspection" data-int-open-panel="google-url-inspection">⌕ Abrir inspeção Google em janela</button>
     <section class="int-index-api" id="google-url-inspection" aria-labelledby="int-index-title">
       <div class="int-method-heading"><strong id="int-index-title">Índice Google · notícia</strong><details class="compact-help"><summary aria-label="Sobre inspeção de URLs no Google">?</summary><div class="compact-help-content">A inspeção usa a API oficial do Search Console e mostra a última versão conhecida pelo índice Google. Não testa a URL ao vivo, não solicita indexação e não garante posição em resultados. Exige credencial Google e permissão para a propriedade selecionada na aba Google. Consultas consomem cota.</div></details></div>
       <?php if($inspectionTarget!==null): ?>
@@ -412,4 +442,17 @@ $integrationHistory=$integrationHistory??[];
       ] as $item): ?><div class="int-future"><span aria-hidden="true"><?=h($item[0])?></span><div><strong><?=h($item[1])?></strong><small><?=h($item[2])?></small></div><em>Em breve</em></div><?php endforeach; ?>
     </div>
   </section>
+  <dialog id="int-dialog" class="int-dialog" aria-labelledby="int-dialog-title" aria-modal="true">
+    <div class="int-dialog-shell">
+      <header class="int-dialog-header">
+        <button type="button" class="int-dialog-back" data-int-dialog-back aria-label="Voltar ao conteúdo anterior" hidden>←</button>
+        <h2 id="int-dialog-title" data-int-dialog-title>Integração</h2>
+        <button type="button" class="int-dialog-x" data-int-dialog-close aria-label="Fechar janela">×</button>
+      </header>
+      <div class="int-dialog-scroll" data-int-dialog-scroll><div class="int-dialog-panel" data-int-dialog-panel></div></div>
+      <div class="int-dialog-feedback" data-int-dialog-feedback role="status" aria-live="polite" hidden></div>
+      <footer class="int-dialog-footer"><button type="button" class="btn outline" data-int-dialog-close>Fechar</button></footer>
+    </div>
+  </dialog>
+
 </div>

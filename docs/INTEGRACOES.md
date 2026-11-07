@@ -1,6 +1,16 @@
-# Integrações, Analytics e verificações — versão 1.0.88
+# Integrações, Analytics e verificações — versão 1.0.89
 
 A Central de Integrações é acessível em **Configurações → Integrações e APIs** e requer permissão de gerenciamento de configurações. O projeto preserva schema MySQL 36.
+
+## Navegação e ajuda (v1.0.89)
+
+- Corrigido atributo `data-integrations-nav` antes misturado indevidamente a `class`: as quatro abas Google/Diagnóstico/Páginas/Catálogo voltam a alternar conteúdo sem carregar tudo em sequência.
+- Quatro serviços Google abrem com `<dialog>`: centralizado no desktop e em tela inteira no celular. Rolagem apenas dentro da janela, com cabeçalho, Fechar e Voltar fixos. Campos dos formulários **são movidos**, nunca clonados, mantendo suas validações nativas, CSRF e eventuais senhas informadas até que a navegação termine.
+- Ajudas `?`, configuração de conta de serviço GA4, OAuth AdSense, metatag, listas de relatórios, sugestões PageSpeed, inspeção de indexação e histórico de diagnósticos abrem na mesma janela, com navegação interna.
+- Links de consultas após POST retornam para o serviço apropriado, sem `scrollIntoView()`. O script geral do admin não expande os cartões da Central por fragmento `#`.
+- Os guias da tela explicam como localizar ID `G-...`, ID numérico da propriedade GA4, `ca-pub-...`, DNS TXT/metatag, permissões de conta de serviço e OAuth, métricas Lighthouse e links oficiais. **Não divulgam chaves** e não acrescentam chamadas externas automáticas.
+- Sem suporte do navegador a `<dialog>`, os cartões permanecem acessíveis com expansão convencional como fallback. A interface moderna depende de JS habilitado.
+- Testes: `tests/integrations_modal_189.js` valida navegação simulada, movimentação dos formulários, ajuda, voltar, fechar e links profundos; `tests/integrations_modal_189.php` protege estrutura, botões `?`, segurança e estilos. Validação visual manual no Android e na hospedagem continua necessária.
 
 ## Google Analytics 4
 

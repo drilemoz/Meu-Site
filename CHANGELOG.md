@@ -1,3 +1,13 @@
+## 1.0.89 — 07/11/2026 — Pop-ups e documentação das Integrações
+
+- Corrigido HTML inválido no atributo de navegação da Central (`data-integrations-nav`), que quebrava a inicialização das abas e exibia várias seções na sequência.
+- Substituída a expansão direta dos serviços GA4, AdSense, Search Console e PageSpeed por diálogo nativo com modo tela inteira no celular e centralização no desktop.
+- Credenciais GA4, cliente OAuth AdSense, metatag, listas dos relatórios, sugestões PageSpeed, inspeção da URL, histórico de diagnóstico e ajuda `?` abrem como telas internas com Voltar, Fechar e rolagem contida. Os controles reais são movidos e devolvidos ao DOM, sem clonagem de formulário.
+- Corrigido conflito com `admin-ui.js`, que abria seções `<details>` automaticamente a partir do hash da URL; links profundos retornam abrindo a janela adequada.
+- Quatro guias `?` completos com referências oficiais e orientações para obter IDs, contas de serviço, OAuth, permissões, DNS/metatag e interpretar PageSpeed; sem credenciais incluídas no HTML.
+- Preservados CSRF, senha administrativa, autorização, consentimento GA4, cotas/limites de consulta, banco schema 36 e mecanismos de atualização.
+- Regressões para modais e sintaxe em `tests/integrations_modal_189.php` e `tests/integrations_modal_189.js`; teste real de UI em navegador Android/hospedagem ainda pendente.
+
 ## 1.0.88 — 07/11/2026 — Encerramento da série de Integrações e APIs
 
 - Aba Diagnóstico reformulada: sete serviços/estratégias com pré-requisitos locais, status da última consulta, horário local e atalhos para as configurações e testes, no layout mobile-first.
