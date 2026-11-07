@@ -36,3 +36,12 @@ A atualização da 1.0.24 para 1.0.25 não acrescenta tabelas, não altera notí
 - Links são gerados com a mesma fonte e filtros no painel e XML. O botão “Verificar online” faz GETs para arquivos da mesma origem, somente ao tocar. O status HTTP não substitui a API Search Console nem a inspeção humana.
 - `robots.txt` publica o endereço de sitemap do domínio IguatamaOnline. Para hospedar o projeto em outro domínio, revise essa linha. `ads.txt` continua sendo gerenciado na Publicidade, não faz parte dos ZIPs de atualização.
 - Consulte [SITEMAP_INDEXACAO.md](SITEMAP_INDEXACAO.md).
+
+
+## 1.0.109 — títulos de páginas e ícone do site
+
+Em Configurações → SEO e compartilhamento, use **Títulos das páginas** para ajustar o `<title>` da página inicial e das rotas públicas fixas (ônibus, sobre, contato, anuncie, privacidade, termos). Um título preenchido substitui o título gerado por `%title% | %site%` apenas naquela página. Campo vazio mantém o comportamento antigo. Notícias têm título SEO próprio no wizard, categorias usam seu nome e aplicativos usam o editor próprio.
+
+Em **Ícone do site (favicon)**, selecione uma imagem existente da biblioteca ou informe uma URL HTTPS de PNG/JPG/WebP/ICO. O campo é validado antes de salvar e o ícone é anunciado com `rel="icon"` no HTML público. Sem configuração, é usado `/assets/img/favicon.svg`. Prefira imagem quadrada de 48×48 ou superior; o navegador pode manter o ícone em cache.
+
+O pop-up de ajustes técnicos mantém endereço oficial HTTPS, imagem social, indexação e URLs amigáveis. Os valores só são persistidos ao tocar em **Salvar configurações**.

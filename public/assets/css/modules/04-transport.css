@@ -35,3 +35,18 @@
 .bus-teixeira-confirm input{min-width:20px;min-height:20px;accent-color:#145ef1}
 .bus-teixeira-confirm .btn{min-height:44px;white-space:normal}
 @media(max-width:520px){.bus-teixeira-import{padding:12px}.bus-teixeira-confirm{display:grid;grid-template-columns:minmax(0,1fr)}.bus-teixeira-confirm .btn{width:100%}}
+
+/* 1.0.109 — busca compacta, expande para baixo sem depender de JavaScript. */
+.bus-search-collapsible{padding:0;overflow:hidden;margin-bottom:18px}
+.bus-search-toggle{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:15px 19px;min-height:68px}
+.bus-search-toggle::-webkit-details-marker{display:none}
+.bus-search-magnifier{width:45px;height:45px;border-radius:13px;display:grid;place-items:center;background:#e5efff;color:#095de8;font-size:32px;flex:none;line-height:1}
+.bus-search-toggle-copy{display:flex;flex-direction:column;flex:1;min-width:0;gap:2px}
+.bus-search-toggle-copy strong{font-size:16px;color:#193451}
+.bus-search-toggle-copy small{font-size:12px;color:#687c93;line-height:1.35}
+.bus-search-chevron{font-size:24px;color:#3b76cc;transition:transform .2s}
+.bus-search-collapsible[open] .bus-search-chevron{transform:rotate(180deg)}
+.bus-search-expanded{padding:0 19px 18px;border-top:1px solid #e0e9f5}
+.bus-search-explain{font-size:13px;padding-top:12px;margin:0 0 15px}
+.bus-search-toggle:focus-visible{outline:3px solid #347ef8;outline-offset:-3px}
+@media(max-width:650px){.bus-search-toggle{padding:12px 14px}.bus-search-expanded{padding:0 14px 16px}.bus-search-toggle-copy small{font-size:11px}}

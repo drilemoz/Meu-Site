@@ -83,3 +83,15 @@
   .legal-four-actions .btn{font-size:clamp(.64rem,2.6vw,.78rem);padding:9px 2px;letter-spacing:-.01em}
   .legal-publication-actions .btn,.legal-publication-actions .legal-revision-status{font-size:.77rem}
 }
+
+/* 1.0.109 — SEO: diálogo como coluna, cabeçalho/rodapé fixos e somente corpo rolável.
+   Evita conteúdo derramando ao lado e área branca gigante no Android. */
+.admin-body dialog.igua-modal.seo-portal-dialog[open]{display:flex!important;flex-direction:column!important;position:fixed!important;inset:0!important;margin:auto!important;width:min(560px,calc(100vw - 28px))!important;min-width:0!important;max-width:calc(100vw - 28px)!important;height:auto!important;max-height:min(82dvh,740px)!important;overflow:hidden!important;padding:0!important}
+.admin-body dialog.igua-modal.seo-portal-dialog[open]>.seo-portal-dialog-heading,.admin-body dialog.igua-modal.seo-portal-dialog[open]>.seo-portal-dialog-footer{flex:0 0 auto!important;min-width:0;width:100%}
+.admin-body dialog.igua-modal.seo-portal-dialog[open]>.seo-portal-dialog-body{display:flex!important;flex-direction:column;flex:0 1 auto!important;min-height:0;max-height:calc(82dvh - 124px);width:100%;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;gap:12px;padding:16px}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body>label{display:flex;flex-direction:column;width:100%;min-width:0;gap:7px;overflow-wrap:anywhere}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body :is(input:not([type=checkbox]),textarea){width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body label.checkbox-line{display:flex!important;flex-direction:row!important;align-items:flex-start;gap:10px}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body label.checkbox-line input{flex:none;width:20px!important;height:20px;min-width:20px!important}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body label.checkbox-line span{flex:1;min-width:0}
+@media(max-width:560px){.admin-body dialog.igua-modal.seo-portal-dialog[open]>.seo-portal-dialog-body{padding:13px}.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-footer{padding:9px 12px}}

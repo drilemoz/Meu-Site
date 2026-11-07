@@ -120,6 +120,21 @@
 .bus-teixeira-confirm input{min-width:20px;min-height:20px;accent-color:#145ef1}
 .bus-teixeira-confirm .btn{min-height:44px;white-space:normal}
 @media(max-width:520px){.bus-teixeira-import{padding:12px}.bus-teixeira-confirm{display:grid;grid-template-columns:minmax(0,1fr)}.bus-teixeira-confirm .btn{width:100%}}
+
+/* 1.0.109 — busca compacta, expande para baixo sem depender de JavaScript. */
+.bus-search-collapsible{padding:0;overflow:hidden;margin-bottom:18px}
+.bus-search-toggle{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:15px 19px;min-height:68px}
+.bus-search-toggle::-webkit-details-marker{display:none}
+.bus-search-magnifier{width:45px;height:45px;border-radius:13px;display:grid;place-items:center;background:#e5efff;color:#095de8;font-size:32px;flex:none;line-height:1}
+.bus-search-toggle-copy{display:flex;flex-direction:column;flex:1;min-width:0;gap:2px}
+.bus-search-toggle-copy strong{font-size:16px;color:#193451}
+.bus-search-toggle-copy small{font-size:12px;color:#687c93;line-height:1.35}
+.bus-search-chevron{font-size:24px;color:#3b76cc;transition:transform .2s}
+.bus-search-collapsible[open] .bus-search-chevron{transform:rotate(180deg)}
+.bus-search-expanded{padding:0 19px 18px;border-top:1px solid #e0e9f5}
+.bus-search-explain{font-size:13px;padding-top:12px;margin:0 0 15px}
+.bus-search-toggle:focus-visible{outline:3px solid #347ef8;outline-offset:-3px}
+@media(max-width:650px){.bus-search-toggle{padding:12px 14px}.bus-search-expanded{padding:0 14px 16px}.bus-search-toggle-copy small{font-size:11px}}
 /* v1.0.8 | Layout fluido, rodapé editorial, formulários institucionais, busca de cidades */
 html,body{max-width:100%;overflow-x:clip}
 .page-main,.admin-main,.panel,.bus-results,.bus-search-surface{min-width:0}
@@ -1040,6 +1055,13 @@ html,body{max-width:100%;overflow-x:clip}
 .sitemap-center .sitemap-url-head strong{font-size:.89rem}
 .sitemap-center .sitemap-url-footer small{font-size:.71rem}
 @media(max-width:480px){.sitemap-tool-scroll .sitemap-checks{grid-template-columns:1fr}.sitemap-compact-stats strong{font-size:1.2rem}.sitemap-shortcuts .btn{font-size:.71rem}.sitemap-url-actions .btn{font-size:.75rem}}
+
+/* 1.0.109 — favicon e acesso compacto aos títulos das páginas. */
+.seo-favicon-description{display:flex;align-items:center;gap:12px;min-width:0}
+.seo-favicon-description img{width:44px;height:44px;flex:none;object-fit:contain;border-radius:10px;border:1px solid #e0e8f0;background:#fff;padding:3px}
+.seo-favicon-description>div{min-width:0}
+.seo-portal-commands{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:650px){.seo-portal-commands{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-favicon-description{width:100%}}
 /* IguaNews 1.0.26 - busca e paginação responsivas no portal público */
 .archive-filters{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:14px 0;padding:12px;border:1px solid #dbe7f6;border-radius:14px;background:#f6faff;min-width:0}
 .archive-filters label{display:flex;flex:1 1 155px;flex-direction:column;gap:5px;min-width:0;color:#355677;font-size:12px;font-weight:700}
@@ -1870,3 +1892,15 @@ html,body{max-width:100%;overflow-x:clip}
   .legal-four-actions .btn{font-size:clamp(.64rem,2.6vw,.78rem);padding:9px 2px;letter-spacing:-.01em}
   .legal-publication-actions .btn,.legal-publication-actions .legal-revision-status{font-size:.77rem}
 }
+
+/* 1.0.109 — SEO: diálogo como coluna, cabeçalho/rodapé fixos e somente corpo rolável.
+   Evita conteúdo derramando ao lado e área branca gigante no Android. */
+.admin-body dialog.igua-modal.seo-portal-dialog[open]{display:flex!important;flex-direction:column!important;position:fixed!important;inset:0!important;margin:auto!important;width:min(560px,calc(100vw - 28px))!important;min-width:0!important;max-width:calc(100vw - 28px)!important;height:auto!important;max-height:min(82dvh,740px)!important;overflow:hidden!important;padding:0!important}
+.admin-body dialog.igua-modal.seo-portal-dialog[open]>.seo-portal-dialog-heading,.admin-body dialog.igua-modal.seo-portal-dialog[open]>.seo-portal-dialog-footer{flex:0 0 auto!important;min-width:0;width:100%}
+.admin-body dialog.igua-modal.seo-portal-dialog[open]>.seo-portal-dialog-body{display:flex!important;flex-direction:column;flex:0 1 auto!important;min-height:0;max-height:calc(82dvh - 124px);width:100%;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;gap:12px;padding:16px}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body>label{display:flex;flex-direction:column;width:100%;min-width:0;gap:7px;overflow-wrap:anywhere}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body :is(input:not([type=checkbox]),textarea){width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body label.checkbox-line{display:flex!important;flex-direction:row!important;align-items:flex-start;gap:10px}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body label.checkbox-line input{flex:none;width:20px!important;height:20px;min-width:20px!important}
+.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-body label.checkbox-line span{flex:1;min-width:0}
+@media(max-width:560px){.admin-body dialog.igua-modal.seo-portal-dialog[open]>.seo-portal-dialog-body{padding:13px}.admin-body dialog.igua-modal.seo-portal-dialog .seo-portal-dialog-footer{padding:9px 12px}}

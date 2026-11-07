@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.106)
+# Diretrizes de manutenção — Meu Site (v1.0.109)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 

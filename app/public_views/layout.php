@@ -8,6 +8,15 @@
 <?php if(filter_var($socialImg,FILTER_VALIDATE_URL) && str_starts_with($socialImg,'https://')): ?><meta property="og:image" content="<?= h($socialImg) ?>"><?php endif; ?>
 <meta name="twitter:card" content="summary_large_image">
 <?php if($ld): ?><script type="application/ld+json"><?= json_encode($ld,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?></script><?php endif; ?>
+<?php
+$iguaFavicon=trim((string)setting('seo_favicon_image',''));
+if($iguaFavicon!=='') {
+  if(str_starts_with($iguaFavicon,'/uploads/')) {
+    // Imagens da biblioteca são verificadas ao salvar; URL da raiz pública.
+  } elseif(!filter_var($iguaFavicon,FILTER_VALIDATE_URL) || !str_starts_with($iguaFavicon,'https://')) $iguaFavicon='';
+}
+if($iguaFavicon==='')$iguaFavicon='/assets/img/favicon.svg';
+?><link rel="icon" href="<?=h($iguaFavicon)?>">
 <link rel="stylesheet" href="/assets/css/style.css?v=<?= h(igua_brand_version()) ?>"></head><body>
 <header class="site-header"><div class="header-upper container"><a class="brand" href="/index.php" aria-label="<?= h(igua_brand_name()) ?>, início"><span class="brand-icon"><svg viewBox="0 0 74 60" aria-hidden="true"><circle cx="57" cy="13" r="10" fill="#f8ba28"/><path d="M1 44Q15 14 33 40Q50 5 71 43V57H1Z" fill="#28a866"/><path d="M1 47Q20 35 37 51Q53 31 71 45V59H1Z" fill="#11764d"/><rect x="43" y="32" width="11" height="25" rx="1" fill="#e8f0ff"/><path d="M41 32 48 17 56 32Z" fill="#1754a7"/><rect x="46" y="38" width="5" height="7" fill="#2661a1"/></svg></span><span class="brand-copy"><small>PORTAL DE NOTÍCIAS</small><strong><?= h(igua_brand_name()) ?></strong></span></a>
 <div class="tagline"><?= h(setting('site_tagline','A notícia da nossa cidade, sempre com você.')) ?></div>

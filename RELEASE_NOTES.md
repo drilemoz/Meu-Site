@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.109
+
+- Página de ônibus: lupa abre/recolhe o formulário de busca, sem alterar horários existentes.
+- SEO: campo para título exato da página inicial e títulos de páginas institucionais, preservando títulos de notícias e categorias.
+- Favicon: escolher imagem na biblioteca existente ou informar URL, com ícone padrão se vazio.
+- Janela de configurações avançadas reparada para exibir campos completos e permitir rolagem interna no celular.
+- Sem migração de banco (schema 37); requer instalação na hospedagem para validar a experiência real.
+
 ## IguatamaOnline 1.0.108
 
 - Sitemap e Indexação redesenhado para economizar espaço no celular: resumo e URLs na página; Verificações, IndexNow e Bing em pop-ups centralizados com rolagem interna.

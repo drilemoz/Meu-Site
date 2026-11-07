@@ -109,7 +109,11 @@ if($article && !empty($article['author_profile_id'])){
     try{$pa=$db->prepare('SELECT name FROM author_profiles WHERE id=?');$pa->execute([$article['author_profile_id']]);$authorName=$pa->fetchColumn();if($authorName)$article['author']=$authorName;}catch(Throwable){}
 }
 $pageTitle= $legalPage ? (string)$legalPage['title'] : ($article ? (trim((string)($article['seo_title']??'')) ?: $article['title']) : ($category['name']??($route==='buscar'?'Buscar notícias':($route==='onibus'?'Horários de ônibus':(['anuncie'=>'Anuncie','contato'=>'Contato','sobre'=>'Sobre o portal','privacidade'=>'Política de Privacidade','termos'=>'Termos de Uso'][$route]??'Últimas notícias')))));
-$seoTitle=page_title((string)$pageTitle);
+// Páginas fixas podem ter um título SEO completo, sem sufixo obrigatório.
+// Títulos de notícias, categorias e aplicativos continuam sendo editados em seus próprios módulos.
+$seoPageKey=['inicio'=>'seo_home_title','onibus'=>'seo_page_title_onibus','sobre'=>'seo_page_title_sobre','contato'=>'seo_page_title_contato','anuncie'=>'seo_page_title_anuncie','privacidade'=>'seo_page_title_privacidade','termos'=>'seo_page_title_termos'][$route]??'';
+$seoCustomPageTitle=(!$article && !$category && !$legalPage && $seoPageKey!=='')?trim((string)setting($seoPageKey,'')):'';
+$seoTitle=$seoCustomPageTitle!==''?$seoCustomPageTitle:page_title((string)$pageTitle);
 $seoDesc=$legalPage ? (trim((string)$legalPage['seo_description']) ?: excerpt((string)$legalPage['body'],155)) : ($article ? (trim((string)($article['seo_description']??'')) ?: ($article['summary'] ?: excerpt($article['body'],155))) : ($route==='onibus'?'Consulte horários de ônibus programados, cidades de origem, destinos e próximas saídas em '.igua_brand_name().'.':igua_brand_description()));
 $seoDesc=excerpt($seoDesc,260);
 $indexable=$legalPage!==null || (setting('seo_index','0')==='1' && !in_array($route,['404','buscar'],true) && !($route==='categoria' && $archiveDays>0) && !($article && (int)$article['is_demo']===1) && ($article || $demoCount===0));

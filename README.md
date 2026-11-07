@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.108** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.109** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,13 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.109 — Busca de ônibus, títulos das páginas e favicon
+
+- Na página pública de ônibus, o formulário grande foi recolhido em **Buscar ônibus**, uma lupa expansível acessível via elemento `<details>`; buscas com destino ou origem personalizada começam abertas. Nenhum horário, linha ou regra foi alterado.
+- Configurações → SEO: **Títulos das páginas** permite definir o `<title>` completo da página inicial e das páginas fixas (ônibus, sobre, contato, anuncie, privacidade, termos). Em branco, mantém o título padrão existente. Artigos, categorias e páginas de aplicativos mantêm seus próprios editores/nomes.
+- Favicon configurável pela biblioteca ou URL HTTPS segura; ícone SVG padrão inspirado na identidade visual do portal. Configuração salva no banco de settings, sem schema novo.
+- Pop-ups SEO com cabeçalho e ações fixas, corpo de rolagem independente, campos de URL dentro dos limites no Android. Nenhuma alteração no banco ou indexação automática.
 
 ## Versão 1.0.108 — Sitemap compacto e link do desenvolvedor
 

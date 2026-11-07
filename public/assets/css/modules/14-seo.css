@@ -158,3 +158,10 @@
 .sitemap-center .sitemap-url-head strong{font-size:.89rem}
 .sitemap-center .sitemap-url-footer small{font-size:.71rem}
 @media(max-width:480px){.sitemap-tool-scroll .sitemap-checks{grid-template-columns:1fr}.sitemap-compact-stats strong{font-size:1.2rem}.sitemap-shortcuts .btn{font-size:.71rem}.sitemap-url-actions .btn{font-size:.75rem}}
+
+/* 1.0.109 — favicon e acesso compacto aos títulos das páginas. */
+.seo-favicon-description{display:flex;align-items:center;gap:12px;min-width:0}
+.seo-favicon-description img{width:44px;height:44px;flex:none;object-fit:contain;border-radius:10px;border:1px solid #e0e8f0;background:#fff;padding:3px}
+.seo-favicon-description>div{min-width:0}
+.seo-portal-commands{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:650px){.seo-portal-commands{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-favicon-description{width:100%}}

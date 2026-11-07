@@ -1,3 +1,14 @@
+## [1.0.109] - 2026-11-07
+
+### Melhorias
+- Busca de ônibus em botão de lupa expansível, mantendo cidades e consulta GET.
+- Títulos HTML configuráveis para a página inicial e páginas fixas; prévia sincronizada.
+- Favicon escolhido pela biblioteca de mídia ou endereço HTTPS de imagem, com ícone padrão.
+- Pop-ups de SEO ajustados para largura e altura compactas, rolagem interna e melhor disposição dos campos no celular.
+
+### Compatibilidade
+- Schema 37 e backup v12 inalterados; uploads e configurações privados preservados.
+
 ## [1.0.108] - 2026-11-07
 
 ### Melhorias

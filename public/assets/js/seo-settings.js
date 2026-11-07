@@ -16,6 +16,7 @@
   titleTemplateField?.addEventListener('input',validateTitleTemplate);
   validateTitleTemplate();
   const social = field('seo_social_image');
+  const favicon = field('seo_favicon_image');
   const initialIndex = checked('seo_index');
   let hasSubmitted = false;
   const serialized = () => JSON.stringify([...new FormData(form).entries()]);
@@ -24,14 +25,15 @@
   const snapshots = new WeakMap();
   const snapshotFields = {
     'seo-content-dialog':['seo_default_description','seo_title_template'],
-    'seo-advanced-dialog':['seo_site_url','seo_social_image','seo_pretty_urls','seo_index']
+    'seo-pages-dialog':['seo_home_title','seo_page_title_onibus','seo_page_title_sobre','seo_page_title_contato','seo_page_title_anuncie','seo_page_title_privacidade','seo_page_title_termos'],
+    'seo-advanced-dialog':['seo_site_url','seo_social_image','seo_favicon_image','seo_pretty_urls','seo_index']
   };
   const saveSnapshot = dialog => {
     const names = snapshotFields[dialog.id] || [];
     snapshots.set(dialog,names.map(name=>[name,field(name).type === 'checkbox' ? field(name).checked : field(name).value]));
     dialog.dataset.seoApplied='0';
   };
-  const dialogs = ['seo-content-dialog','seo-advanced-dialog','seo-diagnostic-dialog'].map(el).filter(Boolean);
+  const dialogs = ['seo-content-dialog','seo-pages-dialog','seo-advanced-dialog','seo-diagnostic-dialog'].map(el).filter(Boolean);
   const imageUrl = url => {
     try {
       const parsed = new URL(url, window.location.origin);
@@ -42,7 +44,7 @@
     } catch { return ''; }
   };
   const summary = () => {
-    const title = get('seo_title_template').replaceAll('%title%', 'Últimas notícias').replaceAll('%site%', get('site_name'));
+    const title = get('seo_home_title') || get('seo_title_template').replaceAll('%title%', 'Últimas notícias').replaceAll('%site%', get('site_name'));
     const site = get('seo_site_url');
     const description = get('seo_default_description');
     el('seo-preview-title').textContent = title || 'Título não configurado';
@@ -63,6 +65,12 @@
     }
     el('seo-image-status').textContent = valid ? 'Imagem selecionada. Confira a prévia social.' :
       (get('seo_social_image') ? 'Endereço inválido ou sem arquivo de imagem reconhecido.' : 'Nenhuma imagem social selecionada.');
+    const favUrl=get('seo_favicon_image');
+    const favImg=el('seo-favicon-preview');
+    let favValid=imageUrl(favUrl);
+    if (!favValid && favUrl) { try {const u=new URL(favUrl,window.location.origin);if(u.protocol==='https:' && /\.ico$/i.test(u.pathname)) favValid=u.href;}catch{}}
+    favImg.src=favValid || '/assets/img/favicon.svg';
+    el('seo-favicon-status').textContent=favUrl && !favValid?'Endereço inválido para favicon. Use PNG, JPG, WebP ou ICO.':(favValid?'Ícone escolhido. Salve as configurações para publicar.':'Ícone padrão do portal. Escolha uma imagem quadrada.');
   };
   const checks = () => {
     const descLength = Array.from(get('seo_default_description')).length;
@@ -151,6 +159,7 @@
   });
   // A imagem pode ser selecionada na biblioteca por outro controlador.
   social?.addEventListener('input',summary);
+  favicon?.addEventListener('input',summary);
   form.addEventListener('invalid',event=>{
     const dialog=event.target.closest('dialog');
     if(dialog && !dialog.open) show(dialog);
