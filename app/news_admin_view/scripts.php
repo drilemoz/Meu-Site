@@ -3,3 +3,5 @@
 <script src="/assets/js/news-editor.js" defer></script>
 <script src="/assets/js/seo-audit.js" defer></script>
 <script src="/assets/js/news-upload.js" defer></script>
+
+<script src="/assets/js/news-gemini.js" defer></script>

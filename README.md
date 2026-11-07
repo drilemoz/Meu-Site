@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.102** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.103** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,12 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.103 — Google Gemini opcional
+
+- **Configurações → Integrações e APIs → Catálogo → Google Gemini** agora permite cadastrar chave de API em armazenamento privado, configurar modelo, ativar/desativar, remover e executar um **Teste da API** real sob demanda. A chave não aparece no HTML nem no código-fonte.
+- No wizard de notícia os botões Gemini exibem apenas o símbolo **✦**, com acessibilidade por nome e pop-up de revisão da sugestão. O Gemini pode sugerir manchete, resumo, revisão da matéria e descrição SEO, sem preencher ou publicar automaticamente.
+- O Gemini envia texto à API somente depois do clique, com limite de tamanho e frequência; respostas devem ser conferidas, pois a IA pode errar. Modelos, planos, cotas e custos dependem do Google e podem mudar. Sem schema novo, mantendo backup v12.
 
 ## Versão 1.0.102 — Central visual de SEO e Compartilhamento
 
@@ -107,8 +113,8 @@ for f in tests/*.js; do node "$f" || exit 1; done
 python3 tools/build_css.py --check
 python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
-python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.102.zip
-python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.102-fonte-completo.zip
+python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.103.zip
+python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.103-fonte-completo.zip
 ```
 
 Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).

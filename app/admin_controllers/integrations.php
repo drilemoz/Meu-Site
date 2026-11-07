@@ -1,6 +1,45 @@
 <?php
 // Acesso ocorre após require_admin(), require_ability() e check_csrf() no roteador central.
 require_ability('manage_settings',$me);
+if(in_array($action,['integrations_gemini_save','integrations_gemini_remove','integrations_gemini_test'],true)){
+    // Configuração e teste somente para administradores com manage_settings.
+    if($action!=='integrations_gemini_test'){
+        $password=$_POST['confirm_password']??'';
+        if(!is_string($password)||$password==='')throw new InvalidArgumentException('Confirme a senha administrativa.');
+        $stmt=$db->prepare('SELECT password_hash FROM users WHERE id=? AND active=1 LIMIT 1');
+        $stmt->execute([(int)$me['id']]);
+        if(!password_verify($password,(string)$stmt->fetchColumn()))throw new RuntimeException('Senha administrativa incorreta.');
+        $https=(!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off');
+        $local=in_array((string)($_SERVER['REMOTE_ADDR']??''),['127.0.0.1','::1'],true);
+        if(PHP_SAPI!=='cli'&&!$https&&!$local)throw new RuntimeException('Chaves privadas só podem ser configuradas por HTTPS.');
+    }
+    if($action==='integrations_gemini_save'){
+        $existing=igua_gemini_read();
+        $input=$_POST['gemini_key']??'';$model=$_POST['gemini_model']??'';
+        if(!is_string($input)||!is_string($model))throw new InvalidArgumentException('Dados Gemini inválidos.');
+        $key=trim($input)!==''?igua_gemini_key($input):($existing['key']??'');
+        igua_gemini_store($key,$model,isset($_POST['gemini_enabled']));
+        unset($_SESSION['igua_gemini_test']);
+        igua_security_event('settings_changed','gemini_settings_updated');
+        flash('Configuração privada do Gemini salva. Use Testar API para confirmar a conexão.');
+    }elseif($action==='integrations_gemini_remove'){
+        if(($_POST['confirm_remove']??'')!=='1')throw new InvalidArgumentException('Confirme a remoção da chave.');
+        igua_gemini_remove();unset($_SESSION['igua_gemini_test']);
+        igua_security_event('settings_changed','gemini_key_removed');
+        flash('Chave Gemini removida do armazenamento privado.');
+    }else{
+        $credentials=igua_gemini_read();
+        if($credentials===null)throw new InvalidArgumentException('Salve primeiro a chave do Gemini.');
+        $previous=(int)($_SESSION['igua_gemini_attempt']??0);
+        if(time()-$previous<30)throw new RuntimeException('Aguarde 30 segundos antes de repetir o teste.');
+        $_SESSION['igua_gemini_attempt']=time();
+        igua_gemini_test($credentials);
+        $_SESSION['igua_gemini_test']=['ok'=>true,'model'=>$credentials['model'],'time'=>time()];
+        igua_security_event('admin_action','gemini_connection_test');
+        flash('Teste real do Gemini concluído: o modelo respondeu à API.');
+    }
+    redirect('/admin.php?action=integrations#google-gemini');
+}
 if(in_array($action,['integrations_adsense_credentials','integrations_adsense_disconnect','integrations_adsense_connect','integrations_adsense_report'],true)){
     $site=setting('seo_site_url','');
     $redirect=igua_adsense_callback_uri($site);

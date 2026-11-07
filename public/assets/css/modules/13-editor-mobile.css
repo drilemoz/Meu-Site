@@ -260,3 +260,18 @@
 .news-wizard-page .news-diagnostic-edit label{display:grid;gap:6px;margin:10px 0}
 .news-wizard-page .news-seo-dialog-head{position:sticky;top:-17px;z-index:2;background:white;padding:4px 0 9px;border-bottom:1px solid #e2eaf3}
 @media(max-width:370px){.news-wizard-page .news-seo-iconbar{gap:5px}.news-wizard-page .news-seo-iconbtn small{font-size:10px}}
+
+/* 1.0.103 — Atalhos Gemini usam apenas o símbolo, sem rótulo visível no editor. */
+.news-wizard-page .news-gemini-icon{display:inline-grid;place-items:center;min-width:44px;min-height:44px;border:1px solid #d9daf3;border-radius:11px;background:#f9f7ff;font-size:24px;cursor:pointer;padding:6px;box-sizing:border-box}
+.news-wizard-page .news-gemini-icon:focus-visible{outline:3px solid #86a8f6;outline-offset:2px}
+.news-wizard-page .news-gemini-action{display:flex;justify-content:end;gap:8px;margin:5px 0 9px}
+.news-wizard-page .news-format-tools{grid-template-columns:repeat(7,minmax(0,1fr))}
+.news-wizard-page .news-format-tools .news-gemini-icon{width:100%;min-width:0;min-height:44px;padding:4px}
+.news-wizard-page .news-seo-iconbar{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.news-wizard-page .news-seo-iconbar .news-gemini-icon{min-width:0;padding:3px;min-height:64px}
+.news-wizard-page .news-gemini-dialog{box-sizing:border-box;max-width:min(540px,calc(100vw - 28px));width:calc(100vw - 28px);max-height:min(82dvh,760px);height:auto;margin:auto;padding:18px 20px;overflow:auto}
+.news-wizard-page .news-gemini-dialog textarea{display:block;width:100%;min-width:0;box-sizing:border-box;border:1px solid #cbdceb;border-radius:11px;padding:10px;font:inherit;resize:vertical;min-height:150px}
+.news-wizard-page .news-gemini-dialog label{display:block;font-weight:700;margin:12px 0 6px}
+.news-wizard-page .news-gemini-dialog .news-seo-dialog-actions{display:flex;gap:8px;justify-content:end;margin-top:14px}
+.news-wizard-page .news-gemini-dialog .news-seo-dialog-actions button{min-width:0;flex:1}
+@media(min-width:601px){.news-wizard-page .news-format-tools{display:flex;flex-wrap:wrap}.news-wizard-page .news-format-tools .news-gemini-icon{width:45px}}

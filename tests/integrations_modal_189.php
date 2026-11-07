@@ -9,7 +9,7 @@ function check189(bool $ok,string $message):void {if(!$ok)throw new RuntimeExcep
 check189(str_contains($view,'class="int-tabs" data-integrations-nav aria-label='),'atributo de navegação válido');
 check189(!str_contains($view,'class="int-tabs data-integrations-nav'),'atributo corrompido removido');
 check189(substr_count($view,'id="int-dialog"')===1&&str_contains($view,'aria-modal="true"'),'dialog nativo único');
-check189(substr_count($view,'class="int-guide-row"')===4,'quatro guias detalhados');
+check189(substr_count($view,'class="int-guide-row"')===5,'cinco guias, incluindo Gemini');
 foreach(['support.google.com/analytics','developers.google.com/adsense/management','support.google.com/webmasters','developers.google.com/speed/docs'] as $host)check189(str_contains($view,$host),'link de documentação oficial presente: '.$host);
 check189(str_contains($view,'data-int-open-panel="google-url-inspection"'),'inspeção abre em janela');
 check189(str_contains($js,'dialog.showModal()')&&str_contains($js,'dialog.close()')&&str_contains($js,'restoreCurrent()'),'abre, fecha e restaura os nós de formulários');

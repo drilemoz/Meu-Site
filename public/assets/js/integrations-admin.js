@@ -187,6 +187,15 @@
       if(wait)wait.hidden=false;
     }));
   }
+  hub.querySelectorAll('[data-gemini-visibility]').forEach(button=>button.addEventListener('click',()=>{
+    const input=document.getElementById(button.getAttribute('aria-controls'));
+    if(input)input.type=input.type==='password'?'text':'password';
+  }));
+  hub.querySelectorAll('[data-gemini-test-form]').forEach(form=>form.addEventListener('submit',()=>{
+    const button=form.querySelector('button[type=submit]');
+    if(button)button.disabled=true;
+    const wait=form.querySelector('[data-gemini-wait]');if(wait)wait.hidden=false;
+  }));
   const feedback=hub.querySelector('[data-int-copy-feedback]');
   const showFeedback=(text)=>{
     const place=modalAvailable && dialog.open?dialog.querySelector('[data-int-dialog-feedback]'):feedback;

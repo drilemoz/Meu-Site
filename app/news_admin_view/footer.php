@@ -25,3 +25,11 @@
     <div class="news-editor-footer"><button type="button" class="btn outline" id="news-prev" hidden>← Voltar</button><small id="news-save-status" aria-live="polite">Alterações ainda não salvas</small><button type="button" class="btn outline" id="news-next">Continuar →</button><button class="btn primary" id="news-submit" type="submit" hidden>Finalizar notícia ✓</button></div>
   </form>
 </div>
+
+<dialog id="news-gemini-dialog" class="igua-modal igua-modal--medium news-gemini-dialog" aria-labelledby="news-gemini-heading">
+ <div class="news-seo-dialog-head"><h3 id="news-gemini-heading">Sugestão Gemini</h3><button type="button" class="btn outline small" data-news-gemini-close aria-label="Fechar janela">×</button></div>
+ <p class="muted tiny">Ao solicitar, o texto da notícia é enviado à API Gemini. Verifique nomes, números, datas e fontes antes de aplicar.</p>
+ <p id="news-gemini-feedback" role="status" aria-live="polite">Pronto para consultar.</p>
+ <label for="news-gemini-suggestion">Sugestão para revisão<textarea id="news-gemini-suggestion" rows="6" maxlength="12000" spellcheck="true"></textarea></label>
+ <div class="news-seo-dialog-actions"><button type="button" class="btn outline" data-news-gemini-close>Cancelar</button><button type="button" class="btn primary" id="news-gemini-apply" disabled>Aplicar sugestão</button></div>
+</dialog>

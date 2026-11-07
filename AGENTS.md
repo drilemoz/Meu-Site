@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.102)
+# Diretrizes de manutenção — Meu Site (v1.0.103)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -126,3 +126,11 @@ Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **
 
 - Ao adicionar ações AJAX ao controlador, registrá-las tanto em `app/admin_controllers/post_routes.php` quanto na lista permitida em `public/admin.php`. Preservar CSRF, ACL `manage_taxonomy` e JSON seguro.
 - A chamada principal da home só pode consultar notícias publicadas marcadas `featured=1`; sem marcações, usar área neutra, nunca promover a mais recente automaticamente. O EXPLAIN deve refletir esse filtro.
+
+
+## Integração Gemini (1.0.103)
+
+- Reutilizar o card Google Gemini da Central de Integrações; chave privada em `storage/integrations/gemini-api.json`, sem HTML, logs, URLs, GitHub ou backup lógico. Senha administrativa obrigatória para salvar/remover; HTTPS, CSRF e ACL mantidos.
+- `integrations_gemini_test` usa chamada `generateContent` real e **manual**; modelo é escolhido pelo administrador, com nome validado e sem URL externa arbitrária. Erros HTTP devem ser tratados com orientação sanitizada e sem resposta bruta.
+- Ícones ✦ no wizard não exibem rótulo visual; manter `aria-label`/`title` e área de toque ≥44px. `news_gemini_suggest` exige `write`, limites e cooldown, apenas solicita texto sob clique explícito; exibir para revisão, nunca aplicar sem aprovação e nunca publicar automaticamente.
+- Sem schema novo (37/backup v12). Testes offline não comprovam conectividade da API ou conta do proprietário; executar teste em hospedagem com chave real após instalar.

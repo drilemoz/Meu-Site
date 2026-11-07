@@ -1,3 +1,12 @@
+# Meu Site v1.0.103 — Integração Gemini no portal
+
+- Card Google Gemini já existente no catálogo foi ativado: credencial API no armazenamento privado, modelo configurável, ativar/desativar, teste manual real e remoção protegida por senha administrativa. API via HTTPS e host fixo; chaves nunca em HTML, URL de requisição ou GitHub.
+- No wizard, quatro atalhos com **somente o símbolo ✦** sugerem manchete, resumo, revisão ortográfica do corpo e descrição SEO. Cada consulta requer clique explícito, tem limites de texto/cota por sessão e abre pop-up de revisão; nada é aplicado ou publicado automaticamente.
+- Teste API não foi realizado com a conta do proprietário: é necessário cadastrar uma chave verdadeira e confirmar modelo/cota na hospedagem. Chamadas reais à API podem consumir créditos.
+- Sem migração de banco (schema 37 e backup v12). Nenhuma notícia nem configuração existente foi modificada automaticamente.
+
+---
+
 # Meu Site v1.0.102 — Centro visual de SEO
 
 - Prévia Google e compartilhamento social, com diagnóstico local de título, descrição, URL HTTPS, imagem e configurações de rastreamento.

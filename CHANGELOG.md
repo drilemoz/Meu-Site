@@ -1,3 +1,10 @@
+# 1.0.103 (2026-11-07)
+
+- Integração funcional opcional Gemini no card já existente do catálogo de Integrações: chave API privada (sem exposição no browser), modelo editável, senha administrativa para salvar/remover, Testar API e diagnóstico de erros HTTP/cota/TLS.
+- Atalhos do wizard com símbolo ✦ exclusivamente, nome em tooltip/acessibilidade; sugestões de manchete, resumo, revisão do texto e metadescrição em janela central. Confirmação explícita antes de aplicar e sem publicação automática.
+- Segurança: ACL, CSRF, HTTPS, endpoint Google fixo, respostas limitadas, validação de payload, proteção de segredo e intervalo mínimo de chamadas. Sem mudança no banco, schema 37/backup v12.
+- Testes locais offline de contratos Gemini; resposta externa depende de chave real do proprietário e não foi simulada como sucesso.
+
 # 1.0.102 (2026-11-07)
 
 - Reformulado **Configurações → Geral e SEO**: visualização ilustrativa de resultados Google e compartilhamento social, com alternância acessível em abas.

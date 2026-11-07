@@ -81,7 +81,7 @@ Documentação oficial: https://developers.google.com/analytics/devguides/report
 
 ## Provedores futuros
 
-Gemini, Google Ads, GTM, Bing e outros aparecem no catálogo como planejamento onde não há adaptador operacional. Não declarar conexão, aprovação ou monitoramento sem prova externa.
+Google Ads, GTM, Bing e outros aparecem no catálogo como planejamento onde não há adaptador operacional. Gemini dispõe de integração opcional descrita abaixo. Não declarar conexão, aprovação ou monitoramento sem prova externa.
 
 Testes: `tests/integrations_169.php`, `tests/page_inspector_170.php`, `tests/search_dns_172.php`, `tests/ga4_realtime_171.php`, `tests/ga4_audience_186.php` `tests/search_console_api_184.php`, `tests/search_console_api_184.js`, `tests/pagespeed_181.php`, `tests/pagespeed_182.php`, `tests/integrations_181.js`, `tests/integrations_182.js` e `tests/ga4_consent_168.js`, `tests/adsense_oauth_187.php`.
 
@@ -112,3 +112,14 @@ A aba **Diagnóstico** reúne GA4, AdSense, Search Console (relatório e inspeç
 Após consultas manuais, a sessão administrativa armazena apenas nome interno do serviço, estado (sucesso/erro), categoria de erro e horário. São guardadas no máximo **12 operações**; o encerramento da sessão apaga esse registro. As categorias são *heurísticas* e podem exigir revisão da mensagem na própria operação. **Nunca** são guardados relatórios brutos, URLs de OAuth, senhas, chaves ou tokens no diagnóstico. Reconfigurar uma integração invalida a marca da última verificação desse serviço, sem modificar o histórico anterior da sessão.
 
 O acesso à aba não faz requisições externas. Para efetuar uma nova consulta, abra o serviço desejado na aba **Google** ou a inspeção da notícia na aba **Páginas**. A Central de Saúde acompanha a integridade local da hospedagem; diagnósticos não substituem verificação real de OAuth/credenciais, permissões, aprovação AdSense nem indexação no Google.
+
+
+## Google Gemini — API editorial opcional (v1.0.103)
+
+Acesse **Configurações → Integrações e APIs → Catálogo → Google Gemini**. No Google AI Studio, obtenha uma chave (https://aistudio.google.com/api-keys), cole no pop-up, informe o modelo disponível para sua conta (por exemplo `gemini-3.8-flash`), marque Ativar, confirme a senha administrativa e salve. A chave fica em `storage/integrations/gemini-api.json` com acesso restrito fora de `public/`, e não é incluída no código ZIP. Deixe o campo de chave vazio para conservar a já cadastrada. Para apagar, use Remover chave e confirme novamente a senha.
+
+Depois de salvar, toque **Testar API**. O teste é uma chamada real a `https://generativelanguage.googleapis.com/v1beta/models/MODELO:generateContent` usando o cabeçalho `x-goog-api-key` (não é verificação fictícia de formato). O servidor exige HTTPS, TLS válido, cURL, modelo validado, respostas limitadas e intervalos entre tentativas. Erros 401/403/404/429/503 são explicados sem divulgar o corpo da resposta nem o segredo. O modelo deve ser escolhido conforme a lista atual do Google: https://ai.google.dev/gemini-api/docs/models.
+
+No **Novo cadastro de notícias**, apenas o ícone Gemini ✦ aparece nas etapas Título, Descrição, Matéria e SEO. Cada clique transmite à API título/resumo/corpo informados (limitados) e abre uma janela com sugestão; o conteúdo só entra no formulário após clicar em **Aplicar sugestão** e ainda precisa passar pela revisão/publicação manual. O módulo não verifica fatos, não publica sozinho, não captura fotos ou anexos e não envia texto a cada tecla. A revisão humana deve conferir precisão e consentimento para conteúdo sensível. Desativar a integração conserva o restante do editor e SEO local.
+
+Os testes offline verificam formato, armazenamento, rotas e erros sem usar credencial verdadeira. Na hospedagem, o administrador precisa executar o Testar API com chave própria. O Google pode alterar preços, quotas e modelos.

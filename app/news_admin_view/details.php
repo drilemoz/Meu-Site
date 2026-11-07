@@ -31,6 +31,7 @@
       <div class="news-seo-iconbar" role="group" aria-label="Ferramentas de SEO">
         <button type="button" class="news-seo-iconbtn" data-news-seo-tool="slug" title="Editar endereço" aria-label="Editar endereço da notícia"><span aria-hidden="true">🔗</span><small>Endereço</small></button>
         <button type="button" class="news-seo-iconbtn" data-news-seo-tool="generate" title="Gerar descrição" aria-label="Gerar sugestão de descrição SEO"><span aria-hidden="true">✧</span><small>Gerar</small></button>
+        <button type="button" class="news-seo-iconbtn news-gemini-icon igua-gemini-mark" data-news-gemini="seo" title="Sugerir descrição SEO com Gemini" aria-label="Sugerir descrição SEO com Gemini"><span aria-hidden="true">✦</span></button>
         <button type="button" class="news-seo-iconbtn" data-news-seo-tool="edit" title="Editar SEO" aria-label="Editar título e descrição SEO"><span aria-hidden="true">⚙</span><small>Editar</small></button>
         <button type="button" class="news-seo-iconbtn" id="news-seo-dialog-open" title="Ver diagnóstico" aria-label="Ver diagnóstico editorial"><span aria-hidden="true">☑</span><small>Diagnóstico</small></button>
       </div>

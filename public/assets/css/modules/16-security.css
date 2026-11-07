@@ -465,3 +465,13 @@
    max-height:min(78dvh,680px);height:fit-content;min-height:0;
  }
 }
+
+/* 1.0.103 — Gemini: cartão da integração em janela nativa compacta. */
+.int-gemini-service{grid-column:1/-1;margin:0 0 12px}
+.igua-gemini-mark{color:#7551ba;background:linear-gradient(135deg,#3788ea 0%,#7954ce 48%,#d451b3 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:24px;font-weight:800;line-height:1}
+.int-gemini-service .igua-gemini-status{border:1px solid #d7e4ef;background:#f6f9ff;border-radius:12px;padding:12px;display:grid;gap:5px;margin:8px 0 12px}
+.int-gemini-service .igua-gemini-status small{font-size:12px;color:#63748a}
+.int-gemini-service .igua-gemini-actions{display:flex;flex-wrap:wrap;align-items:start;gap:12px;margin:14px 0 0}
+.int-gemini-service .igua-gemini-actions form{display:grid;gap:8px;min-width:min(100%,180px)}
+.int-gemini-service input[type=password],.int-gemini-service input[type=text]{width:100%;min-width:0;box-sizing:border-box}
+.int-gemini-service .int-service-body{min-width:0}
