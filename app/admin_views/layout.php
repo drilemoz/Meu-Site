@@ -22,7 +22,7 @@ $configActions=['settings','sitemap','integrations','backups','updates','mainten
           <a class="<?= $action==='sources'?'current':'' ?>" href="<?=h(admin_link('sources'))?>">Fontes</a>
         <?php endif; ?>
       </div></details>
-      <?php if(($me['role']??'')==='admin'): ?><a class="<?= in_array($action,['legal_apps','legal_app_edit','legal_app_info','legal_page_edit'],true)?'current':'' ?>" href="<?=h(admin_link('legal_apps'))?>">▣ Aplicativos e Páginas Legais</a><?php endif; ?>
+      <?php if(($me['role']??'')==='admin'): ?><a class="<?= in_array($action,['legal_apps','legal_app_edit','legal_app_info','legal_page_edit'],true)?'current':'' ?>" href="<?=h(admin_link('legal_apps'))?>">▣ Páginas</a><?php endif; ?>
       <a class="<?= $action==='media'?'current':'' ?>" href="<?=h(admin_link('media'))?>">🖼️ Mídias</a>
       <?php if(role_allowed($me['role'],'manage_bus')): ?><a class="<?= in_array($action,['bus','bus_edit','bus_import'],true)?'current':'' ?>" href="<?=h(admin_link('bus'))?>">🚌 Ônibus</a><?php endif; ?>
       <?php if(role_allowed($me['role'],'manage_settings')): ?>

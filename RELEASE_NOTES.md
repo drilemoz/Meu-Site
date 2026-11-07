@@ -1,3 +1,10 @@
+## IguatamaOnline 1.0.107
+
+- Verificação Bing via arquivo `BingSiteAuth.xml` fornecido pelo proprietário, a ser servido no endereço HTTPS público. A Central de Sitemap oferece acesso direto ao arquivo; finalize no botão **Verify** do Bing Webmaster Tools.
+- Menu do painel simplificado para **Páginas**.
+- Ônibus: lista de linhas organizada em cartões, filtro por cidade de origem e acesso para editar percurso/origem, sem rolagem horizontal no celular.
+- Sem migração de banco (schema 37). Não altera linhas existentes; teste na hospedagem ainda necessário.
+
 ## Meu Site v1.0.106 — Teixeira e Bing Webmaster
 
 - **Ônibus:** correção do pop-up que confirmava a tabela sem executar o POST. A seleção continua voluntária, autenticada e protegida por CSRF. Depois de instalar, é necessário confirmar novamente o cadastro dos 10 trajetos. Horários existentes não são substituídos.

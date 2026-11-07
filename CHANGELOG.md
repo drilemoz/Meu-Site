@@ -1,3 +1,17 @@
+## [1.0.107] - 2026-11-07
+
+### Alterado
+- Menu administrativo abreviado para **Páginas**, sem mudar rotas ou permissões.
+- Lista de ônibus refeita em cartões adaptáveis, sem largura mínima que obrigue rolagem horizontal, com filtro por cidade de origem e atalho para editar percurso.
+- Central de Sitemap/Bing mostra endereço de verificação de propriedade e orientações para completar a verificação no Bing.
+
+### Adicionado
+- `public/BingSiteAuth.xml` original fornecido pelo proprietário, entregue na raiz pública; respostas HTTP e verificação no serviço devem ser validadas após a instalação.
+- Teste `tests/bus_bing_207.php` para rótulo, filtro, cartões e integridade do XML.
+
+### Preservado
+- Schema 37, backup v12, chaves privadas, importações existentes e conteúdos do portal.
+
 ### v1.0.106 — Teixeira e Bing Webmaster Tools
 
 - Corrigido bug do diálogo de confirmação da tabela Teixeira: `data-confirm` agora fica no botão de submit e formulários com confirmação são processados em evento submit com validação. Após confirmar, os registros são efetivamente enviados ao PHP.

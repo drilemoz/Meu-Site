@@ -37,3 +37,7 @@ A importação é transacional, usa identificadores estáveis e preserva linhas 
 ## Importação Teixeira — correção v1.0.106
 
 O botão **Cadastrar tabela Teixeira** exibido no painel Ônibus envia o formulário somente após validação do checkbox e confirmação no pop-up. Na 1.0.104/105, o atributo de confirmação estava no `<form>` e o JavaScript executava `form.click()` em vez de enviar, então nenhum registro era criado. A correção utiliza o botão de submit e suporta também `data-confirm` em formulários por `requestSubmit`. A importação transacional/idempotente preserva linhas antigas, com 10 rotas e 31 grupos de horários. Após o deploy da 1.0.106 é necessário repetir o clique. Feriados em dias úteis continuam sem calendário específico.
+
+## Lista administrativa responsiva (v1.0.107)
+
+Na listagem **Ônibus**, selecione a **Cidade de origem** e use Filtrar para ver só as linhas cuja primeira parada corresponde à cidade escolhida. O filtro usa registros já existentes e não altera dados. O layout agora apresenta cartões em vez da tabela horizontal de oito colunas. **Editar percurso** abre o assistente original: a origem pode ser ajustada na primeira etapa, e alterar as paradas afeta os horários associados à mesma linha.

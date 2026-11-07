@@ -151,3 +151,11 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 
 - Confirmar importação de ônibus Teixeira pelo botão de submit (não no form). Qualquer `data-confirm` em form deve prosseguir via `requestSubmit`, nunca `form.click`. O CI executa teste MariaDB isolado com dados temporários, sem modificar produção.
 - Bing Webmaster é consulta sob demanda de propriedade/sitemaps com chave privada em `storage/integrations/bing-webmaster.json`, senha e CSRF para configurar/remover. Não duplicar envios IndexNow nem confundir sitemap conhecido com URLs indexadas.
+
+## Atualização 1.0.107
+
+- O menu administrativo usa o rótulo compacto **Páginas**, sem alterar as ações, o título completo da área ou suas permissões.
+- A verificação do Bing usa o XML original disponibilizado pelo proprietário em `public/BingSiteAuth.xml`, servido **estaticamente** em `/BingSiteAuth.xml` (HTTP 200 após deploy com docroot público correto). Não é um segredo, chave de API ou IndexNow. O arquivo é parte do pacote de atualização e da fonte, sem geração posterior nem escrita em `storage/`. Conferir a URL pública e tocar em Verify no Bing.
+- A lista administrativa de ônibus usa cartões responsivos em vez da tabela com rolagem lateral, filtro GET por cidade de origem lida da primeira parada e botão Editar percurso que abre o wizard existente. Nenhum registro existente é alterado, e os formulários administrativos/CSRF para fixar linhas permanecem intactos.
+- Schema 37, backup v12 preservados. Executar `tests/bus_bing_207.php` e a suíte completa antes de empacotar.
+

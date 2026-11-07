@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.106** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.107** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.107 — Bing verificado por XML e ônibus responsivos
+
+- O arquivo de verificação **BingSiteAuth.xml** fornecido pelo administrador está incluído sem alterações em `public/` e deve ficar acessível em `https://iguatama.online/BingSiteAuth.xml` após instalar o pacote, desde que o domínio aponte para a raiz pública correta. A Central de Sitemap ganhou link para conferência, mas a verificação é finalizada no próprio Bing Webmaster Tools.
+- O menu lateral mostra **Páginas** no lugar do nome longo. O módulo e todas as permissões permanecem os mesmos.
+- Em **Ônibus**, a tabela horizontal foi substituída por cartões responsivos com resumo de empresa, paradas, horários, status e proteção. Um filtro por cidade de origem permite alternar a lista; **Editar percurso** abre o mesmo assistente para mudar a origem com revisão das paradas e dos horários.
+- Não modifica banco de dados, viagens ou conteúdo; mantém schema 37 e backup v12. Verifique a versão na hospedagem antes de solicitar a validação ao Bing.
+
 
 ## Versão 1.0.106 — Importação Teixeira corrigida e Bing Webmaster
 

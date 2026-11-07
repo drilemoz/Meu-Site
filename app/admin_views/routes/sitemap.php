@@ -82,6 +82,12 @@ $bingResult=$_SESSION['igua_bing_result']??null;
 ?>
 <section class="panel sitemap-center" id="bing-webmaster" aria-labelledby="bing-title">
   <div class="panel-heading"><div><h2 id="bing-title">Bing Webmaster Tools</h2><p class="muted">Consulte a verificação do site e os sitemaps informados pelo Bing. Para avisar buscadores sobre notícias, use IndexNow acima.</p></div><span class="int-state <?= $bingCred!==null?'int-ready':'int-off' ?>"><?= $bingCred!==null?'Chave salva':'Não configurado' ?></span></div>
+  <div class="sitemap-bing-verification" role="note">
+    <strong>Verificação de propriedade (arquivo XML)</strong>
+    <p class="muted">O arquivo fornecido pelo Bing está incluído no portal. Após instalar a atualização, abra o endereço abaixo e confirme que ele mostra o XML antes de tocar em <strong>Verify</strong> no Bing.</p>
+    <a class="btn outline small" href="/BingSiteAuth.xml" target="_blank" rel="noopener noreferrer">Ver BingSiteAuth.xml ↗</a>
+    <small>É público por exigência da verificação. Não é a chave da API nem substitui a confirmação feita no Bing.</small>
+  </div>
   <div class="sitemap-bing-actions">
     <form method="post" action="/admin.php?action=bing_save" class="sitemap-bing-config">
       <?=csrf_field() ?>

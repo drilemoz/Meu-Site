@@ -42,3 +42,7 @@ Em **Salvar chave**, informe a chave e a senha administrativa. Ela será armazen
 O resultado retorna status da propriedade e até 30 feeds/sitemaps conhecidos. **Não prova que todas as URLs foram indexadas.** Para notificar novos links, utilize a integração **IndexNow** acima, evitando requisições duplicadas. É possível remover a chave com senha, sem alterar IndexNow. Não há migração de banco (schema 37).
 
 Referências: https://learn.microsoft.com/en-us/bingwebmaster/getting-access e https://learn.microsoft.com/en-us/dotnet/api/microsoft.bing.webmaster.api.interfaces.iwebmasterapi.getfeeds?view=bing-webmaster-dotnet
+
+## Verificação da propriedade no Bing (v1.0.107)
+
+O arquivo `public/BingSiteAuth.xml` foi incluído no pacote a partir do documento original enviado pelo administrador. Após instalar, confira `https://iguatama.online/BingSiteAuth.xml` (arquivo acessível sem login, HTTP 200 e XML preservado) e toque em **Verify** no Bing Webmaster Tools. A Central de Sitemap possui um atalho **Ver BingSiteAuth.xml**. O XML é público por exigência do Bing; não é a chave privada da API Bing nem a chave IndexNow. O portal não consegue declarar a propriedade verificada sem a confirmação do serviço.

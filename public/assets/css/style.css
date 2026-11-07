@@ -198,6 +198,38 @@ html,body{max-width:100%;overflow-x:clip}
  .legal-content h2{font-size:18px}
 }
 
+
+/* v1.0.107 — lista administrativa de ônibus sem rolagem lateral */
+.bus-admin-origin-filter{display:flex;flex-wrap:wrap;align-items:end;gap:9px;margin:20px 0 15px}
+.bus-admin-origin-filter label{display:grid;gap:6px;flex:1 1 200px;min-width:0;font-size:13px;font-weight:750;color:var(--ink,#183456)}
+.bus-admin-origin-filter select{width:100%;min-width:0;max-width:100%;min-height:45px;border:1px solid #cdd9e5;border-radius:11px;padding:9px 12px;background:var(--card,#fff);color:var(--ink,#183456);font:inherit}
+.bus-admin-origin-filter>.btn{min-height:45px}
+.bus-admin-list-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 12px}
+.bus-admin-list-header h3{font-size:18px;margin:0;min-width:0}
+.bus-admin-list-header small{color:var(--muted,#69788e);white-space:nowrap}
+.bus-admin-route-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;max-width:100%;min-width:0}
+.bus-admin-route-card{min-width:0;max-width:100%;border:1px solid #dce4ed;border-radius:15px;background:var(--card,#fff);padding:15px;display:flex;flex-direction:column;gap:13px;overflow-wrap:anywhere}
+.bus-admin-route-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;min-width:0}
+.bus-admin-route-title{display:grid;gap:5px;min-width:0}
+.bus-admin-route-title strong{font-size:15px;line-height:1.4}
+.bus-admin-route-journey{font-size:12px;line-height:1.4;color:var(--muted,#69788e)}
+.bus-admin-route-status{flex-shrink:0;padding:5px 8px;border-radius:20px;background:#eef0f4;color:#526278;font-size:11px;font-weight:750}
+.bus-admin-route-status.is-active{color:#16674a;background:#e3f7ed}
+.bus-admin-route-metadata{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;min-width:0}
+.bus-admin-route-metadata>span{display:grid;gap:3px;font-size:13px;font-weight:650;min-width:0}
+.bus-admin-route-metadata small{font-size:11px;font-weight:450;color:var(--muted,#69788e)}
+.bus-admin-route-footer{margin-top:auto;border-top:1px solid #e8edf3;padding-top:11px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.bus-admin-route-lock{font-size:12px;color:var(--muted,#69788e)}
+.bus-admin-route-buttons{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.bus-admin-route-buttons form{margin:0}
+.bus-admin-route-buttons .btn{min-height:42px;font-size:12px;padding:8px 11px;white-space:normal;text-align:center}
+@media(max-width:920px){.bus-admin-route-list{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:480px){.bus-admin-origin-filter{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.bus-admin-origin-filter label{grid-column:1 / -1;min-width:0}.bus-admin-route-card{padding:13px}.bus-admin-route-head{gap:7px}.bus-admin-route-buttons{width:100%}.bus-admin-route-buttons .btn{flex:1}.bus-admin-route-buttons form{flex:1}.bus-admin-route-buttons form .btn{width:100%}}
+/* v1.0.107 — verificação pública Bing dentro da Central de Sitemap */
+.sitemap-bing-verification{display:grid;justify-items:start;gap:9px;border:1px solid #d9e5f1;background:#f4f8fe;border-radius:13px;padding:14px;margin:14px 0 18px;min-width:0}
+.sitemap-bing-verification strong{font-size:14px}
+.sitemap-bing-verification p{margin:0;font-size:13px}
+.sitemap-bing-verification small{font-size:12px;color:#526782;line-height:1.5}
 /* 1.0.9 · publicidade discreta, identificada e opcional */
 .ad-unit{max-width:100%;min-width:0;margin:24px auto 30px;padding:12px;border-radius:15px;border:1px solid #e0e9f4;background:#f7faff;box-shadow:0 7px 19px rgba(20,50,90,.04)}
 .ad-disclosure{display:block;color:#71849c;font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.09em;margin-bottom:9px}
