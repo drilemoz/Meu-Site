@@ -40,3 +40,11 @@ Teste de CI: `php tests/updater_modal_175.php`, `node tests/updater_modal_175.js
 Após um envio com nova `VERSION` para `main` pelo GitHub Manager, o workflow de integração MariaDB verifica o código e publica, quando aprovado e `VERSION` alterado, a Release `vX.Y.Z` com o único pacote destinado à hospedagem `Atualizacao-vX.Y.Z.zip`. O painel consulta a API de `releases/latest` para `drilemoz/Meu-Site` e usa cache de 30 minutos. Se houver uma versão superior à instalada, mostra a opção de obtê-la. Uma Release de versão igual à instalada não é exibida como novidade.
 
 O processo GitHub é automático; **instalar continua sendo uma decisão do administrador**. Não confundir o ZIP de código-fonte com o ZIP de atualização. Não confundir SHA-256 com assinatura de autoria: é necessário confiar na conta/repositório que publicou.
+
+## Diagnósticos da versão 1.0.97
+
+O botão **Visualizar** classifica os erros da consulta remota em códigos não sensíveis: `curl_missing`, `dns`, `tls`, `timeout`, `github_limited`, `github_http`, `github_remote_error`, `storage` ou `unknown`. Esses códigos são hipóteses baseadas na falha real do PHP, não prova de que o servidor tenha completado qualquer instalação.
+
+O botão **Diagnosticar ZIP antes de instalar** envia o arquivo apenas para validação de leitura (`operation=diagnose_zip`, POST + sessão de administrador + CSRF). Ele avalia o manifesto e, quando compatível, realiza preflight sem gravar no MySQL nem substituir código. A confirmação de instalação depende de senha e seleção posterior.
+
+**Bloqueio obrigatório:** a versão 1.0.96 introduziu schema 37. Pacotes que cruzam schema 36→37, inclusive a atualização 1.0.97 usada num portal ainda na 1.0.95/schema 36, precisam de **instalação assistida** com backup externo. Não force a aplicação via ZIP comum, mesmo que a release esteja disponível no GitHub.

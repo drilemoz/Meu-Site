@@ -9,6 +9,8 @@
 .legal-app-thumb{width:54px;height:54px;object-fit:cover;border-radius:12px}
 .legal-app-card p{overflow-wrap:anywhere}.legal-card-actions,.legal-action-row,.legal-page-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:12px}
 .legal-card-actions .btn,.legal-page-actions .btn{font-size:.9rem}
+.legal-page-actions{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.legal-page-actions .btn{min-width:0;min-height:44px;text-align:center;display:flex;align-items:center;justify-content:center;padding:10px 5px}
 .legal-badge{display:inline-flex;align-items:center;border-radius:30px;padding:5px 10px;white-space:nowrap;font-size:.78rem;font-weight:700}
 .legal-badge.is-live{background:#e5f7ec;color:#117449}.legal-badge.is-draft{background:#edf1f7;color:#526277}
 .legal-form{display:grid;gap:14px}.legal-form>label,.legal-form .legal-fields-two>label{display:grid;gap:7px;font-weight:600;min-width:0}
@@ -39,4 +41,4 @@
 .legal-app-meta p{margin:6px 0}.legal-app-links{border-top:1px solid #dee8f0;margin-top:20px;padding-top:20px;display:flex;flex-wrap:wrap;gap:10px}
 .legal-app-links a{padding:9px 13px;border-radius:10px;border:1px solid #cfdceb;text-decoration:none}
 .legal-app-links [aria-current=page]{color:#fff;background:#175db7;border-color:#175db7}
-@media(max-width:650px){.legal-fields-two{grid-template-columns:1fr}.legal-app-card-top{flex-wrap:wrap}.legal-app-heading{align-items:flex-start}.legal-app-logo{width:64px;height:64px}.legal-page-actions{width:100%}.legal-page-actions .btn{flex:1;text-align:center}.legal-action-row form{max-width:100%}.legal-admin .btn{min-height:44px}}
+@media(max-width:650px){.legal-fields-two{grid-template-columns:1fr}.legal-app-card-top{flex-wrap:wrap}.legal-app-heading{align-items:flex-start}.legal-app-logo{width:64px;height:64px}.legal-page-actions{width:100%;gap:6px}.legal-page-actions .btn{font-size:.84rem}.legal-action-row form{max-width:100%}.legal-admin .btn{min-height:44px}}

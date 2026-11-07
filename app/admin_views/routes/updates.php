@@ -48,6 +48,11 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
     <strong data-github-label>Conectando…</strong>
     <p data-github-message>Consultando a versão publicada.</p>
   </div>
+  <section class="updater-diagnostic" data-github-diagnostic hidden aria-live="polite">
+    <h3 data-github-diagnostic-title>Diagnóstico</h3>
+    <p data-github-diagnostic-detail></p><p class="updater-diagnostic-action" data-github-diagnostic-action></p>
+    <small data-github-diagnostic-code></small>
+  </section>
   <div data-github-release hidden>
     <div class="updater-release"><div><span class="updater-pill">Nova versão</span><strong data-github-version></strong></div>
       <details><summary>Ver alterações desta versão</summary><div class="updater-release-notes" data-github-notes></div></details>
@@ -90,10 +95,17 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   </div>
   <form id="updater-upload-form" class="updater-install-form updater-upload-form" data-updater-progress-form data-updater-confirm-flow="manual" method="post" enctype="multipart/form-data" action="<?=h(admin_link('updates'))?>">
     <?=csrf_field()?><input type="hidden" name="operation" value="upload">
+    <p class="updater-upload-note updater-schema-warning"><strong>Importante:</strong> versões que alteram o esquema do banco, como a 1.0.96 (schema 37), precisam de instalação assistida com backup externo. O envio comum não faz essa migração.</p>
     <div class="updater-form-fields" data-updater-fields>
       <label class="updater-upload-label">Pacote de atualização<input type="file" name="update_zip" accept=".zip,application/zip" required></label>
       <label>Senha administrativa<input type="password" name="confirm_password" autocomplete="current-password" required></label>
       <p class="updater-upload-note">Use <strong>Atualizacao-vX.Y.Z.zip</strong>. O pacote de código-fonte não serve para instalar.</p>
+      <button type="button" class="btn outline updater-zip-check" data-updater-diagnose-zip>Diagnosticar ZIP antes de instalar</button>
+      <section class="updater-diagnostic" data-updater-zip-diagnostic hidden aria-live="polite">
+        <h3 data-updater-zip-title>Diagnóstico do pacote</h3>
+        <p data-updater-zip-detail></p><p class="updater-diagnostic-action" data-updater-zip-action></p>
+        <small data-updater-zip-code></small>
+      </section>
       <button class="btn primary updater-submit" type="submit">Enviar <span aria-hidden="true">→</span></button>
     </div>
     <div class="updater-confirm-step" data-updater-confirm-step hidden>

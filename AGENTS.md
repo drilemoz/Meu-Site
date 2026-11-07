@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.96)
+# Diretrizes de manutenção — Meu Site (v1.0.98)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -107,3 +107,10 @@ Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **
 - URLs públicas dinâmicas no roteador existente, sem login para conteúdo publicado. `legal_app_pages` mantém rascunho e referência à revisão imutável; restaurar não publica.
 - Schema 37 é uma migração **aditiva e assistida**; o instalador ZIP v2 comum não atravessa schema 36→37. Backup lógico v12 precisa preservar v1–v11 e as novas FKs, com `storage`/mídias protegidos.
 - Testar `tests/legal_apps_196.php` e `tests/integration/legal_apps_mariadb_196.php` (CI com banco isolado), além de toda a regressão. Documentação: `docs/APLICATIVOS_LEGAIS.md`.
+
+## Ajustes 1.0.97
+
+- Janelas de atualização GitHub e ZIP mantêm altura conforme o conteúdo, centralização e rolagem interna, inclusive no celular.
+- Consulta GitHub devolve códigos de diagnóstico sanitizados; nunca registrar/responder URL completa de requisição, tokens ou dados privados.
+- `diagnose_zip` é POST autenticado com CSRF que analisa manifestos, schema, assinatura/hash e preflight, sem instalar, sem senha e sem modificar o banco. Instalar continua exigindo senha e confirmação; schema 36→37 permanece EXCLUSIVAMENTE assistido.
+- Modelos de Uai Cortes são rascunhos; campos `PREENCHER:` impedem publicação jurídica acidental. Aplicação nos rascunhos anteriores exige clique explícito, não sobrescreve conteúdo alterado ou revisões públicas.

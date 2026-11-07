@@ -20,6 +20,20 @@
   const finalMessage = get('[data-github-final-message]');
   const refresh = get('[data-github-refresh]');
   const retry = get('[data-github-retry]');
+  const diagnostic = get('[data-github-diagnostic]');
+  const diagnosticTitle = get('[data-github-diagnostic-title]');
+  const diagnosticDetail = get('[data-github-diagnostic-detail]');
+  const diagnosticAction = get('[data-github-diagnostic-action]');
+  const diagnosticCode = get('[data-github-diagnostic-code]');
+  function showDiagnostic(info) {
+    if (!diagnostic) return;
+    if (!info) { diagnostic.hidden = true; return; }
+    diagnostic.hidden = false;
+    diagnosticTitle.textContent = info.title || 'Diagnóstico disponível';
+    diagnosticDetail.textContent = info.detail || 'Não foi possível determinar a causa.';
+    diagnosticAction.textContent = info.action || 'Confira a vistoria do servidor.';
+    diagnosticCode.textContent = 'Código: ' + (info.code || 'unknown');
+  }
   const actions = get('.updater-github-actions');
   const password = form.querySelector('input[name="confirm_password"]');
   const tokenInput = form.querySelector('input[name="update_token"]');
@@ -53,6 +67,7 @@
     final.hidden = true;
     actions.hidden = false;
     retry.hidden = true;
+    showDiagnostic(null);
     previousStage = '';
     targetVersion = '';
     password.value = '';
@@ -68,17 +83,28 @@
       const response = await fetch('/admin.php?action=updates&updater_info=1', {
         credentials: 'same-origin', cache: 'no-store', headers: {'Accept': 'application/json'}
       });
+      const type = response.headers?.get?.('content-type') || '';
+      if (type && !type.includes('application/json')) throw new Error('O servidor retornou uma página em vez de JSON. Confira a sessão administrativa e o endpoint.');
       const info = await response.json();
       if (seq !== generation) return;
-      if (!response.ok || !info.ok) throw new Error(info.message || 'Consulta indisponível.');
+      if (!response.ok || !info.ok) {
+        showDiagnostic(info.diagnostic || {code: 'http_'+response.status,
+          title: 'Falha de resposta do servidor', detail: 'O painel recebeu HTTP '+response.status+'.',
+          action: 'Confira a Central de Saúde e os registros do servidor antes de tentar novamente.'});
+        showStatus('Não foi possível consultar', info.message || 'Consulta indisponível.', 'error');
+        retry.hidden = false;
+        return;
+      }
       installedVersion = info.installed || '';
       if (!info.configured) {
         showStatus('Origem não configurada', 'Configure o repositório nas opções avançadas.', 'error');
+        showDiagnostic({code:'source_missing',title:'Origem não configurada',detail:'A instalação não tem repositório definido.',action:'Abra Configurações e diagnóstico > Configurar origem.'});
         return;
       }
       const remote = info.release;
       if (!remote) {
         showStatus('Nenhuma atualização publicada', 'O repositório não informou uma release disponível.', 'done');
+        showDiagnostic({code:'release_missing',title:'Release não encontrada',detail:'Não foi localizada uma release pública marcada como versão mais recente.',action:'Verifique a aba Releases do repositório oficial.'});
         return;
       }
       if (!remote.newer) {
@@ -92,6 +118,7 @@
       if (!remote.downloadable) {
         form.hidden = true;
         showStatus('Versão encontrada: ' + remote.version, 'Ainda não há um ZIP compatível na release. A instalação pelo GitHub está indisponível.', 'error');
+        showDiagnostic({code:'asset_missing',title:'ZIP de atualização não encontrado',detail:'A release foi encontrada, mas não contém o nome esperado do pacote.',action:'Publique Atualizacao-v'+remote.version+'.zip como asset da release.'});
         return;
       }
       form.hidden = false;
@@ -99,6 +126,7 @@
     } catch (error) {
       if (seq !== generation) return;
       showStatus('Não foi possível consultar', error && error.message ? error.message : 'Verifique a conexão com o GitHub.', 'error');
+      showDiagnostic({code:'client_connection',title:'Falha ao consultar o painel',detail:'O navegador não conseguiu obter um diagnóstico estruturado do servidor.',action:'Confira login, conexão, console do navegador e logs privados. A consulta externa é feita pela hospedagem, não pelo celular.'});
       retry.hidden = false;
     }
   }

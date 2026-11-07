@@ -18,6 +18,23 @@ if($operation==='check'){
     flash($release ? 'Consulta concluída. Última versão publicada: '.$release['version'] : 'Configure primeiro o repositório de Releases.');
     redirect('/admin.php?action=updates');
 }
+if($operation==='diagnose_zip'){
+    header('Content-Type: application/json; charset=UTF-8');
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: no-store, private');
+    $file=$_FILES['update_zip']??[];
+    $status=(int)($file['error']??UPLOAD_ERR_NO_FILE);
+    if($status!==UPLOAD_ERR_OK || !is_uploaded_file((string)($file['tmp_name']??''))){
+        $limit=in_array($status,[UPLOAD_ERR_INI_SIZE,UPLOAD_ERR_FORM_SIZE],true);
+        echo json_encode(['ok'=>false,'diagnostic'=>[
+           'code'=>$limit?'php_upload_limit':'upload_error',
+           'title'=>$limit?'O arquivo excede o limite da hospedagem':'Arquivo não recebido',
+           'detail'=>$limit?'O PHP recusou o envio antes de analisar o ZIP.':'Selecione um arquivo ZIP válido e tente diagnosticar novamente.',
+           'action'=>$limit?'Peça ao provedor para revisar upload_max_filesize e post_max_size.':'Confira a conexão e o seletor de arquivos.']],JSON_UNESCAPED_UNICODE);exit;
+    }
+    $result=igua_updater_diagnose_zip((string)$file['tmp_name'],$db);
+    echo json_encode($result,JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);exit;
+}
 if($operation==='preview'){
     $up=$_FILES['update_zip']??[];
     if(($up['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK || !is_uploaded_file((string)($up['tmp_name']??''))||

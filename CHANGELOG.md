@@ -1,3 +1,16 @@
+# 1.0.98 (2026-11-07)
+
+- Aplicativos e Páginas Legais: ação **Ver página** para páginas efetivamente publicadas, em nova aba.
+- Páginas em rascunho exibem **Prévia** com abertura automática do modal privado no editor, sem permitir leitura pública do rascunho.
+- Três ações responsivas por cartão: Editar, Ver página/Prévia e Copiar URL. Regressores PHP/JS adicionados.
+- Schema 37, backup v12 e demais módulos preservados.
+
+# 1.0.97 (2026-11-07)
+
+- Atualizador: pop-ups compactos, diagnostico sanitizado do GitHub, inspeção não destrutiva de ZIP antes da confirmação e bloqueio preservado para mudança de schema.
+- Aplicativos legais: três modelos iniciais de Uai Cortes, com importação conservadora sob ação do administrador; nenhum documento é publicado automaticamente.
+- Banco inalterado: schema 37 / backup v12.
+
 ## [1.0.96] — 2026-11-07
 
 ### Aplicativos e Páginas Legais

@@ -1,4 +1,4 @@
-# Aplicativos e Páginas Legais — IguatamaOnline (v1.0.96)
+# Aplicativos e Páginas Legais — IguatamaOnline (v1.0.98)
 
 ## Objetivo
 
@@ -22,7 +22,7 @@ Essas URLs são resolvidas pelo `public/.htaccess` (Apache com mod_rewrite) ou p
 5. Clique em **Salvar rascunho** para guardar uma alteração sem mexer no conteúdo público.
 6. **Publicar página** exige confirmação e cria uma revisão imutável do texto; apenas uma revisão é visível publicamente por vez.
 7. Publique o aplicativo quando a **Apresentação** e a **Política de Privacidade** já estiverem publicadas, com responsável e e-mail válido. Os termos podem ser publicados separadamente, mas precisam estar disponíveis quando o serviço exigir.
-8. O painel oferece copiar a URL e abrir a página pública. A URL não muda quando o texto muda.
+8. Cada cartão oferece **Editar**, **Prévia** (quando é rascunho) ou **Ver página** (quando aplicativo e página estão publicados), e **Copiar URL**. A prévia abre a visualização do rascunho salvo dentro do painel autenticado em outra aba; nunca torna o rascunho público. O endereço público abre em outra aba e a URL não muda quando o texto muda.
 9. Em **Histórico**, uma revisão anterior pode ser restaurada **somente para o rascunho**. Publique novamente se desejar trocar a versão pública.
 
 ### Formatação
@@ -61,3 +61,11 @@ A migração é aditiva/idempotente e tem marcador `igua_schema_revision=37`. O 
 - `php tests/legal_apps_196.php` verifica regras de slugs, rotas, HTML seguro, segurança e integração estrutural offline.
 - `php tests/integration/legal_apps_mariadb_196.php` requer banco **local descartável** `igua_ci_*`, `pdo_mysql`, opt-in explícito, e é executado após a criação do banco no workflow GitHub Actions. Exercita dois aplicativos, isolamento de publicação, revisões, redirects e backup/restauração v12.
 - Ainda é necessário validar manualmente em uma hospedagem de testes a migração 36→37, as URLs públicas com status 200/404, HTTPS e o formulário no Chrome Android antes de produção.
+
+## Modelos de Uai Cortes (v1.0.97)
+
+O arquivo `app/legal_uai_examples.php` fornece exemplos de apresentação, Política de Privacidade e Termos baseados no código do Uai Cortes. Na criação inicial do Uai Cortes, esses textos são gravados no banco como rascunhos e nunca publicados automaticamente.
+
+Para Uai Cortes previamente criado pela v1.0.96, acesse **Aplicativos e Páginas Legais → Uai Cortes → Carregar exemplos do Uai Cortes**. A ação altera apenas páginas em rascunho com texto inicial intacto ou vazio e completa campos de cadastro vazios. Conteúdo já editado ou publicado não é substituído.
+
+As instruções `PREENCHER:` sobre dados pessoais, retenção e revogação devem ser revisadas e removidas após confirmação dos fluxos reais. O backend bloqueia publicar páginas que ainda contêm essa marca. O conteúdo atual não constitui parecer jurídico e a plataforma Google pode exigir comprovações adicionais.

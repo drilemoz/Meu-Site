@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.96** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.98** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,20 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.98 — Visualizar páginas de aplicativos
+
+- Cartões de **Aplicativos e Páginas Legais** agora oferecem **Ver página** em nova aba somente quando aplicativo e página estão publicados.
+- Para rascunhos, **Prévia** abre uma aba administrativa autenticada com a visualização do texto salvo, sem expor a página em `/slug` antes da publicação.
+- Botões Editar, Ver página/Prévia e Copiar URL ficam lado a lado no celular. Nenhuma migração, mudança de dados ou publicação automática (schema 37 / backup v12).
+
+## Versão 1.0.97 — Atualizações e modelos legais
+
+- **Pop-ups compactos:** GitHub e Enviar ZIP agora usam altura do conteúdo e ficam centralizados, sem o grande painel vazio no celular.
+- **Diagnóstico GitHub:** a consulta retorna orientação categorizada para problemas de cURL, DNS, TLS, tempo limite, respostas HTTP e erros na hospedagem; não revela mensagens brutas. A release v1.0.96 já foi encontrada no repositório público, mas o acesso PHP da hospedagem precisa ser verificado.
+- **Diagnóstico ZIP sem instalar:** inspeciona o manifesto, revisões do banco, integridade e pré-requisitos antes de exibir a confirmação. Não exige senha para a simulação; instalar ainda exige CSRF, senha e consentimento.
+- **Uai Cortes:** apresentação, política de privacidade e termos pré-preenchidos em novos rascunhos, com SEO. Para registros anteriores, botão **Carregar exemplos do Uai Cortes**, limitado a páginas intactas. Texto jurídico continua sujeito à revisão e ao bloqueio `PREENCHER:`.
+- **Importante:** schema 37 e backup lógico v12 continuam inalterados. A atualização do schema 36→37 NÃO é permitida pelo instalador ZIP comum: faça instalação assistida.
 
 ## Recursos recentes e limites
 

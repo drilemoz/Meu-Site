@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/legal_uai_examples.php';
 /** Aplicativos e páginas legais: dados editáveis, snapshots publicados e URLs permanentes. */
 
 function igua_app_slug_valid(string $slug): bool {
@@ -89,16 +90,59 @@ function igua_app_external_url(string $url): string {
     if(isset($parts['user']) || isset($parts['pass']))throw new InvalidArgumentException('Link externo inválido.');
     return $url;
 }
-function igua_app_legal_template(string $kind,string $name): string {
+function igua_app_generic_legal_template(string $kind,string $name): string {
     if($kind==='home') return '# '. $name ."\n\nPREENCHER: descreva o aplicativo e suas funções reais.\n\n- PREENCHER: recursos principais.\n- PREENCHER: como obter suporte.";
     if($kind==='privacy')return "# Política de Privacidade\n\nPREENCHER: identifique o desenvolvedor e o aplicativo.\n\n## Dados coletados\nPREENCHER: quais dados realmente são coletados ou acessados.\n\n## Finalidades e serviços externos\nPREENCHER: descreva uso, inclusive integrações com Google/YouTube, se existirem.\n\n## Armazenamento e retenção\nPREENCHER: descreva locais, segurança e prazos efetivos.\n\n## Autorização, revogação e exclusão\nPREENCHER: descreva como revogar autorizações Google/YouTube, excluir dados e contatar o responsável.\n\n## Contato e atualização\nPREENCHER: contato e data de atualização.";
     if($kind==='terms')return "# Termos de Serviço\n\nPREENCHER: identifique o aplicativo e o responsável.\n\n## Uso e limitações\nPREENCHER: defina regras reais e limitações.\n\n## Integrações externas\nPREENCHER: descreva serviços de terceiros realmente utilizados.\n\n## Contato e alterações\nPREENCHER: endereço de contato e atualização.";
     return '';
 }
+function igua_app_legal_template(string $kind,string $name): string {
+    if($name==='Uai Cortes')return (string)(igua_uai_legal_examples()[$kind]['body'] ?? '');
+    return igua_app_generic_legal_template($kind,$name);
+}
+/**
+ * Preenche modelos somente após ação administrativa explícita. Páginas modificadas
+ * pelo usuário, revisões publicadas e outros aplicativos permanecem intocados.
+ */
+function igua_app_apply_uai_examples(PDO $db,int $id): array {
+    $app=igua_app_find($db,$id);
+    if(!$app || $app['slug']!=='uaicortes' || $app['status']!=='draft')
+        throw new InvalidArgumentException('Modelos específicos disponíveis somente para o rascunho Uai Cortes.');
+    $samples=igua_uai_legal_examples();
+    $db->beginTransaction();
+    try {
+        $q=$db->prepare('SELECT id,kind,draft_body,status,published_revision_id FROM legal_app_pages WHERE app_id=? FOR UPDATE');
+        $q->execute([$id]);$updated=0;$skipped=0;
+        foreach($q->fetchAll() as $page){
+            $kind=(string)$page['kind'];
+            if(!isset($samples[$kind]))continue;
+            $body=(string)$page['draft_body'];
+            if($page['status']!=='draft' || $page['published_revision_id']!==null ||
+               ($body!=='' && $body!==igua_app_generic_legal_template($kind,'Uai Cortes'))){$skipped++;continue;}
+            $model=$samples[$kind];
+            $update=$db->prepare('UPDATE legal_app_pages SET draft_title=?,draft_body=?,draft_seo_description=? WHERE id=?');
+            $update->execute([$model['title'],$model['body'],$model['seo'],(int)$page['id']]);$updated++;
+        }
+        $db->prepare("UPDATE legal_apps SET
+            summary=IF(summary='',?,summary),
+            description=IF(description='',?,description),
+            developer_name=IF(developer_name='',?,developer_name),
+            support_email=IF(support_email='',?,support_email),
+            website_url=IF(website_url='',?,website_url)
+            WHERE id=? AND slug='uaicortes' AND status='draft'")
+          ->execute([
+            'Editor de vídeos Android com cortes, legendas, narração por IA e integração opcional com YouTube.',
+            'Edição de vídeos, áudio, legendas, projetos, exportação e integração opcional com YouTube e outros serviços.',
+            'Adriedson Aparecido Lemos','drilemoz@gmail.com','https://github.com/drilemoz/UAI-Cortes',$id
+          ]);
+        $db->commit();return ['updated'=>$updated,'skipped'=>$skipped];
+    }catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
+}
 function igua_app_seed_default_pages(PDO $db,int $appId,string $name):void {
     $query=$db->prepare("INSERT INTO legal_app_pages (app_id,kind,slug,draft_title,draft_body,draft_seo_description) VALUES (?,?,?,?,?,?)");
     foreach([['home','inicio','Sobre '.$name],['privacy','privacidade','Política de Privacidade'],['terms','termos','Termos de Serviço']] as [$kind,$slug,$title]){
-        $query->execute([$appId,$kind,$slug,$title,igua_app_legal_template($kind,$name),'']);
+        $example=$name==='Uai Cortes'?(igua_uai_legal_examples()[$kind]??null):null;
+        $query->execute([$appId,$kind,$slug,$example['title']??$title,igua_app_legal_template($kind,$name),$example['seo']??'']);
     }
 }
 function igua_migrate_apps_schema(PDO $db):void {
@@ -145,8 +189,11 @@ function igua_migrate_apps_schema(PDO $db):void {
     if((int)$db->query('SELECT COUNT(*) FROM legal_apps')->fetchColumn()===0){
         $db->beginTransaction();
         try {
-            $q=$db->prepare('INSERT INTO legal_apps (name,slug,summary,description) VALUES (?,?,?,?)');
-            $q->execute(['Uai Cortes','uaicortes','','']);
+            $q=$db->prepare('INSERT INTO legal_apps (name,slug,summary,description,developer_name,support_email,website_url) VALUES (?,?,?,?,?,?,?)');
+            $q->execute(['Uai Cortes','uaicortes',
+                'Editor de vídeos Android com cortes, legendas, narração por IA e integração opcional com YouTube.',
+                'Edição de vídeos, áudio, legendas, projetos, exportação e integração opcional com YouTube e outros serviços.',
+                'Adriedson Aparecido Lemos','drilemoz@gmail.com','https://github.com/drilemoz/UAI-Cortes']);
             igua_app_seed_default_pages($db,(int)$db->lastInsertId(),'Uai Cortes');
             $db->commit();
         }catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}

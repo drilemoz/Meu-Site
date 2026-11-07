@@ -7,7 +7,7 @@ function igua_admin_post_module(string $action): ?string {
         'delete_legal_app'=>'apps_legal', 'create_legal_page'=>'apps_legal',
         'save_legal_page'=>'apps_legal', 'publish_legal_page'=>'apps_legal',
         'unpublish_legal_page'=>'apps_legal', 'restore_legal_revision'=>'apps_legal',
-        'delete_legal_page'=>'apps_legal',
+        'delete_legal_page'=>'apps_legal', 'load_uai_legal_examples'=>'apps_legal',
         'ads_delete_campaign'=>'ads',
         'ads_delete_demo'=>'ads',
         'ads_save_campaign'=>'ads',

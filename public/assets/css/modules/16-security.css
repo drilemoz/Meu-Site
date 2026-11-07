@@ -437,3 +437,31 @@
  .admin-body dialog.igua-modal.updater-dialog .updater-dialog-head{top:-16px}
 }
 @media(prefers-reduced-motion:reduce){.admin-body dialog.igua-modal::backdrop{backdrop-filter:none}}
+
+/* 1.0.97 — atualização usa altura real do conteúdo, nunca um painel quase fullscreen.
+   Em mensagens curtas, a janela fica centralizada; com muitos itens, rola internamente. */
+.admin-body dialog.igua-modal.updater-dialog{
+  height:fit-content;min-height:0;max-height:min(78dvh,680px);
+  overflow-y:auto;overflow-x:hidden;margin:auto;
+}
+.admin-body dialog.igua-modal.updater-dialog .updater-github-actions{min-height:0}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic{
+  display:grid;gap:7px;margin:10px 0;padding:13px;
+  background:#f4f8fe;border:1px solid #d2e1f2;border-radius:13px;
+  font-size:.85rem;line-height:1.45;
+}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic[hidden]{display:none!important}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic[data-state="error"]{border-color:#efc9c9;background:#fff8f7}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic[data-state="ok"]{border-color:#b5dfcd;background:#f0faf4}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic h3{font-size:1rem;margin:0;color:#193452}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic p{margin:0}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic-action{font-weight:600;color:#2b587c}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic small{color:#657b8b}
+.admin-body dialog.igua-modal.updater-dialog .updater-zip-check{min-height:44px;width:100%}
+.admin-body dialog.igua-modal.updater-dialog .updater-schema-warning{padding:10px 12px;border:1px solid #ead8b4;background:#fff9ed;border-radius:10px;margin:8px 0}
+@media(max-width:650px){
+ .admin-body dialog.igua-modal.updater-dialog{
+   width:min(450px,calc(100vw - 28px));max-width:calc(100vw - 28px);
+   max-height:min(78dvh,680px);height:fit-content;min-height:0;
+ }
+}

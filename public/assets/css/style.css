@@ -1540,6 +1540,34 @@ html,body{max-width:100%;overflow-x:clip}
  .admin-body dialog.igua-modal.updater-dialog .updater-dialog-head{top:-16px}
 }
 @media(prefers-reduced-motion:reduce){.admin-body dialog.igua-modal::backdrop{backdrop-filter:none}}
+
+/* 1.0.97 — atualização usa altura real do conteúdo, nunca um painel quase fullscreen.
+   Em mensagens curtas, a janela fica centralizada; com muitos itens, rola internamente. */
+.admin-body dialog.igua-modal.updater-dialog{
+  height:fit-content;min-height:0;max-height:min(78dvh,680px);
+  overflow-y:auto;overflow-x:hidden;margin:auto;
+}
+.admin-body dialog.igua-modal.updater-dialog .updater-github-actions{min-height:0}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic{
+  display:grid;gap:7px;margin:10px 0;padding:13px;
+  background:#f4f8fe;border:1px solid #d2e1f2;border-radius:13px;
+  font-size:.85rem;line-height:1.45;
+}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic[hidden]{display:none!important}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic[data-state="error"]{border-color:#efc9c9;background:#fff8f7}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic[data-state="ok"]{border-color:#b5dfcd;background:#f0faf4}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic h3{font-size:1rem;margin:0;color:#193452}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic p{margin:0}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic-action{font-weight:600;color:#2b587c}
+.admin-body dialog.igua-modal.updater-dialog .updater-diagnostic small{color:#657b8b}
+.admin-body dialog.igua-modal.updater-dialog .updater-zip-check{min-height:44px;width:100%}
+.admin-body dialog.igua-modal.updater-dialog .updater-schema-warning{padding:10px 12px;border:1px solid #ead8b4;background:#fff9ed;border-radius:10px;margin:8px 0}
+@media(max-width:650px){
+ .admin-body dialog.igua-modal.updater-dialog{
+   width:min(450px,calc(100vw - 28px));max-width:calc(100vw - 28px);
+   max-height:min(78dvh,680px);height:fit-content;min-height:0;
+ }
+}
 /* Aplicativos e páginas legais, painel e leitura pública. */
 .legal-admin{max-width:100%;min-width:0}
 .legal-admin-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
@@ -1551,6 +1579,8 @@ html,body{max-width:100%;overflow-x:clip}
 .legal-app-thumb{width:54px;height:54px;object-fit:cover;border-radius:12px}
 .legal-app-card p{overflow-wrap:anywhere}.legal-card-actions,.legal-action-row,.legal-page-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:12px}
 .legal-card-actions .btn,.legal-page-actions .btn{font-size:.9rem}
+.legal-page-actions{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.legal-page-actions .btn{min-width:0;min-height:44px;text-align:center;display:flex;align-items:center;justify-content:center;padding:10px 5px}
 .legal-badge{display:inline-flex;align-items:center;border-radius:30px;padding:5px 10px;white-space:nowrap;font-size:.78rem;font-weight:700}
 .legal-badge.is-live{background:#e5f7ec;color:#117449}.legal-badge.is-draft{background:#edf1f7;color:#526277}
 .legal-form{display:grid;gap:14px}.legal-form>label,.legal-form .legal-fields-two>label{display:grid;gap:7px;font-weight:600;min-width:0}
@@ -1581,4 +1611,4 @@ html,body{max-width:100%;overflow-x:clip}
 .legal-app-meta p{margin:6px 0}.legal-app-links{border-top:1px solid #dee8f0;margin-top:20px;padding-top:20px;display:flex;flex-wrap:wrap;gap:10px}
 .legal-app-links a{padding:9px 13px;border-radius:10px;border:1px solid #cfdceb;text-decoration:none}
 .legal-app-links [aria-current=page]{color:#fff;background:#175db7;border-color:#175db7}
-@media(max-width:650px){.legal-fields-two{grid-template-columns:1fr}.legal-app-card-top{flex-wrap:wrap}.legal-app-heading{align-items:flex-start}.legal-app-logo{width:64px;height:64px}.legal-page-actions{width:100%}.legal-page-actions .btn{flex:1;text-align:center}.legal-action-row form{max-width:100%}.legal-admin .btn{min-height:44px}}
+@media(max-width:650px){.legal-fields-two{grid-template-columns:1fr}.legal-app-card-top{flex-wrap:wrap}.legal-app-heading{align-items:flex-start}.legal-app-logo{width:64px;height:64px}.legal-page-actions{width:100%;gap:6px}.legal-page-actions .btn{font-size:.84rem}.legal-action-row form{max-width:100%}.legal-admin .btn{min-height:44px}}

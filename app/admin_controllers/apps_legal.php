@@ -60,6 +60,13 @@ if($action==='publish_legal_app'){
     flash($status==='published'?'Aplicativo publicado.':'Aplicativo retirado do público. As versões foram preservadas.');
     redirect('/admin.php?action=legal_app_edit&id='.$id);
 }
+if($action==='load_uai_legal_examples'){
+    $id=(int)($_POST['id']??0);
+    if(($_POST['confirm']??'')!=='1')throw new InvalidArgumentException('Confirme a inclusão dos modelos.');
+    $count=igua_app_apply_uai_examples($db,$id);
+    flash('Modelos carregados em '.$count['updated'].' página(s) ainda não editadas. '.$count['skipped'].' página(s) preservada(s). Revise os campos PREENCHER antes de publicar.');
+    redirect('/admin.php?action=legal_app_edit&id='.$id);
+}
 if($action==='delete_legal_app'){
     $id=(int)($_POST['id']??0);$app=igua_app_find($db,$id);
     if(!$app)throw new InvalidArgumentException('Aplicativo não encontrado.');

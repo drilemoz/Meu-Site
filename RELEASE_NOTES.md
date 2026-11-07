@@ -1,3 +1,23 @@
+# Meu Site v1.0.98 — Links para visualizar páginas de aplicativos
+
+- Nos cartões de páginas legais, **Ver página** abre o endereço real em nova aba somente se aplicativo e página estiverem publicados.
+- Enquanto houver rascunho, **Prévia** abre o editor autenticado com o modal de visualização já aberto; a URL pública permanece protegida.
+- Editar, Prévia/Ver página e Copiar URL organizados em uma linha responsiva no celular.
+- Sem alteração de banco (schema 37) ou backup (v12). Instalações ainda no schema 36 exigem migração assistida.
+
+---
+
+# Meu Site v1.0.97 — Diagnóstico de atualizações e modelos Uai Cortes
+
+- Pop-ups GitHub e Enviar ZIP centralizados com altura proporcional ao conteúdo no celular.
+- Diagnóstico controlado de consulta GitHub (DNS, TLS, cURL, timeout, status HTTP e falhas de armazenamento), com orientações e sem vazamento de erros brutos.
+- Envio manual pode fazer simulação segura do ZIP antes da instalação. Validação de formato, assinatura opcional, hash, versão, schema e permissões; a simulação não grava conteúdo nem executa migrações.
+- Modelos editáveis de apresentação, Política de Privacidade e Termos para Uai Cortes. Rascunhos novos recebem exemplos; os já existentes recebem botão de importação conservador, sem substituir edição prévia.
+- Schema **37** preservado. Não desabilita o bloqueio para atualização da revisão 36→37: essa migração exige backup externo e instalação assistida.
+- Testes de diagnósticos e modelos adicionados. PHP/MySQL real e upload na hospedagem ainda exigem validação; revisão jurídica dos modelos obrigatória.
+
+---
+
 # Meu Site v1.0.96 — Aplicativos e Páginas Legais
 
 - Módulo integrado ao menu administrativo para gerenciar diversos aplicativos e suas páginas de apresentação, privacidade, termos e páginas extras, com edição livre do conteúdo no banco.

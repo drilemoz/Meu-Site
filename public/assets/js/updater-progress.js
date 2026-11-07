@@ -39,6 +39,53 @@
     const ack = manual ? form.querySelector('[data-updater-ack]') : null;
     const uploadDialog = manual ? form.closest('dialog') : null;
     const fileInput = form.querySelector('input[type="file"][name="update_zip"]');
+    const diagnosisPanel = manual ? form.querySelector('[data-updater-zip-diagnostic]') : null;
+    const diagnosisButton = manual ? form.querySelector('[data-updater-diagnose-zip]') : null;
+    let lastDiagnosedFile = null;
+    let lastCompatible = null;
+    let checking = false;
+    function displayDiagnosis(item) {
+      if (!diagnosisPanel) return;
+      diagnosisPanel.hidden = !item;
+      if (!item) return;
+      diagnosisPanel.dataset.state = item.code === 'compatible' ? 'ok' : 'error';
+      diagnosisPanel.querySelector('[data-updater-zip-title]').textContent = item.title || 'Diagnóstico';
+      diagnosisPanel.querySelector('[data-updater-zip-detail]').textContent = item.detail || '';
+      diagnosisPanel.querySelector('[data-updater-zip-action]').textContent = item.action || '';
+      diagnosisPanel.querySelector('[data-updater-zip-code]').textContent = 'Código: ' + (item.code || 'unknown');
+    }
+    async function diagnoseFile() {
+      const file = fileInput?.files?.[0];
+      if (!file || checking) return false;
+      if (lastDiagnosedFile === file && lastCompatible !== null) return lastCompatible;
+      checking = true;
+      if (diagnosisButton) diagnosisButton.disabled = true;
+      displayDiagnosis({code:'checking',title:'Analisando pacote…',detail:'Enviando o ZIP apenas para verificação. Nenhuma instalação será iniciada.',action:'Aguarde a resposta do servidor.'});
+      try {
+        const data = new FormData();
+        data.append('operation', 'diagnose_zip');
+        data.append('csrf', form.querySelector('input[name="csrf"]')?.value || '');
+        data.append('update_zip', file);
+        const response = await fetch(form.action, {method:'POST',body:data,credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json'}});
+        if (!(response.headers.get('content-type') || '').includes('application/json')) throw new Error('Resposta não estruturada');
+        const result = await response.json();
+        if (!response.ok || !result.diagnostic) throw new Error('Falha na verificação');
+        if (fileInput.files?.[0] !== file) return false;
+        displayDiagnosis(result.diagnostic);
+        lastDiagnosedFile = file;
+        lastCompatible = result.ok === true;
+        return lastCompatible;
+      } catch (_) {
+        displayDiagnosis({code:'connection',title:'Diagnóstico não concluído',detail:'A hospedagem não retornou um resultado verificável.',action:'Confira a sessão administrativa, o limite de upload do PHP e a conexão. O ZIP não foi instalado.'});
+        lastCompatible = null;
+        return false;
+      } finally {checking = false; if (diagnosisButton) diagnosisButton.disabled = false;}
+    }
+    if (manual) {
+      fileInput?.addEventListener('change', () => {lastDiagnosedFile = null;lastCompatible = null;displayDiagnosis(null);});
+      diagnosisButton?.addEventListener('click', () => {void diagnoseFile();});
+    }
+
     function leaveBusy() {
       delete form.dataset.updaterSending;
       if (manual && uploadDialog) {
@@ -57,10 +104,12 @@
       if (ui) ui.hidden = true;
       fileInput?.focus?.();
     }
-    function showConfirmation() {
+    async function showConfirmation() {
       if (!form.checkValidity()) { form.reportValidity?.(); return; }
       const selected = fileInput?.files?.[0];
       if (!selected) { fileInput?.reportValidity?.(); return; }
+      // A simulação é uma operação de leitura, com CSRF; bloqueios de schema não são ignorados.
+      if (!(await diagnoseFile())) return;
       const name = form.querySelector('[data-updater-filename]');
       if (name) name.textContent = selected.name || 'Arquivo ZIP selecionado';
       if (ack) { ack.disabled = false; ack.checked = false; }
@@ -161,7 +210,7 @@
       if (!form.checkValidity()) return;
       if (manual) {
         event.preventDefault();
-        showConfirmation();
+        void showConfirmation();
         return;
       }
       if (!window.XMLHttpRequest || !window.FormData) return;

@@ -48,13 +48,26 @@ if($action==='legal_apps'):
     </form>
   </section>
   <?php if($app): ?>
+  <?php if(($app['slug']??'')==='uaicortes' && ($app['status']??'')==='draft'): ?>
+  <section class="panel legal-example-panel"><h2>Modelos prontos para revisão</h2>
+    <p class="muted">Apresentação, privacidade e termos baseados no projeto Uai Cortes. Só preenche rascunhos intactos; nunca substitui conteúdo editado ou publicado.</p>
+    <form method="post" action="<?=h(admin_link('load_uai_legal_examples'))?>">
+      <?=csrf_field()?><input type="hidden" name="id" value="<?=$id?>"><input type="hidden" name="confirm" value="1">
+      <button type="submit" class="btn outline" data-confirm="Preencher apenas páginas não editadas com modelos para revisar?">Carregar exemplos do Uai Cortes</button>
+    </form>
+  </section>
+  <?php endif; ?>
   <section class="panel"><div class="legal-admin-head"><div><h2>Páginas públicas</h2><p class="muted">Cada página possui rascunho e conteúdo público independentes.</p></div></div>
     <div class="legal-pages-list">
     <?php foreach($pages as $pg): $link=igua_app_page_url((string)$app['slug'],(string)$pg['slug']); ?>
       <article class="legal-page-row"><div><strong><?=h($pg['slug']==='inicio'?'Apresentação':($pg['slug']==='privacidade'?'Política de Privacidade':($pg['slug']==='termos'?'Termos de Serviço':$pg['draft_title'])))?></strong><small><?=h($link)?></small></div>
         <span class="legal-badge <?= $pg['status']==='published'?'is-live':'is-draft' ?>"><?= $pg['status']==='published'?'Publicada':'Rascunho' ?></span>
         <div class="legal-page-actions"><a class="btn outline" href="<?=h(admin_link('legal_page_edit'))?>&amp;id=<?=(int)$pg['id']?>">Editar</a>
-          <?php if($pg['status']==='published' && $app['status']==='published'): ?><a class="btn outline" href="<?=h($link)?>" target="_blank" rel="noopener">Abrir</a><?php endif; ?>
+          <?php if($pg['status']==='published' && $app['status']==='published'): ?>
+            <a class="btn outline" href="<?=h($link)?>" target="_blank" rel="noopener noreferrer" aria-label="Ver página publicada: <?=h($pg['draft_title'])?>">Ver página</a>
+          <?php else: ?>
+            <a class="btn outline" href="<?=h(admin_link('legal_page_edit'))?>&amp;id=<?=(int)$pg['id']?>&amp;legal_preview=1" target="_blank" rel="noopener noreferrer" title="Prévia privada; esta página ainda não está disponível ao público">Prévia</a>
+          <?php endif; ?>
           <button type="button" class="btn outline" data-legal-copy="<?=h('https://iguatama.online'.$link)?>">Copiar URL</button></div></article>
     <?php endforeach; ?>
     </div>
@@ -92,7 +105,7 @@ if($action==='legal_apps'):
       <p class="muted">Aceita títulos (#, ##), listas (-), negrito (**texto**) e links HTTPS ([nome](https://...)). HTML inserido será mostrado como texto, não executado.</p>
       <label>Descrição SEO<textarea name="seo_description" rows="2" maxlength="240"><?=h($page['draft_seo_description'])?></textarea></label>
       <div class="legal-action-row"><button class="btn primary" type="submit">Salvar rascunho</button><button class="btn outline" type="button" data-legal-preview-open>Pré-visualizar</button>
-      <?php if($page['status']==='published' && $page['app_status']==='published'): ?><a class="btn outline" href="<?=h($publicLink)?>" target="_blank" rel="noopener">Ver publicada</a><?php endif; ?></div>
+      <?php if($page['status']==='published' && $page['app_status']==='published'): ?><a class="btn outline" href="<?=h($publicLink)?>" target="_blank" rel="noopener">Ver página</a><?php endif; ?></div>
     </form>
     <p class="muted">Rascunho atualizado: <?=h(date('d/m/Y H:i',strtotime($page['updated_at'])))?>. <?php if($published): ?>A versão pública é a revisão <?= (int)$published['revision_number'] ?>, de <?=h(date('d/m/Y',strtotime($published['created_at'])))?>.<?php else: ?>Nenhuma versão publicada.<?php endif; ?></p>
   </section>

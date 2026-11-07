@@ -56,12 +56,18 @@
     }
     flush();return frag;
   };
-  document.querySelector('[data-legal-preview-open]')?.addEventListener('click',e=>{
+  const openDraftPreview=(trigger)=>{
     if(!dlg||!panel||!title||!editor)return;
     title.textContent=document.querySelector('#legal-page-edit-form [name=title]')?.value || 'Sem título';
     panel.replaceChildren(render(editor.value));
-    if(!window.IguaAdminModal?.open?.(dlg,e.currentTarget))dlg.showModal();
-  });
+    if(!window.IguaAdminModal?.open?.(dlg,trigger))dlg.showModal();
+  };
+  const previewButton=document.querySelector('[data-legal-preview-open]');
+  previewButton?.addEventListener('click',e=>openDraftPreview(e.currentTarget));
+  // Link da listagem abre a prévia autenticada da versão salva, nunca a URL pública de um rascunho.
+  if(previewButton && new URLSearchParams(window.location.search).get('legal_preview')==='1'){
+    openDraftPreview(previewButton);
+  }
   document.querySelectorAll('[data-legal-preview-close]').forEach(btn=>btn.addEventListener('click',()=>{
     if(!dlg)return;if(!window.IguaAdminModal?.close?.(dlg))dlg.close();
   }));

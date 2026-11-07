@@ -15,6 +15,96 @@ const IGUA_UPDATE_MAX_TOTAL = 80 * 1024 * 1024;
 const IGUA_UPDATE_MAX_FILES = 800;
 const IGUA_UPDATE_DIR = IGUA_STORAGE . '/updater';
 
+/** Diagnósticos públicos controlados: nunca retornar resposta bruta, token ou caminhos do servidor. */
+function igua_updater_diagnostic(Throwable $error): array {
+    $message=$error->getMessage();
+    if(str_contains($message,'cURL indisponível') || str_contains($message,'Extensão cURL'))
+        return ['code'=>'curl_missing','title'=>'Extensão cURL ausente',
+            'detail'=>'O PHP não consegue fazer a consulta HTTPS pelo atualizador.',
+            'action'=>'Ative a extensão cURL na hospedagem ou use um pacote compatível enviado manualmente.'];
+    if(preg_match('/HTTP (\d{3})/', $message,$m)){
+        $status=(int)$m[1];
+        if($status===403 || $status===429)return ['code'=>'github_limited','title'=>'Consulta limitada pelo GitHub (HTTP '.$status.')',
+            'detail'=>'A API pode estar limitando requisições feitas do IP do servidor.',
+            'action'=>'Aguarde a renovação da cota e confira o repositório configurado. Evite repetir consultas seguidas.'];
+        if($status===404)return ['code'=>'github_not_found','title'=>'Repositório ou release não encontrado (HTTP 404)',
+            'detail'=>'A consulta não encontrou a origem solicitada.',
+            'action'=>'Verifique proprietário/repositório e a publicação de uma release não marcada como rascunho.'];
+        if($status>=500)return ['code'=>'github_remote_error','title'=>'Serviço remoto indisponível (HTTP '.$status.')',
+            'detail'=>'O servidor remoto respondeu com falha.',
+            'action'=>'Tente novamente mais tarde; confira status.github.com se o problema persistir.'];
+        return ['code'=>'github_http','title'=>'GitHub respondeu HTTP '.$status,
+            'detail'=>'O servidor respondeu, mas não aceitou a consulta.',
+            'action'=>'Confira o endereço do repositório e as restrições de rede da hospedagem.'];
+    }
+    if(preg_match('/Could not resolve|resolve host|name lookup|DNS/i',$message))
+        return ['code'=>'dns','title'=>'Falha de DNS na hospedagem',
+            'detail'=>'A hospedagem não conseguiu localizar o endereço do serviço GitHub.',
+            'action'=>'Verifique DNS e acesso de saída a api.github.com no provedor.'];
+    if(preg_match('/SSL|certificate|TLS|peer certificate|CA bundle/i',$message))
+        return ['code'=>'tls','title'=>'Falha TLS/certificado',
+            'detail'=>'A conexão segura HTTPS não pôde ser validada.',
+            'action'=>'Peça ao provedor para conferir certificados CA e configuração TLS do PHP. Não desative a validação SSL.'];
+    if(preg_match('/timeout|timed out|tempo limite|Tempo de resposta/i',$message))
+        return ['code'=>'timeout','title'=>'Tempo limite da conexão',
+            'detail'=>'O servidor não recebeu resposta em tempo hábil.',
+            'action'=>'Confira rede de saída, firewall e limite de execução PHP na hospedagem.'];
+    if(preg_match('/schema|revisão do banco|instalação assistida/i',$message))
+        return ['code'=>'schema_migration','title'=>'Atualização precisa de migração do banco',
+            'detail'=>'O pacote altera a revisão do MariaDB; o instalador comum bloqueia esse cenário para preservar os dados.',
+            'action'=>'Faça backup externo e siga o procedimento de instalação assistida da versão. Não force a instalação automática.'];
+    if(preg_match('/versão.*instalada|Pacote antigo/i',$message))
+        return ['code'=>'version','title'=>'Versão não aplicável',
+            'detail'=>'O pacote não é mais recente que o código instalado.',
+            'action'=>'Confira a versão atual e escolha um pacote de atualização mais recente.'];
+    if(preg_match('/ZipArchive|extensão ZIP/i',$message))
+        return ['code'=>'zip_missing','title'=>'Extensão PHP ZIP ausente',
+            'detail'=>'O PHP não consegue abrir o pacote.',
+            'action'=>'Ative ZipArchive no PHP usado pelo site.'];
+    if(preg_match('/permissão|escrita|espaço|diretório|armazenamento|arquivo temporário|salvar ZIP/i',$message))
+        return ['code'=>'storage','title'=>'Problema de armazenamento/permissão',
+            'detail'=>'A hospedagem pode estar impedindo arquivos temporários ou operações de escrita.',
+            'action'=>'Verifique espaço disponível, permissões das pastas privadas e cotas da hospedagem.'];
+    if(preg_match('/manifesto|Integridade|assinatura|formato|caminho|incompleto|ZIP/i',$message))
+        return ['code'=>'zip_invalid','title'=>'Pacote ZIP incompatível ou inválido',
+            'detail'=>'A validação do pacote não foi concluída.',
+            'action'=>'Use apenas o ZIP de atualização oficial, com manifesto íntegro, e nunca o ZIP do código-fonte.'];
+    return ['code'=>'unknown','title'=>'Falha não classificada',
+        'detail'=>'Não há informações suficientes para identificar uma causa única.',
+        'action'=>'Consulte a Vistoria do servidor e o registro privado de erros do painel. Não repita instalações de resultado incerto.'];
+}
+/** Verificação do ZIP sem aplicação, execução de SQL ou alteração do código. */
+function igua_updater_diagnose_zip(string $zipPath, ?PDO $db=null): array {
+    if(!class_exists('ZipArchive'))return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException('Extensão ZIP indisponível'))];
+    if(!is_file($zipPath) || is_link($zipPath) || filesize($zipPath)>IGUA_UPDATE_MAX_ZIP)
+        return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException('ZIP inválido ou acima do limite'))];
+    $zip=new ZipArchive();
+    if($zip->open($zipPath)!==true)return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException('ZIP corrompido'))];
+    try{
+        $raw=$zip->getFromName('release.json');$signature=$zip->getFromName('release.sig');
+        if(!is_string($raw))return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException('Manifesto ZIP ausente'))];
+        $manifest=igua_updater_check_manifest($raw,is_string($signature)?$signature:null);
+    }catch(Throwable $error){return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic($error)];}
+    finally{$zip->close();}
+    $version=(string)$manifest['version'];$schema=(int)$manifest['schema_revision'];
+    $base=['version'=>$version,'package_schema'=>$schema,'server_schema'=>defined('IGUA_SCHEMA_REVISION')?IGUA_SCHEMA_REVISION:null];
+    if(version_compare($version,igua_updater_version(),'<=') || $schema!==IGUA_SCHEMA_REVISION){
+        $reason=$schema!==IGUA_SCHEMA_REVISION?'Esta atualização altera a revisão do banco. Exige instalação assistida e backup externo.':'Pacote antigo: versão já instalada';
+        return $base+['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException($reason))];
+    }
+    try{
+        $preview=igua_updater_preview_zip($zipPath,$db);
+        if(!$preview['preflight']['ok'])return $base+['ok'=>false,'diagnostic'=>[
+            'code'=>'preflight','title'=>'Bloqueio na vistoria do servidor',
+            'detail'=>'Uma ou mais verificações de escrita, extensões ou segurança falharam.',
+            'action'=>'Abra Vistoria do servidor e corrija os itens marcados como falha.'],
+            'checks'=>$preview['preflight']['checks']];
+        return $base+['ok'=>true,'diagnostic'=>[
+            'code'=>'compatible','title'=>'Pacote compatível na simulação',
+            'detail'=>'Manifesto, hashes e pré-requisitos locais passaram na verificação.',
+            'action'=>'Esta análise não instala o ZIP nem garante sucesso em operações de backup ou substituição. Faça backup externo antes de continuar.']];
+    }catch(Throwable $error){return $base+['ok'=>false,'diagnostic'=>igua_updater_diagnostic($error)];}
+}
 function igua_updater_version(): string {
     $v=trim((string)@file_get_contents(IGUA_ROOT.'/VERSION'));
     return preg_match('/^\d+\.\d+\.\d+$/D',$v)?$v:'0.0.0';
