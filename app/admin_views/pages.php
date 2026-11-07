@@ -7,6 +7,7 @@
 <?php elseif($action==='analytics'): analytics_admin_view($db,analytics_period($_GET)); ?>
 <?php elseif($action==='elections'): meu_elections_admin_view($db); ?>
 <?php elseif($action==='seo'): igua_seo_admin_view($db,$me); ?>
+<?php elseif($action==='sitemap'): require __DIR__.'/routes/sitemap.php'; ?>
 <?php elseif ($action==='dashboard'): require __DIR__.'/routes/dashboard.php'; ?>
 <?php elseif ($action==='articles'): require __DIR__.'/routes/articles.php'; ?>
 <?php elseif ($action==='new'||$action==='edit'): require __DIR__.'/routes/editor.php'; ?>

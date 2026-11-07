@@ -17,7 +17,7 @@ function igua_seo_admin_view(PDO $db,array $me): void {
     $index=setting('seo_index','0')==='1';$pretty=setting('seo_pretty_urls','0')==='1';
 ?>
 <section class="panel seo-center">
-  <div class="panel-heading"><div><h2>Central de SEO</h2><p class="muted">Auditoria editorial das 40 notícias mais recentes deste filtro. Não é nota do Google e não garante indexação.</p></div><a class="btn outline small" href="<?= h(admin_link('settings')) ?>">Configurações</a></div>
+  <div class="panel-heading"><div><h2>Central de SEO</h2><p class="muted">Auditoria editorial das 40 notícias mais recentes deste filtro. Não é nota do Google e não garante indexação.</p></div><div class="seo-card-actions"><a class="btn outline small" href="<?= h(admin_link('settings')) ?>">Configurações</a><a class="btn outline small" href="<?=h(admin_link('sitemap'))?>">Sitemap e Indexação</a></div></div>
   <div class="seo-site-status" aria-label="Configurações da publicação">
     <span class="seo-status <?= $base!==''?'is-ok':'is-warning' ?>"><?= $base!==''?'✓':'!' ?> Domínio HTTPS: <?= $base!==''?h($base):'não configurado' ?></span>
     <span class="seo-status <?= $index?'is-ok':'is-warning' ?>"><?= $index?'✓ Indexação permitida':'! Indexação desligada' ?></span>

@@ -29,3 +29,10 @@ python tests/seo_http_125.py  # opcional, requer Python no ambiente de desenvolv
 `seo_http_125.py` sobe apenas um servidor local temporário e mede códigos HTTP sem banco. Respostas 303 para setup em ambiente não instalado **não** demonstram funcionamento de 301 após publicar. Testar no MariaDB/Termux, Apache e navegador real permanece obrigatório.
 
 A atualização da 1.0.24 para 1.0.25 não acrescenta tabelas, não altera notícias existentes, imagens, slugs ou formatos de backup. Preserve `storage/config.php`, `storage/backups/`, `storage/media/`, `storage/analytics.key` e `public/uploads/`.
+
+## Central de Sitemap e Indexação (1.0.100)
+
+- Menu **Configurações → Sitemap e Indexação**. O XML público permanece em `/sitemap.php`, quando o domínio HTTPS e a indexação estiverem configurados. A tela administrativa permite inspecionar URLs elegíveis, inclusive quando o XML está desabilitado.
+- Links são gerados com a mesma fonte e filtros no painel e XML. O botão “Verificar online” faz GETs para arquivos da mesma origem, somente ao tocar. O status HTTP não substitui a API Search Console nem a inspeção humana.
+- `robots.txt` publica o endereço de sitemap do domínio IguatamaOnline. Para hospedar o projeto em outro domínio, revise essa linha. `ads.txt` continua sendo gerenciado na Publicidade, não faz parte dos ZIPs de atualização.
+- Consulte [SITEMAP_INDEXACAO.md](SITEMAP_INDEXACAO.md).

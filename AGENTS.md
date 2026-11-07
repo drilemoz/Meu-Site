@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.99)
+# Diretrizes de manutenção — Meu Site (v1.0.100)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -114,3 +114,10 @@ Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **
 - Consulta GitHub devolve códigos de diagnóstico sanitizados; nunca registrar/responder URL completa de requisição, tokens ou dados privados.
 - `diagnose_zip` é POST autenticado com CSRF que analisa manifestos, schema, assinatura/hash e preflight, sem instalar, sem senha e sem modificar o banco. Instalar continua exigindo senha e confirmação; schema 36→37 permanece EXCLUSIVAMENTE assistido.
 - Modelos de Uai Cortes são rascunhos; campos `PREENCHER:` impedem publicação jurídica acidental. Aplicação nos rascunhos anteriores exige clique explícito, não sobrescreve conteúdo alterado ou revisões públicas.
+
+## Central de Sitemap e Indexação (v1.0.100)
+
+- `app/sitemap_catalog.php` é a fonte comum do XML `public/sitemap.php` e da listagem privada. Excluir rascunhos, agendamentos e conteúdo demonstrativo. Não alterar as URLs canônicas ou efetuar consultas HTTP automáticas em lote.
+- `admin.php?action=sitemap` exige `manage_settings`, oferece busca/filtro/paginação, cópia, testes HTTP individuais e verificação sob demanda de sitemap, robots e ads. Os testes HTTP ocorrem no navegador na mesma origem; **não são consultas Search Console nem garantem indexação**.
+- `public/robots.txt` declara `https://iguatama.online/sitemap.php` (domínio oficial deste portal). Ao alterar o domínio canônico da instalação, atualizar a diretiva de maneira explícita. `public/ads.txt` é persistente e gerado na hospedagem, não empacotado nem sobrescrito.
+- XML limitado a 50.000 URLs totais. A central alerta sobre excesso; antes de ultrapassar esse limite em produção, implementar sitemap index/fragmentação, sem descartar URLs silenciosamente. Nenhuma nova tabela ou migração, schema 37/backup v12 preservados.

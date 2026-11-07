@@ -2,4 +2,5 @@ User-agent: *
 Disallow: /admin.php
 Disallow: /setup.php
 
-# Sitemap disponivel em /sitemap.php apos configurar SEO no painel.
+# Sitemap XML do domínio público oficial do IguatamaOnline.
+Sitemap: https://iguatama.online/sitemap.php

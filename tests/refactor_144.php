@@ -53,8 +53,8 @@ ref144_assert(str_contains($admin,'require_admin();') && str_contains($admin,'ch
 ref144_assert(str_contains($public,"require __DIR__.'/../app/public_views/layout.php';") &&
     str_contains($public,"article_slug_redirects") && str_contains($public,',true,301)'), 'entrada pública preserva roteamento e redirecionamentos');
 ref144_assert(!is_dir($root.'/public/admin_views')&&!is_dir($root.'/public/public_views'), 'templates não foram publicados no DocumentRoot');
-ref144_assert(count(glob($root.'/app/admin_views/routes/*.php')?:[])===14 &&
-    count(glob($root.'/app/public_views/routes/*.php')?:[])===10, '24 componentes de rota privados disponíveis');
+ref144_assert(count(glob($root.'/app/admin_views/routes/*.php')?:[])===15 &&
+    count(glob($root.'/app/public_views/routes/*.php')?:[])===10, '25 componentes de rota privados disponíveis');
 $login=ref144_source('app/admin_views/login.php');
 $health=ref144_source('app/admin_views/health.php');
 ref144_assert(str_starts_with($login,"<?php\n") && str_starts_with($health,"<?php\ndeclare(strict_types=1);\n"), 'templates de login e saúde isolados');

@@ -1,3 +1,13 @@
+# Meu Site v1.0.100 — Central de Sitemap e Indexação
+
+- **Configurações → Sitemap e Indexação:** consulte as URLs elegíveis para buscadores em listas filtráveis e paginadas, com datas de atualização verificáveis, botões Copiar, Abrir e Testar HTTP.
+- **Verificar online:** consulta `sitemap.php`, `robots.txt` e `ads.txt` sob demanda pelo navegador, exibindo códigos HTTP e falhas sem expor credenciais. Não significa que o Google indexou os links.
+- `robots.txt` agora anuncia o sitemap no domínio oficial. O XML usa o catálogo do painel; conteúdos não publicados e demonstrativos continuam excluídos.
+- O arquivo `ads.txt` existente na hospedagem não é sobrescrito. Configuração AdSense continua em Publicidade; a Search Console pode ser acessada a partir da central.
+- Sem alteração de banco, schema 37 e backup v12 mantidos. Testes no MariaDB e na hospedagem real ainda necessários.
+
+---
+
 # Meu Site v1.0.99 — Publicação de páginas legais e data automática
 
 - Pop-ups de confirmação e conteúdo centralizados, com altura ajustada ao texto, rolagem interna quando necessária e sem ocupar desnecessariamente o celular.

@@ -1,3 +1,11 @@
+# 1.0.100 (2026-11-07)
+
+- Central privada **Sitemap e Indexação** na navegação administrativa e atalho em SEO, com busca, filtros, paginação, cópia, abertura de links e teste HTTP individual sob demanda.
+- O XML do sitemap passa a consumir o mesmo catálogo das URLs exibidas na administração, incluindo notícias publicadas, categorias, ônibus e páginas legais públicas. Sem rascunhos/agendamentos/demonstrações.
+- `robots.txt` declara o sitemap do domínio IguatamaOnline. Diagnósticos locais de SEO/robots/ads e verificação HTTP manual dos três arquivos pelo navegador; status não equivale à indexação Google.
+- Mantidos os limites de sitemap (até 50.000 URLs), com aviso explícito caso fragmentação futura seja necessária. O `ads.txt` gerado no servidor permanece preservado, sem operação de escrita nova.
+- Regressões PHP e JS adicionadas. Nenhuma migração: schema 37, backup v12 e configurações anteriores preservados.
+
 # 1.0.99 (2026-11-07)
 
 - Pop-ups de conteúdo administrativos reduzidos à altura real do texto, centralizados com limite de viewport; preservada rolagem interna, foco, autenticação e CSRF.

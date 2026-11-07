@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.99** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.100** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,13 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.100 — Central de Sitemap e Indexação
+
+- Nova seção **Configurações → Sitemap e Indexação**: resumo de URLs elegíveis, busca, filtros por tipo, páginas de resultados e datas `lastmod` fundamentadas em registros publicados. Cópia, abertura e teste HTTP individual de URL.
+- O sitemap público e a lista administrativa usam a mesma fonte de dados, sem rascunhos, agendamentos ou notícias de demonstração. O XML respeita 50.000 URLs e o painel alerta quando o volume ultrapassar esse limite.
+- Diagnóstico local de domínio HTTPS, indexação, diretiva robots.txt e correspondência do ads.txt AdSense. Botão separado faz testes HTTP pelo navegador sob demanda, sem criar chamadas para a API Google e sem presumir indexação.
+- `robots.txt` anuncia `https://iguatama.online/sitemap.php`. `ads.txt` da hospedagem não é alterado pela atualização. Nenhuma mudança de schema 37 ou de backup v12. Consultar [docs/SITEMAP_INDEXACAO.md](docs/SITEMAP_INDEXACAO.md).
 
 ## Versão 1.0.99 — Páginas legais, publicação e datas automáticas
 
@@ -86,8 +93,8 @@ for f in tests/*.js; do node "$f" || exit 1; done
 python3 tools/build_css.py --check
 python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
-python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.96.zip
-python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.96-fonte-completo.zip
+python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.100.zip
+python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.100-fonte-completo.zip
 ```
 
 Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).
