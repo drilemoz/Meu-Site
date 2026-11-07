@@ -31,7 +31,7 @@ function fetch_featured_news(PDO $db): array|false {
     $sql='SELECT a.id,a.slug,a.title,a.summary,a.image,a.is_demo,a.published_at,'.
         'c.name AS category,c.color AS category_color,c.slug AS category_slug '.
         'FROM articles a LEFT JOIN categories c ON c.id=a.category_id WHERE '.published_filter().
-        ' ORDER BY a.featured DESC,a.published_at DESC,a.id DESC LIMIT 1';
+        ' AND a.featured=1 ORDER BY a.published_at DESC,a.id DESC LIMIT 1';
     return $db->query($sql)->fetch();
 }
 function fetch_popular_news(PDO $db): array {

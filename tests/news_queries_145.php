@@ -62,7 +62,7 @@ perf145(str_contains($statement->sql,'ORDER BY a.published_at DESC,a.id DESC LIM
 $db->statements=[];
 $db->oneRow=['id'=>15,'title'=>'Destaque','slug'=>'teste'];
 $featured=fetch_featured_news($db);
-perf145($featured['id']===15 && str_contains($db->statements[0]->sql,'a.featured DESC,a.published_at DESC,a.id DESC'), 'destaque mantém prioridade e ordem previsível');
+perf145($featured['id']===15 && str_contains($db->statements[0]->sql,'a.featured=1 ORDER BY a.published_at DESC,a.id DESC'), 'destaque exige marcação explícita e ordem previsível');
 perf145(!str_contains($db->statements[0]->sql,'a.*') && !str_contains($db->statements[0]->sql,'a.body'), 'destaque não transfere conteúdo integral');
 $db->statements=[];
 $popular=fetch_popular_news($db);

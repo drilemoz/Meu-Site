@@ -37,7 +37,7 @@ check146(igua_migrate_public_news_indexes($db)===['idx_public_popular'],'repeti√
 [$condition,$params]=news_admin_conditions(['role'=>'admin'],'all','50%_!');
 check146(str_contains($condition,"ESCAPE '!'") && $params===['%50!%!_!!%','%50!%!_!!%'], 'busca do painel trata coringas como texto literal');
 $cases=igua_news_explain_cases();
-check146(count($cases)===5 && str_contains($cases['destaque'][0],'featured DESC') && str_contains($cases['mais_lidas'][0],'views DESC'),'EXPLAIN cobre rankings e filtros principais');
+check146(count($cases)===5 && str_contains($cases['destaque'][0],'a.featured=1') && str_contains($cases['mais_lidas'][0],'views DESC'),'EXPLAIN cobre rankings e filtros principais');
 check146($cases['busca_trecho'][1]===['%50!%!_!!%','%50!%!_!!%'] && str_contains($cases['busca_trecho'][0],"LIKE ? ESCAPE '!'") ,'EXPLAIN usa os mesmos escapes de busca p√∫blica');
 class Fake146PlanStmt extends PDOStatement {
     public function __construct(private Fake146PlanDB $db,private string $sql){}

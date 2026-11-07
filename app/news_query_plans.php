@@ -10,7 +10,7 @@ function igua_news_explain_cases(): array {
     $published=" WHERE a.status = 'published' AND a.published_at <= NOW()";
     return [
         'recentes'=>['SELECT a.id FROM articles a'.$published.' ORDER BY a.published_at DESC,a.id DESC LIMIT 12',[]],
-        'destaque'=>['SELECT a.id FROM articles a'.$published.' ORDER BY a.featured DESC,a.published_at DESC,a.id DESC LIMIT 1',[]],
+        'destaque'=>['SELECT a.id FROM articles a'.$published.' AND a.featured=1 ORDER BY a.published_at DESC,a.id DESC LIMIT 1',[]],
         'mais_lidas'=>['SELECT a.id FROM articles a'.$published.' ORDER BY a.views DESC,a.published_at DESC,a.id DESC LIMIT 5',[]],
         'busca_trecho'=>['SELECT a.id FROM articles a'.$searchWhere.' ORDER BY a.published_at DESC,a.id DESC LIMIT 12',$searchParams],
         'categoria'=>['SELECT a.id FROM articles a'.$categoryWhere.' ORDER BY a.published_at DESC,a.id DESC LIMIT 12',$categoryParams],

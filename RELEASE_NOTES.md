@@ -1,3 +1,12 @@
+# Meu Site v1.0.101 — Correções do cadastro e do destaque principal
+
+- Corrigido **HTTP 404** dos botões Nova categoria e Nova fonte durante a edição de notícias.
+- Formulários exibem motivos de validação retornados pelo servidor, sem expor mensagens internas de banco de dados.
+- Somente notícias marcadas como **Destacar na página inicial** podem ocupar o destaque principal; notícias comuns permanecem nas listas normais.
+- Nenhum dado ou estrutura de banco alterado. Schema 37 e backup v12 preservados. Instalação e verificação na hospedagem continuam pendentes.
+
+---
+
 # Meu Site v1.0.100 — Central de Sitemap e Indexação
 
 - **Configurações → Sitemap e Indexação:** consulte as URLs elegíveis para buscadores em listas filtráveis e paginadas, com datas de atualização verificáveis, botões Copiar, Abrir e Testar HTTP.

@@ -37,7 +37,11 @@
        const endpoint=taxonomyKind==='category'?'news_create_category':'news_create_source';
        const data=new URLSearchParams({csrf,name,url});
        const response=await fetch('/admin.php?action='+endpoint,{method:'POST',body:data,credentials:'same-origin',headers:{'Accept':'application/json'}});
-       if(!response.ok)throw Error('O servidor recusou o cadastro (HTTP '+response.status+').');
+       if(!response.ok){
+         const failure=await response.json().catch(()=>null);
+         throw Error(typeof failure?.message==='string' && failure.message.length<=200
+           ? failure.message : 'O servidor recusou o cadastro (HTTP '+response.status+').');
+       }
        const result=await response.json();if(result.saved!==true||!Number.isInteger(result.id)||result.id<1)throw Error('Resposta inválida.');
        const select=form.querySelector(taxonomyKind==='category'?'[name=category_id]':'[name=source_id]');
        select.add(new Option(result.name,String(result.id),true,true));select.dispatchEvent(new Event('change',{bubbles:true}));

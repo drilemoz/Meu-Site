@@ -1,3 +1,10 @@
+# 1.0.101 (2026-11-07)
+
+- Resolvido HTTP 404 ao adicionar categorias e fontes diretamente no wizard: entradas `news_create_category` e `news_create_source` autorizadas no roteamento central, mantendo validação CSRF, permissões e controlador existente.
+- Requisições AJAX de taxonomia com falha validada retornam JSON e HTTP 422; falhas internas retornam mensagem neutra com HTTP 500 e registro privado na Central de Saúde.
+- Destaque principal da home seleciona exclusivamente notícia `featured=1` publicada; sem marcadas, não promove outra notícia. Mensagem institucional substitui falso aviso de ausência de notícias.
+- Atualizado plano EXPLAIN e acrescentados testes de regressão; sem migração (schema 37), sem mudanças em notícias ou fontes salvas.
+
 # 1.0.100 (2026-11-07)
 
 - Central privada **Sitemap e Indexação** na navegação administrativa e atalho em SEO, com busca, filtros, paginação, cópia, abertura de links e teste HTTP individual sob demanda.
