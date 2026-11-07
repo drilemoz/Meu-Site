@@ -1,3 +1,13 @@
+# Meu Site v1.0.102 — Centro visual de SEO
+
+- Prévia Google e compartilhamento social, com diagnóstico local de título, descrição, URL HTTPS, imagem e configurações de rastreamento.
+- Formulário geral preservado; controles técnicos agora ficam em pop-ups centralizados, sem seções expansíveis.
+- Ajuste de imagem social pelo gerenciador, alerta para URLs inadequadas e confirmação para desligar a indexação.
+- Sem migração: schema 37 e backup v12. Nenhuma verificação HTTP ou de indexação é executada automaticamente.
+- Testes na hospedagem e no navegador Android continuam necessários.
+
+---
+
 # Meu Site v1.0.101 — Correções do cadastro e do destaque principal
 
 - Corrigido **HTTP 404** dos botões Nova categoria e Nova fonte durante a edição de notícias.

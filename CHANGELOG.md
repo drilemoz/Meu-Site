@@ -1,3 +1,11 @@
+# 1.0.102 (2026-11-07)
+
+- Reformulado **Configurações → Geral e SEO**: visualização ilustrativa de resultados Google e compartilhamento social, com alternância acessível em abas.
+- Configurações detalhadas (descrição, modelo de título, domínio HTTPS, imagem, URLs amigáveis e indexação) passam para pop-ups centralizados no padrão `igua-modal`, mantendo um único POST e CSRF.
+- Diagnóstico local de seis critérios, sem alegar indexação real; prévia de imagem e aviso para URL inadequada, sem sobrescrever dados antigos.
+- Confirmação antes de desativar a indexação já habilitada; campos inválidos em pop-up são exibidos na validação.
+- A biblioteca atualiza a prévia quando seleciona uma imagem social. Sem migração (schema 37) ou alteração nos registros do banco.
+
 # 1.0.101 (2026-11-07)
 
 - Resolvido HTTP 404 ao adicionar categorias e fontes diretamente no wizard: entradas `news_create_category` e `news_create_source` autorizadas no roteamento central, mantendo validação CSRF, permissões e controlador existente.

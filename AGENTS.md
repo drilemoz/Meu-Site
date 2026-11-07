@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.101)
+# Diretrizes de manutenção — Meu Site (v1.0.102)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -122,7 +122,7 @@ Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **
 - `public/robots.txt` declara `https://iguatama.online/sitemap.php` (domínio oficial deste portal). Ao alterar o domínio canônico da instalação, atualizar a diretiva de maneira explícita. `public/ads.txt` é persistente e gerado na hospedagem, não empacotado nem sobrescrito.
 - XML limitado a 50.000 URLs totais. A central alerta sobre excesso; antes de ultrapassar esse limite em produção, implementar sitemap index/fragmentação, sem descartar URLs silenciosamente. Nenhuma nova tabela ou migração, schema 37/backup v12 preservados.
 
-## Correções de taxonomia e destaque (1.0.101)
+## Correções de taxonomia e destaque (1.0.102)
 
 - Ao adicionar ações AJAX ao controlador, registrá-las tanto em `app/admin_controllers/post_routes.php` quanto na lista permitida em `public/admin.php`. Preservar CSRF, ACL `manage_taxonomy` e JSON seguro.
 - A chamada principal da home só pode consultar notícias publicadas marcadas `featured=1`; sem marcações, usar área neutra, nunca promover a mais recente automaticamente. O EXPLAIN deve refletir esse filtro.

@@ -70,7 +70,7 @@
     }
    }
   }else if(mode==='campaign'){const target=document.querySelector('#library-campaign');if(target)target.value=item.filename;const status=document.querySelector('#campaign-image-selected');if(status)status.textContent='Selecionado: '+item.title;}
-  else if(mode==='social'){const input=document.querySelector('[name=seo_social_image]');if(input)input.value=item.url;}
+  else if(mode==='social'){const input=document.querySelector('[name=seo_social_image]');if(input){input.value=item.url;input.dispatchEvent(new Event('input',{bubbles:true}));}}
   close();
  });
  function showDetails(item){const box=$('.media-details');box.hidden=false;box.querySelector('[name=id]').value=item.id;

@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.101** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.102** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.102 — Central visual de SEO e Compartilhamento
+
+- Configurações gerais preservadas; SEO ganha prévias locais em abas Google e WhatsApp/Facebook, com atualização enquanto se digita.
+- Descrição, título, URL pública, imagem e indexação são editados em diálogos centralizados, sem painel expansível, reutilizando o formulário protegido por CSRF.
+- Diagnóstico local não realiza requisições remotas nem promete indexação; URL social inválida ou sem arquivo aparece como pendência.
+- Mudar o interruptor de indexação de ativo para desativado exige confirmação antes de salvar. A imagem escolhida na biblioteca atualiza a prévia.
+- Banco schema 37 e backup v12 preservados; testes reais em hospedagem ainda necessários.
 
 ## Versão 1.0.101 — Cadastro de categorias/fontes e destaques
 
@@ -99,8 +107,8 @@ for f in tests/*.js; do node "$f" || exit 1; done
 python3 tools/build_css.py --check
 python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
-python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.101.zip
-python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.101-fonte-completo.zip
+python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.102.zip
+python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.102-fonte-completo.zip
 ```
 
 Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).

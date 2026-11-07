@@ -18,10 +18,10 @@ ui166(str_contains($users,"(int)\$u['id']!==(int)\$me['id']") && str_contains($u
 ui166(str_contains($users,"admin_link('save_user')") && str_contains($users,"admin_link('toggle_user')") && substr_count($users,'csrf_field()')>=2,'salvar/alternar usuários mantém POST e CSRF');
 ui166(str_contains($users,'name="name"') && str_contains($users,'name="email"') && str_contains($users,'name="role"') && str_contains($users,'name="password"'),'campos de usuário preservados');
 $settings=$read('app/admin_views/routes/settings.php');
-ui166(str_contains($settings,'admin-settings-fold') && str_contains($settings,'</div></details>') && str_contains($settings,"admin_link('save_settings')"),'SEO recolhível dentro do formulário de salvamento');
+ui166(str_contains($settings,'seo-portal-center') && str_contains($settings,'seo-content-dialog') && str_contains($settings,'seo-advanced-dialog') && str_contains($settings,"admin_link('save_settings')"),'SEO em prévias e pop-ups dentro do mesmo formulário de salvamento');
 foreach(['site_name','site_tagline','city','contact_email','seo_title_template','seo_default_description','seo_site_url','seo_social_image','seo_pretty_urls','seo_index'] as $field)
     ui166(str_contains($settings,'name="'.$field.'"'),'campo preservado: '.$field);
-ui166(str_contains($settings,'Indexação exige portal pronto') && str_contains($settings,'URLs amigáveis exigem roteamento funcional'),'avisos importantes continuam explícitos');
+ui166(str_contains($settings,'Indexação exige portal pronto') && str_contains($settings,'URLs amigáveis exigem roteamento funcional'),'avisos de indexação e roteamento preservados no pop-up avançado');
 $js=$read('public/assets/js/admin-ui.js');
 ui166(str_contains($js,"document.addEventListener('invalid'") && str_contains($js,"fold.open = true"),'formulário abre seção com campo inválido antes do aviso');
 $module=$read('public/assets/css/modules/15-archive.css');

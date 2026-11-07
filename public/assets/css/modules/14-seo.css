@@ -68,3 +68,47 @@
 .sitemap-pager{display:flex;gap:9px;justify-content:center;align-items:center;margin-top:17px;flex-wrap:wrap}
 @media(max-width:720px){.sitemap-search{grid-template-columns:repeat(2,minmax(0,1fr))}.sitemap-search label:first-of-type{grid-column:1/-1}.sitemap-search .btn{width:100%}.sitemap-site-links .btn{flex:1 1 130px}}
 @media(max-width:470px){.sitemap-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.sitemap-stats .sitemap-stat:last-child{grid-column:1/-1}.sitemap-checks{grid-template-columns:1fr}.sitemap-url-footer{align-items:stretch;flex-direction:column}.sitemap-url-actions{justify-content:stretch}.sitemap-url-actions .btn{flex:1 1 70px;min-width:0}}
+
+/* 1.0.102 — Centro de SEO: prévia visível, opções detalhadas somente em pop-up. */
+.seo-portal-center{border-top:1px solid #e1e9f1;margin:24px 0 20px;padding-top:20px;min-width:0}
+.seo-portal-heading,.seo-portal-health-head,.seo-portal-preview-heading,.seo-portal-image-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.seo-portal-heading h2{margin:0 0 5px}.seo-portal-heading p,.seo-portal-preview-heading h3{margin:0}.seo-portal-heading p{font-size:.86rem}
+.seo-portal-health{border:1px solid #d8e6f1;background:#f4f9ff;border-radius:14px;padding:15px;margin:16px 0}
+.seo-portal-health>p{margin:8px 0 12px;font-size:.85rem;line-height:1.5}
+.seo-portal-state{background:#e7eef9;color:#3a5977;font-size:.76rem;font-weight:750;padding:6px 9px;border-radius:9px}
+.seo-portal-state.is-warning{background:#fff0cf;color:#79530a}.seo-portal-state.is-ok{background:#daf4e5;color:#156748}
+.seo-portal-preview-heading{margin:20px 0 10px}.seo-portal-preview-heading h3{font-size:1rem}
+.seo-portal-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:9px}
+.seo-portal-tab{border:1px solid #d4e1ee;background:#f5f8fc;border-radius:10px;padding:10px 5px;min-height:44px;color:#375572;cursor:pointer;font-weight:750}
+.seo-portal-tab[aria-selected=true]{background:#e6f1ff;border-color:#91baf0;color:#185cb7}
+.seo-portal-tab:focus-visible{outline:3px solid #5599e7;outline-offset:2px}
+.seo-portal-google,.seo-portal-social{border:1px solid #dce7f1;border-radius:13px;background:#fff;padding:15px;min-width:0;overflow-wrap:anywhere}
+.seo-portal-url{font-size:.76rem;color:#64758a;margin:0 0 7px;word-break:break-word}
+.seo-portal-blue-title{font-size:1.1rem;color:#1557af;line-height:1.4;display:block}
+.seo-portal-google>p:last-child{font-size:.89rem;line-height:1.55;color:#566a7f;margin:8px 0 0}
+.seo-portal-social[hidden],.seo-portal-google[hidden]{display:none!important}
+.seo-portal-social{padding:0;overflow:hidden}
+.seo-portal-social-visual{background:#eef3f8;display:grid;place-items:center;min-height:130px;max-height:280px;color:#6c7d91;text-align:center;font-size:.82rem;padding:8px}
+.seo-portal-social-visual img{display:block;width:100%;height:auto;max-height:265px;object-fit:contain}
+.seo-portal-social-visual img[hidden],.seo-portal-social-visual span[hidden]{display:none!important}
+.seo-portal-social-text{display:grid;gap:5px;padding:12px 15px}.seo-portal-social-text small{color:#657b90;word-break:break-word}.seo-portal-social-text strong{color:#29405e}.seo-portal-social-text p{font-size:.82rem;color:#536477;margin:0}
+.seo-portal-image-row{border:1px solid #dce6ef;background:#f8fbff;border-radius:13px;margin:15px 0;padding:12px}
+.seo-portal-image-row strong{font-size:.9rem}.seo-portal-image-row p{font-size:.79rem;margin:4px 0 0;overflow-wrap:anywhere}
+.seo-portal-commands{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.seo-portal-commands .btn{min-height:44px;white-space:normal;text-align:center;font-size:.82rem;min-width:0;justify-content:center;padding:10px 8px}
+.seo-portal-save{align-items:center;flex-wrap:wrap}.seo-portal-save span{font-size:.78rem}
+.admin-body dialog.igua-modal.seo-portal-dialog{padding:0!important;overflow:hidden!important;--igua-dialog-width:560px;max-height:min(85dvh,780px);height:auto}
+.seo-portal-dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;background:#f5f9ff;border-bottom:1px solid #dce6f1}
+.seo-portal-dialog-heading h2{font-size:1.05rem;margin:0;color:#203e5d}
+.seo-portal-dialog-heading .seo-portal-dialog-close{width:44px;min-width:44px;min-height:44px;border-radius:11px;border:1px solid #d5e1ed;background:#fff;font-size:1.45rem;color:#305572;cursor:pointer}
+.seo-portal-dialog-body{max-height:calc(85dvh - 133px);overflow-y:auto;overflow-x:hidden;padding:16px;display:grid;gap:13px;min-width:0}
+.seo-portal-dialog-body label{display:grid;gap:7px;margin:0;font-size:.85rem;font-weight:700}
+.seo-portal-dialog-body label.checkbox-line{display:flex!important;gap:10px;align-items:center;margin:0;line-height:1.4}
+.seo-portal-dialog-body :is(input,textarea){width:100%;min-width:0;max-width:100%;font-size:1rem}
+.seo-portal-dialog-body p{margin:0;font-size:.83rem;line-height:1.5}
+.seo-portal-dialog-body .seo-portal-sensitive{border:1px solid #ebd29c;background:#fff7e7;padding:10px;border-radius:10px;color:#7f5413}
+.seo-portal-dialog-footer{border-top:1px solid #e3ebf2;padding:12px 16px;display:flex;justify-content:flex-end;gap:9px;background:#fff}
+.seo-portal-checklist{padding:0;list-style:none;display:grid;gap:8px;margin:0}
+.seo-portal-checklist li{border:1px solid #dce7f0;background:#f8fbfd;border-radius:10px;padding:9px 11px;line-height:1.45;font-size:.84rem}
+.seo-portal-checklist li.is-ok{color:#165d46}.seo-portal-checklist li.is-warning{color:#84550f}
+@media(max-width:560px){.seo-portal-heading,.seo-portal-image-row{align-items:stretch;flex-direction:column}.seo-portal-heading .btn,.seo-portal-image-row .btn{width:100%;justify-content:center}.seo-portal-commands{grid-template-columns:repeat(3,minmax(0,1fr))}.seo-portal-commands .btn{font-size:.73rem;padding:8px 4px}.seo-portal-dialog-footer .btn{flex:1 1 0;min-width:0}.seo-portal-google{padding:12px}}
