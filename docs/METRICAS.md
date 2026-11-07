@@ -1,3 +1,5 @@
+> **Estado atual (v1.0.76):** filtros Hoje/24h/7d/30d/90d, gráfico por hora em Hoje/24h; GA4 opcional centralizado em Configurações → Integrações. Ver [INTEGRACOES.md](INTEGRACOES.md). O texto abaixo descreve a implementação original de métricas.
+
 # Métricas IguaNews 1.0.11
 
 ## Objetivo e limites

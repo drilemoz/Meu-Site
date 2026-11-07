@@ -30,4 +30,4 @@ O backup versão 2 inclui `author_profiles`, `editorial_sources`, `users.role`, 
 
 ## URLs de notícias na 1.0.24
 
-Em **Básico → SEO e destaque**, edite o nome da URL (`url_slug`), com até 120 caracteres para endereços novos. O painel normaliza acentos e verifica colisões com outras matérias e URLs históricas. Alterar somente a manchete não altera o endereço. Ao mudar um slug publicado, o antigo vira redirecionamento HTTP 301. A configuração opcional **URLs amigáveis** requer Apache `mod_rewrite` ou o roteador PHP do Termux. O backup lógico v10 guarda os slugs anteriores. Veja [SEO_URLS_124.md](SEO_URLS_124.md).
+Em **Básico → SEO e destaque**, edite o nome da URL (`url_slug`), com até 120 caracteres para endereços novos. O painel normaliza acentos e verifica colisões com outras matérias e URLs históricas. Alterar somente a manchete não altera o endereço. Ao mudar um slug publicado, o antigo vira redirecionamento HTTP 301. A configuração opcional **URLs amigáveis** requer Apache `mod_rewrite` ou o roteador PHP do Termux. O backup lógico v10 guarda os slugs anteriores. Veja [SEO_URLS.md](SEO_URLS.md).

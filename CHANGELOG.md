@@ -1,3 +1,11 @@
+## 1.0.76 — 07/11/2026 — Auditoria completa e documentação atual
+- Inventariados código, scripts, GitHub Actions, configuração, testes, backups e pacotes; confirmada identidade web/PHP e ausência de Android/Uai Cortes.
+- Limpeza de arquivos Markdown históricos (relatórios `VALIDACAO_*`, inventários `RELATORIO_*` e guias antigos) e centralização em `docs/INDICE.md`, `BACKUP.md`, `ATUALIZADOR.md`, `INTEGRACOES.md` e `TESTES_CI.md`.
+- README, AGENTS e notas de release reescritos para refletir as funcionalidades atuais sem recomendações ultrapassadas.
+- Explicação no painel dos dois formatos de backup e das mídias não incluídas; nenhuma mudança na lógica de restauração.
+- Adicionados verificador de estrutura/documentação e regressão própria, além de etapa no GitHub Actions.
+- Schema 36, ZIP v2, GA4, Search Console, mídia e interface mantidos. Tests locais documentados em `docs/AUDITORIA_176.md`.
+
 ## 1.0.75 — 06/11/2026 — Atualização por janela central
 - "Enviar atualização" fica ao lado de "Releases", na barra de ações. Em telas estreitas, o botão apresenta "Enviar ZIP" sem perder o nome acessível da operação.
 - O formulário manual saiu da expansão permanente e abre em `<dialog>` centralizado, com arquivo ZIP, senha e botão Enviar.
@@ -90,7 +98,7 @@
 - Registro privado de logins, bloqueios de autenticação, acessos negados, falhas de CSRF, pedidos administrativos sensíveis, mudanças em usuários/configurações, instalação de updates e restaurações.
 - Bloqueios temporários manuais de IP público apenas no admin, com senha, CSRF, proteção para não bloquear o próprio IP e prazo de expiração.
 - Armazenamento em JSONL privado, limite de 1 MiB por dia, 30 dias de retenção, sem alterar schema SQL 36 nem o backup lógico.
-- Compatível com ZIP de atualização v2 sem assinatura; hashes conferem integridade, não autoria. Ver `docs/SEGURANCA_164.md`.
+- Compatível com ZIP de atualização v2 sem assinatura; hashes conferem integridade, não autoria. Ver `docs/SEGURANCA.md`.
 - Validação local de código e rotas; testes visuais e hospedagem reais pendentes.
 
 ## 1.0.63 — 06/11/2026 — Menu lateral mais estreito
@@ -105,7 +113,7 @@
 - Instalação por upload ou GitHub requer novamente senha do administrador, além de permissão, CSRF e confirmação; cinco erros em 15 minutos bloqueiam novas tentativas na sessão.
 - Mantidos limites de ZIP, validação de caminhos e hashes, versão estritamente superior, schema 36, preflight, backups, modo manutenção e rollback. Extensão Sodium só é requerida ao instalar pacote assinado.
 - Gerador `tools/build_update_package.py` não exige chave; `--key-file` permanece opcional. Aviso: SHA-256 não autentica a origem de um ZIP sem assinatura.
-- A v1.0.61/v1.0.60 não aceita esse ZIP pelo atualizador antigo. A primeira instalação exige troca manual segura dos arquivos públicos/de código pela hospedagem. Consultar `docs/ATUALIZADOR_162.md`.
+- A v1.0.61/v1.0.60 não aceita esse ZIP pelo atualizador antigo. A primeira instalação exige troca manual segura dos arquivos públicos/de código pela hospedagem. Consultar `docs/ATUALIZADOR.md`.
 - Testes PHP de manifesto e UI, validação sintática e arquivo ZIP; o fluxo PHP-FPM/MySQL na hospedagem permanece pendente.
 
 ## 1.0.61 — 06/11/2026 — Rodapé compacto, drawer estreito e biblioteca integrada
@@ -113,7 +121,7 @@
 - Normaliza a reserva inferior da navegação móvel e inclui versão na URL do CSS público para evitar cache obsoleto.
 - Reduz o drawer administrativo de 370px para 310px (92vw para 88vw) e compacta itens.
 - Biblioteca de Mídias é componente embutido na rota administrativa, mantendo menu, cabeçalho e rodapé; seleção nos editores segue em modal. Miniatura em modo biblioteca abre detalhes.
-- Endpoints, CSRF, ACL, uploads, backups, schema SQL 36 e demais funções preservados. Veja `docs/UI_161.md`.
+- Endpoints, CSRF, ACL, uploads, backups, schema SQL 36 e demais funções preservados. Veja `docs/ARQUITETURA_ADMIN.md`.
 
 ## 1.0.60 — 06/11/2026 — Navegação única e formulários compactos
 - Menu lateral à direita em `<dialog>`, aberto pelo ícone superior, com seções recolhíveis; retiradas as duas barras horizontais administrativas. ACL e saída com CSRF preservadas.
@@ -131,7 +139,7 @@
 - Backend impede campanha local sobre bloco AdSense ativo e AdSense sobre posição com campanhas locais ativas. Datas sobrepostas exigem consentimento explícito de revezamento; concorrência protegida por transações e locks.
 - Botão Remover anúncios demonstrativos na Publicidade e na Manutenção, com contagem, confirmação textual, backup e exclusão filtrada pelo prefixo oficial de teste. Preserva todos os anúncios reais e seus banners.
 - Geração dos seis anúncios fictícios não substitui posições comerciais existentes nem provedores ativos. Nenhuma limpeza automática durante a atualização.
-- Sem alteração do schema MySQL 36 nem dos formatos de backup. Regressão `tests/ads_admin_159.php` e docs/PUBLICIDADE_159.md.
+- Sem alteração do schema MySQL 36 nem dos formatos de backup. Regressão `tests/ads_admin_159.php` e docs/PUBLICIDADE.md.
 
 ## 1.0.58 — 06/11/2026 — Manutenção Alpha e avisos localizados
 ## Meu Site 1.0.58 — Demonstrações isoladas e manutenção Alpha
@@ -141,7 +149,7 @@
 - Reinstalação Alpha da mesma base MySQL pela administração ou pelo recuperador da primeira instalação: inventário fechado de 25 tabelas, senha do administrador, confirmação textual e backup antes de apagar. O reset não é atômico em MariaDB, por isso não deve ser usado em dados de produção.
 - Instalação nova inicia sem notícias fictícias. As 10 categorias iniciais são criadas independentemente dessa escolha.
 - O carregamento de notícias demonstrativas não executa DDL enquanto a transação de instalação estiver ativa, evitando COMMIT implícito em MariaDB.
-- Schema 36 preservado; atualização não apaga nada por si só. Detalhes: `docs/CONTEUDO_ALPHA_158.md`.
+- Schema 36 preservado; atualização não apaga nada por si só. Detalhes: `docs/ARQUITETURA_ADMIN.md`.
 
 ## 1.0.57 — 06/11/2026 — Pré-avaliação Google AdSense
 - Metatag de verificação da conta AdSense adicionada ao head somente com ID real configurado, independentemente dos anúncios, sem carregar script de terceiros.
@@ -189,7 +197,7 @@
 - Verificação criptográfica Ed25519 com chave pública fixa e SHA-256 individual de arquivos, sem comandos remotos ou atualização de caminhos privados.
 - Backup lógico MySQL antes da instalação, snapshots de código, modo manutenção e recuperação manual/automática dos arquivos após falhas.
 - Mantidos esquema SQL 36, backup lógico v11, uploads e instalação portátil Plesk/cPanel/Termux; migrações SQL futuras bloqueadas no modo automático.
-- Documentação do fluxo de publicação e teste de assinatura em `docs/ATUALIZADOR_152.md`.
+- Documentação do fluxo de publicação e teste de assinatura em `docs/ATUALIZADOR.md`.
 - **Limites:** sem execução em segundo plano, sem cron, sem exclusão de arquivos obsoletos; requer ext-zip, ext-sodium, ext-curl no servidor.
 
 ## 1.0.51 · 2026-11-06 — instalação segura, recuperação e portabilidade
@@ -199,7 +207,7 @@
 - Modo de recuperação exige revisão de esquema atual, conjunto completo de tabelas e senha do administrador ativo existente. Recria somente a configuração privada (sem criar ou alterar tabelas), com limite de tentativas por sessão.
 - Instalação nova impede uso de bancos contendo registros; falhas indicam etapa técnica (`config`, `schema`, `admin`, `restore`) nos logs sem divulgar credenciais.
 - Preserva upload segmentado, backup lógico v11, mídia ZIP v2, esquema SQL 36, instalação local Termux e hospedagem Plesk/cPanel.
-- Adicionados testes `tests/setup_recovery_151.php` e guia `docs/INSTALACAO_PORTATIL_151.md`. Teste real no MariaDB/BoaHost segue pendente.
+- Adicionados testes `tests/setup_recovery_151.php` e guia `docs/DEPLOY.md`. Teste real no MariaDB/BoaHost segue pendente.
 
 ## 1.0.50 · 2026-11-02 — importação automática sem depender de php.ini
 
@@ -236,7 +244,7 @@
 - Em hospedagem oferece conexão manual com MySQL/MariaDB e campos adequados; a criação privilegiada de contas SQL só é habilitada em Termux real com servidor/navegador em loopback. Revalida a permissão no POST.
 - Suporte explícito a hospedagem com `public/` como DocumentRoot e hospedagem compartilhada com `public_html/`, `www/` ou `htdocs/` como pasta pública irmã de `app/` e `storage/`; mídias, backups e permissões usam a pasta pública efetiva, identificada pelo caminho real do script PHP.
 - Central de Saúde mostra o ambiente PHP e sinaliza configuração insegura de raiz web ou HTTPS ausente na hospedagem. Mensagens de diagnóstico e de uploads deixam de presumir Termux.
-- Novo iniciador privado `bin/start-termux.sh`, guia `docs/INSTALACAO_DUAL_147.md` e regressão `tests/runtime_147.php`, com cenários de falsificação de ambiente, raízes web e layouts de hospedagem.
+- Novo iniciador privado `bin/start-termux.sh`, guia `docs/DEPLOY.md` e regressão `tests/runtime_147.php`, com cenários de falsificação de ambiente, raízes web e layouts de hospedagem.
 - Nenhuma alteração nas rotas públicas, no esquema SQL 36, nos backups lógicos v11, ZIP de mídias v2, credenciais existentes ou na identidade visual. Falta validar instalação completa contra MariaDB real em Termux e hospedagem, além de navegar no Android.
 
 ## 1.0.46 — 01/11/2026
@@ -266,7 +274,7 @@
 - Refatoração do backup lógico para escrita progressiva por tabela, preservando formato v11, REPEATABLE READ e limites de tamanho e quantidade de linhas, reduzindo o pico de memória PHP durante a exportação.
 - Geração de ZIP completo passa a usar temporário privado e publicação apenas após validação. ZIP gerado pelo endpoint de download é excluído após a transferência/encerramento da requisição; o backup lógico fica salvo para recuperação.
 - Exclusão automática restrita a arquivos temporários reconhecidos e abandonados há pelo menos 24 horas; rotação existente dos diários/semanais inalterada. Pacotes ZIP antigos e backups manuais não são apagados automaticamente.
-- Adicionados testes `tests/backup_143.php` e documentação `docs/VALIDACAO_143.md`. Sem mudança de esquema (revisão 35), do formato lógico (v11) ou do formato ZIP (v2).
+- Adicionados testes `tests/backup_143.php` e documentação `docs/TESTES_CI.md`. Sem mudança de esquema (revisão 35), do formato lógico (v11) ou do formato ZIP (v2).
 
 ## 1.0.42 — 01/11/2026
 - Autenticação com limite por IP de 5 falhas / 15 minutos, independente de sessão PHP, arquivo privado com `flock` e sem IP/senhas em texto; bloqueio falha fechado quando armazenamento indisponível.
@@ -321,7 +329,7 @@
 - Refatoração de origem: `public/assets/js/news-editor.js` agora é montado a partir de oito arquivos em `public/assets/js/news-editor-modules/`.
 - Preservados os bytes, ordem e SHA-256 do JavaScript executado na 1.0.34: nenhuma mudança de comportamento visual, formulários, três etapas, SEO ou autosave.
 - Ferramenta `tools/build_news_editor.py` com modo `--check`; código pronto para produção no ZIP e sem novo script HTTP.
-- Novos testes de composição e integridade `tests/news_editor_modules_135.js` e documentação `docs/EDITOR_JS_MODULOS_135.md`.
+- Novos testes de composição e integridade `tests/news_editor_modules_135.js` e documentação `docs/EDITOR_JS_MODULOS.md`.
 - Sem migração de banco, alteração de backups (lógico v10/mídias v2) ou revisão de esquema 33.
 - Teste no navegador Android e MariaDB real permanece pendente.
 
@@ -347,7 +355,7 @@
 - O arquivo `public/assets/css/style.css` continua sendo o único CSS servido ao navegador e mantém os mesmos **90.852 bytes** e SHA-256 da versão 1.0.30: `a71d0dd4ccefffbae4b94d67c7a926898d60cd11c6678931253d2298fac9073a`.
 - Novo `tools/build_css.py` monta o arquivo na ordem original, com modo `--check` para detectar divergências sem modificá-lo; Termux não precisa executar o script para usar o portal.
 - Novo `tests/css_modules_131.php` compara os bytes do CSS consolidado e o das fontes modulares e verifica as páginas que fazem o carregamento.
-- Incluída documentação `docs/CSS_MODULOS_131.md`; nenhuma regra de estilo foi alterada, removida ou reordenada, nenhum script/rota/migração SQL foi modificado.
+- Incluída documentação `docs/CSS_MODULOS.md`; nenhuma regra de estilo foi alterada, removida ou reordenada, nenhum script/rota/migração SQL foi modificado.
 - Pendente: inspeção visual em Android e desktop. Backup lógico v10 e mídia v2 permanecem inalterados.
 
 ## 1.0.30 — Controladores administrativos por módulo (30/10/2026)
@@ -438,7 +446,7 @@
 - Biblioteca central com navegação ano/mês, busca, seleção na notícia e publicidade, upload, downloads e lixeira com verificações de referências.
 - Imagens novas em public/uploads/AAAA/MM, miniaturas e otimização progressiva WebP quando GD disponível. Fotos legadas preservadas.
 - Backup lógico v9 com tabela media_library, pacote ZIP v2 recursivo e leitura de backups antigos v1–v8.
-- Relatório completo de arquivos e linhas em docs/RELATORIO_ARQUIVOS_LINHAS_118.md e CSV externo.
+- Relatório completo de arquivos e linhas em docs/AUDITORIA_176.md e CSV externo.
 - Sem mover nem apagar imagens de instalações existentes. Testes MariaDB reais ainda pendentes.
 
 ## 1.0.17 - Upload de fotos no editor (2026-10-19)

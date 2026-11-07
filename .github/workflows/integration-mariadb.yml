@@ -51,6 +51,7 @@ jobs:
           for file in tests/*.js; do node "$file" > /dev/null; done
           python3 tools/build_css.py --check
           python3 tools/build_news_editor.py --check
+          python3 tools/audit_project.py
       - name: Upload segmentado em PHP 2M/8M (15 MiB)
         run: |
           php tests/chunked_upload_150.php

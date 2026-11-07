@@ -42,7 +42,7 @@ As linhas, paradas e partidas do módulo Ônibus fazem parte do backup **v5**. A
 
 ## Atualização 1.0.24: URLs SEO e backup v10
 
-A instalação atual gera backup lógico **v10** (inclui `article_slug_redirects`) e restaura backups v1–v10. O formato ZIP de mídias continua v2. Backups novos precisam de IguaNews 1.0.24 ou superior para restauração; as instruções de backups antigos acima são históricas. A migração incremental cria uma tabela sem alterar textos e fotos. Para URLs limpas, consulte [SEO_URLS_124.md](SEO_URLS_124.md), configure o roteamento no PHP/Apache e só então ative a opção nas configurações. Sem essa ativação, as URLs antigas com querystring continuam funcionando.
+A instalação atual gera backup lógico **v10** (inclui `article_slug_redirects`) e restaura backups v1–v10. O formato ZIP de mídias continua v2. Backups novos precisam de IguaNews 1.0.24 ou superior para restauração; as instruções de backups antigos acima são históricas. A migração incremental cria uma tabela sem alterar textos e fotos. Para URLs limpas, consulte [SEO_URLS.md](SEO_URLS.md), configure o roteamento no PHP/Apache e só então ative a opção nas configurações. Sem essa ativação, as URLs antigas com querystring continuam funcionando.
 
 ## Atualização 1.0.46: índices do acervo e esquema 36
 

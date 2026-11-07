@@ -17,4 +17,5 @@ verify175(str_contains($js,'progress.loaded / progress.total')&&str_contains($js
 verify175(str_contains($js,'if (!manual) window.location.href = form.action'),'modal não redireciona automaticamente durante retorno');
 verify175(str_contains($dialogs,"dialog.dataset.updaterBusy === '1'")&&str_contains($dialogs,"dialog.addEventListener('cancel'"),'não permite fechar modal durante operação');
 verify175(str_contains($css,'.updater-upload-dialog')&&str_contains($read('public/assets/css/style.css'),'.updater-upload-dialog'),'CSS mobile sincronizado');
-verify175($read('VERSION')==="1.0.75\n",'versão sincronizada');
+$identity=json_decode($read('app_identity.json'),true,512,JSON_THROW_ON_ERROR);
+verify175(trim($read('VERSION'))===($identity['version']??null) && preg_match('/^\d+\.\d+\.\d+$/',trim($read('VERSION')))===1,'versão sincronizada');

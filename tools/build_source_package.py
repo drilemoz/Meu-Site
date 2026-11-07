@@ -16,7 +16,7 @@ ROOT_FILES={'.gitignore','AGENTS.md','README.md','CHANGELOG.md','RELEASE_NOTES.m
             'VERSION','composer.json','composer.lock','github-manager.json','app_identity.json'}
 TOOLS={'build_css.py','build_news_editor.py','build_update_package.py',
        'build_source_package.py','news_editor_view.sha256','news_explain.php',
-       'sign_manifest.php','test_chunked_upload_150.py'}
+       'sign_manifest.php','test_chunked_upload_150.py','audit_project.py'}
 DISALLOWED_SUFFIXES={'.kt','.kts','.gradle','.jar','.class','.apk','.aab',
                      '.p12','.jks','.pem','.key','.sql','.sqlite','.db','.zip','.log'}
 

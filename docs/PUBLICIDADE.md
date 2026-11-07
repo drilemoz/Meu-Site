@@ -1,4 +1,6 @@
-**Atualização 1.0.59:** para o novo painel compacto e limpeza de anúncios de demonstração, consulte [PUBLICIDADE_159.md](PUBLICIDADE_159.md).
+> **Estado atual (v1.0.76):** o ID `ca-pub-...` é configurado na Central de Integrações; campanhas, posições, ads.txt e controles permanecem em Publicidade. A presença do ID não confirma aprovação do Google. O texto abaixo traz o histórico funcional.
+
+**Atualização 1.0.59:** para o novo painel compacto e limpeza de anúncios de demonstração, consulte [PUBLICIDADE.md](PUBLICIDADE.md).
 
 ## Exemplos de demonstração
 
