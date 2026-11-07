@@ -293,3 +293,9 @@ Menu Publicidade: ativações geral e por espaço, anúncios locais com datas, A
 - O portal é exclusivamente PHP/MySQL. Nunca incluir Gradle, Kotlin, AndroidManifest, caminhos `app/src/`, `design/` ou artefatos de outro projeto.
 - Utilizar `tools/build_source_package.py` para o ZIP de código-fonte e `tools/build_update_package.py` para a atualização de hospedagem; verificar os dois pacotes após a geração.
 - Manter `github-manager.json` e `app_identity.json` consistentes com `VERSION`, sem informações Android.
+
+### 1.0.74 — regressão real de ZIP com entradas repetidas
+- O teste `tests/backup_integrity_133.php` deve usar `tests/fixtures/backup133_duplicate_names.zip` com duplicatas reais; `ZipArchive::addFromString` padrão substitui nomes iguais e produz falsos negativos de teste.
+- Com PHP `zip` instalado, conferir 4 nomes via `statIndex` antes de verificar que `media_bundle_verify_manifest()` lança exceção para entradas repetidas. No fallback sem extensão, usar stub apenas como teste de contrato.
+- O empacotador de fonte só pode incluir esse ZIP de fixture, nunca backups reais, ZIPs de versão anterior ou outros projetos; a atualização de hospedagem continua sem a pasta `tests`.
+- Corrigir falhas de GitHub Actions publicando o fonte atualizado no repositório, não apenas o pacote de atualização PHP.

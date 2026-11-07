@@ -1,3 +1,9 @@
+## 1.0.74 — Integridade dos backups / GitHub Actions
+
+Corrigida a regressão do backup que falhava em GitHub Actions: o teste de entradas com nomes duplicados passa a utilizar um ZIP verdadeiro com nomes repetidos, que deve ser recusado pelo validador. O teste antigo não criava essa condição porque a API PHP substituía o mesmo nome. O site e o banco não sofreram alterações funcionais.
+
+**Atenção:** para corrigir o workflow no GitHub, publique o ZIP de **código-fonte completo** (incluindo `tests/fixtures/backup133_duplicate_names.zip`) no repositório. O pacote `Atualizacao-v1.0.74.zip` atualiza apenas a hospedagem e não substitui os testes no GitHub. Ainda é necessário executar novamente a integração MariaDB e ZipArchive no GitHub Actions.
+
 ## 1.0.73 — Código-fonte limpo para GitHub Manager
 Correção do pacote: removidos arquivos Android de outro projeto, metadados alinhados ao portal PHP, e empacotamento protegido. Nenhuma mudança funcional no site, no banco ou na central de integrações.
 

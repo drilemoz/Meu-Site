@@ -11,6 +11,7 @@ from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
 ROOT=Path(__file__).resolve().parents[1]
+ZIP_TEST_FIXTURES={'tests/fixtures/backup133_duplicate_names.zip'}
 ROOT_FILES={'.gitignore','AGENTS.md','README.md','CHANGELOG.md','RELEASE_NOTES.md',
             'VERSION','composer.json','composer.lock','github-manager.json','app_identity.json'}
 TOOLS={'build_css.py','build_news_editor.py','build_update_package.py',
@@ -22,6 +23,9 @@ DISALLOWED_SUFFIXES={'.kt','.kts','.gradle','.jar','.class','.apk','.aab',
 def allowed(p:Path)->bool:
     if not p.is_file() or p.is_symlink():return False
     rel=p.relative_to(ROOT).as_posix(); parts=rel.split('/')
+    # ZIP de teste com duplicatas reais, explicitamente permitido por nome.
+    # Nunca incluir backups ou outros ZIPs que surgirem em tests/.
+    if rel in ZIP_TEST_FIXTURES:return True
     if p.suffix.lower() in DISALLOWED_SUFFIXES:return False
     if rel in ROOT_FILES:return True
     if rel=='.github/workflows/integration-mariadb.yml':return True
@@ -44,6 +48,10 @@ def validate(files:list[Path])->None:
     assert all('src/main/java/' not in n and '/gradle/' not in n for n in names)
     assert not any(n.startswith('design/') or n.endswith('.kt') for n in names)
     assert not any(n.endswith(('gradlew','build.gradle.kts','settings.gradle.kts')) for n in names)
+    if not ZIP_TEST_FIXTURES.issubset(set(names)):
+        raise ValueError('Fixture obrigatório de ZIP com duplicatas não empacotado')
+    if any(n.endswith('.zip') and n not in ZIP_TEST_FIXTURES for n in names):
+        raise ValueError('ZIP não permitido incluído no fonte')
     version=(ROOT/'VERSION').read_text().strip()
     if not re.fullmatch(r'\d+\.\d+\.\d+',version):raise ValueError('VERSION inválida')
     for name in ('github-manager.json','app_identity.json'):

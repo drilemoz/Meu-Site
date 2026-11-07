@@ -1,3 +1,10 @@
+## 1.0.74 — 06/11/2026 — Teste de integridade do ZIP corrigido
+- Corrigido `tests/backup_integrity_133.php`: o caso de nomes duplicados agora usa um ZIP de teste com **duas entradas reais de mesmo nome** no diretório central, em vez de depender de `ZipArchive::addFromString`, que substituía a entrada anterior.
+- O teste inspeciona `numFiles` e `statIndex()` antes de validar, evitando um falso positivo se o fixture perder a duplicidade.
+- O empacotador do código-fonte permite **somente** esse ZIP de teste sob `tests/fixtures/`, mantendo o bloqueio para outros ZIPs, segredos e arquivos Android de projetos estranhos.
+- O validador real `media_bundle_verify_manifest()` permanece intacto: já rejeita nomes repetidos; nenhuma mudança em backup/restauração, SQL 36, uploads ou formato do ZIP de atualização.
+- A extensão PHP ZipArchive e a restauração MariaDB precisam ser reexecutadas no workflow GitHub Actions para confirmar a correção no CI com serviços reais.
+
 ## 1.0.73 — 06/11/2026 — Correção de identidade e empacotamento
 - Removidos do código-fonte do Meu Site os arquivos Android/Gradle e a documentação do editor Uai Cortes, misturados em entregas anteriores.
 - Corrigidos `app_identity.json` e `github-manager.json` para identificar o portal PHP 1.0.73, sem propriedades Android fictícias.

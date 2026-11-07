@@ -20,6 +20,30 @@ function backup133_archive(array $names): ZipArchive {
     $zip->close();$reopen=new ZipArchive();$reopen->open($path);@unlink($path);
     return $reopen;
 }
+/**
+ * Um ZIP real com entradas duplicadas. addFromString() com o comportamento
+ * padrão sobrescreve nomes existentes e NÃO exercita a verificação desejada.
+ * O fixture usa entradas duplicadas reais no diretório central do ZIP.
+ */
+function backup133_duplicate_archive(array $expectedNames): ZipArchive {
+    if (!extension_loaded('zip')) {
+        // Ambiente local sem extensão: teste de contrato por stub.
+        return new ZipArchive($expectedNames);
+    }
+    $fixture = __DIR__.'/fixtures/backup133_duplicate_names.zip';
+    if (!is_file($fixture)) throw new RuntimeException('Fixture ZIP com duplicatas não encontrado.');
+    $zip = new ZipArchive();
+    if ($zip->open($fixture) !== true) throw new RuntimeException('Fixture ZIP não pôde ser aberto.');
+    $names = [];
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $stat = $zip->statIndex($i);
+        $names[] = $stat['name'] ?? null;
+    }
+    if ($names !== $expectedNames) {
+        throw new RuntimeException('Fixture deve conter entradas realmente duplicadas (4 itens).');
+    }
+    return $zip;
+}
 function backup133_rejected(callable $run,string $message): void {
     try {$run();throw new LogicException('Falha: '.$message.' foi aceito');}
     catch(RuntimeException) {echo "OK: $message\n";}
@@ -37,7 +61,7 @@ backup133_rejected(fn()=>media_bundle_verify_manifest(backup133_archive(['manife
 backup133_rejected(fn()=>media_bundle_verify_manifest(backup133_archive(['manifest.json',$dbEntry,$entry]),array_replace($manifest,['db_sha256'=>'incorreto']),$dbEntry,$db),'hash inválido recusado');
 backup133_rejected(fn()=>media_bundle_verify_manifest(backup133_archive(['manifest.json',$dbEntry,$entry,'backup-oculto']),$manifest,$dbEntry,$db),'entrada extra recusada');
 backup133_rejected(fn()=>media_bundle_verify_manifest(backup133_archive(['manifest.json',$dbEntry]),$manifest,$dbEntry,$db),'mídia ausente recusada');
-backup133_rejected(fn()=>media_bundle_verify_manifest(backup133_archive(['manifest.json',$dbEntry,$entry,$entry]),$manifest,$dbEntry,$db),'nome duplicado recusado');
+backup133_rejected(fn()=>media_bundle_verify_manifest(backup133_duplicate_archive(['manifest.json',$dbEntry,$entry,$entry]),$manifest,$dbEntry,$db),'nome duplicado recusado');
 
 class Backup133Stmt extends PDOStatement {
     private int $idx=0;
