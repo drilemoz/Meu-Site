@@ -1,3 +1,15 @@
+# Meu Site v1.0.96 — Aplicativos e Páginas Legais
+
+- Módulo integrado ao menu administrativo para gerenciar diversos aplicativos e suas páginas de apresentação, privacidade, termos e páginas extras, com edição livre do conteúdo no banco.
+- Slugs permanentes e URLs públicas amigáveis; alterações explícitas de slug geram histórico e redirecionamentos 301.
+- Formatação Markdown restrita com escaping de HTML no servidor. Prévia, descrição SEO, rascunhos isolados, publicações versionadas e restauração para rascunho.
+- Uai Cortes cadastrado como **rascunho**, contendo instruções editáveis e não declarações de privacidade presumidas.
+- Quatro novas tabelas, **schema 37** e **backup lógico v12**, com compatibilidade de leitura/restauração dos backups antigos.
+- **IMPORTANTE:** como há migração do banco, não instale pela função normal de atualização da versão 1.0.95/schema 36. É necessária **instalação assistida**, após backup externo completo, seguindo `docs/APLICATIVOS_LEGAIS.md` e `docs/MIGRACAO.md`.
+- Testes offline PHP/JS e integridade do ZIP executáveis localmente; o ensaio real de integração MariaDB foi acrescentado ao GitHub Actions e permanece pendente de execução neste ambiente. Publicação, SSL/rewrites e OAuth devem ser revisados em homologação; aprovação Google não é garantida.
+
+---
+
 # Meu Site v1.0.95 — Compatibilidade do teste PHP 8.3 no CI
 
 - Corrigido erro fatal ao lidar com uma data inválida na renderização da lista de notícias. A data não é inventada; quando não puder ser interpretada, a interface informa “Data indisponível”.

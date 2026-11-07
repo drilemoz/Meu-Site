@@ -25,7 +25,7 @@ class Fake146IndexDB extends PDO {
     }
 }
 $db=new Fake146IndexDB();
-check146(IGUA_SCHEMA_REVISION===36,'revisão de esquema incrementada');
+check146(IGUA_SCHEMA_REVISION===37,'revisão de esquema incrementada');
 $added=igua_migrate_public_news_indexes($db);
 check146($added===['idx_public_featured','idx_public_popular'] && count($db->executed)===2,'índices auxiliares criados somente quando ausentes');
 check146(igua_migrate_public_news_indexes($db)===[] && count($db->executed)===2,'migração repetida não cria índices duplicados');

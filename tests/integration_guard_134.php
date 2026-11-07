@@ -11,5 +11,5 @@ igua134_assert(str_contains($runner,'restore_backup($db,$bad)') && str_contains(
 igua134_assert(str_contains($runner,'restore_media_bundle($db,$bundle)') && str_contains($runner,'hash_file(\'sha256\',$mediaPath)' ),'round-trip de ZIP e foto com hash são exercitados');
 igua134_assert(str_contains($workflow,'mariadb:11.4') && str_contains($workflow,'tests/integration/restore_mariadb_134.php'),'CI contém MariaDB real e chama o ensaio');
 igua134_assert(str_contains($workflow,'IGUA_TEST_ALLOW_WRITE: YES_ISOLATED_DB') && str_contains($workflow,'permissions:'),'CI limita execução e permissões');
-igua134_assert(str_contains((string)file_get_contents(__DIR__.'/../app/schema_migrations.php'),'const IGUA_SCHEMA_REVISION = 36;'),'revisão SQL 36 acompanha índices, eleições e sessões persistentes');
+igua134_assert(str_contains((string)file_get_contents(__DIR__.'/../app/schema_migrations.php'),'const IGUA_SCHEMA_REVISION = 37'),'revisão SQL 36 acompanha índices, eleições e sessões persistentes');
 echo "1.0.34: salvaguardas estáticas do teste integrado aprovadas.\n";

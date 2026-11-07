@@ -58,3 +58,11 @@ Os seletores nativos de arquivos do wizard não recebem a interface global dupli
 ### Revisão 1.0.95 — Data inválida na listagem / compatibilidade PHP 8.3
 
 O GitHub Actions falhou antes dos testes com MariaDB real, em `tests/news_wizard_194.php`, ao processar a string `invalid` na função de data relativa. Corrigida a conversão para `date_create_immutable()` com verificação de retorno `false` e avisos. `tests/news_relative_date_195.php` cobre datas válidas, ausentes e impossíveis. Schema 36 e rotinas de backup/restauração não foram modificados; reexecução de CI e validação em produção continuam pendentes.
+
+
+### Revisão 1.0.96 — Aplicativos e Páginas Legais
+
+- O novo módulo integra o painel e as rotas públicas, com migração aditiva **schema 37**, quatro tabelas, snapshots publicados e backup lógico **v12**.
+- Testes offline: `tests/legal_apps_196.php`, PHP/JS legado, CSS/editor e auditoria estrutural. O novo teste MariaDB real está em `tests/integration/legal_apps_mariadb_196.php` e no workflow CI, mas sua execução não é comprovada pelo ambiente sem PDO MySQL.
+- **Pendente antes de produção:** testar migração real a partir de schema 36 com cópia do banco; login/ACL/CSRF; gravação/recuperação de revisões e backup/restore; renderização móvel e reescrita Apache/HTTPS com status HTTP 200/404; validação de logotipo; revisão jurídica do conteúdo e requisitos OAuth atuais.
+- **Não instalar via atualizador normal com schema divergente**; siga `docs/MIGRACAO.md`. Sem migração na hospedagem, as páginas novas não ficam disponíveis.

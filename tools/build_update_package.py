@@ -75,7 +75,7 @@ def create(key_file:Path|None,output:Path)->None:
     if len(files)+len(virtual_files)>MAX_FILES:raise RuntimeError('Arquivos demais para o motor atual.')
     descriptors=[{'path':p.relative_to(ROOT).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'size':p.stat().st_size} for p in files]
     descriptors += [{'path':name,'sha256':hashlib.sha256(data).hexdigest(),'size':len(data)} for name,data in virtual_files.items()]
-    # Atualmente schema 36; alterá-lo obriga atualização assistida por segurança.
+    # Schema 37: a migração 36→37 exige instalação assistida; instalador comum não a atravessa.
     migration=(ROOT/'app/schema_migrations.php').read_text()
     found=re.search(r'const\s+IGUA_SCHEMA_REVISION\s*=\s*(\d+)',migration)
     if not found:raise RuntimeError('Revisão do esquema desconhecida')

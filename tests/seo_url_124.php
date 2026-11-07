@@ -45,7 +45,7 @@ article_record_slug_change($db,3,'noticia-da-cidade','outro-nome');
 check_url124(($db->aliases['noticia-da-cidade']??0)===3,'armazena slug antigo em histórico');
 article_record_slug_change($db,3,'outro-nome','endereco-historico');
 check_url124(!isset($db->aliases['endereco-historico'])&&($db->aliases['outro-nome']??0)===3,'permite recuperar antigo endereço da mesma matéria');
-foreach([9=>BACKUP_TABLES_V9,10=>BACKUP_TABLES_V10,11=>BACKUP_TABLES] as $version=>$tableNames){
+foreach([9=>BACKUP_TABLES_V9,10=>BACKUP_TABLES_V10,11=>BACKUP_TABLES_V11,12=>BACKUP_TABLES] as $version=>$tableNames){
     $tables=array_fill_keys($tableNames,[]);$tables['users']=[['id'=>1,'role'=>'admin','active'=>1]];
     if($version===10)$tables['article_slug_redirects']=[['slug'=>'endereco-antigo','article_id'=>1]];
     $parsed=parse_backup(json_encode(['format'=>'iguanews-backup','version'=>$version,'tables'=>$tables],JSON_THROW_ON_ERROR),'teste.json');

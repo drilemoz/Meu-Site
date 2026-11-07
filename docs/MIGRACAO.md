@@ -47,3 +47,18 @@ A instalação atual gera backup lógico **v10** (inclui `article_slug_redirects
 ## Atualização 1.0.46: índices do acervo e esquema 36
 
 A revisão 36 acrescenta dois índices de ordenação na tabela `articles` (`idx_public_featured` e `idx_public_popular`). Faça backup do banco e das mídias antes da atualização; **não** entre no instalador para atualizar um site existente. O usuário do MariaDB precisa poder executar `ALTER TABLE`. A criação dos índices pode consumir espaço e causar bloqueios conforme o volume/versão do servidor. Após atualizar, acesse o painel para a migração incremental, confira a Central de Saúde e use `php tools/news_explain.php` para inspecionar planos. Backups JSON v11 e ZIP v2 não mudam.
+
+
+## v1.0.96 — Aplicativos e Páginas Legais (schema 36→37)
+
+**Instalação assistida obrigatória:** o atualizador automático do site em schema 36 bloqueia corretamente a entrada de um pacote que declare schema 37. Não falsifique a versão do manifesto, não desative o bloqueio, e não use o ZIP completo diretamente no formulário de atualizações.
+
+1. Guarde **backups externos verificáveis** do banco MariaDB, de `storage/`, de `public/uploads/`, `storage/media/` e do código 1.0.95. Teste a recuperação em ambiente isolado.
+2. Ative uma janela de manutenção e confira a versão de PHP (>=8.1), as extensões e permissões MySQL (CREATE TABLE e alterações de schema). Faça primeiro em **homologação**.
+3. Copie os diretórios `app/` e `public/` e o arquivo `VERSION` do pacote de atualização **via SFTP/gerenciador da hospedagem**, preservando todas as pastas privadas e arquivos enviados. A instalação não é uma operação atômica de banco e código: evite visitantes durante a substituição.
+4. Ao acessar `/admin.php` com administrador ativo, a migração já existente `igua_migrate_schema()` adicionará quatro tabelas e registrará `igua_schema_revision=37` **somente após terminar todas as etapas**. Se o login depender de migração, verifique logs privados/saúde. Não executar SQL avulso de forma improvisada.
+5. Confira: as notícias e demais módulos continuam acessíveis; o menu **Aplicativos e Páginas Legais** aparece; **Uai Cortes** está em rascunho; a política não é pública antes da publicação; backups v12 funcionam; e o Apache atende `/<slug>` e `/<slug>/privacidade`.
+6. Depois de preencher a política com fatos reais do aplicativo, publique apresentação/política, confira HTTP 200 e links em navegador sem login, SEO e HTTPS; apenas então use as URLs na configuração OAuth.
+7. Se houver falha na migração, registre o erro e **restaure código e banco do mesmo snapshot anterior**. Não faça rollback apenas do PHP se o banco já estiver no schema 37, pois o código antigo pode recusar a revisão maior.
+
+A migração **não apaga notícias nem usuários**. DDL no MariaDB não é transacional em todos os cenários; novas tabelas são criadas com `IF NOT EXISTS` para permitir retomada após falha parcial. A primeira instalação também registra o aplicativo Uai Cortes **sem textos legais publicados**. Após a migração, versões posteriores com schema 37 podem voltar a utilizar o atualizador normal, desde que todos os critérios de segurança sejam atendidos. Veja [APLICATIVOS_LEGAIS.md](APLICATIVOS_LEGAIS.md).

@@ -50,7 +50,7 @@ try{
     foreach(BACKUP_TABLES as $table){
         $db->query('SELECT * FROM `'.$table.'` LIMIT 0')->closeCursor();
     }
-    integration134_assert(true,'todas as tabelas do backup v11 existem');
+    integration134_assert(true,'todas as tabelas do backup v12 existem');
     $db->prepare('INSERT INTO users (name,email,password_hash,role,active) VALUES (?,?,?,?,1)')
         ->execute(['Administrador teste','integracao134@example.invalid',password_hash('senha-temporaria-134',PASSWORD_DEFAULT),'admin']);
     $userId=(int)$db->lastInsertId();

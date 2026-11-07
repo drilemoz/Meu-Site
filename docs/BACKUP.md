@@ -34,3 +34,8 @@ A restauração do ZIP exige senha e confirmação; valida nomes/caminhos, dupli
 ### Testes
 
 `tests/backup_121.php`, `tests/backup_integrity_133.php`, `tests/backup_143.php` e integração `tests/integration/restore_mariadb_134.php` no GitHub Actions com MariaDB e ext-zip reais.
+
+
+## v1.0.96 — Backup de aplicativos e páginas
+
+O formato lógico **v12** acrescenta `legal_apps`, `legal_app_pages`, `legal_app_revisions` e `legal_app_slug_redirects`. Inclui dados dos apps, rascunhos, revisões publicadas, status e slugs antigos. A leitura aceita backups **v1–v11**, preenchendo as novas tabelas com listas vazias, sem executar scripts contidos nos backups. O backup completo de mídia inclui logotipos registrados na biblioteca; um backup apenas do banco **não contém os bytes das imagens**. Antes da migração 36→37, conserve o backup antigo também fora do servidor.

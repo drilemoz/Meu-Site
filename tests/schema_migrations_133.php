@@ -12,6 +12,7 @@ class Mig133Stmt extends PDOStatement {
 }
 class Mig133IndexStmt extends PDOStatement {
     public function fetchAll(int $mode=PDO::FETCH_DEFAULT,mixed ...$args):array{return [];}
+    public function fetchColumn(int $column=0):mixed{return 1;}
 }
 class Mig133PDO extends PDO {
     public ?string $rev=null;public int $saved=0;
@@ -35,7 +36,7 @@ $db=new Mig133PDO();
 migration133(igua_schema_revision($db)===0,'esquema antigo ainda sem marcador');
 migration133(igua_migrate_schema($db)===true,'esquema antigo migra');
 migration133($db->saved===1 && $db->rev===(string)IGUA_SCHEMA_REVISION,'marcador gravado após sucesso');
-migration133(count($GLOBALS['migrations133'])===7 && count($db->ddlStatements)===5 && str_contains($db->ddlStatements[0],'admin_remember_tokens') && str_contains($db->ddlStatements[1],'CREATE TABLE IF NOT EXISTS elections') && str_contains($db->ddlStatements[2],'CREATE TABLE IF NOT EXISTS election_candidates') && str_contains($db->ddlStatements[3],'idx_public_featured') && str_contains($db->ddlStatements[4],'idx_public_popular'),'migrações e tabela de tokens criadas na ordem');
+migration133(count($GLOBALS['migrations133'])===7 && count($db->ddlStatements)===9 && str_contains($db->ddlStatements[0],'admin_remember_tokens') && str_contains($db->ddlStatements[1],'CREATE TABLE IF NOT EXISTS elections') && str_contains($db->ddlStatements[2],'CREATE TABLE IF NOT EXISTS election_candidates') && str_contains($db->ddlStatements[3],'idx_public_featured') && str_contains($db->ddlStatements[4],'idx_public_popular') && str_contains($db->ddlStatements[5],'CREATE TABLE IF NOT EXISTS legal_apps') && str_contains($db->ddlStatements[8],'CREATE TABLE IF NOT EXISTS legal_app_slug_redirects'),'migrações e tabela de tokens criadas na ordem');
 migration133(igua_migrate_schema($db)===false && count($GLOBALS['migrations133'])===7,'esquema atual não refaz migrações');
 $db->rev='31';$GLOBALS['migrations133']=[];$GLOBALS['migration_fail133']=true;
 try{igua_migrate_schema($db);throw new LogicException('Aceitou migração falha');}

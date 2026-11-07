@@ -92,7 +92,7 @@ try{
     $path=backup_path($name);
     backup133(is_string($path)&&is_file($path),'backup pequeno finalizado atomicamente');
     $data=parse_backup((string)file_get_contents($path),$name);
-    backup133($data['version']===11&&$sample->committed,'exportação mantém v11 e transação consistente');
+    backup133($data['version']===12&&$sample->committed,'exportação mantém v12 e transação consistente');
 }finally{@unlink(IGUA_STORAGE.'/backups/'.$name);}
 $large=new Backup133DB(['users'=>[['data'=>str_repeat('x',BACKUP_MAX_JSON_BYTES+4)]]]);
 backup133_rejected(fn()=>make_backup($large),'exportação acima de 40 MiB recusada');

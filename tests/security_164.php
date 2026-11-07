@@ -42,7 +42,7 @@ try {
     sec164(str_contains($admin,"igua_security_blocked()")&&str_contains($admin,"http_response_code(429)"),'restrição aplicada antes do login e do remember');
     sec164(str_contains($admin,"igua_security_event('login_failed')")&&str_contains($admin,"igua_security_event('login_success')"),'login instrumentado com sucesso e falha');
     $format=file_get_contents(__DIR__.'/../app/schema_migrations.php');
-    sec164(str_contains($format,'IGUA_SCHEMA_REVISION = 36'),'esquema MySQL não alterado para atualizar por ZIP v2');
+    sec164(str_contains($format,'IGUA_SCHEMA_REVISION = 37'),'esquema MySQL não alterado para atualizar por ZIP v2');
     echo "Segurança 1.0.64: testes de arquivo e integração estática aprovados.\n";
 }finally{
     foreach(glob($root.'/*')?:[] as $f){if(is_file($f))@unlink($f);}

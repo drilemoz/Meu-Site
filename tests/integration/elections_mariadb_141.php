@@ -35,7 +35,7 @@ try {
     e141_mysql(meu_candidates_list($db,$id)[0]['ballot_name']==='Teste alterado','edição preserva FK');
     $backup=make_backup($db);$backupPath=backup_path($backup);
     $original=parse_backup((string)file_get_contents($backupPath),$backup);
-    e141_mysql($original['version']===11 && count($original['tables']['elections'])>=1 && count($original['tables']['election_candidates'])>=1,'backup v11 inclui ambas as tabelas');
+    e141_mysql($original['version']===12 && count($original['tables']['elections'])>=1 && count($original['tables']['election_candidates'])>=1,'backup v12 inclui ambas as tabelas');
     $db->prepare('DELETE FROM election_candidates WHERE id=?')->execute([$cid]);
     restore_backup($db,$original);
     e141_mysql(count(meu_candidates_list($db,$id))===1,'restauração recupera candidatura e eleição');

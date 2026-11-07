@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-/** Tabelas conhecidas na revisão SQL 36. Lista fechada: nunca mexer em tabelas de outro projeto. */
+/** Tabelas conhecidas na revisão SQL 37. Lista fechada: nunca mexer em tabelas de outro projeto. */
 function igua_setup_known_tables(): array {
     return [
         'ad_campaigns','ad_placements','admin_remember_tokens','analytics_events',
@@ -9,6 +9,7 @@ function igua_setup_known_tables(): array {
         'author_profiles','backup_logs','bus_departures','bus_import_queue',
         'bus_routes','bus_stops','categories','editorial_sources',
         'election_candidates','elections','media_library','settings','users',
+        'legal_apps','legal_app_pages','legal_app_revisions','legal_app_slug_redirects',
     ];
 }
 /** Inventário exclusivamente de leitura. Nunca DROP, TRUNCATE ou sobrescrita automática. */

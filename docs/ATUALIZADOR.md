@@ -23,9 +23,13 @@
 - Durante o POST de atualização remota, o PHP libera o bloqueio da sessão somente após autorizar senha/CSRF, e o retoma antes de registrar a mensagem de sucesso/erro.
 - Download de release e backup podem levar tempo; falha de consulta de status não significa falha de instalação. A tela evita mostrar porcentagens não fundamentadas.
 
+## Migração assistida na v1.0.96 (schema 37)
+
+A atualização automática via GitHub e o envio de ZIP pelo painel da 1.0.95 ou anterior **não podem fazer a migração 36→37**: o preflight rejeita o pacote corretamente. **Não desative esta verificação** e não altere o manifesto para anunciar schema 36. Faça backup externo completo (banco e mídias), use ambiente de homologação e envie os arquivos de código via gerenciador/SFTP, preservando `storage/`, configurações e `public/uploads/`, e então acesse como administrador para executar as migrações idempotentes no primeiro carregamento. O usuário do MariaDB precisa de `CREATE TABLE`/`ALTER TABLE`. Confira o marcador de schema `37`, as quatro tabelas, a Central de Saúde, as notícias anteriores e as URLs `/uaicortes` (404 até publicação). Se ocorrer erro, restaure juntos código + banco + mídias do snapshot anterior; não use só rollback de código com banco migrado. Para passos detalhados consulte [APLICATIVOS_LEGAIS.md](APLICATIVOS_LEGAIS.md).
+
 ## Segurança e limitações
 
-O servidor verifica versão, tamanho, caminhos, manifesto, CSRF e reautenticação; cria arquivos de segurança, journal e tenta rollback em caso de falha. O formato atual não executa migrações automáticas de banco: schema 36 deve ser preservado. Para uma mudança de schema, preparar processo assistido antes de publicar o pacote.
+O servidor verifica versão, tamanho, caminhos, manifesto, CSRF e reautenticação; cria arquivos de segurança, journal e tenta rollback em caso de falha. O formato atual não executa migrações automáticas de banco: o schema do ZIP deve coincidir com o instalado. A v1.0.96 é schema 37 e sua primeira instalação exige migração assistida, conforme acima.
 
 Uma atualização de código **não substitui** um backup. O restaurador de código e o backup de dados são fluxos distintos. Ver [BACKUP.md](BACKUP.md).
 

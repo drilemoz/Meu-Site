@@ -10,7 +10,7 @@ class Schema138Stmt extends PDOStatement {
     public function fetchColumn(int $column=0):mixed{return $this->db->marker??false;}
 }
 class Schema138PDO extends PDO {
-    public string $marker='37'; public int $writes=0;public int $ddl=0;
+    public string $marker='38'; public int $writes=0;public int $ddl=0;
     public function __construct(){}
     public function prepare(string $query,array $options=[]):PDOStatement|false {return new Schema138Stmt($this,$query);}
 }
@@ -24,7 +24,7 @@ function migrate_analytics_schema(PDO $db):void {$db->ddl++;}
 $db=new Schema138PDO;
 try {igua_migrate_schema($db);throw new LogicException('Permitiu rebaixamento de versão');}
 catch(RuntimeException $e) {if(!str_contains($e->getMessage(),'mais recente'))throw $e;}
-if($db->marker!=='37'||$db->writes!==0||$db->ddl!==0)throw new RuntimeException('Código antigo modificou revisão futura');
+if($db->marker!=='38'||$db->writes!==0||$db->ddl!==0)throw new RuntimeException('Código antigo modificou revisão futura');
 echo "OK: revisão futura bloqueada sem escrita ou migração\n";
 foreach(['abc','-1','33.5','0033','','999999999999999999999999999'] as $invalid){
     $db->marker=$invalid;

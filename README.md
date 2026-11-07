@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.95** · PHP 8.1+ · MySQL/MariaDB · schema 36.
+**Versão atual do código-fonte: 1.0.96** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -17,6 +17,8 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
 
 ## Recursos recentes e limites
+
+- **Aplicativos e Páginas Legais (v1.0.96):** módulo para vários aplicativos com slug permanente, apresentação, Política de Privacidade, Termos, páginas adicionais, editor Markdown seguro, rascunho independente de versão pública, revisões, prévia, restauração e redirecionamentos 301 para slugs antigos. O Uai Cortes é semeado como rascunho, **sem declarações jurídicas fictícias**. Rotas públicas PHP e links para OAuth/YouTube após revisão humana. Schema 37, backup v12. **Exige migração assistida; o atualizador antigo não pode instalar uma mudança de banco.** Consulte [docs/APLICATIVOS_LEGAIS.md](docs/APLICATIVOS_LEGAIS.md).
 
 - **Datas relativas corrigidas (v1.0.95):** o PHP 8.3 do CI falhava quando a regressão simulava uma data inválida em `news_cards.php`. A conversão agora é não-excepcional e rejeita datas malformadas ou impossíveis, exibindo “Data indisponível” sem derrubar o painel. Testes de regressão adicionados; a integração MariaDB precisa ser reexecutada no GitHub Actions. Schema 36 inalterado.
 
@@ -51,7 +53,7 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 
 1. Preparar PHP 8.1+, PDO MySQL, MariaDB/MySQL e HTTPS. Instalar `phpmailer/phpmailer` conforme `composer.lock` quando a hospedagem necessitar do SMTP; não publicar credenciais.
 2. Publicar o projeto fora da raiz pública, expondo somente `public/`/equivalente, mantendo `storage/` privado e persistente.
-3. Para atualizar a hospedagem, usar **exclusivamente** `Atualizacao-vX.Y.Z.zip` e verificar o resultado no painel. O ZIP `Meu-Site-vX.Y.Z-fonte-completo.zip` serve para GitHub e desenvolvimento, não para o atualizador.
+3. **Atualizações de código sem migração de schema** usam `Atualizacao-vX.Y.Z.zip` no painel. A **primeira atualização para 1.0.96 (schema 37)** é uma exceção: requer **instalação assistida do código por SFTP/gerenciador**, nunca o botão de atualização do schema 36. O ZIP `Meu-Site-vX.Y.Z-fonte-completo.zip` serve para GitHub e desenvolvimento. Veja [a migração assistida](docs/MIGRACAO.md).
 4. Antes de atualizar, gerar backup externo **do banco e dos arquivos**. Em caso de erro de rede, conferir a versão instalada antes de reenviar.
 
 ## Desenvolvimento e verificação
@@ -62,8 +64,8 @@ for f in tests/*.js; do node "$f" || exit 1; done
 python3 tools/build_css.py --check
 python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
-python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.95.zip
-python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.95-fonte-completo.zip
+python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.96.zip
+python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.96-fonte-completo.zip
 ```
 
 Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).

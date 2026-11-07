@@ -16,6 +16,10 @@ if(preg_match('~^/(noticia|categoria)/([a-z0-9]+(?:-[a-z0-9]+)*)/?$~D',$path,$m)
     $_GET['p']=$m[1];$_GET['slug']=$m[2];
     require __DIR__.'/index.php';return true;
 }
+if(preg_match('~^/([a-z0-9]+(?:-[a-z0-9]+)*)(?:/([a-z0-9]+(?:-[a-z0-9]+)*))?/?$~D',$path,$m)){
+    $_GET['p']='app';$_GET['app_slug']=$m[1];$_GET['app_page']=$m[2]??'inicio';
+    require __DIR__.'/index.php';return true;
+}
 // Arquivos existentes e raiz seguem atendidos pelo servidor embutido.
 if($path==='/' || is_file(__DIR__.$path))return false;
 // Rotas desconhecidas não devem virar página inicial com status 200 (SEO).

@@ -18,7 +18,7 @@ ui167(str_contains($js,'admin-main > .alert.error') && str_contains($js,'Respost
 ui167(str_contains($controller,"if((\$_POST['confirm_install']??'')!=='yes')") && str_contains($controller,"password_verify(\$pwd,\$hash)"),'servidor exige senha e confirmação');
 ui167(str_contains($controller,"IGUA_UPDATE_MAX_ZIP") && str_contains($controller,"igua_updater_install_zip"),'validação e instalação existentes preservadas');
 $maint=$read('app/admin_views/routes/maintenance.php');
-ui167(str_contains($maint,'maintenance-warning') && str_contains($maint,'25 tabelas'),'aviso destrutivo permanece visível');
+ui167(str_contains($maint,'maintenance-warning') && str_contains($maint,'29 tabelas'),'aviso destrutivo permanece visível');
 ui167(substr_count($maint,'csrf_field()')>=4 && str_contains($maint,'data-confirm'),'formulários destrutivos com CSRF e confirmação');
 $bus=$read('app/bus_wizard.php');
 ui167(str_contains($bus,'bus-wizard-step-info') && str_contains($bus,'id="busWizardForm"'),'wizard mantém campos com explicação contextual');

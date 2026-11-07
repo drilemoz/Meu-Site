@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.95)
+# Diretrizes de manutenção — Meu Site (v1.0.96)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -7,7 +7,7 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 1. PHP 8.1+, MySQL/MariaDB, projeto web. Nenhum Kotlin, Android, Gradle, Uai Cortes, APK, design/ de outros projetos ou arquivos privados no ZIP.
 2. Cada mudança entregue incrementa `VERSION` sequencialmente e sincroniza `README.md`, `CHANGELOG.md`, `RELEASE_NOTES.md`, `github-manager.json` e `app_identity.json`.
 3. Gerar os arquivos com `tools/build_source_package.py` e `tools/build_update_package.py`. O ZIP de hospedagem deve conter somente `app/`, `public/` e `VERSION`, além de `release.json`/assinatura opcional; jamais `storage/`, testes, `.git`, arquivos de configuração privados ou uploads.
-4. A versão de schema atual é 36. O atualizador normal **não aceita migração de schema**: planejar uma instalação assistida antes de mudar tabelas, migrações ou formato de backup. Preservar restauração de backups antigos.
+4. A versão de schema atual é 37. O atualizador normal **não aceita migração de schema**: planejar uma instalação assistida antes de mudar tabelas, migrações ou formato de backup. Preservar restauração de backups antigos.
 5. O pipeline de publicação da Release executa apenas após a integração MariaDB/JavaScript passar em `main`. Verificar que o tag `vX.Y.Z` ainda não existe e publicar somente o ZIP v2, nunca código-fonte ou segredos. A publicação é automática, mas a instalação requer confirmação administrativa.
 6. O repositório em `app/update-origin.json` é `drilemoz/Meu-Site`, com versões e identidade correspondentes. GitHub Manager com suporte a projeto PHP depende de teste no aplicativo, não presumir compilação Android.
 
@@ -28,7 +28,7 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 
 - Design mobile-first compacto, ícone `?` para ajuda opcional. Avisos importantes sobre perda de dados, privacidade e erros permanecem **visíveis**. Alvos de toque ~44 px e boa leitura no celular.
 - O menu do painel é um drawer à direita, estreito (248 px no celular, 270 px demais telas). Biblioteca de mídia integrada ao admin sem perder cabeçalho/rodapé; seletor de fotos pode usar modal.
-- CSS é fonte modular (16 módulos); alterar `public/assets/css/modules/` e executar `tools/build_css.py`. Editor JS usa 8 módulos; alterar fonte e executar `tools/build_news_editor.py`.
+- CSS é fonte modular (17 módulos); alterar `public/assets/css/modules/` e executar `tools/build_css.py`. Editor JS usa 8 módulos; alterar fonte e executar `tools/build_news_editor.py`.
 - AdSense e GA4 têm IDs em configuração **única** na Central de Integrações; campos antigos não podem apagar esses valores. Publicidade e analytics próprios mantêm seus switches independentes.
 - GA4 só carrega no público quando configurado e após consentimento; respeitar GPC/DNT e revogação. Chaves de serviço Google ficam em `storage/integrations/` e a consulta à API é sob demanda com autorização administrativa.
 - O GA4 1.0.87 consulta relatório de audiência apenas sob demanda por administradores, usando `batchRunReports` (quatro relatórios em uma chamada); OAuth somente leitura, propriedade validada, cache em sessão por até uma hora e limites entre tentativas, sem persistir tokens. Dados GA4 de propriedade não se confundem com métricas internas nem com o fluxo específico do portal.
@@ -99,3 +99,11 @@ Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **
 - `igua_news_relative_date()` não deve lançar `DateMalformedStringException` para datas inválidas. `date_create_immutable()` retorna `false` e a função mostra “Data indisponível”; avisos de data impossível também são rejeitados.
 - Validar `tests/news_relative_date_195.php` **e** `tests/news_wizard_194.php` no PHP 8.3 do GitHub Actions.
 - O log do workflow `integration-mariadb.yml` de 07/11/2026 falhou antes dos testes MariaDB reais; não alegar êxito desses testes antes de novo run aprovado.
+
+## Aplicativos e Páginas Legais (v1.0.96)
+
+- Módulo administrativo restrito a administradores em `app/admin_controllers/apps_legal.php` e `app/admin_views/routes/legal_apps.php`; mantém ACL/CSRF do painel.
+- `app/apps_legal.php` detém validação de slug, Markdown escapado, seed de rascunho, tabela, revisões e consultas públicas. Não escrever declarações jurídicas estáticas nem publicar modelos `PREENCHER`.
+- URLs públicas dinâmicas no roteador existente, sem login para conteúdo publicado. `legal_app_pages` mantém rascunho e referência à revisão imutável; restaurar não publica.
+- Schema 37 é uma migração **aditiva e assistida**; o instalador ZIP v2 comum não atravessa schema 36→37. Backup lógico v12 precisa preservar v1–v11 e as novas FKs, com `storage`/mídias protegidos.
+- Testar `tests/legal_apps_196.php` e `tests/integration/legal_apps_mariadb_196.php` (CI com banco isolado), além de toda a regressão. Documentação: `docs/APLICATIVOS_LEGAIS.md`.

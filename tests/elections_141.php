@@ -51,7 +51,7 @@ $u=[['id'=>1,'name'=>'Editor','role'=>'admin','active'=>1,'password_hash'=>'hash
 $old=array_fill_keys(BACKUP_TABLES_V10,[]);$old['users']=$u;
 $v10=parse_backup(json_encode(['format'=>'iguanews-backup','version'=>10,'tables'=>$old],JSON_THROW_ON_ERROR),'test.json');
 e141(array_keys($v10['tables'])===BACKUP_TABLES && $v10['tables']['elections']===[] && $v10['tables']['election_candidates']===[],'backup v10 compatível, tabelas eleitorais vazias');
-$new=array_fill_keys(BACKUP_TABLES,[]);$new['users']=$u;
+$new=array_fill_keys(BACKUP_TABLES_V11,[]);$new['users']=$u;
 $new['elections']=[['id'=>5,'title'=>'Eleição 2024','election_year'=>2024,'election_scope'=>'municipal']];
 $new['election_candidates']=[['id'=>7,'election_id'=>5,'ballot_name'=>'Nome de cadastro']];
 $v11=parse_backup(json_encode(['format'=>'iguanews-backup','version'=>11,'tables'=>$new],JSON_THROW_ON_ERROR),'test.json');

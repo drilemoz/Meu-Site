@@ -10,7 +10,8 @@ const BACKUP_TABLES_V7 = [...BACKUP_TABLES_V6,'article_categories','article_bloc
 const BACKUP_TABLES_V8 = [...BACKUP_TABLES_V7,'analytics_events'];
 const BACKUP_TABLES_V9 = [...BACKUP_TABLES_V8,'media_library'];
 const BACKUP_TABLES_V10 = [...BACKUP_TABLES_V9,'article_slug_redirects'];
-const BACKUP_TABLES = [...BACKUP_TABLES_V10,'elections','election_candidates'];
+const BACKUP_TABLES_V11 = [...BACKUP_TABLES_V10,'elections','election_candidates'];
+const BACKUP_TABLES = [...BACKUP_TABLES_V11,'legal_apps','legal_app_pages','legal_app_revisions','legal_app_slug_redirects'];
 // Limites iguais na exportação e na importação; o ZIP precisa comportar também o JSON do banco.
 const MEDIA_BUNDLE_MAX_MEDIA_BYTES = 300 * 1024 * 1024;
 const MEDIA_BUNDLE_MAX_ARCHIVE_BYTES = 350 * 1024 * 1024;
@@ -56,7 +57,7 @@ function make_backup(PDO $db, string $prefix='manual'): string {
         $db->exec('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');
         $db->beginTransaction();
         try {
-            $write('{"format":"iguanews-backup","version":11,"created_at":'.json_encode(date(DATE_ATOM),JSON_THROW_ON_ERROR).',"tables":{');
+            $write('{"format":"iguanews-backup","version":12,"created_at":'.json_encode(date(DATE_ATOM),JSON_THROW_ON_ERROR).',"tables":{');
             foreach (BACKUP_TABLES as $index=>$table) {
                 $write(($index>0?',':'').json_encode($table,JSON_THROW_ON_ERROR).':[');
                 $stmt=$db->query('SELECT * FROM `'.$table.'`');
@@ -143,12 +144,12 @@ function parse_backup(string $raw, string $filename): array {
     }
     if (strlen($raw)>BACKUP_MAX_JSON_BYTES) throw new RuntimeException('Backup descompactado excede 40 MiB.');
     $data=json_decode($raw,true,256,JSON_THROW_ON_ERROR);
-    if (!is_array($data)||($data['format']??'')!=='iguanews-backup'||!in_array($data['version']??null,[1,2,3,4,5,6,7,8,9,10,11],true)) throw new RuntimeException('Formato ou versão de backup inválida.');
+    if (!is_array($data)||($data['format']??'')!=='iguanews-backup'||!in_array($data['version']??null,[1,2,3,4,5,6,7,8,9,10,11,12],true)) throw new RuntimeException('Formato ou versão de backup inválida.');
     $v=(int)$data['version'];
     $expected=match(true){
         $v===1=>BACKUP_TABLES_V1,$v===2=>BACKUP_TABLES_V2,$v===3=>BACKUP_TABLES_V3,
         $v<=5=>BACKUP_TABLES_V5,$v===6=>BACKUP_TABLES_V6,$v===7=>BACKUP_TABLES_V7,
-        $v===8=>BACKUP_TABLES_V8,$v===9=>BACKUP_TABLES_V9,$v===10=>BACKUP_TABLES_V10,default=>BACKUP_TABLES
+        $v===8=>BACKUP_TABLES_V8,$v===9=>BACKUP_TABLES_V9,$v===10=>BACKUP_TABLES_V10,$v===11=>BACKUP_TABLES_V11,default=>BACKUP_TABLES
     };
     if (!isset($data['tables']) || !is_array($data['tables']) || array_keys($data['tables'])!==$expected) throw new RuntimeException('Estrutura de backup incompleta.');
     if ($data['version']===1) {
@@ -156,7 +157,7 @@ function parse_backup(string $raw, string $filename): array {
         $data['tables']['editorial_sources']=[];
         $data['tables']=array_replace(array_fill_keys(BACKUP_TABLES,[]),$data['tables']);
     }
-    if (in_array($data['version'],[2,3,4,5,6,7,8,9,10],true)) $data['tables']=array_replace(array_fill_keys(BACKUP_TABLES,[]),$data['tables']);
+    if (in_array($data['version'],[2,3,4,5,6,7,8,9,10,11],true)) $data['tables']=array_replace(array_fill_keys(BACKUP_TABLES,[]),$data['tables']);
     foreach (BACKUP_TABLES as $table) {
         if (!is_array($data['tables'][$table]) || count($data['tables'][$table])>100000) throw new RuntimeException('Dados inesperados na tabela '.$table);
         foreach ($data['tables'][$table] as $row) if (!is_array($row) || array_is_list($row)) throw new RuntimeException('Registro inválido em '.$table);
@@ -177,7 +178,7 @@ function restore_backup(PDO $db, array $data): void {
     }
     $db->beginTransaction();
     try {
-        foreach (['election_candidates','elections','article_slug_redirects','media_library','analytics_events','article_revisions','article_import_logs','article_drafts','article_media','article_blocks','article_categories','ad_campaigns','ad_placements','bus_import_queue','bus_departures','bus_stops','bus_routes','articles','backup_logs','settings','editorial_sources','author_profiles','categories','users'] as $table) $db->exec('DELETE FROM `'.$table.'`');
+        foreach (['legal_app_slug_redirects','legal_app_revisions','legal_app_pages','legal_apps','election_candidates','elections','article_slug_redirects','media_library','analytics_events','article_revisions','article_import_logs','article_drafts','article_media','article_blocks','article_categories','ad_campaigns','ad_placements','bus_import_queue','bus_departures','bus_stops','bus_routes','articles','backup_logs','settings','editorial_sources','author_profiles','categories','users'] as $table) $db->exec('DELETE FROM `'.$table.'`');
         foreach (BACKUP_TABLES as $table) {
             foreach ($data['tables'][$table] as $row) {
                 if (!$row) continue;

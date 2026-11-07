@@ -29,8 +29,8 @@ def check() -> None:
     origin=json.loads((ROOT/'app/update-origin.json').read_text(encoding='utf-8'))
     if origin.get('repository')!=EXPECTED_REPO:raise ValueError('Origem de atualizações inconsistente')
     schema=(ROOT/'app/schema_migrations.php').read_text(encoding='utf-8')
-    if not re.search(r'const\s+IGUA_SCHEMA_REVISION\s*=\s*36\b',schema):
-        raise ValueError('Mudança de schema exige atualização assistida')
+    if not re.search(r'const\s+IGUA_SCHEMA_REVISION\s*=\s*37\b',schema):
+        raise ValueError('Schema 37 divergente: migração exige instalação assistida')
     # Segredos reais, ou arquivos de outro projeto, não pertencem ao pacote de fonte.
     checked=0
     for file in ROOT.rglob('*'):

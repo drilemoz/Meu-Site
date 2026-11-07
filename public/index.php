@@ -10,9 +10,23 @@ require __DIR__.'/../app/bus_public.php';
 require __DIR__.'/../app/contact.php';
 require __DIR__.'/../app/ads.php';
 require __DIR__.'/../app/analytics.php';
+require_once __DIR__.'/../app/apps_legal.php';
 if (!installed()) redirect('/setup.php');
 try { $db=db(); } catch (Throwable $e) {igua_health_log('PUBLIC_DB_UNAVAILABLE',$e); http_response_code(503); exit('Banco de dados indisponível. Verifique a configuração.'); }
 $route=(string)($_GET['p']??'inicio');
+$legalPage=null;
+if($route==='app'){
+    $appSlug=(string)($_GET['app_slug']??'');
+    $pageSlug=(string)($_GET['app_page']??'inicio');
+    if(igua_app_slug_valid($appSlug) && igua_app_slug_valid($pageSlug)){
+        $legalPage=igua_app_public($db,$appSlug,$pageSlug);
+        if(!$legalPage && in_array($_SERVER['REQUEST_METHOD']??'GET',['GET','HEAD'],true)){
+            $replacement=igua_app_slug_alias($db,$appSlug,$pageSlug);
+            if($replacement!==null){header('Location: '.igua_app_page_url($replacement,$pageSlug),true,301);exit;}
+        }
+    }
+    if(!$legalPage){$route='404';http_response_code(404);}
+}
 if($route==='mais')redirect('/index.php?p=onibus');
 $contactErrors=[];$contactInput=[];
 if(in_array($route,['contato','anuncie'],true) && request_post()){
@@ -72,7 +86,7 @@ if ($route==='noticia') {
     foreach ($categories as $c) if ($c['slug']===($_GET['slug']??'')) { $category=$c;break; }
     if (!$category) {$route='404';http_response_code(404);}
     elseif(setting('seo_pretty_urls','0')==='1' && str_starts_with((string)($_SERVER['REQUEST_URI']??''),'/index.php?')){header('Location: '.archive_link('categoria',archive_page_number($_GET['page']??1),'',(string)$category['slug'],archive_period_days($_GET['period']??'')),true,301);exit;}
-} elseif (!in_array($route,['inicio','buscar','onibus','privacidade','termos','anuncie','contato','sobre'],true)) {$route='404';http_response_code(404);}
+} elseif (!in_array($route,['inicio','buscar','onibus','privacidade','termos','anuncie','contato','sobre','app'],true)) {$route='404';http_response_code(404);}
 $archivePage=archive_page_number($_GET['page']??1);
 $archiveDays=archive_period_days($_GET['period']??'');
 $archiveCatSlug=archive_category_slug($categories,$_GET['cat']??'');
@@ -94,18 +108,20 @@ if($article && !empty($article['image'])){
 if($article && !empty($article['author_profile_id'])){
     try{$pa=$db->prepare('SELECT name FROM author_profiles WHERE id=?');$pa->execute([$article['author_profile_id']]);$authorName=$pa->fetchColumn();if($authorName)$article['author']=$authorName;}catch(Throwable){}
 }
-$pageTitle= $article ? (trim((string)($article['seo_title']??'')) ?: $article['title']) : ($category['name']??($route==='buscar'?'Buscar notícias':($route==='onibus'?'Horários de ônibus':(['anuncie'=>'Anuncie','contato'=>'Contato','sobre'=>'Sobre o portal','privacidade'=>'Política de Privacidade','termos'=>'Termos de Uso'][$route]??'Últimas notícias'))));
+$pageTitle= $legalPage ? (string)$legalPage['title'] : ($article ? (trim((string)($article['seo_title']??'')) ?: $article['title']) : ($category['name']??($route==='buscar'?'Buscar notícias':($route==='onibus'?'Horários de ônibus':(['anuncie'=>'Anuncie','contato'=>'Contato','sobre'=>'Sobre o portal','privacidade'=>'Política de Privacidade','termos'=>'Termos de Uso'][$route]??'Últimas notícias')))));
 $seoTitle=page_title((string)$pageTitle);
-$seoDesc=$article ? (trim((string)($article['seo_description']??'')) ?: ($article['summary'] ?: excerpt($article['body'],155))) : ($route==='onibus'?'Consulte horários de ônibus programados, cidades de origem, destinos e próximas saídas em '.igua_brand_name().'.':igua_brand_description());
+$seoDesc=$legalPage ? (trim((string)$legalPage['seo_description']) ?: excerpt((string)$legalPage['body'],155)) : ($article ? (trim((string)($article['seo_description']??'')) ?: ($article['summary'] ?: excerpt($article['body'],155))) : ($route==='onibus'?'Consulte horários de ônibus programados, cidades de origem, destinos e próximas saídas em '.igua_brand_name().'.':igua_brand_description()));
 $seoDesc=excerpt($seoDesc,260);
-$indexable=setting('seo_index','0')==='1' && !in_array($route,['404','buscar'],true) && !($route==='categoria' && $archiveDays>0) && !($article && (int)$article['is_demo']===1) && ($article || $demoCount===0);
+$indexable=$legalPage!==null || (setting('seo_index','0')==='1' && !in_array($route,['404','buscar'],true) && !($route==='categoria' && $archiveDays>0) && !($article && (int)$article['is_demo']===1) && ($article || $demoCount===0));
 $siteBase=setting('seo_site_url');
 try{$siteBase=safe_seo_url($siteBase);}catch(Throwable){$siteBase='';}
-$relative = $article ? news_link($article) : ($category ? archive_link('categoria',$archive['page'],'',(string)$category['slug'],$archiveDays) : ($route==='inicio' ? '/index.php' : url(['p'=>(in_array($route,['onibus','privacidade','termos','anuncie','contato','sobre'],true)?$route:'buscar')])));
+$relative = $legalPage ? igua_app_page_url((string)$legalPage['slug'],(string)$legalPage['page_slug']) : ($article ? news_link($article) : ($category ? archive_link('categoria',$archive['page'],'',(string)$category['slug'],$archiveDays) : ($route==='inicio' ? '/index.php' : url(['p'=>(in_array($route,['onibus','privacidade','termos','anuncie','contato','sobre'],true)?$route:'buscar')]))));
+if($legalPage && $siteBase==='')$siteBase='https://iguatama.online';
 $canonical=$siteBase!==''?$siteBase.$relative:'';
 $socialImg=setting('seo_social_image');
 if(str_starts_with($socialImg,'/uploads/') && $siteBase!=='')$socialImg=$siteBase.$socialImg;
 if($article && $siteBase!=='')$socialImg=$siteBase.asset_image($article['image']);
+if($legalPage)$socialImg=($legalPage['logo_filename']!=='' && $siteBase!=='')?$siteBase.asset_image((string)$legalPage['logo_filename']):'';
 $ld=null;
 if($article && $indexable && $canonical!=='')$ld=['@context'=>'https://schema.org','@type'=>'NewsArticle','headline'=>$article['title'],'description'=>$seoDesc,'datePublished'=>date(DATE_ATOM,strtotime($article['published_at'])),'dateModified'=>date(DATE_ATOM,strtotime($article['updated_at'])),'author'=>['@type'=>'Person','name'=>$article['author']??'Redação '.igua_brand_name()],'publisher'=>['@type'=>'Organization','name'=>igua_brand_name(),'url'=>$siteBase],'mainEntityOfPage'=>$canonical,'image'=>$socialImg!==''?[$socialImg]:[]];
 require __DIR__.'/../app/public_views/layout.php';

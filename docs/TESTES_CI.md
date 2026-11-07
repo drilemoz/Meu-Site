@@ -83,3 +83,8 @@ O runner Ubuntu 24.04 com PHP 8.3 e MariaDB 11.4 concluiu o checkout e instalou 
 A v1.0.95 utiliza `date_create_immutable()`, que retorna `false` para entrada inválida, verifica avisos de parsing e informa “Data indisponível”. A nova regressão `tests/news_relative_date_195.php` cobre tanto datas válidas quanto inválidas, impossíveis, vazias e nulas.
 
 **Verificação pendente:** enviar a v1.0.95 para `main` e aguardar novo workflow. O log recebido não contém execução dos testes integrados de restauração de banco e mídias, portanto nenhum resultado deve ser atribuído a esses testes.
+
+
+## Módulo Aplicativos e Páginas Legais (v1.0.96)
+
+O teste offline `tests/legal_apps_196.php` verifica slugs, reservados, renderização Markdown sem HTML executável, rotas públicas e autorização estrutural. O CI `integration-mariadb.yml` ganhou `tests/integration/legal_apps_mariadb_196.php` para exercitar **dois aplicativos reais**, rascunho versus publicação, revisões, slugs antigos e round-trip de backup v12 em MariaDB isolado. O teste requer opt-in `IGUA_TEST_ALLOW_WRITE=YES_ISOLATED_DB`, banco local de nome `igua_ci_*` e `pdo_mysql`. Não confundir sua inclusão no workflow com resultado aprovado: precisa de execução nova no GitHub Actions.

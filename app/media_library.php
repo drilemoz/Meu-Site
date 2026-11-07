@@ -197,7 +197,7 @@ function media_upload(PDO $db,array $file,?int $userId=null,?callable $onCreated
 }
 function media_link_count(PDO $db,string $filename): int {
     $total=0;
-    foreach(['SELECT COUNT(*) FROM articles WHERE image=?','SELECT COUNT(*) FROM article_media WHERE kind=\'image\' AND filename=?','SELECT COUNT(*) FROM ad_campaigns WHERE image=?'] as $sql){$s=$db->prepare($sql);$s->execute([$filename]);$total+=(int)$s->fetchColumn();}
+    foreach(['SELECT COUNT(*) FROM articles WHERE image=?','SELECT COUNT(*) FROM article_media WHERE kind=\'image\' AND filename=?','SELECT COUNT(*) FROM ad_campaigns WHERE image=?','SELECT COUNT(*) FROM legal_apps WHERE logo_filename=?'] as $sql){$s=$db->prepare($sql);$s->execute([$filename]);$total+=(int)$s->fetchColumn();}
     return $total;
 }
 function media_browse(PDO $db,array $params): array {

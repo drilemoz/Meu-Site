@@ -1,0 +1,42 @@
+/* Aplicativos e páginas legais, painel e leitura pública. */
+.legal-admin{max-width:100%;min-width:0}
+.legal-admin-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.legal-admin-head h2{margin:0}.legal-admin .muted{color:#677588}
+.legal-app-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.legal-app-card,.legal-page-row{min-width:0;border:1px solid #dce4ee;border-radius:16px;padding:16px;background:#fff}
+.legal-app-card-top{display:flex;align-items:center;gap:12px}.legal-app-card-title{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.legal-app-card-title strong{font-size:1.05rem;overflow-wrap:anywhere}.legal-app-card-title small,.legal-page-row small{color:#66778a;overflow-wrap:anywhere}
+.legal-app-thumb{width:54px;height:54px;object-fit:cover;border-radius:12px}
+.legal-app-card p{overflow-wrap:anywhere}.legal-card-actions,.legal-action-row,.legal-page-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.legal-card-actions .btn,.legal-page-actions .btn{font-size:.9rem}
+.legal-badge{display:inline-flex;align-items:center;border-radius:30px;padding:5px 10px;white-space:nowrap;font-size:.78rem;font-weight:700}
+.legal-badge.is-live{background:#e5f7ec;color:#117449}.legal-badge.is-draft{background:#edf1f7;color:#526277}
+.legal-form{display:grid;gap:14px}.legal-form>label,.legal-form .legal-fields-two>label{display:grid;gap:7px;font-weight:600;min-width:0}
+.legal-form label input:not([type=checkbox]),.legal-form label textarea{max-width:100%;width:100%;box-sizing:border-box}
+.legal-form label small{font-weight:400;color:#677588}
+.legal-fields-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.legal-check{display:flex!important;flex-direction:row!important;gap:8px!important;align-items:flex-start;font-weight:400!important}
+.legal-check input{width:20px;height:20px;flex-shrink:0}
+.legal-logo-existing{display:flex;align-items:center;gap:10px}.legal-logo-existing img{width:64px;height:64px;object-fit:cover;border-radius:12px}
+.legal-page-row{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:9px 0;flex-wrap:wrap}
+.legal-page-row>div:first-child{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.legal-add-page,.legal-danger-zone{margin-top:16px}.legal-add-page summary,.legal-danger-zone summary{cursor:pointer;font-weight:600}
+.legal-page-editor textarea[name=body]{min-height:300px;line-height:1.65;font-size:1rem;resize:vertical}
+.legal-editor-toolbar{display:flex;gap:8px;flex-wrap:wrap}.legal-editor-toolbar button{border:1px solid #cad8e7;padding:10px 14px;background:#f4f8fe;border-radius:10px;font:inherit;cursor:pointer}
+.legal-revision-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;border-bottom:1px solid #e1e8f0;padding:12px 0;gap:9px}
+.legal-revision-row>div{display:grid;gap:4px}.legal-revision-row small{color:#64748b}
+.legal-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #dce5ee}
+.legal-modal-header h2{font-size:1.2rem;margin:0}.legal-preview-content{padding:16px;overflow:auto;max-height:65vh}.legal-modal-footer{justify-content:flex-end;padding:8px 16px 16px;margin:0}
+.legal-app-public{margin:24px auto 36px;max-width:850px;background:#fff;border:1px solid #e2eaf3;border-radius:20px;padding:clamp(18px,4vw,42px);overflow-wrap:anywhere}
+.legal-app-breadcrumb{display:flex;gap:9px;flex-wrap:wrap;font-size:.92rem;color:#5c7185;margin-bottom:24px}
+.legal-app-heading{display:flex;gap:22px;align-items:center;margin-bottom:26px}.legal-app-heading h1{font-size:clamp(1.65rem,4vw,2.5rem);margin:5px 0 10px;line-height:1.22}
+.legal-app-overline{font-weight:600;color:#2563b1;font-size:.85rem}.legal-app-summary{font-size:1.06rem;color:#53677e}
+.legal-app-logo{width:90px;height:90px;object-fit:contain;border-radius:16px}
+.legal-app-prose{font-size:1.02rem;line-height:1.78;color:#253649;overflow-wrap:anywhere}
+.legal-app-prose h2,.legal-app-prose h3,.legal-app-prose h4{line-height:1.35;color:#163153;margin:22px 0 10px}
+.legal-app-prose p{margin:10px 0 16px}.legal-app-prose li{margin:6px 0}.legal-app-prose a{overflow-wrap:anywhere;text-decoration:underline}
+.legal-app-meta{border-top:1px solid #dee8f0;margin-top:28px;padding-top:16px;font-size:.9rem;color:#52657b}
+.legal-app-meta p{margin:6px 0}.legal-app-links{border-top:1px solid #dee8f0;margin-top:20px;padding-top:20px;display:flex;flex-wrap:wrap;gap:10px}
+.legal-app-links a{padding:9px 13px;border-radius:10px;border:1px solid #cfdceb;text-decoration:none}
+.legal-app-links [aria-current=page]{color:#fff;background:#175db7;border-color:#175db7}
+@media(max-width:650px){.legal-fields-two{grid-template-columns:1fr}.legal-app-card-top{flex-wrap:wrap}.legal-app-heading{align-items:flex-start}.legal-app-logo{width:64px;height:64px}.legal-page-actions{width:100%}.legal-page-actions .btn{flex:1;text-align:center}.legal-action-row form{max-width:100%}.legal-admin .btn{min-height:44px}}

@@ -43,7 +43,7 @@ try{
     $raw=(string)file_get_contents($path);
     $parsed=parse_backup($raw,$name);
     if(str_ends_with($name,'.gz'))$raw=(string)gzdecode($raw);
-    t143($parsed['version']===11 && $parsed['tables']['users'][1]['role']==='author','backup v11 preserva linhas e ordem');
+    t143($parsed['version']===12 && $parsed['tables']['users'][1]['role']==='author','backup v12 preserva linhas e ordem');
     t143($parsed['tables']['articles'][0]['title']==='São Paulo 😀','UTF-8 preservado na exportação');
     t143($raw===json_encode($parsed,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE),'JSON transmitido equivalente ao formato anterior');
     t143($sample->committed && !$sample->rolledBack,'commit após leitura completa');

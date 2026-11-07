@@ -30,6 +30,7 @@ ORDER = (
     '14-seo.css',
     '15-archive.css',
     '16-security.css',
+    '17-legal-apps.css',
 )
 OUTPUT = CSS / 'style.css'
 

@@ -1,3 +1,17 @@
+## [1.0.96] — 2026-11-07
+
+### Aplicativos e Páginas Legais
+
+- Adicionado módulo administrativo integrado para múltiplos aplicativos, dados editáveis, logotipo opcional e slugs únicos, com a conta administrativa e CSRF existentes.
+- Rotas públicas `/app`, `/app/privacidade`, `/app/termos` e páginas personalizadas; HTML server-side, SEO, links internos e URLs canônicas.
+- Separados rascunhos das revisões efetivamente publicadas; histórico, restauração para rascunho e confirmação de despublicação/exclusão.
+- Publicação inicial do Uai Cortes bloqueada até substituir os modelos `PREENCHER`; nenhuma alegação sobre coleta de dados foi inventada.
+- Migration aditiva para schema **37**, quatro tabelas novas e backup lógico **v12** com suporte de leitura para backups v1–v11.
+- Regressão offline do módulo e teste MariaDB isolado adicionado ao workflow; implantação real/integração MySQL pendente.
+- **Instalação assistida obrigatória:** o atualizador do schema 36 não instala normalmente um pacote com schema 37.
+
+---
+
 ## [1.0.95] — 2026-11-07
 
 - Corrigida a quebra do PHP 8.3 na suíte GitHub Actions: `igua_news_relative_date()` deixa de construir `DateTimeImmutable` de uma data inválida, evitando `DateMalformedStringException` e o erro fatal secundário de `xdebug_message`.

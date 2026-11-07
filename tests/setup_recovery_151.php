@@ -13,7 +13,7 @@ class Fake151Statement extends PDOStatement {
 class Fake151Database extends PDO {
     public array $tables=[];
     public array $counts=[];
-    public int $revision=36;
+    public int $revision=37;
     public string $adminEmail='admin@example.test';
     public string $adminHash='';
     public int $brandSettings=2;
@@ -34,7 +34,7 @@ class Fake151Database extends PDO {
     }
 }
 $expected=igua_setup_known_tables();
-verify151(count($expected)===25 && count(array_unique($expected))===25,'lista fechada das 25 tabelas');
+verify151(count($expected)===29 && count(array_unique($expected))===29,'lista fechada das 29 tabelas');
 // Regressão: nomes da lista correspondem às tabelas criadas pelo esquema e módulos.
 $contents='';foreach(glob(__DIR__.'/../app/**/*.php')?:[] as $f)$contents.=file_get_contents($f);foreach(glob(__DIR__.'/../app/*.php')?:[] as $f)$contents.=file_get_contents($f);
 preg_match_all('/CREATE TABLE IF NOT EXISTS\s+`?([a-z_]+)`?/i',$contents,$matches);
@@ -43,14 +43,14 @@ verify151($found===$sorted,'inventário sincronizado às definições SQL reais'
 $db=new Fake151Database();$a=igua_setup_database_inventory($db);
 verify151($a['status']==='empty' && igua_database_empty($db)[0],'banco sem tabelas aceito');
 $db->tables=$expected;$a=igua_setup_database_inventory($db);
-verify151($a['status']==='partial_empty' && igua_database_empty($db)[0],'25 tabelas vazias podem ser retomadas sem duplicação');
+verify151($a['status']==='partial_empty' && igua_database_empty($db)[0],'29 tabelas vazias podem ser retomadas sem duplicação');
 $db->counts=['users'=>1,'settings'=>11];$a=igua_setup_database_inventory($db);
 verify151($a['status']==='recoverable' && !igua_database_empty($db)[0],'instalação com dados não é tratada como vazia');
-verify151(igua_setup_recovery_allowed($db),'instalação completa revisão 36 recuperável');
+verify151(igua_setup_recovery_allowed($db),'instalação completa revisão 37 recuperável');
 verify151(igua_setup_verify_recovery_admin($db,'admin@example.test','minha-senha-segura'),'senha administrativa correta validada');
 verify151(!igua_setup_verify_recovery_admin($db,'admin@example.test','errada'),'senha administrativa incorreta rejeitada');
 $db->revision=35;verify151(!igua_setup_recovery_allowed($db),'revisão antiga requer migração, sem recuperação cega');
-$db->revision=36;$db->tables=['users','settings'];verify151(igua_setup_database_inventory($db)['status']==='occupied','esquema incompleto com dados bloqueado');
+$db->revision=37;$db->tables=['users','settings'];verify151(igua_setup_database_inventory($db)['status']==='occupied','esquema incompleto com dados bloqueado');
 $db->tables=['users','malware'];verify151(igua_setup_database_inventory($db)['status']==='foreign','tabelas de terceiros bloqueadas');
 $db->tables=$expected;$db->counts=['settings'=>4];verify151(igua_setup_database_inventory($db)['status']==='occupied','configuração sem administrador não é recuperada');
 $folder=sys_get_temp_dir().'/meusite-151-'.bin2hex(random_bytes(6));mkdir($folder,0700);

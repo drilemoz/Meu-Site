@@ -33,7 +33,7 @@ function igua_content_clear(PDO $db, string $scope): int {
         throw $e;
     }
 }
-/** Reset restrito à instalação completa e ao inventário fechado de 25 tabelas.
+/** Reset restrito à instalação completa e ao inventário fechado de 29 tabelas.
  *  DDL MariaDB não tem rollback: chamar SOMENTE depois de backup e de confirmação forte.
  *  Não remove arquivos ou backups; após remover config.php, /setup.php pode ser reaberto.
  */
@@ -42,7 +42,7 @@ function igua_content_reset_schema(PDO $db, string $storage, bool $requireConfig
     $tableNames=array_map('strval',$db->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN));
     $known=igua_setup_known_tables();
     if (count(array_diff($tableNames,$known))>0 || count(array_diff($known,$tableNames))>0) {
-        throw new DomainException('Estrutura diferente das 25 tabelas conhecidas. O banco não foi modificado.');
+        throw new DomainException('Estrutura diferente das 29 tabelas conhecidas. O banco não foi modificado.');
     }
     if (getenv('IGUANEWS_DB_NAME') !== false) {
         throw new DomainException('Reinstalação automática indisponível com credenciais fornecidas por variáveis de ambiente.');

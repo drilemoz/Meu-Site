@@ -1,4 +1,5 @@
-<?php if ($route==='onibus'): require __DIR__.'/routes/bus.php'; ?>
+<?php if ($route==='app' && $legalPage): require __DIR__.'/routes/legal_app.php'; ?>
+<?php elseif ($route==='onibus'): require __DIR__.'/routes/bus.php'; ?>
 <?php elseif ($route==='anuncie' || $route==='contato'): require __DIR__.'/routes/contact.php'; ?>
 <?php elseif ($route==='sobre'): require __DIR__.'/routes/about.php'; ?>
 <?php elseif ($route==='privacidade'): require __DIR__.'/routes/privacy.php'; ?>

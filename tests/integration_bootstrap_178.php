@@ -8,6 +8,6 @@ if(strpos($source,$require)===false)throw new RuntimeException('O teste eleitora
 if(strpos($schema,'function igua_schema_revision(PDO $db): int')===false)
     throw new RuntimeException('Leitura de revisão ausente no módulo de migrações.');
 require_once __DIR__.'/../app/schema_migrations.php';
-if(!function_exists('igua_schema_revision') || IGUA_SCHEMA_REVISION!==36)
+if(!function_exists('igua_schema_revision') || IGUA_SCHEMA_REVISION!==37)
     throw new RuntimeException('Dependências de revisão do banco indisponíveis.');
 echo "OK: dependência eleitoral de revisão de esquema carregada.\n";

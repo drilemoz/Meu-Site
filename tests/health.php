@@ -12,12 +12,12 @@ $dir=IGUA_STORAGE.'/backups';if(!is_dir($dir))mkdir($dir,0700,true);
 $name='manual-'.date('Ymd-His').'-'.bin2hex(random_bytes(3)).'.json';
 $tables=array_fill_keys(BACKUP_TABLES,[]);
 $tables['users']=[['id'=>1,'name'=>'Editor de exemplo','role'=>'admin','active'=>1,'password_hash'=>'hash-demo']];
-$raw=json_encode(['format'=>'iguanews-backup','version'=>11,'tables'=>$tables],JSON_THROW_ON_ERROR);
+$raw=json_encode(['format'=>'iguanews-backup','version'=>12,'tables'=>$tables],JSON_THROW_ON_ERROR);
 $path=$dir.'/'.$name;
 try {
     file_put_contents($path,$raw);
     $info=igua_health_verify_backup($name);
-    health_assert($info['version']===11 && $info['rows']===1 && $info['tables']===count(BACKUP_TABLES),'backup válido lido sem restaurar');
+    health_assert($info['version']===12 && $info['rows']===1 && $info['tables']===count(BACKUP_TABLES),'backup válido lido sem restaurar');
     health_assert($info['sha256']===hash('sha256',$raw),'SHA-256 do backup corresponde');
     file_put_contents($path,'{"invalido":true}');
     try {igua_health_verify_backup($name);throw new LogicException('Aceitou backup adulterado');}

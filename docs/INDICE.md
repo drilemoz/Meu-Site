@@ -1,8 +1,9 @@
-# Documentação atual do Meu Site (1.0.95)
+# Documentação atual do Meu Site (1.0.96)
 
 Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `RELATORIO_ARQUIVOS_LINHAS_*` e instruções de atualizadores antigos foram retirados do ZIP; seu histórico permanece nas versões anteriores do repositório, se disponíveis.
 
 - [Instalação e publicação](DEPLOY.md), [migração](MIGRACAO.md) e [Termux](INSTALACAO_TERMUX.md)
+- [Aplicativos e Páginas Legais](APLICATIVOS_LEGAIS.md) — rotas públicas, rascunhos, revisões, OAuth e instalação assistida
 - [Backup: banco ou banco + mídias](BACKUP.md)
 - [Atualização do código e recuperação](ATUALIZADOR.md)
 - [Integrações Google e verificações locais](INTEGRACOES.md)

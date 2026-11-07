@@ -30,7 +30,7 @@ if (($me['role']??'')!=='admin'): ?>
 </section>
 <section class="panel maintenance-compact maintenance-danger-zone">
   <div class="maintenance-heading"><h2>Reinstalar o portal</h2><details class="maintenance-help"><summary aria-label="Ajuda sobre reinstalação" title="Ajuda">?</summary><p>Somente para testes Alpha. Reutiliza o banco atual, não cria outro MySQL. Os arquivos de mídia não são reinseridos automaticamente. Requer backup lógico.</p></details></div>
-  <p class="maintenance-warning"><strong>Atenção:</strong> esta operação remove as 25 tabelas do portal. A exclusão de tabelas não pode ser desfeita por transação MariaDB.</p>
+  <p class="maintenance-warning"><strong>Atenção:</strong> esta operação remove as 29 tabelas do portal. A exclusão de tabelas não pode ser desfeita por transação MariaDB.</p>
   <details class="setup-route"><summary><strong>Opções avançadas de reinstalação</strong></summary><div class="route-detail">
     <form method="post" action="/admin.php?action=maintenance_reset"><?= csrf_field() ?>
       <label>Digite REINSTALAR<input name="confirmation" required autocomplete="off" placeholder="REINSTALAR"></label>

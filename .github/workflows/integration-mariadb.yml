@@ -79,6 +79,7 @@ jobs:
           php tests/integration/remember_mariadb_140.php
           php tests/integration/elections_mariadb_141.php
           php tests/integration/news_indexes_mariadb_146.php
+          php tests/integration/legal_apps_mariadb_196.php
 
   publicar_release:
     name: Publicar Release apos todos os testes
