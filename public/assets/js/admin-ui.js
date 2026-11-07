@@ -87,7 +87,7 @@
   // Captura antes de ações de outros scripts para nunca enviar um POST sem confirmação.
   document.addEventListener('click', async e => {
     const btn = e.target.closest('[data-confirm]');
-    if (!btn || !document.body.classList.contains('admin-body') || approved.has(btn)) return;
+    if (!btn || btn.tagName === 'FORM' || !document.body.classList.contains('admin-body') || approved.has(btn)) return;
     if (btn.disabled) return;
     e.preventDefault(); e.stopImmediatePropagation();
     const question = btn.getAttribute('data-confirm') || 'Confirmar esta ação?';
@@ -95,5 +95,18 @@
     if (!(await ask(question, danger))) return;
     approved.add(btn);
     try { btn.click(); } finally { approved.delete(btn); }
+  }, true);
+  // Atributo data-confirm em <form>: aguardar submit válido, nunca clicar no FORM.
+  document.addEventListener('submit', async e => {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-confirm') ||
+        !document.body.classList.contains('admin-body') || approved.has(form)) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const submitter = e.submitter;
+    const question = form.getAttribute('data-confirm') || 'Confirmar esta ação?';
+    const danger = /excluir|apagar|remover|desativar|limpar|substituir|restaurar/i.test(question);
+    if (!(await ask(question,danger))) return;
+    approved.add(form);
+    try { form.requestSubmit(submitter || undefined); } finally { approved.delete(form); }
   }, true);
 })();

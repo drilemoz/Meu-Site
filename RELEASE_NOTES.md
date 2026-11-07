@@ -1,3 +1,16 @@
+## Meu Site v1.0.106 — Teixeira e Bing Webmaster
+
+- **Ônibus:** correção do pop-up que confirmava a tabela sem executar o POST. A seleção continua voluntária, autenticada e protegida por CSRF. Depois de instalar, é necessário confirmar novamente o cadastro dos 10 trajetos. Horários existentes não são substituídos.
+- **Bing:** nova consulta manual de verificação da propriedade e de sitemaps em Configurações → Sitemap e Indexação. A chave API fica em storage privado, sem exposição no navegador; configuração e remoção exigem senha administrativa. Não envia URLs nem garante indexação.
+- **Validação:** regressões offline e teste MariaDB no CI; API externa e hospedagem ainda não testadas. Schema 37 mantido, sem migração de banco.
+
+## 1.0.105 — IndexNow
+
+- A Central de Sitemap agora oferece configuração IndexNow e envio manual com validação das URLs.
+- Chave de verificação em arquivo TXT público; dados de configuração no storage privado.
+- Não envia URLs ao Google; participação é de Bing e outros mecanismos IndexNow.
+- Sem nova migração de banco (schema 37).
+
 # Meu Site v1.0.104 — Ônibus Teixeira e teste Gemini
 
 - Ônibus: inclusão **manual, mediante confirmação no painel**, dos 10 trajetos da tabela fotografada da Teixeira em setembro/2026, com 31 grupos de saídas. Já cadastrados são preservados e não duplicados. Rodoviárias como origem/destino; chegada e tarifa não informadas. Feriados em dias úteis não são remapeados automaticamente.

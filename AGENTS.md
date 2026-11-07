@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.104)
+# Diretrizes de manutenção — Meu Site (v1.0.106)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -135,9 +135,19 @@ Ao enviar nova versão de **Meu Site** para `Projetos/Meu Site`, confirmar os **
 - Ícones ✦ no wizard não exibem rótulo visual; manter `aria-label`/`title` e área de toque ≥44px. `news_gemini_suggest` exige `write`, limites e cooldown, apenas solicita texto sob clique explícito; exibir para revisão, nunca aplicar sem aprovação e nunca publicar automaticamente.
 - Sem schema novo (37/backup v12). Testes offline não comprovam conectividade da API ou conta do proprietário; executar teste em hospedagem com chave real após instalar.
 
-## Viação Teixeira e diagnóstico Gemini (v1.0.104)
+## Viação Teixeira e diagnóstico Gemini (v1.0.105)
 
 - As 10 linhas e 31 grupos de partidas fotografados em 14/09/2026 ficam disponíveis para **importação explícita** em Ônibus, após confirmação do administrador. Não inserir registros ao instalar código ou ao carregar o painel; preservar linhas existentes e evitar duplicação pelo `source_key` e identificação manual. Sem chegada/tarifa inventadas.
 - A escala semanal não diferencia feriados que caiam em dias úteis: informar essa limitação sem alegar substituição automática pela escala de sábado/domingo.
 - Gemini é serviço Google funcional, não serviço de Catálogo. O teste manual abre diálogo pequeno e entrega diagnóstico JSON sanitizado em POST CSRF, sem chave nem resposta bruta. 503 indica provável sobrecarga externa, sem implicar erro de credencial; respeitar cooldown e limitar tentativas.
 - Schema 37/backup v12 mantidos. Reexecutar testes `tests/bus_teixeira_204.php`, `tests/gemini_204.php` e `tests/gemini_204.js` junto à regressão total.
+
+
+## Integração IndexNow — v1.0.105
+
+Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de domínio com arquivo público e enviar manualmente até dez URLs de notícias ou páginas legais que já constem do sitemap. A configuração é registrada fora da pasta pública, a API é chamada apenas por clique, com CSRF, ACL e intervalo entre envios. O Google não participa do IndexNow. A chamada HTTP 200/202 indica recebimento, não indexação. A hospedagem deve permitir criar o arquivo TXT na raiz pública. Nenhuma notificação é disparada ao publicar sem ação administrativa.
+
+## Atualização 1.0.106
+
+- Confirmar importação de ônibus Teixeira pelo botão de submit (não no form). Qualquer `data-confirm` em form deve prosseguir via `requestSubmit`, nunca `form.click`. O CI executa teste MariaDB isolado com dados temporários, sem modificar produção.
+- Bing Webmaster é consulta sob demanda de propriedade/sitemaps com chave privada em `storage/integrations/bing-webmaster.json`, senha e CSRF para configurar/remover. Não duplicar envios IndexNow nem confundir sitemap conhecido com URLs indexadas.

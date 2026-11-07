@@ -32,3 +32,13 @@ A central exige login e permissão de configurações. Não grava no banco. Não
 ## Testes
 
 `php tests/sitemap_200.php`, `node tests/sitemap_200.js`, `python3 tools/build_css.py --check`, `python3 tools/audit_project.py`. A integração MariaDB e o HTTP na hospedagem permanecem verificações adicionais.
+
+## Bing Webmaster Tools — v1.0.106
+
+A integração de **leitura** está em **Configurações → Sitemap e Indexação → Bing Webmaster Tools**. Para obter a chave, adicione e verifique `https://iguatama.online` no [Bing Webmaster Tools](https://www.bing.com/webmasters), abra Configurações → API Access → API Key e gere uma chave do proprietário. Nunca compartilhe essa chave nem a inclua no GitHub.
+
+Em **Salvar chave**, informe a chave e a senha administrativa. Ela será armazenada exclusivamente em `storage/integrations/bing-webmaster.json`, fora do público e dos backups. Clique em **Testar e consultar sitemaps** para consultar os métodos JSON documentados `GetUserSites` e `GetFeeds`; é uma chamada real, sob demanda. Falhas HTTP apresentam diagnóstico sem o corpo bruto e sem credenciais. A API do Bing pode alterar disponibilidade e formatos. A consulta só pode mostrar a propriedade HTTPS oficial definida em SEO.
+
+O resultado retorna status da propriedade e até 30 feeds/sitemaps conhecidos. **Não prova que todas as URLs foram indexadas.** Para notificar novos links, utilize a integração **IndexNow** acima, evitando requisições duplicadas. É possível remover a chave com senha, sem alterar IndexNow. Não há migração de banco (schema 37).
+
+Referências: https://learn.microsoft.com/en-us/bingwebmaster/getting-access e https://learn.microsoft.com/en-us/dotnet/api/microsoft.bing.webmaster.api.interfaces.iwebmasterapi.getfeeds?view=bing-webmaster-dotnet

@@ -1,3 +1,15 @@
+### v1.0.106 — Teixeira e Bing Webmaster Tools
+
+- Corrigido bug do diálogo de confirmação da tabela Teixeira: `data-confirm` agora fica no botão de submit e formulários com confirmação são processados em evento submit com validação. Após confirmar, os registros são efetivamente enviados ao PHP.
+- Incluída consulta privada Bing Webmaster Tools na Central de Sitemap: chave armazenada fora da raiz pública, teste sob demanda de propriedades verificadas e sitemaps, diagnóstico HTTP, limites de consulta, ação de remoção. IndexNow permanece responsável pelo envio de URLs.
+- Testes PHP, JS e caso MariaDB isolado para importação/idempotência. Nenhuma migração, schema 37 e backup v12 intactos.
+
+### v1.0.105 — IndexNow manual e seguro
+
+- Primeira integração IndexNow na Central de Sitemap, com chave pública de verificação gerada no servidor.
+- Envio manual de até 10 URLs publicadas e validadas pelo sitemap, diagnóstico HTTP e limites de taxa.
+- Integração visível no Catálogo e link direto ao painel, sem nova tabela e sem envio automático.
+
 # 1.0.104 (2026-11-07)
 
 - Importador administrativo da fotografia da Viação Teixeira: 10 trajetos e 31 horários agrupados, sem duração/tarifa inventadas, com rodoviárias, proteção contra duplicações e confirmação explícita. Aviso de limitação em feriados. Nenhuma alteração automática dos dados durante o deploy.

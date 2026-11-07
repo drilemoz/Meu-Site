@@ -25,6 +25,8 @@ function igua_admin_post_module(string $action): ?string {
         'integrations_search_console_test'=>'integrations',
         'integrations_search_console_inspect'=>'integrations',
         'integrations_pagespeed_test'=>'integrations',
+        'indexnow_setup'=>'indexnow', 'indexnow_submit'=>'indexnow',
+        'bing_save'=>'bing', 'bing_test'=>'bing', 'bing_remove'=>'bing',
         'integrations_ga4_credentials'=>'integrations',
         'integrations_ga4_remove'=>'integrations',
         'integrations_ga4_test'=>'integrations',

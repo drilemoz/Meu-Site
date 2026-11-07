@@ -129,3 +129,14 @@ Os testes offline verificam formato, armazenamento, rotas e erros sem usar crede
 O serviço Gemini agora aparece com GA4/AdSense/Search Console na aba **Google**, enquanto o Catálogo contém somente integrações planejadas. **Salvar configuração** e **Testar API** ficam na mesma linha; a remoção exige senha em bloco separado. O botão de teste abre diálogo centralizado e faz POST autenticado/CSRF com resposta JSON, sem trocar de página.
 
 Falha HTTP **503** indica normalmente capacidade temporariamente indisponível no serviço Google. Não equivale a chave inválida. O teste tem no máximo uma nova tentativa curta para erros temporários, cooldown de 30 s entre testes manuais e instruções para conferir modelos/cotas. Erros 401/403/404/429 mantêm diagnósticos distintos e sanitizados. A chave e o corpo bruto da API nunca entram no resultado.
+
+
+## IndexNow — 1.0.105
+
+Acesse **Configurações → Sitemap e Indexação → IndexNow**. Configure o serviço sob demanda; o portal gera arquivo TXT público de verificação e guarda a configuração em `storage/integrations/indexnow.json`, não incluído nos ZIPs. Confirme que o arquivo público responde normalmente e então clique **Notificar até 10 URLs**. As URLs são selecionadas do catálogo de sitemap do banco, nunca de uma entrada arbitrária. Exige indexação ativa, HTTPS oficial, administrador autorizado e CSRF, com limite de uma tentativa a cada 60 segundos por sessão.
+
+Só Bing e outros buscadores participantes são avisados. Google não recebe mensagens IndexNow. Respostas 200 e 202 são recebimento, não garantia de rastreamento. Falhas 403/422 sugerem problemas na validação da chave/domínio; 429 representa limite. É necessário testar no Plesk a permissão de escrita no diretório público, TLS e a resposta real do serviço. Não há envios automáticos, alteração de schema ou rotinas ocultas de rede.
+
+## Bing Webmaster — v1.0.106
+
+A integração Bing de leitura está na Central de Sitemap e Indexação, com armazenamento privado da chave, teste de propriedade HTTPS e consulta de feeds/sitemaps por ação manual do administrador. Ela complementa IndexNow: não realiza outra notificação de URLs. A API JSON pode mudar e a disponibilidade deve ser validada na hospedagem com credencial real.

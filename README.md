@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.104** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.106** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,12 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.106 — Importação Teixeira corrigida e Bing Webmaster
+
+- A confirmação da tabela Teixeira agora submete de fato o formulário com CSRF e aceite, em vez de tentar clicar em `<form>`. Compatibilidade também corrigida para confirmações em outros formulários. Após a instalação, clicar novamente em **Cadastrar tabela Teixeira** para gravar as linhas; não há importação automática no deploy.
+- Bing Webmaster Tools integrado à **Central de Sitemap e Indexação**, com chave de API armazenada em `storage/integrations/`, administrada apenas com senha; botão para consultar a propriedade HTTPS verificada e os sitemaps conhecidos pelo Bing. Resultados resumidos só na sessão. Reutiliza IndexNow para envio de URLs, sem duplicar notificações.
+- Teste PHP offline para chave, domínio, erros e respostas; teste de navegador Chromium para confirmação Teixeira e novo teste MariaDB incluído no CI. Schema 37/backup v12 preservados. O teste real da API Bing depende de chave e hospedagem.
 
 ## Versão 1.0.104 — Ônibus Teixeira e teste Gemini
 
@@ -124,3 +130,8 @@ python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.103-fonte-comp
 ```
 
 Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).
+
+
+## Integração IndexNow — v1.0.105
+
+Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de domínio com arquivo público e enviar manualmente até dez URLs de notícias ou páginas legais que já constem do sitemap. A configuração é registrada fora da pasta pública, a API é chamada apenas por clique, com CSRF, ACL e intervalo entre envios. O Google não participa do IndexNow. A chamada HTTP 200/202 indica recebimento, não indexação. A hospedagem deve permitir criar o arquivo TXT na raiz pública. Nenhuma notificação é disparada ao publicar sem ação administrativa.

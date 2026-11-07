@@ -112,3 +112,17 @@
 .seo-portal-checklist li{border:1px solid #dce7f0;background:#f8fbfd;border-radius:10px;padding:9px 11px;line-height:1.45;font-size:.84rem}
 .seo-portal-checklist li.is-ok{color:#165d46}.seo-portal-checklist li.is-warning{color:#84550f}
 @media(max-width:560px){.seo-portal-heading,.seo-portal-image-row{align-items:stretch;flex-direction:column}.seo-portal-heading .btn,.seo-portal-image-row .btn{width:100%;justify-content:center}.seo-portal-commands{grid-template-columns:repeat(3,minmax(0,1fr))}.seo-portal-commands .btn{font-size:.73rem;padding:8px 4px}.seo-portal-dialog-footer .btn{flex:1 1 0;min-width:0}.seo-portal-google{padding:12px}}
+
+/* 1.0.106 — Bing Webmaster Tools, consulta apenas sob comando */
+.sitemap-bing-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:14px 0}
+.sitemap-bing-config,.sitemap-bing-remove{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.sitemap-bing-actions label{display:grid;gap:5px;min-width:180px;font-size:.83rem}
+.sitemap-bing-actions input[type=password]{max-width:100%;min-height:44px}
+.sitemap-bing-result{border:1px solid #cfdeeb;border-radius:14px;background:#f4f9fc;padding:14px;margin:12px 0;min-width:0}
+.sitemap-bing-feeds{display:grid;gap:8px;margin-top:10px}
+.sitemap-bing-feeds>div{border:1px solid #d9e4ec;border-radius:9px;padding:10px;overflow-wrap:anywhere}
+.sitemap-bing-feeds small{display:block;color:#637588}
+.sitemap-bing-feeds strong{display:block;font-size:.85rem}
+.sitemap-bing-remove{margin-top:10px}
+.sitemap-bing-remove label:has(input[type=checkbox]){display:flex;align-items:center;gap:8px}
+@media(max-width:580px){.sitemap-bing-actions,.sitemap-bing-config,.sitemap-bing-remove{display:grid;width:100%}.sitemap-bing-actions label{min-width:0}.sitemap-bing-actions .btn{width:100%}}
