@@ -11,7 +11,7 @@ verify175(str_contains($view,'data-updater-open="updater-upload-dialog"')&&str_c
 verify175(str_contains($view,'id="updater-upload-dialog"')&&str_contains($view,'aria-modal="true"'),'modal independente central');
 verify175(str_contains($view,'data-updater-confirm-flow="manual"')&&str_contains($view,'data-updater-confirm-step hidden'),'confirmação isolada da etapa inicial');
 verify175(str_contains($view,'data-updater-ack required disabled')&&str_contains($view,'name="confirm_password"')&&str_contains($view,'csrf_field()'),'senha, confirmação real e CSRF preservados');
-verify175(substr_count($view,'data-updater-progress-form')===3,'progressos manual, remoto e simulação preservados');
+verify175(substr_count($view,'data-updater-progress-form')===2 && str_contains($view,'id="updater-github-form"'),'progresso manual e simulação preservados; GitHub usa acompanhamento separado');
 verify175(!str_contains($view,'Instalar ZIP de atualização manualmente'),'bloco antigo de rolagem removido');
 verify175(str_contains($js,'progress.loaded / progress.total')&&str_contains($js,"'Processando…'")&&str_contains($js,"bar.removeAttribute('value')"),'sem porcentagem fictícia para processamento PHP');
 verify175(str_contains($js,'if (!manual) window.location.href = form.action'),'modal não redireciona automaticamente durante retorno');

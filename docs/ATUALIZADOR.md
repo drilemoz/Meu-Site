@@ -1,4 +1,4 @@
-# Atualizações e recuperação — versão 1.0.80
+# Atualizações e recuperação — versão 1.0.92
 
 ## Pacotes
 
@@ -8,11 +8,20 @@
 
 ## Instalação pelo painel
 
-1. Em **Configurações → Atualizações**, verificar a versão e criar backup externo do banco **e das mídias**.
-2. Usar **Enviar atualização** (em celular: **Enviar ZIP**) ao lado de Releases.
-3. Selecionar o ZIP, informar a senha, revisar, confirmar origem e iniciar upload.
-4. A porcentagem mostrada até 100% mede **somente o envio do navegador**. Durante validação/backup/instalação no servidor, o indicador é indeterminado.
-5. Conferir o resultado do PHP e o histórico. Se houver timeout, verificar a versão/histórico antes de reenviar, porque o servidor pode ter concluído o trabalho.
+1. Em **Configurações → Atualizações**, confira a versão e mantenha backup externo do banco e das mídias.
+2. Clique em **Visualizar** para conectar ao GitHub e consultar a última release e as notas de mudanças, sem sair da página.
+3. Se houver atualização com ZIP, confirme a origem e informe a senha administrativa no modal para iniciar a instalação. Configuração da origem e vistoria ficam em **Configurações e diagnóstico**, sem cartões na tela principal.
+4. O progresso remoto apresenta **apenas as etapas escritas pelo PHP** (download, manifesto, preflight, backup, arquivos). Não há porcentagem real para a execução do servidor, portanto a barra permanece indeterminada até confirmação da conclusão. Durante manutenção a consulta de status pode ficar indisponível temporariamente.
+5. Após a resposta de sucesso do PHP, a janela exibe **Atualização concluída** e o botão **Atualizar página**.
+6. Como alternativa, clique em **Enviar ZIP** para o modal de envio manual, com revisão/consentimento e progresso **somente dos bytes enviados** pelo navegador.
+7. Se houver timeout, erro de rede ou resposta inconclusiva, confira a versão instalada e o histórico **antes** de reenviar. O servidor pode ter concluído a instalação mesmo sem resposta no navegador.
+
+### Consulta de progresso
+
+- A verificação de nova release e a leitura do estágio usam GET autenticado sob a capacidade `manage_settings`.
+- A leitura do estágio exige token hexadecimal aleatório de 128 bits, associado ao ID administrativo; o servidor grava apenas o nome da etapa e uma mensagem estática em `storage/updater/` (privado).
+- Durante o POST de atualização remota, o PHP libera o bloqueio da sessão somente após autorizar senha/CSRF, e o retoma antes de registrar a mensagem de sucesso/erro.
+- Download de release e backup podem levar tempo; falha de consulta de status não significa falha de instalação. A tela evita mostrar porcentagens não fundamentadas.
 
 ## Segurança e limitações
 

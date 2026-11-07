@@ -1,3 +1,13 @@
+# Meu Site v1.0.92 — Atualizações pelo GitHub em janela única
+
+- Tela principal mais enxuta: **Visualizar** e **Enviar ZIP**, sem link Releases nem cartões de origem/servidor.
+- **Visualizar** consulta versões e novidades sob demanda; se houver release instalável, apresenta confirmação e senha na própria janela.
+- Durante a instalação, mostra as etapas confirmadas pelo PHP (download, validação, vistoria, backup e aplicação), sem percentual artificial. Ao confirmar o sucesso: **Atualização concluída** e botão **Atualizar página**.
+- Configuração do repositório, vistoria, importação manual, segurança, backups e recuperação mantidos.
+- Código e testes locais atualizados. Schema 36 preservado. **Hospedagem real não testada nesta entrega**.
+
+---
+
 # Meu Site 1.0.91 — Wizard editorial compacto
 
 O cadastro de notícia foi refinado para uso em telas móveis: etapas recolhíveis, editor com uma linha de ferramentas, área de fotos em duas grades de três botões, sem guia no topo e com opções avançadas reduzidas.

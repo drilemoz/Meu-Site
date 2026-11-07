@@ -7,7 +7,7 @@ ui167(version_compare(trim($read('VERSION')),'1.0.67','>='),'versão sequencial 
 $view=$read('app/admin_views/routes/updates.php');
 $controller=$read('app/admin_controllers/updater.php');
 $js=$read('public/assets/js/updater-progress.js');
-ui167(substr_count($view,'data-updater-progress-form')===3,'upload, simulação e instalação remota com progresso');
+ui167(substr_count($view,'data-updater-progress-form')===2 && str_contains($view,'id="updater-github-form"'),'upload e simulação preservados; instalação GitHub monitorada em modal específico');
 ui167(str_contains($view,'updater-progress.js?v=') && str_contains($view,"igua_updater_version()"),'script de progresso versionado');
 ui167(str_contains($js,'xhr.upload.addEventListener(\'progress\'') && str_contains($js,'progress.loaded / progress.total'),'percentual calculado pelo progresso real do upload');
 ui167(str_contains($js,'progress.lengthComputable')===false ? str_contains($js,'progress.lengthComputable'):str_contains($js,'progress.lengthComputable'),'sinalização de progresso não mensurável');

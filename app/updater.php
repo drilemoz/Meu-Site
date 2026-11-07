@@ -40,6 +40,25 @@ function igua_updater_read_json(string $path): ?array {
     $data=json_decode((string)@file_get_contents($path),true);
     return is_array($data)?$data:null;
 }
+/** Consulta de progresso da atualização, vinculada ao usuário autenticado e token aleatório. */
+function igua_updater_progress_file(int $userId,string $token): ?string {
+    if($userId<1||!preg_match('/^[a-f0-9]{32}$/D',$token))return null;
+    return igua_updater_folder().'/progress-'.hash('sha256',$userId.':'.$token).'.json';
+}
+function igua_updater_progress_write(int $userId,string $token,string $stage,string $message): void {
+    if(!in_array($stage,['connecting','download','validating','preflight','backup','applying','complete','failed'],true))return;
+    try{
+        $path=igua_updater_progress_file($userId,$token);
+        if($path!==null)igua_updater_write_json($path,['stage'=>$stage,'message'=>substr($message,0,150),'at'=>time()]);
+    }catch(Throwable $ignored){ /* Falha no indicador nunca deve comprometer a instalação. */ }
+}
+function igua_updater_progress_read(int $userId,string $token): ?array {
+    $path=igua_updater_progress_file($userId,$token);
+    if($path===null)return null;
+    $data=igua_updater_read_json($path);
+    if(!$data||!is_int($data['at']??null)||$data['at']<time()-1800)return null;
+    return ['stage'=>(string)($data['stage']??''),'message'=>(string)($data['message']??''),'at'=>$data['at']];
+}
 function igua_updater_safe_path(string $path): bool {
     if(strlen($path)<3||strlen($path)>230||str_contains($path,'\\')||str_contains($path,"\0"))return false;
     if($path==='VERSION')return true;
@@ -407,16 +426,19 @@ function igua_updater_preview_zip(string $zipPath, ?PDO $db=null): array {
         return ['version'=>$m['version'],'files'=>count($m['files']),'signature_status'=>$m['signature_status'],'preflight'=>$report,'changes'=>igua_updater_file_changes($m)];
     } finally {igua_updater_delete_tree($dir);}
 }
-function igua_updater_install_zip(string $zipPath,PDO $db): array {
+function igua_updater_install_zip(string $zipPath,PDO $db,?callable $onStage=null): array {
     $lock=igua_updater_lock();$jobDir='';$journal=[];$maintenance=false;
     try{
         if(is_file(igua_updater_maintenance()))throw new RuntimeException('Instalação anterior interrompida. Faça a recuperação antes de atualizar novamente.');
         $id=bin2hex(random_bytes(12));$jobDir=IGUA_UPDATE_DIR.'/jobs/'.$id;
         if(!@mkdir($jobDir,0700,true))throw new RuntimeException('Não foi possível preparar cópia privada.');
+        $onStage && $onStage('validating','Validando manifesto, caminhos e integridade do ZIP.');
         $m=igua_updater_unzip_verified($zipPath,$jobDir.'/new');
+        $onStage && $onStage('preflight','Conferindo compatibilidade e permissões do servidor.');
         $preflight=igua_updater_preflight($db,$m);
         if(!$preflight['ok'])throw new RuntimeException('Pré-atualização bloqueada: corrija '.implode(', ',array_column(array_values(array_filter($preflight['checks'],static fn($check)=>$check['status']==='falha')),'name')).'.');
         $journal=['id'=>$id,'from'=>igua_updater_version(),'to'=>$m['version'],'status'=>'preparing','at'=>date(DATE_ATOM),'files'=>[],'db_backup'=>null,'signature_status'=>$m['signature_status']];
+        $onStage && $onStage('backup','Criando cópias do código e do banco antes de instalar.');
         $entries=igua_updater_backup_code($m,$jobDir);
         $journal['files']=$entries;
         // Banco é copiado antes de qualquer alteração do código.
@@ -428,6 +450,7 @@ function igua_updater_install_zip(string $zipPath,PDO $db): array {
         if(file_put_contents(igua_updater_maintenance(),$id,LOCK_EX)!==strlen($id)){@unlink(igua_updater_maintenance());throw new RuntimeException('Falha ao ativar modo de manutenção.');}
         @chmod(igua_updater_maintenance(),0600);$maintenance=true;
         $journal['status']='applying';igua_updater_write_json($jobDir.'/state.json',$journal);
+        $onStage && $onStage('applying','Substituindo arquivos verificados do portal.');
         foreach($entries as $entry){
             if($entry['path']==='VERSION')continue;
             $path=$entry['path'];igua_updater_replace($jobDir.'/new/'.$path,igua_updater_checked_target($path));
@@ -438,6 +461,7 @@ function igua_updater_install_zip(string $zipPath,PDO $db): array {
         @unlink(igua_updater_maintenance());$maintenance=false;
         igua_updater_delete_tree($jobDir.'/new');
         @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
+        $onStage && $onStage('complete','Atualização instalada e registrada com sucesso.');
         return ['version'=>$m['version'],'backup'=>$backup,'id'=>$id];
     } catch(Throwable $e){
         if($jobDir!=='' && ($journal['status']??'')==='applying'){

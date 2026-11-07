@@ -1,3 +1,12 @@
+## [1.0.92] — 2026-11-07
+
+- Atualizador redesenhado: removidos o link Releases, os cartões Fonte oficial e Servidor e o formulário de instalação GitHub fora do modal. Ações principais Visualizar e Enviar ZIP.
+- Visualizar abre janela central, consulta o GitHub somente após o clique e mostra versão, novidades e eventual opção de instalação sem sair do painel. Configuração da origem e vistoria preservadas nas opções avançadas.
+- Instalação remota usa CSRF, senha e confirmação existentes, com indicador de etapas confirmadas em armazenamento privado (download, validação, compatibilidade, backup, aplicação e conclusão); não inventa porcentagem de execução.
+- Consulta de progresso autenticada por administrador e token aleatório, liberando temporariamente o bloqueio da sessão durante o processamento. Modal informa sucesso somente após confirmação do PHP e oferece Atualizar página. Falhas de rede não disparam reenvio.
+- Preservado instalador ZIP manual, preflight, journal, backup e rollback; testes PHP/JavaScript adicionados. Sem alteração no schema 36.
+- Instalação real e atualização concorrente durante troca de código ainda exigem validação na hospedagem.
+
 ## [1.0.91] — 2026-11-07
 
 - Wizard reduzido: remoção de "Como preencher", barra de progresso com menu de etapas, recuperação de rascunho tratada apenas uma vez por aba para o mesmo editor, com opções Recuperar e Ignorar.

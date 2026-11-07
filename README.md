@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.91** · PHP 8.1+ · MySQL/MariaDB · schema 36.
+**Versão atual do código-fonte: 1.0.92** · PHP 8.1+ · MySQL/MariaDB · schema 36.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -17,6 +17,9 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
 
 ## Recursos recentes e limites
+
+- **Atualizações em janela única (v1.0.92):** botão **Visualizar** consulta GitHub sob demanda e apresenta novidades, senha/confirmação e progresso da instalação em pop-up central. Exibe etapas efetivamente registradas pelo PHP, sem porcentagem artificial. Só apresenta sucesso após resposta confirmada, com **Atualizar página**; erros, timeouts e estado ambíguo requerem conferência do histórico. Link Releases e cartões Fonte oficial/Servidor removidos da tela, mas ferramentas e verificações continuam nas opções avançadas. Sem migração do banco.
+
 
 - **Wizard aprimorado (v1.0.91):** topo sem ajuda longa; rascunho recuperável mostrado uma vez por aba quando tratado, com opção Ignorar; navegação compacta; barra de edição em uma linha e ferramentas extras em menu; novos artigos sem painel de cartões antigos; botões compactos de capa/biblioteca/limpeza e envio Capa/Fotos/ZIP; cadastro de nova categoria e fonte sem abandonar o editor, respeitando `manage_taxonomy`; status SEO resumido com barra, diagnóstico no diálogo centralizado, e endereço/SEO manuais recolhidos. Ampliação de anexos para formatos comuns, com verificação de MIME/assinatura e atualização de backup/restauração. **Fontes registradas por notícia:** uma fonte principal, sem vínculo múltiplo nesta versão. Schema continua 36. Integração Gemini não ativada.**
 
@@ -53,8 +56,8 @@ for f in tests/*.js; do node "$f" || exit 1; done
 python3 tools/build_css.py --check
 python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
-python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.91.zip
-python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.91-fonte-completo.zip
+python3 tools/build_update_package.py --output /tmp/Atualizacao-v1.0.92.zip
+python3 tools/build_source_package.py --output /tmp/Meu-Site-v1.0.92-fonte-completo.zip
 ```
 
 Para testes que exigem o MariaDB real, `pdo_mysql`, `ZipArchive` e para a instalação em navegador Android, utilize ambiente compatível. Confira [TESTES_CI](docs/TESTES_CI.md), [documentação atual](docs/INDICE.md) e [auditoria 1.0.77](docs/AUDITORIA_176.md).

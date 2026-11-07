@@ -2,8 +2,10 @@
 /** Atualizações — UI compacta, telas avançadas recolhidas (1.0.54). */
 declare(strict_types=1);
 require_ability('manage_settings',$me);
-$source=igua_updater_source();$release=null;$remoteError='';
-try{$release=igua_updater_remote_release(false);}catch(Throwable $exc){$remoteError='A consulta ao GitHub falhou. Verifique a conexão e os logs.';}
+$source=igua_updater_source();$remoteError='';
+$cached=igua_updater_read_json(IGUA_UPDATE_DIR.'/release-cache.json');
+$release=is_array($cached['release']??null)?$cached['release']:null;
+if(is_array($release))$release['newer']=version_compare((string)($release['version']??'0.0.0'),igua_updater_version(),'>');
 $last=igua_updater_last_job();$journal=$last['journal']??null;
 $recentUpdates=igua_updater_history(6);
 $installedIntegrity=igua_updater_installed_integrity($journal);
@@ -28,47 +30,59 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
     <div><span>Disponível</span><strong><?=h((string)($release['version']??'—'))?></strong></div>
     <div><span>Status</span><strong class="<?= $hasNewRelease?'updater-status-new':'updater-status-neutral' ?>"><?= $hasNewRelease?'Atualização disponível':($hasSource?($remoteError?'Falha na consulta':($release && ($release['version']??'')===igua_updater_version()?'Você já está na versão mais recente':'Sem nova versão publicada')):'Configure a origem') ?></strong></div>
   </div>
-  <div class="updater-actions">
-    <form method="post" action="<?=h(admin_link('updates'))?>">
-      <?=csrf_field()?><input type="hidden" name="operation" value="check">
-      <button class="btn outline" type="submit" aria-label="Verificar novas versões">↻ Verificar</button>
-    </form>
-    <?php if($hasSource): ?><a class="updater-subtle-link" href="<?=h('https://github.com/'.$source['owner'].'/'.$source['repo'].'/releases')?>" target="_blank" rel="noopener noreferrer" aria-label="Ver releases no GitHub">Releases ↗</a><?php endif; ?>
-    <button type="button" class="btn primary updater-upload-trigger" data-updater-open="updater-upload-dialog" aria-haspopup="dialog" aria-controls="updater-upload-dialog" <?=!$ready?'disabled title="PHP ZipArchive indisponível"':''?>><span class="updater-upload-trigger-long">Enviar atualização</span><span class="updater-upload-trigger-short">Enviar ZIP</span></button>
-  </div>
-  <div class="updater-quick-tools" aria-label="Configurações e diagnóstico do atualizador">
-    <button type="button" class="updater-quick-link" data-updater-open="updater-source-dialog" aria-haspopup="dialog" aria-controls="updater-source-dialog" title="Configurar fonte oficial">
-      <span aria-hidden="true">⚙</span><span><small>Fonte oficial</small><strong><?=h($originLabel)?></strong></span>
-    </button>
-    <button type="button" class="updater-quick-link <?= $preflight['ok']?'is-ok':'is-error' ?>" data-updater-open="updater-check-dialog" aria-haspopup="dialog" aria-controls="updater-check-dialog" title="Abrir vistoria do servidor">
-      <span aria-hidden="true"><?= $preflight['ok']?'✓':'!' ?></span><span><small>Servidor</small><strong><?= $preflight['ok']?'Pronto para verificar':'Verificar problemas' ?></strong></span>
-    </button>
+  <div class="updater-actions updater-actions-simple">
+    <button type="button" class="btn outline" id="updater-github-trigger" data-updater-open="updater-github-dialog" aria-haspopup="dialog" aria-controls="updater-github-dialog">◉ Visualizar</button>
+    <button type="button" class="btn primary updater-upload-trigger" data-updater-open="updater-upload-dialog" aria-haspopup="dialog" aria-controls="updater-upload-dialog" <?=!$ready?'disabled title="PHP ZipArchive indisponível"':''?>>Enviar ZIP</button>
   </div>
   <?php if(!$ready): ?><div class="alert warning">Para instalar atualizações, o PHP precisa da extensão ZipArchive. Sodium é opcional para os pacotes antigos assinados.</div><?php endif; ?>
   <?php if($remoteError): ?><div class="alert warning"><?=h($remoteError)?></div><?php endif; ?>
   <?php if(is_file(igua_updater_maintenance())): ?><div class="alert error">Atualização interrompida. Recupere o código antes de continuar.</div><?php endif; ?>
 </section>
-<?php if($hasNewRelease): ?>
-<section class="panel updater-panel" aria-labelledby="updater-install-title">
-  <div class="updater-header"><h2 id="updater-install-title">Instalação pelo GitHub</h2>
-    <details class="updater-help"><summary aria-label="Segurança da instalação">?</summary><div class="updater-help-content">Instalações exigem senha administrativa, confirmação e backup. O ZIP v2 pode não ter assinatura, por isso confirme a origem antes de instalar.</div></details>
+<dialog id="updater-github-dialog" class="updater-dialog updater-upload-dialog updater-github-dialog" aria-labelledby="updater-github-title" aria-modal="true">
+  <div class="updater-dialog-head">
+    <div class="updater-upload-heading"><span class="updater-upload-icon" aria-hidden="true">↻</span><div><h2 id="updater-github-title">Atualização pelo GitHub</h2><small>Consulta, novidades e instalação</small></div></div>
+    <button type="button" class="updater-dialog-close" data-updater-close aria-label="Fechar janela">×</button>
   </div>
-  <?php if($hasDownload): ?>
-    <div class="updater-release">
-      <div><span class="updater-pill">Nova versão</span><strong><?=h($release['version'])?></strong></div>
-      <details><summary>Novidades desta versão</summary><div class="updater-release-notes"><?=nl2br(h((string)($release['notes']??'Sem notas de versão.')))?></div></details>
+  <div id="updater-github-status" class="updater-github-status" role="status" aria-live="polite" tabindex="-1">
+    <span class="updater-github-spinner" aria-hidden="true"></span>
+    <strong data-github-label>Conectando…</strong>
+    <p data-github-message>Consultando a versão publicada.</p>
+  </div>
+  <div data-github-release hidden>
+    <div class="updater-release"><div><span class="updater-pill">Nova versão</span><strong data-github-version></strong></div>
+      <details><summary>Ver alterações desta versão</summary><div class="updater-release-notes" data-github-notes></div></details>
     </div>
-    <form class="updater-install-form" data-updater-progress-form method="post" action="<?=h(admin_link('updates'))?>">
-      <?=csrf_field()?><input type="hidden" name="operation" value="install_remote">
-      <label class="updater-check"><input type="checkbox" name="confirm_install" value="yes" required> Confirmei a origem do ZIP e autorizo a instalação e o backup prévio.</label>
+    <form id="updater-github-form" class="updater-install-form updater-github-form" method="post" action="<?=h(admin_link('updates'))?>">
+      <?=csrf_field()?>
+      <input type="hidden" name="operation" value="install_remote">
+      <input type="hidden" name="update_token" value="<?=bin2hex(random_bytes(16))?>">
+      <label class="updater-check"><input type="checkbox" name="confirm_install" value="yes" required> Confirmei o repositório e autorizo a instalação e o backup prévio.</label>
       <label>Senha administrativa<input type="password" name="confirm_password" autocomplete="current-password" required></label>
-      <button class="btn primary" type="submit">Instalar v<?=h($release['version'])?></button>
+      <button class="btn primary updater-github-submit" type="submit">Atualizar agora</button>
     </form>
-  <?php elseif($hasNewRelease): ?>
-    <p class="updater-hint">Versão <?=h($release['version'])?> publicada, mas ainda sem ZIP de atualização compatível. Confirme a origem do pacote antes de instalá-lo.</p>
-  <?php else: ?><p class="updater-hint">Nenhuma atualização disponível para instalar automaticamente.</p><?php endif; ?>
-</section>
-<?php endif; ?>
+  </div>
+  <div data-github-process hidden class="updater-github-process">
+    <div class="updater-github-step"><span class="updater-github-spinner" aria-hidden="true"></span><strong data-github-stage>Solicitando atualização</strong></div>
+    <progress data-github-progress aria-label="Progresso da instalação"></progress>
+    <p data-github-detail>O servidor está processando. Não feche esta janela.</p>
+  </div>
+  <div class="updater-github-final" data-github-final hidden>
+    <strong data-github-final-title></strong>
+    <p data-github-final-message></p>
+    <button type="button" class="btn primary" data-github-refresh>Atualizar página</button>
+  </div>
+  <div class="updater-github-actions">
+    <button type="button" class="btn outline" data-github-retry hidden>Consultar novamente</button>
+    <details class="updater-github-advanced">
+      <summary>Configurações e diagnóstico</summary>
+      <p>Verificações e proteção por senha continuam ativas. Pacotes v2 sem assinatura exigem que a origem seja confiável.</p>
+      <div class="updater-github-tools">
+        <button type="button" class="btn outline" data-updater-open="updater-source-dialog">Configurar origem</button>
+        <button type="button" class="btn outline" data-updater-open="updater-check-dialog">Vistoria do servidor</button>
+      </div>
+    </details>
+  </div>
+</dialog>
 <dialog id="updater-upload-dialog" class="updater-dialog updater-upload-dialog" aria-labelledby="updater-upload-title" aria-modal="true">
   <div class="updater-dialog-head">
     <div class="updater-upload-heading"><span class="updater-upload-icon" aria-hidden="true">⇧</span><div><h2 id="updater-upload-title">Enviar atualização</h2><small>Arquivo ZIP de atualização</small></div></div>
@@ -207,3 +221,4 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
 
 <script src="/assets/js/updater-dialogs.js?v=<?=h(igua_updater_version())?>" defer></script>
 <script src="/assets/js/updater-progress.js?v=<?=h(igua_updater_version())?>" defer></script>
+<script src="/assets/js/updater-github.js?v=<?=h(igua_updater_version())?>" defer></script>

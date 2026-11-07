@@ -57,19 +57,37 @@ if(in_array($operation,['upload','install_remote','rollback'],true)){
         throw new RuntimeException('Informe sua senha administrativa para autorizar a atualização.');
     }
     unset($_SESSION['igua_update_auth_failures']);
-    if($operation==='upload'){
-        $up=$_FILES['update_zip']??[];
-        if(($up['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK || !is_uploaded_file((string)($up['tmp_name']??''))||
-            (int)($up['size']??0)<100||(int)($up['size']??0)>IGUA_UPDATE_MAX_ZIP)
-            throw new RuntimeException('Envie um ZIP de atualização válido com até 32 MB.');
-        $zip=(string)$up['tmp_name'];
-    }else{
-        $release=igua_updater_remote_release(true);
-        if(!$release||!$release['newer']||empty($release['url']))throw new RuntimeException('Nenhuma versão nova com pacote disponível no GitHub Releases.');
-        $zip=igua_updater_download_release($release['url']);
+    $token=(string)($_POST['update_token']??'');
+    $userId=(int)$me['id'];
+    $sessionReleased=false;
+    $zip=null;
+    try{
+        if($operation==='upload'){
+            $up=$_FILES['update_zip']??[];
+            if(($up['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK || !is_uploaded_file((string)($up['tmp_name']??''))||
+                (int)($up['size']??0)<100||(int)($up['size']??0)>IGUA_UPDATE_MAX_ZIP)
+                throw new RuntimeException('Envie um ZIP de atualização válido com até 32 MB.');
+            $zip=(string)$up['tmp_name'];
+        }else{
+            igua_updater_progress_write($userId,$token,'connecting','Conectando ao repositório do GitHub.');
+            // Libera o bloqueio da sessão para que o navegador consulte as etapas reais.
+            if(session_status()===PHP_SESSION_ACTIVE){session_write_close();$sessionReleased=true;}
+            $release=igua_updater_remote_release(true);
+            if(!$release||!$release['newer']||empty($release['url']))throw new RuntimeException('Nenhuma versão nova com pacote disponível no GitHub Releases.');
+            igua_updater_progress_write($userId,$token,'download','Baixando o pacote do GitHub; duração ainda desconhecida.');
+            $zip=igua_updater_download_release($release['url']);
+        }
+        $result=igua_updater_install_zip($zip,$db,
+            static function(string $stage,string $label)use($userId,$token):void{
+                igua_updater_progress_write($userId,$token,$stage,$label);
+            });
+    }catch(Throwable $e){
+        igua_updater_progress_write($userId,$token,'failed','Operação não confirmada. Confira a mensagem e o histórico.');
+        throw $e;
+    }finally{
+        if($operation==='install_remote' && is_string($zip) && is_file($zip))@unlink($zip);
+        if($sessionReleased && session_status()!==PHP_SESSION_ACTIVE)session_start();
     }
-    try{$result=igua_updater_install_zip($zip,$db);}
-    finally{if($operation==='install_remote' && isset($zip) && is_file($zip))@unlink($zip);}
     igua_security_event('update_installed');
     flash('Portal atualizado para '.$result['version'].'. Backup MySQL: '.$result['backup'].'.');
     redirect('/admin.php?action=updates');

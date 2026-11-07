@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.91)
+# Diretrizes de manutenção — Meu Site (v1.0.92)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -45,6 +45,14 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 - Novas matérias não exibem cartões estruturados; edição de notícias que já usam blocos continua permitida. SEO detalhado abre diálogo nativo com dados locais, nunca chamado ao Gemini.
 - Anexos seguros usam allowlist de extensões/MIME, ficam fora da pasta pública e são baixados com Content-Disposition: attachment. Alterar extensões exige manter `news_attachment_storage_name_valid` e backup/restauração compatíveis.
 - O Google Drive deve guardar apenas os dois ZIPs da versão vigente (fonte e atualização) após conferência dos uploads.
+
+## Atualizações pelo GitHub (1.0.92)
+
+- O botão Visualizar abre o diálogo de consulta GitHub via GET autenticado, sem publicar o link Releases nem os cartões de origem e servidor na tela principal.
+- A instalação remota permanece POST com CSRF, confirmação de origem, senha administrativa, limites e rollback. Apenas as etapas confirmadas pelo backend são apresentadas ao longo do processamento: consulta, download, validação, preflight, backup e aplicação. Sem percentuais falsos.
+- Progresso é registrado no armazenamento privado, com token aleatório por operação e vínculo ao ID do administrador; GET de status exige sessão e `manage_settings`. A sessão do POST remoto é temporariamente liberada para leitura paralela e reaberta ao final para flash/erro.
+- Ao confirmar sucesso no retorno PHP, o modal apresenta Atualização concluída e Atualizar página. Timeout/conexão perdida nunca gera reenvio automático. Outros diálogos de origem e vistoria continuam acessíveis apenas nas opções avançadas.
+- Testes de regressão: `tests/updater_github_192.php` e `tests/updater_github_192.js` mais toda a suíte. O schema permanece 36.
 
 ## Wizard de notícias (1.0.90)
 

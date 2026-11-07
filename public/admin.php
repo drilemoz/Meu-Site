@@ -100,6 +100,34 @@ $me=$fresh;$_SESSION['admin']=$fresh;
 $abilityForPage=['download_bundle'=>'backup','users'=>'manage_users','ads'=>'manage_settings','settings'=>'manage_settings','integrations'=>'manage_settings','integrations_save_ga4'=>'manage_settings','integrations_save_adsense'=>'manage_settings','integrations_save_verification'=>'manage_settings','integrations_save_dns'=>'manage_settings','integrations_check_dns'=>'manage_settings','integrations_save_search_console_mode'=>'manage_settings','integrations_search_console_test'=>'manage_settings','integrations_search_console_inspect'=>'manage_settings','integrations_pagespeed_test'=>'manage_settings','integrations_ga4_credentials'=>'manage_settings','integrations_ga4_remove'=>'manage_settings','integrations_ga4_test'=>'manage_settings','integrations_ga4_report'=>'manage_settings','integrations_adsense_credentials'=>'manage_settings','integrations_adsense_disconnect'=>'manage_settings','integrations_adsense_connect'=>'manage_settings','integrations_adsense_report'=>'manage_settings','integrations_adsense_callback'=>'manage_settings','backups'=>'backup','download'=>'backup','categories'=>'manage_taxonomy','authors'=>'manage_taxonomy','sources'=>'manage_taxonomy','bus'=>'manage_bus','bus_edit'=>'manage_bus','bus_import'=>'manage_bus','elections'=>'manage_settings','analytics'=>'manage_settings','health'=>'manage_settings','security'=>'manage_settings','security_block'=>'manage_settings','security_unblock'=>'manage_settings','health_verify'=>'backup','updates'=>'manage_settings','maintenance'=>'manage_settings','maintenance_clear_demo'=>'manage_settings','maintenance_clear_all'=>'manage_settings','maintenance_reset'=>'manage_settings','media'=>'write','media_list'=>'write','media_upload'=>'write','media_update'=>'write','media_download'=>'write','media_trash'=>'manage_settings','media_restore'=>'manage_settings'];
 if(isset($abilityForPage[$action]))require_ability($abilityForPage[$action],$me);
 if(!in_array($action,['dashboard','ads','ads_save_settings','ads_save_slot','ads_save_campaign','ads_toggle_campaign','ads_delete_campaign','ads_delete_demo','load_ad_examples','articles','toggle_article_status','new','edit','seo','categories','authors','sources','users','settings','integrations','integrations_save_ga4','integrations_save_adsense','integrations_save_verification','integrations_save_dns','integrations_check_dns','integrations_save_search_console_mode','integrations_search_console_test','integrations_search_console_inspect','integrations_pagespeed_test','integrations_ga4_credentials','integrations_ga4_remove','integrations_ga4_test','integrations_ga4_report','integrations_adsense_credentials','integrations_adsense_disconnect','integrations_adsense_connect','integrations_adsense_report','integrations_adsense_callback','backups','download','download_bundle','save_article','duplicate_article','restore_article_revision','delete_article','save_category','delete_category','save_settings','load_samples','load_editor_examples','create_backup','restore_backup','restore_bundle','save_user','toggle_user','save_author','delete_author','save_source','delete_source','elections','save_election','save_election_candidate','archive_election','toggle_election_candidate','toggle_elections_module','bus','bus_edit','bus_import','bus_stage_import','bus_approve_import','bus_ignore_import','bus_toggle_fixed','save_bus_route','save_bus_wizard','save_bus_departure','toggle_bus_departure','delete_bus_departure','delete_bus_route','import_url','autosave_news','analytics','analytics_settings','health','health_verify','security','security_block','security_unblock','updates','maintenance','maintenance_clear_demo','maintenance_clear_all','maintenance_reset','media','media_list','media_upload','media_update','media_download','media_trash','media_restore'],true)) {http_response_code(404);exit('Página não encontrada.');}
+// API de leitura para o modal de atualizações. Sem ação de instalação por GET.
+if($action==='updates' && !request_post() && (isset($_GET['updater_info'])||isset($_GET['updater_status']))){
+    header('Content-Type: application/json; charset=UTF-8');
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: private, no-store, max-age=0');
+    if(isset($_GET['updater_status'])){
+        $token=(string)($_GET['updater_status']??'');
+        $state=igua_updater_progress_read((int)$me['id'],$token);
+        if($state===null){http_response_code(404);echo json_encode(['ok'=>false,'message'=>'Estado ainda não disponível.']);}
+        else echo json_encode(['ok'=>true,'progress'=>$state],JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    try{
+        $release=igua_updater_remote_release(true);
+        $source=igua_updater_source();
+        echo json_encode(['ok'=>true,'installed'=>igua_updater_version(),
+            'configured'=>!empty($source['owner'])&&!empty($source['repo']),
+            'release'=>$release===null?null:[
+                'version'=>$release['version'],'newer'=>(bool)$release['newer'],
+                'downloadable'=>!empty($release['url']),
+                'notes'=>(string)($release['notes']??'')]],JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
+    }catch(Throwable $e){
+        igua_health_log('UPDATER_LOOKUP_FAILED',$e);
+        http_response_code(502);
+        echo json_encode(['ok'=>false,'message'=>'Não foi possível consultar a versão no GitHub. Verifique a conexão e tente novamente.'],JSON_UNESCAPED_UNICODE);
+    }
+    exit;
+}
 // Retorno OAuth via GET: protegido por sessão admin, ACL, state aleatório + PKCE.
 if($action==='integrations_adsense_callback'){
     header('Cache-Control: private, no-store');header('Referrer-Policy: no-referrer');

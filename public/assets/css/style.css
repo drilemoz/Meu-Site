@@ -497,6 +497,38 @@ html,body{max-width:100%;overflow-x:clip}
  .updater-confirm-actions{grid-template-columns:1fr 1.35fr}
 }
 @media(max-width:345px){.updater-actions{gap:6px}.updater-actions .btn{padding:8px 9px}}
+
+/* 1.0.92 — consulta do GitHub e instalação dentro de um único diálogo. */
+.updater-actions-simple{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.updater-actions-simple .btn{width:100%;min-height:46px;border-radius:11px}
+.updater-github-dialog{width:min(470px,calc(100vw - 22px))}
+.updater-github-status{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:15px;border:1px solid #d6e4f4;background:#f5f9ff;border-radius:13px;margin:14px 0}
+.updater-github-status p{flex:1 0 100%;margin:0;color:#5a6c84;font-size:13px}
+.updater-github-status[hidden],.updater-github-dialog [hidden]{display:none!important}
+.updater-github-spinner{display:inline-block;width:19px;height:19px;flex:none;border:2px solid #b8cdec;border-top-color:#1765d1;border-radius:50%;animation:igua-update-spin .9s linear infinite}
+@keyframes igua-update-spin{to{transform:rotate(360deg)}}
+.updater-github-status[data-state="done"] .updater-github-spinner,.updater-github-status[data-state="error"] .updater-github-spinner{display:none}
+.updater-github-status[data-state="error"]{border-color:#f1c6c6;background:#fff7f7}
+.updater-github-status[data-state="done"]{border-color:#c7e6d4;background:#f3fbf6}
+.updater-github-form{margin-top:16px!important}
+.updater-github-form .updater-github-submit{width:100%;min-height:46px}
+.updater-github-process{display:grid;gap:13px;margin:16px 0;padding:16px;border:1px solid #cadff6;border-radius:13px;background:#f5faff}
+.updater-github-step{display:flex;align-items:center;gap:10px;font-size:14px}
+.updater-github-process progress{width:100%;height:12px;accent-color:#1167d8}
+.updater-github-process p{color:#526988;font-size:13px;line-height:1.5;margin:0}
+.updater-github-final{display:grid;gap:12px;padding:17px;background:#eefaf2;border:1px solid #bde1ca;border-radius:14px}
+.updater-github-final[data-result="error"]{background:#fff6f6;border-color:#e8c2c2}
+.updater-github-final p{font-size:13px;color:#3d536f;margin:0;line-height:1.5}
+.updater-github-final .btn{width:100%}
+.updater-github-actions{display:grid;gap:9px;margin-top:12px}
+.updater-github-advanced{font-size:12px;color:#546780}
+.updater-github-advanced summary{cursor:pointer;font-weight:650}
+.updater-github-advanced p{line-height:1.5}
+.updater-github-tools{display:flex;gap:8px;flex-wrap:wrap}
+.updater-github-tools .btn{min-height:42px;flex:1;font-size:12px}
+.updater-github-dialog .updater-release-notes{white-space:pre-wrap;max-height:230px;overflow:auto}
+@media(max-width:420px){.updater-actions-simple{gap:8px}.updater-actions-simple .btn{font-size:13px!important;min-height:46px}}
+@media(prefers-reduced-motion:reduce){.updater-github-spinner{animation:none}}
 /* Central de Saúde 1.0.14: cartões fluidos no desktop e no Android. */
 .health-summary{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1rem}.health-mark{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:.26rem .65rem;font-weight:700;font-size:.8rem;white-space:nowrap}.health-mark.good{color:#166534;background:#e5f7ed}.health-mark.warn{color:#854d0e;background:#fff3c4}.health-mark.bad{color:#991b1b;background:#fee2e2}.health-mark.neutral{color:#334155;background:#eef2f7}.health-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem;margin:1.25rem 0}.health-check{margin:0;min-width:0}.health-check-head{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.6rem}.health-check p{line-height:1.5;overflow-wrap:anywhere}.health-inline-form{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.health-inline-form strong{overflow-wrap:anywhere}.health-log{display:flex;flex-direction:column;gap:.45rem;max-height:290px;overflow:auto;padding:.85rem;border-radius:12px;background:#f6f8fc}.health-log code{display:block;white-space:normal;overflow-wrap:anywhere;font-size:.75rem}@media(max-width:640px){.health-grid{grid-template-columns:1fr}.health-intro .panel-heading{display:block}.health-intro .btn{margin-top:.75rem}.health-inline-form>.btn{width:100%}}
 
