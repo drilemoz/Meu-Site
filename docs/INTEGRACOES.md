@@ -1,4 +1,4 @@
-# Integrações, Analytics e verificações — versão 1.0.86
+# Integrações, Analytics e verificações — versão 1.0.87
 
 A Central de Integrações é acessível em **Configurações → Integrações e APIs** e requer permissão de gerenciamento de configurações. O projeto preserva schema MySQL 36.
 
@@ -9,9 +9,19 @@ A Central de Integrações é acessível em **Configurações → Integrações 
 - **Testar recebimento** consulta dados dos últimos 30 minutos e histórico recente de 7 dias quando a hospedagem tem cURL/OpenSSL/rede e credenciais válidas. O total pertence à *propriedade GA4*, não comprova origem específica do fluxo nem garante visita atual.
 - A ausência de eventos não prova que a tag falhou; o consentimento ou filtros também podem impedir a coleta.
 
-## Google AdSense e publicidade
+## Google AdSense e publicidade (v1.0.87)
 
-O ID `ca-pub-...` é editado na Central e reutilizado pela área Publicidade. A presença de `ads.txt` e IDs não comprova aprovação da conta nem garante exibição de anúncios. Não executar scripts arbitrários inseridos por usuários.
+O ID `ca-pub-...` continua em Publicidade e **não comprova aprovação**. O acesso à API de relatórios exige autorização por **conta Google de usuário**, pois a AdSense Management API **não aceita contas de serviço**. Nunca reutilizar a chave JSON do GA4 para o AdSense.
+
+1. Em **Geral e SEO**, configure a URL HTTPS pública exata do portal, sem porta, caminho ou parâmetros. Acesse o painel por esse domínio.
+2. Ative **AdSense Management API** no Google Cloud e crie um cliente OAuth 2.0 do tipo **Aplicativo da Web**. Configure a tela de consentimento e registre a URL de retorno mostrada em **Integrações → Google AdSense** (`https://dominio/admin.php?action=integrations_adsense_callback`).
+3. Cadastre **ID e segredo OAuth**, confirmando com a senha administrativa. Eles serão armazenados em `storage/integrations/adsense-oauth.json` com permissões restritas, excluídos de Git, ZIP, backup e HTML.
+4. Toque em **Autorizar com Google**, escolha uma conta com acesso ao `ca-pub` cadastrado e conceda **adsense.readonly**. O backend valida `state` aleatório, PKCE, sessão/usuário, domínio HTTPS e prazo de 10 minutos. O código é consumido uma vez.
+5. Toque em **Consultar relatório AdSense**. Uma consulta manual por conta usa OAuth refresh token, `accounts.list` para conferir o ca-pub e `reports:generate` com intervalo `LAST_30_DAYS` e métricas de receita estimada, impressões, cliques e visualizações de página.
+
+O relatório representa a **conta do editor inteira**, não necessariamente só este portal; valores estimados não são pagamentos recebidos. O Google pode devolver dados vazios ou recusá-los por ausência de aprovação, restrições da conta ou de consentimento. Resultados resumidos ficam na sessão admin até 1 hora; tentativas têm intervalo de 90 segundos e 3 minutos após sucesso. Segurança: TLS verificado, hosts e destinos fixos, respostas limitadas, CSRF e ACL, senha para gravar/remover credenciais. Os tokens não são enviados em páginas, logs ou banco. **Desconectar no portal não revoga a autorização no Google**: use a área de segurança da conta para revogá-la lá.
+
+Documentação oficial: https://developers.google.com/adsense/management/getting_started e https://developers.google.com/adsense/management/reference/rest/v2/accounts.reports/generate.
 
 ## Search Console e DNS
 
@@ -48,7 +58,7 @@ Documentação oficial: https://developers.google.com/webmaster-tools/v1/sites/l
 
 Checagem **local**, sem HTTP externo: homepage, categorias e notícias públicas. Verifica título, descrição, URL canônica, regra de indexação, imagem vinculada, dados estruturados e sitemap. Isso não é uma medição PageSpeed nem inspeção do índice do Google.
 
-## Google Analytics 4 — audiência e conteúdo (v1.0.86)
+## Google Analytics 4 — audiência e conteúdo (v1.0.87)
 
 1. Em **Configurações → Integrações → Google Analytics 4**, configure o `G-...` para o fluxo público, o **ID numérico da propriedade**, e cadastre o JSON privado de uma conta de serviço Google. Ative a **Google Analytics Data API** no projeto da conta de serviço e dê permissão de **Leitor** na propriedade correspondente.
 2. O botão **Testar recebimento** permanece para os últimos 30 minutos e sete dias. O novo **Consultar audiência** gera outro relatório: últimos **28 dias completos até ontem**, de acordo com a zona de tempo da propriedade GA4. Não realiza tarefas em segundo plano.
@@ -63,7 +73,7 @@ Documentação oficial: https://developers.google.com/analytics/devguides/report
 
 Gemini, Google Ads, GTM, Bing e outros aparecem no catálogo como planejamento onde não há adaptador operacional. Não declarar conexão, aprovação ou monitoramento sem prova externa.
 
-Testes: `tests/integrations_169.php`, `tests/page_inspector_170.php`, `tests/search_dns_172.php`, `tests/ga4_realtime_171.php`, `tests/ga4_audience_186.php` `tests/search_console_api_184.php`, `tests/search_console_api_184.js`, `tests/pagespeed_181.php`, `tests/pagespeed_182.php`, `tests/integrations_181.js`, `tests/integrations_182.js` e `tests/ga4_consent_168.js`.
+Testes: `tests/integrations_169.php`, `tests/page_inspector_170.php`, `tests/search_dns_172.php`, `tests/ga4_realtime_171.php`, `tests/ga4_audience_186.php` `tests/search_console_api_184.php`, `tests/search_console_api_184.js`, `tests/pagespeed_181.php`, `tests/pagespeed_182.php`, `tests/integrations_181.js`, `tests/integrations_182.js` e `tests/ga4_consent_168.js`, `tests/adsense_oauth_187.php`.
 
 ## PageSpeed avançado 1.0.83
 

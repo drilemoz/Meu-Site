@@ -5,6 +5,7 @@ require_once __DIR__.'/analytics.php';
 require_once __DIR__.'/editorial.php';
 require_once __DIR__.'/ads.php';
 require_once __DIR__.'/adsense_review.php';
+require_once __DIR__.'/adsense_api.php';
 require_once __DIR__.'/page_inspector.php';
 require_once __DIR__.'/ga4_realtime.php';
 require_once __DIR__.'/search_console_dns.php';
@@ -131,5 +132,9 @@ function igua_integrations_admin_view(PDO $db): void {
         if(($test['property_id']??'')===$cfg['ga4_property_id'])$ga4Live=$test;
     }
     $ga4Audience=igua_ga4_audience_last($_SESSION,$cfg['ga4_property_id']);
+    $adsenseOAuth=null;
+    try{$adsenseOAuth=igua_adsense_api_read();}catch(Throwable $e){igua_health_log('ADSENSE_OAUTH_UNREADABLE',$e);}
+    $adsenseConnected=igua_adsense_api_connected($adsenseOAuth) && $adsenseOAuth['account']===igua_adsense_publisher_account_safe($cfg['adsense_publisher']);
+    $adsenseReport=($adsenseConnected?igua_adsense_api_last($_SESSION,$cfg['adsense_publisher']):null);
     require __DIR__.'/admin_views/routes/integrations.php';
 }

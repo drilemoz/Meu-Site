@@ -1,4 +1,4 @@
-# Testes e integração MariaDB — versão 1.0.83
+# Testes e integração MariaDB — versão 1.0.87
 
 ## Comandos locais
 
@@ -12,6 +12,10 @@ python3 tools/audit_project.py
 ```
 
 Testes de integrações: `php tests/pagespeed_181.php` (transportes simulados, validação de URL pública, erros e expiração), `php tests/pagespeed_182.php` (estratégias mobile/desktop, quatro categorias, cache isolado e retrocompatibilidade), `php tests/pagespeed_183.php` (notas, recomendações condicionadas e interface), `node tests/integrations_181.js` (navegação e UX) e `node tests/integrations_182.js` (progresso separado de cada formulário). A API PageSpeed externa **não** é consultada pelos testes automáticos, evitando cotas, rede variável e falsos positivos.
+
+## AdSense Management API (v1.0.87)
+
+`php tests/adsense_oauth_187.php` valida URL pública fixa, cliente OAuth, state/PKCE, expiração, callback de uso único, refresh token, verificação da conta associada ao ca-pub, métricas com moeda, cache, ACL/CSRF e sigilo no HTML. O transporte da API é simulado, sem autenticação real ou uso de quotas. O teste precisa manter `/tmp` com permissão compartilhada, sem tentar alterá-la. A autorização verdadeira e o callback só podem ser comprovados na hospedagem HTTPS com conta Google real.
 
 ## GitHub Actions
 

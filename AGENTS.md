@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.86)
+# Diretrizes de manutenção — Meu Site (v1.0.87)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -20,6 +20,8 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 - Na restauração, verificar integridade de nomes duplicados, hashes, caminhos, limites e manter ao menos um administrador ativo. Proteger o banco e arquivos com cópias externas antes de operações críticas.
 - Eventos da Central de Segurança são parciais do PHP; não apresentar como captura universal de ataques. Bloqueios de IP temporários e administrativos devem evitar o IP atual.
 
+- O AdSense 1.0.87 exige OAuth2 do proprietário, não conta de serviço. Não misturar refresh token e chave GA4. `storage/integrations/adsense-oauth.json` permanece privado; state + PKCE e callback fixo no domínio HTTPS, tokens nunca em sessão/HTML.
+
 ## Front-end e integrações
 
 - Design mobile-first compacto, ícone `?` para ajuda opcional. Avisos importantes sobre perda de dados, privacidade e erros permanecem **visíveis**. Alvos de toque ~44 px e boa leitura no celular.
@@ -27,7 +29,7 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 - CSS é fonte modular (16 módulos); alterar `public/assets/css/modules/` e executar `tools/build_css.py`. Editor JS usa 8 módulos; alterar fonte e executar `tools/build_news_editor.py`.
 - AdSense e GA4 têm IDs em configuração **única** na Central de Integrações; campos antigos não podem apagar esses valores. Publicidade e analytics próprios mantêm seus switches independentes.
 - GA4 só carrega no público quando configurado e após consentimento; respeitar GPC/DNT e revogação. Chaves de serviço Google ficam em `storage/integrations/` e a consulta à API é sob demanda com autorização administrativa.
-- O GA4 1.0.86 consulta relatório de audiência apenas sob demanda por administradores, usando `batchRunReports` (quatro relatórios em uma chamada); OAuth somente leitura, propriedade validada, cache em sessão por até uma hora e limites entre tentativas, sem persistir tokens. Dados GA4 de propriedade não se confundem com métricas internas nem com o fluxo específico do portal.
+- O GA4 1.0.87 consulta relatório de audiência apenas sob demanda por administradores, usando `batchRunReports` (quatro relatórios em uma chamada); OAuth somente leitura, propriedade validada, cache em sessão por até uma hora e limites entre tentativas, sem persistir tokens. Dados GA4 de propriedade não se confundem com métricas internas nem com o fluxo específico do portal.
 - O PageSpeed Insights oferece consultas HTTPS externas para celular e computador, independentes e somente sob ação do administrador, apenas para o domínio público salvo em SEO, sem segredo armazenado e com cache/limites de consulta por dispositivo. As notas Lighthouse são de laboratório, não tráfego real.
 - Search Console DNS TXT/metatag e inspeção de páginas são verificações **locais**. A Search Console API 1.0.84 tem consulta **real, sob demanda**, somente leitura, com OAuth da conta de serviço Google compartilhada com GA4, permissão explícita da propriedade e URL derivada de SEO. Na 1.0.85 a URL Inspection API inspeciona **somente URLs canônicas de notícias publicadas**, derivadas do banco, com autorização de leitura e cache restrito à notícia/propriedade. Não promete teste ao vivo nem solicita indexação. Não expor JWT/token/credencial; usar endpoints Google fixos e expirar cache em sessão. Não habilitar HTTP remoto arbitrário/SSRF.
 - Preservar dados reais e marcar conteúdo de demonstração. Horários de ônibus não devem ser inventados; fontes e notícias exigem revisão humana. Não modificar dados reais durante inspeções de SEO.

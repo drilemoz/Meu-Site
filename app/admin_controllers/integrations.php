@@ -1,6 +1,62 @@
 <?php
 // Acesso ocorre após require_admin(), require_ability() e check_csrf() no roteador central.
 require_ability('manage_settings',$me);
+if(in_array($action,['integrations_adsense_credentials','integrations_adsense_disconnect','integrations_adsense_connect','integrations_adsense_report'],true)){
+    $site=setting('seo_site_url','');
+    $redirect=igua_adsense_callback_uri($site);
+    if(PHP_SAPI!=='cli' && (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS']==='off'))
+        throw new RuntimeException('A conexão AdSense exige HTTPS ativo na hospedagem.');
+    if(PHP_SAPI!=='cli' && strcasecmp((string)($_SERVER['HTTP_HOST']??''),(string)parse_url($site,PHP_URL_HOST))!==0)
+        throw new RuntimeException('Acesse o painel pelo domínio HTTPS oficial configurado em Geral e SEO.');
+    if(in_array($action,['integrations_adsense_credentials','integrations_adsense_disconnect'],true)){
+        $password=$_POST['confirm_password']??'';
+        if(!is_string($password)||$password==='')throw new RuntimeException('Confirme a senha administrativa.');
+        $stmt=$db->prepare('SELECT password_hash FROM users WHERE id=? AND active=1 LIMIT 1');
+        $stmt->execute([(int)$me['id']]);
+        if(!password_verify($password,(string)$stmt->fetchColumn()))throw new RuntimeException('Senha administrativa incorreta.');
+    }
+    if($action==='integrations_adsense_credentials'){
+        $id=$_POST['adsense_client_id']??null;$secret=$_POST['adsense_client_secret']??null;
+        if(!is_string($id)||!is_string($secret))throw new InvalidArgumentException('Credenciais OAuth inválidas.');
+        $client=igua_adsense_oauth_client($id,$secret);
+        igua_adsense_api_write($client+['refresh_token'=>'','account'=>'']);
+        unset($_SESSION['igua_adsense_api_last'],$_SESSION['igua_adsense_api_attempt'],$_SESSION['igua_adsense_oauth_pending']);
+        igua_security_event('settings_changed','adsense_client_saved');
+        flash('Cliente OAuth AdSense salvo em storage privado. Agora autorize sua conta Google.');
+    }elseif($action==='integrations_adsense_disconnect'){
+        if(($_POST['confirm_remove']??'')!=='1')throw new InvalidArgumentException('Confirme a desconexão do AdSense.');
+        igua_adsense_api_delete();
+        unset($_SESSION['igua_adsense_api_last'],$_SESSION['igua_adsense_api_attempt'],$_SESSION['igua_adsense_oauth_pending']);
+        igua_security_event('settings_changed','adsense_connection_removed');
+        flash('Autorização e cliente OAuth removidos da hospedagem. Para revogar também no Google, use a área de permissões da conta.');
+    }elseif($action==='integrations_adsense_connect'){
+        igua_adsense_publisher_account(setting('adsense_publisher',''));
+        $client=igua_adsense_api_read();
+        if($client===null)throw new InvalidArgumentException('Salve primeiro o cliente OAuth do Google Cloud.');
+        $url=igua_adsense_api_authorize($client,$redirect,$_SESSION,(int)$me['id']);
+        igua_security_event('admin_action','adsense_oauth_start');
+        header('Cache-Control: no-store, private');
+        header('Referrer-Policy: no-referrer');
+        header('Location: '.$url,true,303);exit;
+    }elseif($action==='integrations_adsense_report'){
+        $publisher=setting('adsense_publisher','');$account=igua_adsense_publisher_account($publisher);
+        $previous=igua_adsense_api_last($_SESSION,$publisher);
+        if($previous!==null && time()-(int)$previous['checked_at']<180){
+            flash('Exibindo relatório AdSense recente. Aguarde 3 minutos para repetir.');
+            redirect('/admin.php?action=integrations#google-adsense');
+        }
+        $attempt=$_SESSION['igua_adsense_api_attempt']??null;
+        if(is_array($attempt)&&($attempt['account']??'')===$account && time()-(int)($attempt['time']??0)<90)
+            throw new RuntimeException('Aguarde 90 segundos entre consultas AdSense.');
+        $_SESSION['igua_adsense_api_attempt']=['account'=>$account,'time'=>time()];
+        $credentials=igua_adsense_api_read();
+        if($credentials===null)throw new RuntimeException('Conecte a conta Google AdSense primeiro.');
+        $_SESSION['igua_adsense_api_last']=igua_adsense_api_report($credentials,$publisher);
+        igua_security_event('admin_action','adsense_report_viewed');
+        flash('Relatório AdSense consultado para os últimos 30 dias completos, na conta do editor.');
+    }
+    redirect('/admin.php?action=integrations#google-adsense');
+}
 if($action==='integrations_pagespeed_test'){
     $strategy=$_POST['pagespeed_strategy']??'mobile'; // Formulários antigos permanecem mobile.
     if(!is_string($strategy))throw new InvalidArgumentException('Estratégia PageSpeed inválida.');

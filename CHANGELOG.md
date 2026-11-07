@@ -1,3 +1,9 @@
+## 1.0.87 — 07/11/2026 — AdSense Management API via OAuth 2.0
+
+- Central de Integrações adiciona cliente OAuth Web privado, login Google com state, PKCE, senha de administrador e callback HTTPS fixo. Reutilização das credenciais GA4 foi **proibida** porque o AdSense não suporta conta de serviço.
+- Conexão restringida ao ID ca-pub configurado; relatório em GET autenticado com métricas ESTIMATED_EARNINGS, IMPRESSIONS, CLICKS e PAGE_VIEWS para LAST_30_DAYS. Cache resumido em sessão por até uma hora, sem tokens em HTML.
+- Novas rotas GET/POST, testes offline de OAuth, API, autenticação, segurança e revisão visual do painel. Schema 36 sem alterações.
+
 ## 1.0.86 — 07/11/2026 — Relatórios de audiência e conteúdo no GA4
 - Central de Integrações GA4 ganhou botão **Consultar audiência**, com métricas oficiais `activeUsers`, `sessions` e `screenPageViews` para 28 dias completos até ontem; listas de `pageTitle`, `sessionDefaultChannelGroup` e `deviceCategory` agrupadas por métricas específicas.
 - Uma autenticação JWT com escopo mínimo e uma chamada `batchRunReports` para quatro relatórios na mesma propriedade; HTTPS com whitelist de endpoint, SSL, timeout e limite de resposta. Nenhum token ou chave entra em sessão, HTML, banco ou pacote.
