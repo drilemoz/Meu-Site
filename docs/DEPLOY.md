@@ -1,4 +1,4 @@
-> **Estado atual (v1.0.77):** atualizar com `Atualizacao-vX.Y.Z.zip`, sem a assinatura obrigatória; não enviar o ZIP completo pelo atualizador. `storage/` e fotos devem sobreviver ao deploy. Consulte [ATUALIZADOR.md](ATUALIZADOR.md) e [BACKUP.md](BACKUP.md).
+> **Estado atual (v1.0.78):** atualizar com `Atualizacao-vX.Y.Z.zip`, sem a assinatura obrigatória; não enviar o ZIP completo pelo atualizador. `storage/` e fotos devem sobreviver ao deploy. Consulte [ATUALIZADOR.md](ATUALIZADOR.md) e [BACKUP.md](BACKUP.md).
 
 # Publicação em hospedagem PHP · IguaNews
 

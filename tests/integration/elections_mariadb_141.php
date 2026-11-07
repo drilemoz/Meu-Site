@@ -10,6 +10,7 @@ if(PHP_SAPI!=='cli' || getenv('IGUA_TEST_ALLOW_WRITE')!=='YES_ISOLATED_DB' ||
 }
 require_once __DIR__.'/../../app/bootstrap.php';
 require_once __DIR__.'/../../app/schema.php';
+require_once __DIR__.'/../../app/schema_migrations.php';
 require_once __DIR__.'/../../app/backup.php';
 require_once __DIR__.'/../../app/elections/service.php';
 require_once __DIR__.'/../../app/elections/repository.php';

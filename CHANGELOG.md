@@ -1,3 +1,10 @@
+## 1.0.78 — 07/11/2026 — Integração eleitoral e prévia de serviços no CI
+- Corrigida a inclusão ausente de `app/schema_migrations.php` no teste eleitoral MariaDB (`elections_mariadb_141.php`), que falhava com `Call to undefined function igua_schema_revision()` após o teste de login persistente passar.
+- Acrescentada regressão `tests/integration_bootstrap_178.php` que verifica a dependência antes do workflow real.
+- Completados os dados sintéticos do renderizador `render_integrations_169.php`, evitando warnings de variáveis indefinidas; nenhuma consulta externa é executada.
+- Corrigido o selo visual da Central de Integrações para refletir a versão real, em vez de permanecer em 1.0.72.
+- Mantidos schema MySQL 36, cookies seguros, dados reais e pacotes sem arquivos privados. A execução do workflow MariaDB após a alteração ainda é necessária.
+
 ## 1.0.77 — 07/11/2026 — Correção da integração de login persistente no CI
 - Corrigido `tests/integration/remember_mariadb_140.php`: o runner CLI agora simula explicitamente HTTPS antes de testar a emissão do cookie, sem liberar cookies em HTTP na aplicação.
 - Saída de verificações do teste é bufferizada até a operação de cookie terminar, evitando `headers already sent`.

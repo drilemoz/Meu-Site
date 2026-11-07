@@ -1,4 +1,4 @@
-# Testes e integração MariaDB — versão 1.0.77
+# Testes e integração MariaDB — versão 1.0.78
 
 ## Comandos locais
 
@@ -23,8 +23,12 @@ Este ambiente pode não oferecer `pdo_mysql`/`ZipArchive`, cURL ou acesso à hos
 
 Os pacotes de código-fonte devem conter somente este portal PHP; nenhuma entrada Kotlin, Gradle, Android ou outro projeto.
 
-## Falha do workflow de 07/11/2026 (corrigida na v1.0.77)
+## Falha do workflow de 07/11/2026 (corrigida na v1.0.78)
 
 O teste `tests/integration/restore_mariadb_134.php` completou a integração MariaDB/ZipArchive, inclusive round-trip de backup de banco e mídia, rollback e rejeição de pacote adulterado. O workflow falhou **depois**, em `remember_mariadb_140.php`, porque o CLI não fornecia HTTPS e os diagnósticos anteriores já tinham enviado saída antes de `setcookie()`. O teste agora simula HTTPS e bufferiza a saída. A segurança da emissão do cookie no portal não foi relaxada.
 
 Para validar a correção sem banco: `php tests/remember_cli_headers_177.php`. Para confirmação de integração real, reexecutar o workflow no GitHub Actions com MariaDB isolado; a execução local não prova a compatibilidade do ambiente de produção.
+
+## Falha do workflow de 07/11/2026 (corrigida no código v1.0.78)
+
+O teste de login persistente passou. A etapa MariaDB foi interrompida posteriormente em `tests/integration/elections_mariadb_141.php` porque a função `igua_schema_revision()` de `app/schema_migrations.php` não havia sido importada explicitamente. A correção adiciona o `require_once` faltante; `tests/integration_bootstrap_178.php` detecta futuras regressões sem banco. O teste de prévia da Central de Integrações também recebeu seus dados sintéticos completos. Resta confirmar a execução real no GitHub Actions.

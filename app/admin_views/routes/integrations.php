@@ -18,7 +18,7 @@ $searchStatusClass=$dnsFound?'int-on':(($tokenOn||$dnsConfigured)?'int-ready':'i
 <div class="int-hub" id="integrations-hub">
   <section class="int-hero" aria-labelledby="int-title">
     <div class="int-hero-orb" aria-hidden="true"></div>
-    <div class="int-hero-top"><span class="int-overline"><span class="int-live-dot"></span> CENTRAL DE SERVIÇOS</span><span class="int-release">v1.0.72</span></div>
+    <div class="int-hero-top"><span class="int-overline"><span class="int-live-dot"></span> CENTRAL DE SERVIÇOS</span><span class="int-release">v<?=h(igua_brand_version())?></span></div>
     <h2 id="int-title">Um painel.<br><span>Todas as conexões.</span></h2>
     <p>Controle os serviços, confira a configuração e prepare novas integrações.</p>
     <div class="int-hero-metrics" aria-label="Resumo de configuração">

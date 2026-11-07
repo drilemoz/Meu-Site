@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.77)
+# Diretrizes de manutenção — Meu Site (v1.0.78)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -31,7 +31,7 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 
 ## Testes obrigatórios
 
-Executar antes de empacotar, incluindo `tests/remember_cli_headers_177.php` para prevenir a regressão de HTTPS/headers no CLI:
+Executar antes de empacotar, incluindo `tests/remember_cli_headers_177.php` e `tests/integration_bootstrap_178.php` para prevenir a regressão de HTTPS/headers no CLI:
 
 ```sh
 for x in tests/*.php; do php "$x" || exit 1; done

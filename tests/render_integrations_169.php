@@ -1,9 +1,15 @@
 <?php
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/integrations.php';
+require_once __DIR__.'/../app/page_inspector.php';
+require_once __DIR__.'/../app/branding.php';
 function admin_link(string $action):string{return '/admin.php?action='.$action;}
 $cfg=['ga4_enabled'=>'1','ga4_measurement_id'=>'G-ABCD123456','adsense_publisher'=>'ca-pub-1234567890123456','ads_enabled'=>'0','google_site_verification'=>'','seo_site_url'=>'https://exemplo.com.br','seo_index'=>'1'];
 $rows=igua_integrations_diagnostic($cfg,IGUA_PUBLIC,'');
+$choice='home';
+$options=[['value'=>'home','label'=>'Página inicial']];
+$subject=['kind'=>'home','title'=>'Página inicial'];
+$report=igua_page_inspect_report($subject,$cfg,IGUA_PUBLIC);
 ob_start();require __DIR__.'/../app/admin_views/routes/integrations.php';$html=ob_get_clean();
 $css=file_get_contents(__DIR__.'/../public/assets/css/style.css');
 $js=file_get_contents(__DIR__.'/../public/assets/js/integrations-admin.js');

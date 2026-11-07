@@ -1,12 +1,9 @@
-# Meu Site v1.0.77 — Correção da integração MariaDB no CI
+# Meu Site v1.0.78 — Integração MariaDB: teste eleitoral corrigido
 
-- Corrigido o teste de login persistente no MariaDB: HTTPS simulado e saída bufferizada no PHP CLI, preservando o bloqueio de cookies sobre HTTP na aplicação.
-- Novo teste `tests/remember_cli_headers_177.php` reproduz as condições responsáveis pela falha no GitHub Actions.
-- Conferência completa de inventário e identidade: portal PHP, sem Kotlin, Gradle, Android, Uai Cortes ou arquivos privados nos pacotes.
-- Documentação centralizada: removidos relatórios históricos e manuais supersedidos; guias atuais indexados em `docs/INDICE.md`.
-- `README.md` e `AGENTS.md` simplificados e sincronizados à implementação real da v1.0.77.
-- Backup explicado de forma explícita no painel: **Gerar backup agora** = somente banco MySQL; **Baixar pacote completo ZIP** = banco + mídias **referenciadas**. Não é cópia integral da hospedagem.
-- Acrescentada auditoria automatizada do empacotamento e da estrutura do projeto, também executada pelo CI.
-- Preservados schema MySQL 36, formulários e processos de segurança, autenticação, GA4, Search Console, atualização via modal e backups. Nenhuma alteração de tabelas ou arquivos privados.
+- `elections_mariadb_141.php` importa explicitamente `app/schema_migrations.php` antes de consultar a revisão do banco.
+- Regressão offline para checar o contrato de importação das migrações.
+- Renderização da Central de Integrações no CI recebe dados fictícios completos, sem avisos de variáveis ausentes.
+- Cabeçalho da Central exibe a versão atual dinamicamente.
+- Autenticação, backups, uploads, central Google, atualizador e revisão SQL 36 preservados. Nenhuma alteração na estrutura do banco.
 
-**Testes**: regressão PHP/JavaScript e verificações de sintaxe, CSS/editor e pacotes. A restauração MariaDB/ZipArchive na hospedagem, importação no GitHub Manager e interface real do Chrome Android precisam de validação no ambiente de destino.
+**Validação**: sintaxe, testes PHP/JavaScript, CSS/editor e integridade dos pacotes. A integração com MariaDB real e o workflow GitHub Actions devem ser executados novamente para confirmar a correção no ambiente CI.
