@@ -29,6 +29,8 @@ function igua_admin_post_module(string $action): ?string {
         'integrations_adsense_connect'=>'integrations',
         'integrations_adsense_report'=>'integrations',
         'autosave_news'=>'news',
+        'news_create_category'=>'news',
+        'news_create_source'=>'news',
         'bus_approve_import'=>'bus',
         'bus_ignore_import'=>'bus',
         'bus_stage_import'=>'bus',

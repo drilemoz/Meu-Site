@@ -20,13 +20,12 @@ function news_media_upload(PDO $db,int $articleId,array $files,string $kind,arra
         $limit=$kind==='image'?8*1024*1024:12*1024*1024;
         if($size<20||$size>$limit||!is_uploaded_file($tmp))throw new RuntimeException('Arquivo inválido ou acima do limite permitido.');
         $mime=(new finfo(FILEINFO_MIME_TYPE))->file($tmp);
-        $ext=($kind==='image'?['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp']:['application/pdf'=>'pdf','text/plain'=>'txt','text/csv'=>'csv','application/csv'=>'csv'])[$mime]??null;
-        if(!$ext)throw new RuntimeException('Formato não permitido: aceite JPG/PNG/WebP ou anexos PDF/TXT/CSV.');
+        $ext=$kind==='image'?(['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp'][$mime]??null):news_attachment_extension((string)$name,(string)$mime,$tmp);
+        if(!$ext)throw new RuntimeException('Formato de arquivo inválido ou não permitido. Anexos aceitam documentos, imagens, áudio, MP4 e ZIP válidos; scripts executáveis são bloqueados.');
         if($kind==='image'){
             $dimensions=@getimagesize($tmp);
             if(!$dimensions||(int)$dimensions[0]<100||(int)$dimensions[1]<100||(int)$dimensions[0]*(int)$dimensions[1]>24000000)throw new RuntimeException('Imagem inválida ou com resolução excessiva (máximo 24 MP).');
         }
-        if($kind==='attachment'&&$mime==='application/pdf'&&strncmp((string)file_get_contents($tmp,false,null,0,5),'%PDF-',5)!==0)throw new RuntimeException('PDF inválido.');
         if($kind==='image'){
             $saved=media_upload($db,['name'=>$name,'error'=>$error,'tmp_name'=>$tmp,'size'=>$size],(int)(admin_user()['id']??0)?:null,$onCreated);
             $filename=$saved['filename'];$size=$saved['bytes'];$mime=(new finfo(FILEINFO_MIME_TYPE))->file(media_path($filename));

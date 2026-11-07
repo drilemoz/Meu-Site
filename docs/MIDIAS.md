@@ -40,3 +40,7 @@ A remoção de vínculo em notícia **não** apaga o arquivo, que pode estar reu
 - `php -l` e `node --check` nos fontes relevantes; testes PHP existentes mais `tests/media_118.php`.
 - Sintaxe e contratos de backup v7/v8/v9, resolução segura de caminhos e preservação dos endereços legados.
 - **Pendente:** fluxo completo com MariaDB/MySQL instalado, teste real de upload via HTTP, GD/WebP do Termux, restauração ZIP com fotos, navegação visual em navegadores Android e desempenho em biblioteca numerosa. Faça atualização inicialmente em cópia de testes quando possível.
+
+## Anexos da 1.0.91
+
+A lista explícita de extensões permitidas inclui PDF, TXT, CSV, JSON, RTF, DOCX, XLSX, PPTX, ODT, ODS, ODP, JPG, JPEG, PNG, WEBP, MP3, WAV, MP4 e ZIP. O backend confere MIME, cabeçalho PDF e estrutura ZIP/Office; não aceita qualquer extensão, HTML, SVG, scripts ou executáveis. Até 10 arquivos de no máximo 12 MiB por envio, sujeitos aos limites de PHP `upload_max_filesize`/`post_max_size`. Todos os anexos ficam em `storage/media/` e são entregues apenas por `public/download.php` como download. `ZipArchive` é obrigatório para pacotes ZIP/Office. O backup completo (DB + mídias referenciadas) reconhece a lista nova; restaure e teste antes de depender exclusivamente de backup.

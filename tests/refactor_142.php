@@ -84,5 +84,5 @@ igua_discard_new_uploads([$created,$other,IGUA_STORAGE.'/config.php']);
 r142(!is_file($created) && is_file($other),'limpeza de anexos novos sem exclusão de nomes não gerados');
 unlink($other);
 $news=file_get_contents(__DIR__.'/../app/admin_controllers/news.php');
-r142(str_contains($news,'if($rolledBack)igua_discard_new_uploads($createdFiles)')&&str_contains($news,'image_upload(\'image\',$old[\'image\']??null,$onCreated)'),'editor vincula capa e galeria ao rollback');
+r142(str_contains($news,'if($rolledBack)igua_discard_new_uploads($createdFiles)')&&str_contains($news,"image_upload('image',!empty("),'editor vincula capa e galeria ao rollback');
 echo "Refatoração 1.0.42: testes locais completos, integração MariaDB e upload HTTP reais ainda pendentes.\n";

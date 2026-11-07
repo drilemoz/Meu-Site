@@ -1,6 +1,49 @@
 <?php
 declare(strict_types=1);
 /** Biblioteca central de fotografias IguaNews. Caminhos relativos, sem acesso a arquivos arbitrários. */
+/** Anexos são sempre entregues como download com nosniff e guardados fora da pasta pública. */
+function news_attachment_extensions(): array {
+    return [
+        'pdf'=>['application/pdf'], 'txt'=>['text/plain'],
+        'csv'=>['text/csv','text/plain','application/csv','application/vnd.ms-excel'],
+        'json'=>['application/json','text/plain'],
+        'rtf'=>['text/rtf','application/rtf','text/plain'],
+        'docx'=>['application/zip','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+        'xlsx'=>['application/zip','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+        'pptx'=>['application/zip','application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+        'odt'=>['application/zip','application/vnd.oasis.opendocument.text'],
+        'ods'=>['application/zip','application/vnd.oasis.opendocument.spreadsheet'],
+        'odp'=>['application/zip','application/vnd.oasis.opendocument.presentation'],
+        'jpg'=>['image/jpeg'], 'jpeg'=>['image/jpeg'], 'png'=>['image/png'], 'webp'=>['image/webp'],
+        'mp3'=>['audio/mpeg','audio/mp3'], 'wav'=>['audio/wav','audio/x-wav','audio/wave'],
+        'mp4'=>['video/mp4','application/mp4'], 'zip'=>['application/zip','application/x-zip','application/x-zip-compressed'],
+    ];
+}
+function news_attachment_extension(string $filename,string $mime,string $tmp): ?string {
+    $extension=strtolower(pathinfo($filename,PATHINFO_EXTENSION));
+    $types=news_attachment_extensions();
+    if(!isset($types[$extension])||!in_array($mime,$types[$extension],true))return null;
+    if($extension==='pdf' && strncmp((string)file_get_contents($tmp,false,null,0,5),'%PDF-',5)!==0)return null;
+    // Somente reconhecer pacotes ZIP válidos. OOXML/ODF exigem estrutura conhecida.
+    if(in_array($extension,['zip','docx','xlsx','pptx','odt','ods','odp'],true)){
+        if(!class_exists('ZipArchive'))return null;
+        $archive=new ZipArchive();if($archive->open($tmp)!==true)return null;
+        try{
+            if($archive->numFiles>500)return null;
+            if($extension!=='zip'){
+                $required=in_array($extension,['docx','xlsx','pptx'],true)?'[Content_Types].xml':'mimetype';
+                if($archive->locateName($required)===false)return null;
+            }
+        }finally{$archive->close();}
+    }
+    if(in_array($extension,['jpg','jpeg','png','webp'],true) && !@getimagesize($tmp))return null;
+    return $extension;
+}
+function news_attachment_storage_name_valid(string $filename): bool {
+    $ext=implode('|',array_map(static fn(string $x)=>preg_quote($x,'/'),array_keys(news_attachment_extensions())));
+    return (bool)preg_match('/^[a-f0-9]{32}\.(?:'.$ext.')$/D',$filename);
+}
+
 function media_valid_name(string $name): bool {
     return (bool)preg_match('~^(?:(?:20\d{2})/(?:0[1-9]|1[0-2])/)?[a-zA-Z0-9_-]{8,80}\.(?:jpe?g|png|webp)$~iD', $name);
 }
@@ -99,7 +142,7 @@ function igua_discard_new_uploads(array $files): void {
             $thumb=dirname($file).'/thumbs/'.pathinfo($file,PATHINFO_FILENAME).'.webp';
             if(is_file($thumb))@unlink($thumb);
             if(is_file($file))@unlink($file);
-        } elseif (str_starts_with($file,$attachments) && preg_match('/^[a-f0-9]{32}\.(?:pdf|txt|csv)$/D',substr($file,strlen($attachments)))){
+        } elseif (str_starts_with($file,$attachments) && news_attachment_storage_name_valid(substr($file,strlen($attachments)))){
             if(is_file($file))@unlink($file);
         }
     }

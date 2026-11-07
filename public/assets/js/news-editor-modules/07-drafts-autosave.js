@@ -41,9 +41,14 @@
    render();loadVisual();preview();categorySuggestion();updateCounters();updatePublication();if(typeof window!=='undefined')window.dispatchEvent(new Event('igua:seo-refresh'));
    status.textContent='Rascunho recuperado. Confira fotos, anexos e campos antes de publicar.';
  }
+ const draftNotice=document.querySelector('#news-draft-notice');
+ const draftSeenKey=draftNotice?'igua:news-draft-prompt:'+draftNotice.dataset.draftKey:'';
+ const dismissDraft=()=>{if(!draftNotice)return;draftNotice.hidden=true;try{sessionStorage.setItem(draftSeenKey,'1');}catch(_){/* Navegação privada sem storage */}};
+ if(draftNotice){try{if(sessionStorage.getItem(draftSeenKey)==='1')draftNotice.hidden=true;}catch(_){}}
+ document.querySelector('#ignore-news-draft')?.addEventListener('click',dismissDraft);
  document.querySelector('#recover-news-draft')?.addEventListener('click',()=>{
    const el=document.querySelector('#news-draft-initial');
-   if(el)try{restoreDraft(JSON.parse(el.textContent));}catch(_){status.textContent='Não foi possível recuperar este rascunho.';}
+   if(el)try{restoreDraft(JSON.parse(el.textContent));dismissDraft();}catch(_){status.textContent='Não foi possível recuperar este rascunho.';}
  });
  async function autosave(){
    if(submitting||saving)return;

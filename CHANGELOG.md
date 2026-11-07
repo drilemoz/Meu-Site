@@ -1,3 +1,13 @@
+## [1.0.91] — 2026-11-07
+
+- Wizard reduzido: remoção de "Como preencher", barra de progresso com menu de etapas, recuperação de rascunho tratada apenas uma vez por aba para o mesmo editor, com opções Recuperar e Ignorar.
+- Editor de matéria com seis ferramentas numa só linha no Android e Texto simples dentro do menu Mais; cartões estruturados ocultos para novas matérias, mantendo edição de conteúdo legado.
+- Fotos: botões Capa/Biblioteca/Limpar e Capa/Fotos/ZIP em grupos de três, escolha de arquivos nativa invisível, visualização do nome e miniaturas existentes preservadas; limpeza real de capa já cadastrada.
+- Classificação: criação de categorias e fontes pelo modal com AJAX autenticado, CSRF e permissão `manage_taxonomy`, com opção recém-criada selecionada. Um vínculo principal de fonte, sem migração de banco.
+- SEO: pontuação e barra compactas, checklist em diálogo modal, prévia mantida, ajustes de slug/título/descrição recolhidos. A pontuação é local, não previsão do Google.
+- Anexos: formatos comuns PDF/TXT/CSV/JSON/RTF/OOXML/ODF/JPG/PNG/WebP/MP3/WAV/MP4/ZIP; bloqueio de executáveis e MIME inconsistente, ZIP/Office validados com ZipArchive, 10 arquivos de até 12 MiB. Limpeza de rollback e backup/restauração completos atualizados.
+- Testes estáticos/regressão atualizados; schema 36 mantido. Integração em servidor com MariaDB, ZipArchive e navegador Android permanece pendente.
+
 ## [1.0.90] — 2026-11-07
 
 - Novo assistente editorial mobile-first de nove etapas, com perguntas em tela dedicada, progresso acessível, revisão e decisão final de rascunho, publicação imediata ou agendamento.

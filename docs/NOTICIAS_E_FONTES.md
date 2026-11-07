@@ -15,3 +15,7 @@ A instalação 1.0.2 contém dez notícias fictícias antigas. Para trocá-las p
 ## Integração da migração
 
 No primeiro login do painel 1.0.3, o aplicativo executa `ALTER TABLE` para adicionar quatro campos. Se a hospedagem não permitir `ALTER TABLE`, conceda a permissão temporariamente ou rode os `ALTER TABLE` manualmente, após backup, antes de salvar notícias. Backups 1.0.2 são importáveis em 1.0.3; campos novos recebem valores vazios.
+
+## Atualização 1.0.91
+
+O editor permite criar categorias e fontes em uma janela dentro da etapa Classificação, somente para usuários com permissão `manage_taxonomy`; operações usam CSRF e permanecem no banco. A categoria recém-criada é selecionada automaticamente. Uma notícia ainda referencia **uma única fonte cadastrada principal**, com nome e URL manual de alternativa. Não há tabela de associação N:N nesta versão.

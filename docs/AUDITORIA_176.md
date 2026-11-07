@@ -41,3 +41,7 @@ Sem `pdo_mysql`/`ZipArchive` e sem acesso administrativo à hospedagem, não hou
 ## Revisão v1.0.86 — Relatórios GA4
 - Adicionado relatório sob demanda com quatro consultas em lote à Analytics Data API, sem alterar banco schema 36, consentimento público, Search Console, PageSpeed e atualização do site.
 - Validações offline de JWT/escopo, classificação das métricas, tratamento de ausência, TTL, ACL/CSRF e escaping de dados externos. O ambiente local não acessa uma propriedade real do Google nem substitui o teste de hospedagem ou no celular.
+
+### Verificação 1.0.91
+
+Foram adicionados testes de contrato de anexos e da UI simplificada, além de executar os conjuntos PHP/JS e validação do build de CSS/editor. O ambiente local não tem `pdo_mysql` nem `ZipArchive`; por isso, uploads HTTP reais, autenticação MariaDB, extração do ZIP/Office e testes de interface num Android real **não** foram validados. Esses testes permanecem necessários após implantar na hospedagem.

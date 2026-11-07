@@ -1,9 +1,13 @@
-# Meu Site 1.0.90 — Novo assistente de notícias
+# Meu Site 1.0.91 — Wizard editorial compacto
 
-A partir de **Nova notícia**, o cadastro abre um wizard com nove passos. O fluxo pergunta o título, a pequena descrição, a matéria, fotos, créditos, anexos, categoria e SEO antes de mostrar uma revisão completa. Somente na última etapa é feita a escolha entre salvar rascunho, publicar agora ou agendar.
+O cadastro de notícia foi refinado para uso em telas móveis: etapas recolhíveis, editor com uma linha de ferramentas, área de fotos em duas grades de três botões, sem guia no topo e com opções avançadas reduzidas.
 
-**Fotos:** biblioteca, envio múltiplo, prévia local e opção de ZIP de até 10 imagens (JPG/PNG/WebP), validado pelo PHP. A primeira foto vinculada poderá virar a capa automaticamente. O servidor precisa de ZipArchive, suporte a uploads e limites compatíveis.
+**Rascunho:** aviso de recuperação com Recuperar/Ignorar e supressão durante a mesma sessão de aba após decisão. Esta ação não exclui o texto salvo no servidor; arquivos locais ainda não entram no autosave.
 
-**SEO:** descrição local baseada em frases completas, sem cortes automáticos com reticências; prévia aproximada. Gemini ainda não está integrado.
+**Classificação:** administradores autorizados a gerenciar taxonomia podem cadastrar categorias e fontes em um diálogo sem sair do wizard. A fonte principal é única, mantendo o banco no schema 36; associações de múltiplas fontes à mesma notícia ainda dependem de desenvolvimento adicional.
 
-**Compatibilidade:** schema MySQL 36 inalterado; nomes de campos, anexos, biblioteca, segurança, revisão e rascunhos existentes preservados. O autosave guarda texto, mas não guarda arquivos locais selecionados. Recomendado criar backup antes de atualizar e testar o fluxo completo em celular e hospedagem antes de usar em produção.
+**SEO:** barra de diagnóstico editorial 0-100, verificação detalhada em diálogo, ajuste manual opcional e prévia aproximada. Sem chamada à API Gemini ou garantia de exibição pelo Google.
+
+**Anexos:** aceita documentos, imagens, áudio, MP4 e ZIP sob lista de formatos com verificação de MIME e estrutura. Arquivos executáveis/ativos não são aceitos. Uploads permanecem fora da raiz pública, com download forçado; backups completos incluem novos formatos. O servidor deve ter ZipArchive para ZIP/Office.
+
+**Instalação:** atualização do PHP/CSS/JS sem migração de banco; faça backup do banco e das mídias antes de instalar. A importação de anexos e os diálogos ainda precisam de teste integrado na hospedagem e navegador Android. Gere o ZIP de atualização pelo script oficial e não instale o ZIP de código-fonte na hospedagem.

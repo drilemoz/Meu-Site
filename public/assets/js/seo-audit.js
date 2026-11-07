@@ -43,12 +43,20 @@
      image_caption:imageCaption,cover_alt:(files&&files.length)||field('library_cover')?.value?'':(form.dataset.coverAlt||'')
    });
    document.querySelector('#news-seo-score').textContent=`${audit.score}/100`;
+   document.querySelector('#news-seo-progress').value=audit.score;
+   document.querySelector('#news-seo-summary').textContent=audit.score===100?'Itens editoriais conferidos.':`${audit.checks.filter(c=>!c.ok).length} ponto(s) para revisar · avaliação local`;
    const ul=document.querySelector('#news-seo-checklist');ul.replaceChildren();
    for(const item of audit.checks){
      const li=document.createElement('li');li.className=item.ok?'ok':'warn';
      li.textContent=(item.ok?'✓ ':'! ')+item.label;ul.appendChild(li);
    }
  }
+ const dialog=document.querySelector('#news-seo-dialog');
+ document.querySelector('#news-seo-dialog-open').addEventListener('click',()=>dialog.showModal());
+ const close=()=>dialog.close();
+ document.querySelector('#news-seo-dialog-close').addEventListener('click',close);
+ document.querySelector('#news-seo-dialog-done').addEventListener('click',close);
+ dialog.addEventListener('click',e=>{if(e.target===dialog)close();});
  form.addEventListener('input',refresh);
  form.addEventListener('change',refresh);
  form.addEventListener('click',e=>{

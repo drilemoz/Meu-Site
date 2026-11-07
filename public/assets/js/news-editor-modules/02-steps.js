@@ -23,6 +23,8 @@
    form.querySelector('[name="status"]').value=choice==='draft'?'draft':'published';
    document.querySelector('#news-submit').textContent=choice==='now'?'Publicar notícia ✓':choice==='scheduled'?'Agendar notícia ✓':'Salvar rascunho ✓';
  }
+ const stepNav=document.querySelector('#news-steps'),stepsToggle=document.querySelector('#news-steps-toggle');
+ stepsToggle.addEventListener('click',()=>{stepNav.hidden=!stepNav.hidden;stepsToggle.setAttribute('aria-expanded',String(!stepNav.hidden));});
  function changeTab(index,{scroll=false}={}){
    active=Math.max(0,Math.min(steps.length-1,index));
    steps.forEach((step,i)=>{step.hidden=i!==active;step.classList.toggle('active',i===active);});
@@ -35,14 +37,14 @@
    document.querySelector('#news-next').hidden=active===steps.length-1;
    document.querySelector('#news-submit').hidden=active!==steps.length-1;
    if(active===steps.length-1)updateReview();
-   if(scroll){document.querySelector('.news-editor-steps').scrollIntoView({block:'start',behavior:'auto'});tabs[active]?.scrollIntoView({inline:'nearest',block:'nearest'});}
+   if(scroll){document.querySelector('.news-step-nav').scrollIntoView({block:'start',behavior:'auto'});stepNav.hidden=true;stepsToggle.setAttribute('aria-expanded','false');}
  }
  function hasText(){updateSource();syncInputs();return !!(form.querySelector('[name=body]').value.trim()||blocks.some(b=>b.content.trim()));}
  function canLeave(index){
    if(index===0){const field=form.querySelector('[name=title]');if(!field.checkValidity()){changeTab(0);field.reportValidity();return false;}}
    if(index===1){const field=form.querySelector('[name=summary]');if(field.value.trim().length<20){changeTab(1);status.textContent='Escreva uma descrição com ao menos 20 caracteres.';field.focus();return false;}}
    if(index===2&&!hasText()){
-     changeTab(2);status.textContent='Escreva a matéria ou adicione um cartão antes de avançar.';
+     changeTab(2);status.textContent='Escreva o texto da matéria antes de avançar.';
      const visual=document.querySelector('#news-visual-editor');visual?.focus();return false;
    }
    if(index===6){const field=form.querySelector('[name=category_id]');if(!field.checkValidity()){changeTab(6);field.reportValidity();return false;}}

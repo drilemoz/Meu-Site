@@ -2,8 +2,9 @@
  const visual=document.querySelector('#news-visual-editor');
  const raw=form.querySelector('.news-markdown-source');
  let editingSource=false;
- const sourceButton=document.createElement('button');sourceButton.type='button';sourceButton.textContent='</> Texto simples';sourceButton.setAttribute('aria-label','Alternar editor de texto simples');sourceButton.id='news-source-toggle';
- document.querySelector('.news-format-tools').append(sourceButton);
+ const sourceButton=document.querySelector('#news-source-toggle');
+ const moreButton=document.querySelector('#news-more-format'),moreTools=document.querySelector('#news-more-tools');
+ moreButton.addEventListener('click',()=>{moreTools.hidden=!moreTools.hidden;moreButton.setAttribute('aria-expanded',String(!moreTools.hidden));});
  function markdownFromVisual(){
    function walk(node){
      if(node.nodeType===3)return node.nodeValue||'';
@@ -23,7 +24,7 @@
  }
  function loadVisual(){if(!visual||editingSource)return;visual.innerHTML=formattedPreview(bodyField.value);if(!bodyField.value.trim())visual.innerHTML='';}
  function updateSource(){if(editingSource||!visual)return;bodyField.value=markdownFromVisual();bodyField.dispatchEvent(new Event('input',{bubbles:true}));}
- function toggleSource(){editingSource=!editingSource;raw.classList.toggle('source-visible',editingSource);visual.hidden=editingSource;sourceButton.textContent=editingSource?'▣ Editor visual':'</> Texto simples';if(editingSource)bodyField.focus();else loadVisual();}
+ function toggleSource(){editingSource=!editingSource;raw.classList.toggle('source-visible',editingSource);visual.hidden=editingSource;sourceButton.textContent=editingSource?'Editor visual':'Texto simples';if(editingSource)bodyField.focus();else loadVisual();}
  sourceButton.addEventListener('click',toggleSource);
  visual.addEventListener('input',updateSource);
  visual.addEventListener('paste',e=>{if(!e.clipboardData)return;e.preventDefault();const text=e.clipboardData.getData('text/plain')||'';document.execCommand('insertText',false,text);updateSource();});
@@ -52,5 +53,5 @@
  }
  const previewBody=document.querySelector('#news-body-preview');
  const previewButton=document.querySelector('#news-toggle-preview');
- previewButton?.addEventListener('click',()=>{previewBody.hidden=!previewBody.hidden;if(!previewBody.hidden)previewBody.innerHTML=formattedPreview(bodyField.value);previewButton.textContent=previewBody.hidden?'◉ Prévia':'× Fechar prévia';});
+ previewButton?.addEventListener('click',()=>{previewBody.hidden=!previewBody.hidden;if(!previewBody.hidden)previewBody.innerHTML=formattedPreview(bodyField.value);previewButton.textContent=previewBody.hidden?'◉':'×';previewButton.setAttribute('aria-label',previewBody.hidden?'Prévia':'Fechar prévia');});
  bodyField.addEventListener('input',()=>{if(!previewBody.hidden)previewBody.innerHTML=formattedPreview(bodyField.value);});

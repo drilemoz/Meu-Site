@@ -1,6 +1,23 @@
 <?php
 declare(strict_types=1);
 // Ações administrativas privadas: executadas após autenticação e validação CSRF.
+        if($action==='news_create_category'||$action==='news_create_source'){
+            require_ability('manage_taxonomy',$me);
+            $name=trim((string)($_POST['name']??''));
+            $isCategory=$action==='news_create_category';
+            if(ulen($name)<2||ulen($name)>($isCategory?75:160))throw new RuntimeException('Nome inválido.');
+            if($isCategory){
+                $base=slug($name);$candidate=$base;$suffix=2;
+                while(true){$lookup=$db->prepare('SELECT id FROM categories WHERE slug=?');$lookup->execute([$candidate]);if(!$lookup->fetchColumn())break;$candidate=$base.'-'.$suffix++;}
+                $db->prepare('INSERT INTO categories(name,slug,sort_order) VALUES(?,?,100)')->execute([$name,$candidate]);
+            }else{
+                $url=trim((string)($_POST['url']??''));
+                if(ulen($url)>600||($url!==''&&(!filter_var($url,FILTER_VALIDATE_URL)||!str_starts_with($url,'https://'))))throw new RuntimeException('Endereço HTTPS inválido.');
+                $db->prepare('INSERT INTO editorial_sources(name,url) VALUES(?,?)')->execute([$name,$url]);
+            }
+            header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
+            echo json_encode(['saved'=>true,'id'=>(int)$db->lastInsertId(),'name'=>$name],JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);exit;
+        }
         if($action==='autosave_news'){
             require_ability('write',$me);
             $articleId=(int)($_POST['id']??0);$payload=(string)($_POST['payload']??'');
@@ -69,7 +86,7 @@ declare(strict_types=1);
                 $validMedia=$db->prepare('SELECT id FROM media_library WHERE filename=? AND deleted_at IS NULL');
                 $validMedia->execute([$libraryCover]);if(!$validMedia->fetchColumn())throw new RuntimeException('Imagem fora da biblioteca ativa.');
                 $image=$verified['filename'];
-            }else $image=$old['image']??null; // upload da capa dentro da transação
+            }else $image=!empty($_POST['remove_cover'])?null:($old['image']??null); // remover capa só sob escolha explícita
             $caption=trim((string)($_POST['image_caption']??''));
             $credit=trim((string)($_POST['image_credit']??''));
             $sourceName=trim((string)($_POST['source_name']??''));
@@ -88,7 +105,7 @@ declare(strict_types=1);
             $commitStarted=false;
             try{
                 if($libraryCover===''){
-                    $image=image_upload('image',$old['image']??null,$onCreated);
+                    $image=image_upload('image',!empty($_POST['remove_cover'])?null:($old['image']??null),$onCreated);
                     $args[5]=$image;
                 }
                 if ($id) {

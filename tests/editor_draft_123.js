@@ -32,7 +32,7 @@ class FakeFormData {
 }
 const messages=[];
 const status = {set textContent(text) {messages.push(text);}, get textContent() {return messages.at(-1)||'';}};
-const document = {querySelector(s) {if(s==='#news-save-status')return status; if(s==='#recover-news-draft')return null;throw Error(s);}};
+const document = {querySelector(s) {if(s==='#news-save-status')return status; if(['#recover-news-draft','#ignore-news-draft','#news-draft-notice'].includes(s))return null;throw Error(s);}};
 let blocks=[{kind:'paragraph',heading:'',content:'Texto salvo',collapsed:false}];
 const script = `(()=>{${editor.slice(start,end)};return {snapshot,restoreDraft};})()`;
 const api=vm.runInNewContext(script,{form,document,FormData:FakeFormData,File:FakeFile,

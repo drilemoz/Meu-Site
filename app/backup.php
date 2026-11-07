@@ -232,7 +232,7 @@ function make_media_bundle(PDO $db): string {
             while(($v=$stmt->fetch(PDO::FETCH_ASSOC))!==false){
                 $filename=(string)$v['filename'];
                 if($v['kind']==='image' && media_valid_name($filename))$sources['assets/images/'.$filename]=IGUA_PUBLIC.'/uploads/'.$filename;
-                if($v['kind']==='attachment' && preg_match('/^[a-f0-9]{32}\.(?:pdf|txt|csv)$/D',$filename))$sources['assets/docs/'.$filename]=IGUA_STORAGE.'/media/'.$filename;
+                if($v['kind']==='attachment' && news_attachment_storage_name_valid($filename))$sources['assets/docs/'.$filename]=IGUA_STORAGE.'/media/'.$filename;
             }
         }finally{$stmt->closeCursor();}
         foreach(['articles'=>'image','ad_campaigns'=>'image','media_library'=>'filename'] as $table=>$field){
@@ -391,7 +391,7 @@ function restore_media_bundle(PDO $db,string $path): void {
         foreach($required as $key=>$present)if(!array_key_exists($key,$manifest['files']))throw new RuntimeException('Pacote incompleto: imagem ou anexo ausente.');
         $total=0;
         foreach($manifest['files'] as $name=>$checksum){
-            if(!is_string($name)||!preg_match('~^assets/(?:images/(?:(?:20\d{2})/(?:0[1-9]|1[0-2])/)?[a-zA-Z0-9_-]{8,80}\.(?:jpe?g|png|webp)|docs/[a-f0-9]{32}\.(?:pdf|txt|csv))$~D',$name)||!is_string($checksum)||!preg_match('/^[a-f0-9]{64}$/D',$checksum))throw new RuntimeException('Nome de arquivo ou hash inválido no pacote.');
+            if(!is_string($name)||!(str_starts_with($name,'assets/images/')?media_valid_name(substr($name,strlen('assets/images/'))):(str_starts_with($name,'assets/docs/')&&news_attachment_storage_name_valid(substr($name,strlen('assets/docs/')))))||!is_string($checksum)||!preg_match('/^[a-f0-9]{64}$/D',$checksum))throw new RuntimeException('Nome de arquivo ou hash inválido no pacote.');
             $idx=$zip->locateName($name);if($idx===false)throw new RuntimeException('Arquivo ausente no pacote: '.$name);
             $stat=$zip->statIndex($idx);$size=$stat['size']??-1;
             if(!is_int($size)||$size<0||$size>MEDIA_BUNDLE_MAX_MEDIA_BYTES-$total)throw new RuntimeException('Pacote descompactado muito grande.');

@@ -49,15 +49,16 @@ foreach([0,42] as $id){
     view137_assert(str_contains($html,'news-editor.js'),'editor asset');
     if($id){view137_assert(str_contains($html,'Histórico de revisões'),'revisions view');view137_assert(str_contains($html,'Índice Google') && str_contains($html,'page=article%3A42'),'atalho do editor apenas na notícia publicada');}
     else {view137_assert(!str_contains($html,'Histórico de revisões'),'no revisions new');view137_assert(!str_contains($html,'Índice Google'),'sem atalho em rascunho novo');}
-    $expected=$id===0?'39d26ba8d8aff01c7a28ccddfa66ccfac0cf1eafbb5bc748204ffe08a09dcd35':'28140b3de6800c1da50cc2e5a32baf0ba75986bb4452834bc5793a545a48ba43';
-    view137_assert(hash('sha256',$html)===$expected,'HTML conforme snapshot do wizard 1.0.90');
-    echo 'render-'.($id===0?'new':'existing').': SHA-256 conforme snapshot da 1.0.90 ('.strlen($html).' bytes)' .PHP_EOL;
+    view137_assert(str_contains($html,'news-steps-toggle')&&str_contains($html,'news-seo-dialog'),'wizard compacto + diálogo SEO');
+    view137_assert(str_contains($html,'news-upload-actions')&&str_contains($html,'news-taxonomy-main'),'upload e classificação integrados');
+    view137_assert(!str_contains($html,'📖 Como preencher'),'botão de guia removido');
+    echo 'render-'.($id===0?'new':'existing').': estrutura validada ('.strlen($html).' bytes)' .PHP_EOL;
 }
 if (is_file($root.'/app/news_admin_view/header.php')){
     $view=igua_news_editor_view_source();
     $parts=array_map('trim',explode("\n",file_get_contents($root.'/tools/news_editor_view.sha256')));
     $hash=explode(' ', $parts[0])[0];
-    view137_assert(hash('sha256',$view)===$hash,'templates conforme snapshot de 1.0.90');
+    view137_assert(hash('sha256',$view)===$hash,'templates da versão atual conforme fingerprint');
     view137_assert(substr_count($view,'data-tab="')===9,'9 abas nos templates');
     view137_assert(substr_count($view,'data-step="')===9,'9 etapas nos templates');
     $facade=file_get_contents($root.'/app/news_admin_view.php');

@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.90)
+# Diretrizes de manutenção — Meu Site (v1.0.91)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -37,6 +37,14 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 - Preservar dados reais e marcar conteúdo de demonstração. Horários de ônibus não devem ser inventados; fontes e notícias exigem revisão humana. Não modificar dados reais durante inspeções de SEO.
 
 - Na Central 1.0.89, preservar `<dialog>` e navegação acessível: abas, `?`, formulários movidos (não clonados), links profundos, botões Voltar e Fechar, proteção CSRF e scripts gerais do painel. Não voltar a abrir cartões rolando a página.
+
+## Ajustes do wizard (1.0.91)
+
+- A recuperação do mesmo rascunho é apresentada uma única vez por aba/sessão após clicar em Recuperar ou Ignorar; upload de mídia não entra no autosave.
+- Cadastro de categoria/fonte dentro da notícia exige `manage_taxonomy` e proteção CSRF no backend. A notícia preserva somente uma fonte principal por enquanto; nenhuma migração de banco.
+- Novas matérias não exibem cartões estruturados; edição de notícias que já usam blocos continua permitida. SEO detalhado abre diálogo nativo com dados locais, nunca chamado ao Gemini.
+- Anexos seguros usam allowlist de extensões/MIME, ficam fora da pasta pública e são baixados com Content-Disposition: attachment. Alterar extensões exige manter `news_attachment_storage_name_valid` e backup/restauração compatíveis.
+- O Google Drive deve guardar apenas os dois ZIPs da versão vigente (fonte e atualização) após conferência dos uploads.
 
 ## Wizard de notícias (1.0.90)
 
