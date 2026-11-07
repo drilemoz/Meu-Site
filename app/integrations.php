@@ -12,6 +12,7 @@ require_once __DIR__.'/search_console_dns.php';
 require_once __DIR__.'/search_console_api.php';
 require_once __DIR__.'/search_console_inspection.php';
 require_once __DIR__.'/pagespeed_insights.php';
+require_once __DIR__.'/integration_diagnostics.php';
 
 /** Token do Search Console, nunca HTML bruto. A metatag é visível publicamente por definição. */
 function igua_google_verification_token(string $value): string {
@@ -136,5 +137,8 @@ function igua_integrations_admin_view(PDO $db): void {
     try{$adsenseOAuth=igua_adsense_api_read();}catch(Throwable $e){igua_health_log('ADSENSE_OAUTH_UNREADABLE',$e);}
     $adsenseConnected=igua_adsense_api_connected($adsenseOAuth) && $adsenseOAuth['account']===igua_adsense_publisher_account_safe($cfg['adsense_publisher']);
     $adsenseReport=($adsenseConnected?igua_adsense_api_last($_SESSION,$cfg['adsense_publisher']):null);
+    $integrationDiag=igua_int_diag_summary($cfg,$_SESSION,$ga4CredentialsReady,$adsenseConnected,$pageSpeedUrl);
+    $integrationHistory=$_SESSION['igua_int_diag_history']??[];
+    if(!is_array($integrationHistory))$integrationHistory=[];
     require __DIR__.'/admin_views/routes/integrations.php';
 }

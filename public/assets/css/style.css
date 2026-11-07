@@ -1202,3 +1202,25 @@ html,body{max-width:100%;overflow-x:clip}
 .int-ga-report .int-sc-row{overflow-wrap:anywhere}
 .int-ga-empty{padding:9px 12px}
 @media(max-width:370px){.int-ga-report{padding:10px}.int-ga-report-totals strong{font-size:.92rem}.int-ga-report-totals span{font-size:.6rem}}
+
+/* v1.0.88 — diagnóstico por serviço com histórico compacto na sessão. */
+.int-health-intro{grid-column:1/-1;display:grid;gap:3px;padding:5px 2px;color:var(--int-ink)}
+.int-health-intro strong{font-size:.94rem}.int-health-intro span{font-size:.72rem;color:var(--int-muted);line-height:1.45}
+.int-health-grid{grid-column:1/-1;display:grid;gap:9px;min-width:0}
+.int-health-card{background:#fff;border:1px solid var(--int-line);border-radius:15px;padding:13px;min-width:0;display:grid;gap:9px}
+.int-health-card-head{display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:space-between}
+.int-health-card-head>strong{font-size:.83rem;color:var(--int-ink)}
+.int-health-last{font-size:.74rem;display:flex;align-items:center;gap:7px;font-weight:750;color:#586c82}
+.int-health-last>span{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:#eff3f8;color:#637d94}
+.int-health-last.success>span{background:#e0f6e9;color:#0d7855}.int-health-last.error>span{background:#fff1dc;color:#a85e10}
+.int-health-card>small{font-size:.69rem;color:#63748a}
+.int-health-advice{font-size:.73rem;line-height:1.5;color:#466079;margin:0}
+.int-health-link{font-size:.74rem;min-height:42px;display:inline-flex;align-items:center;color:#1766a1;font-weight:750;text-decoration:none;justify-self:start}
+.int-health-history{grid-column:1/-1;background:#fff;border:1px solid var(--int-line);border-radius:15px;padding:11px 13px;min-width:0}
+.int-health-history>summary{font-size:.83rem;font-weight:750;cursor:pointer;min-height:43px;display:flex;align-items:center}
+.int-health-history>p,.int-health-history>small{font-size:.71rem;color:var(--int-muted);line-height:1.5}
+.int-health-events{display:grid;border-top:1px solid var(--int-line);margin:4px 0 9px}
+.int-health-events>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:10px 0;border-bottom:1px solid var(--int-line);font-size:.71rem}
+.int-health-events strong{min-width:0;overflow-wrap:anywhere;color:var(--int-ink)}
+.int-health-events span{color:#50677f}.int-health-events time{color:#718198;grid-column:1/-1;font-size:.66rem}
+@media(min-width:700px){.int-health-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

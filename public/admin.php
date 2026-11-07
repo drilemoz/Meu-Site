@@ -122,9 +122,11 @@ if($action==='integrations_adsense_callback'){
         igua_adsense_api_write(['client_id'=>$credentials['client_id'],'client_secret'=>$credentials['client_secret'],
             'refresh_token'=>$tokens['refresh_token'],'account'=>$account]);
         unset($_SESSION['igua_adsense_api_last'],$_SESSION['igua_adsense_api_attempt']);
+        unset($_SESSION['igua_int_diag_latest']['adsense']); // OAuth concluído não equivale a relatório testado.
         igua_security_event('admin_action','adsense_oauth_connected');
         flash('Conta Google autorizada para leitura dos relatórios AdSense.');
     }catch(Throwable $e){
+        igua_int_diag_failure($_SESSION,'integrations_adsense_callback',$e);
         igua_security_event('admin_action','adsense_oauth_rejected');
         // Não gravar código OAuth, access_token ou refresh_token em logs.
         flash($e instanceof Error?'Falha interna no retorno OAuth; confira Central de Saúde.':$e->getMessage(),'warning');
@@ -147,6 +149,10 @@ if (request_post()) {
             if($postModule!==null)require __DIR__.'/../app/admin_controllers/'.$postModule.'.php';
         }
     } catch (Throwable $e) {
+        if(str_starts_with($action,'integrations_')){
+            $strategy=$_POST['pagespeed_strategy']??'mobile';
+            igua_int_diag_failure($_SESSION,$action,$e,is_string($strategy)?$strategy:'mobile');
+        }
         if($action==='updates')igua_security_event('update_failed');
         if(in_array($action,['media_upload','save_article'],true))igua_security_event('upload_rejected');
         if($action==='save_bus_wizard')$_SESSION['bus_wizard_unsaved']=$_POST;

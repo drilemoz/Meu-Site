@@ -1,3 +1,11 @@
+## 1.0.88 — 07/11/2026 — Encerramento da série de Integrações e APIs
+
+- Aba Diagnóstico reformulada: sete serviços/estratégias com pré-requisitos locais, status da última consulta, horário local e atalhos para as configurações e testes, no layout mobile-first.
+- Histórico temporário e limitado às 12 últimas operações da sessão do administrador. Erros agrupados como autenticação, permissão, quota, conexão, configuração ou indefinido, sem copiar mensagens, tokens, URLs OAuth, chaves ou respostas da API.
+- Registro de êxito somente após consultas manualmente concluídas; falhas registradas no tratamento administrativo central e no callback OAuth, com CSRF/ACL existentes. Trocar uma configuração relevante invalida a indicação da última verificação, preservando a trilha da sessão.
+- As APIs não são chamadas ao abrir o painel. Um ID salvo não significa conexão aprovada, DNS encontrado não significa propriedade confirmada e chamada bem-sucedida não significa eventos/receita registrados.
+- Banco permanece na revisão 36, sem alteração de dados, cookies de visitantes ou permissões de serviço. Regressões offline novas em `tests/integration_diagnostics_188.php`.
+
 ## 1.0.87 — 07/11/2026 — AdSense Management API via OAuth 2.0
 
 - Central de Integrações adiciona cliente OAuth Web privado, login Google com state, PKCE, senha de administrador e callback HTTPS fixo. Reutilização das credenciais GA4 foi **proibida** porque o AdSense não suporta conta de serviço.

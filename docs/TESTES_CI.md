@@ -1,4 +1,4 @@
-# Testes e integração MariaDB — versão 1.0.87
+# Testes e integração MariaDB — versão 1.0.88
 
 ## Comandos locais
 
@@ -67,3 +67,7 @@ O teste agora importa explicitamente os módulos de Publicidade, Editor, Métric
 ## Inspeção individual Search Console (v1.0.85)
 
 `tests/search_console_inspection_185.php` e `tests/search_console_inspection_185.js` validam o novo fluxo: origem URL do banco, rejeição de rascunhos/demonstrações/URLs arbitrárias, OAuth somente leitura e propriedade autorizada, status indexado/excluído/erro/desconhecido, cache limitado, sem segredos no HTML e indicador de carregamento. Dados de API e RSA são simulados. Não substitui requisição real nem browser Android.
+
+## Diagnóstico de integrações (v1.0.88)
+
+`php tests/integration_diagnostics_188.php` exercita o mapeamento de serviços, classificação segura de erros, limite de eventos, estado local versus teste externo, histórico de sessão e renderização do painel sem credenciais ou rede. A cobertura não substitui testes de APIs reais ou testes visuais em Android.

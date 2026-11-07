@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.87)
+# Diretrizes de manutenção — Meu Site (v1.0.88)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -22,6 +22,8 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 
 - O AdSense 1.0.87 exige OAuth2 do proprietário, não conta de serviço. Não misturar refresh token e chave GA4. `storage/integrations/adsense-oauth.json` permanece privado; state + PKCE e callback fixo no domínio HTTPS, tokens nunca em sessão/HTML.
 
+- Diagnóstico 1.0.88: somente sessões de administrador, até 12 eventos genéricos, sem persistir segredos, corpo da resposta, tokens ou URL OAuth. Configuração local não implica autorização; êxito de chamada não comprova presença de eventos ou aprovação Google.
+
 ## Front-end e integrações
 
 - Design mobile-first compacto, ícone `?` para ajuda opcional. Avisos importantes sobre perda de dados, privacidade e erros permanecem **visíveis**. Alvos de toque ~44 px e boa leitura no celular.
@@ -36,7 +38,7 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 
 ## Testes obrigatórios
 
-Executar antes de empacotar, incluindo `tests/ga4_audience_186.php`, `tests/search_console_api_184.php`, `tests/search_console_api_184.js`, `tests/search_console_inspection_185.php`, `tests/search_console_inspection_185.js`, `tests/pagespeed_181.php`, `tests/pagespeed_182.php`, `tests/integrations_181.js`, `tests/integrations_182.js`, `tests/remember_cli_headers_177.php`, `tests/integration_bootstrap_178.php` e `tests/integration_bootstrap_179.php` e `tests/release_workflow_180.js` para prevenir a regressão de HTTPS/headers no CLI:
+Executar antes de empacotar, incluindo `tests/integration_diagnostics_188.php`, `tests/ga4_audience_186.php`, `tests/search_console_api_184.php`, `tests/search_console_api_184.js`, `tests/search_console_inspection_185.php`, `tests/search_console_inspection_185.js`, `tests/pagespeed_181.php`, `tests/pagespeed_182.php`, `tests/integrations_181.js`, `tests/integrations_182.js`, `tests/remember_cli_headers_177.php`, `tests/integration_bootstrap_178.php` e `tests/integration_bootstrap_179.php` e `tests/release_workflow_180.js` para prevenir a regressão de HTTPS/headers no CLI:
 
 ```sh
 for x in tests/*.php; do php "$x" || exit 1; done

@@ -1,12 +1,11 @@
-# Meu Site v1.0.87 — Integração autorizada com Google AdSense
+# Meu Site v1.0.88 — Diagnóstico central das Integrações e APIs
 
-- AdSense Management API v2: autorização separada por OAuth 2.0 de usuário, com escopo somente de leitura e consentimento Google. O AdSense não aceita credenciais de conta de serviço.
-- Cliente OAuth privado configurável com senha administrativa e HTTPS; callback autorizado com state de 256 bits, PKCE SHA-256, vinculação de sessão e consumo único em até 10 minutos.
-- Relatório manual de 30 dias completos: receita estimada na moeda retornada pelo Google, impressões, cliques e visualizações de páginas da conta, não apenas do portal.
-- Verificação de conta retornada pela API correspondente ao ca-pub configurado; sem inventar dados em respostas vazias.
-- Tokens e segredos ficam somente no storage privado; consulta com TLS, endpoints fixos, timeouts, limite de resposta, CSRF, ACL e intervalos entre requisições.
-- Banco continua no schema 36. GA4, Search Console, PageSpeed, consentimento e anúncios existentes foram preservados.
+- Finalização da série de melhorias da Central de Integrações: GA4, AdSense, Search Console, indexação, DNS e PageSpeed celular/computador agora têm fichas de diagnóstico com última operação e seu horário.
+- Diferencia **configuração preparada**, **consulta concluída**, **consulta com erro** e **não consultado**. Nenhum painel de terceiros é consultado ao carregar a tela.
+- Histórico privado com no máximo 12 eventos nesta sessão administrativa. Erros classificados sem divulgar mensagens brutas de serviços externos, chaves privadas, tokens ou dados pessoais.
+- Instruções práticas para problemas de autenticação, permissões, quota, rede ou configuração, com atalhos para cada seção.
+- Testes offline de PHP/JS, regressões anteriores, integridade ZIP e manifesto SHA-256; sem nova migração MySQL (schema 36).
 
-**Pacotes:** `Atualizacao-v1.0.87.zip` (hospedagem) e `Meu-Site-v1.0.87-fonte-completo.zip` (GitHub Manager).
+**Pacotes:** `Atualizacao-v1.0.88.zip` (hospedagem) e `Meu-Site-v1.0.88-fonte-completo.zip` (GitHub Manager).
 
-**Validação pendente:** autorização real com uma conta AdSense e testes em navegador/servidor com PHP cURL e HTTPS. A integração não publica anúncios nem comprova aprovação da conta.
+**Limitação:** todas as integrações continuam sujeitas à autorização do provedor, quota e configuração real da hospedagem. Os testes automatizados usam respostas simuladas; não equivalem à validação com contas Google em produção. O histórico de diagnóstico existe apenas na sessão atual.

@@ -77,6 +77,6 @@ $cfg=array_replace($cfg,['ga4_enabled'=>'1']);$rows=igua_integrations_diagnostic
 $options=[['value'=>'home','label'=>'Página inicial']];$choice='home';$subject=['kind'=>'home','title'=>'Página inicial'];
 $report=igua_page_inspect_report($subject,$cfg,IGUA_PUBLIC);
 ob_start();require $root.'/app/admin_views/routes/integrations.php';$html=ob_get_clean();
-test169(str_contains($html,'Google Analytics 4')&&str_contains($html,'Search Console')&&str_contains($html,'Diagnóstico local'),'view HTML renderizada sem MySQL');
+test169(str_contains($html,'Google Analytics 4')&&str_contains($html,'Search Console')&&str_contains($html,'Diagnóstico central'),'view HTML renderizada sem MySQL');
 test169(!str_contains($html,'Aprovado pelo Google') && substr_count($html,'<details')===substr_count($html,'</details>'),'nenhuma falsa aprovação e detalhes HTML balanceados');
 echo 'Integrações 1.0.69: testes locais concluídos; sem validação remota, hospedagem ou APIs externas.'.PHP_EOL;

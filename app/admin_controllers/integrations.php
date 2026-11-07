@@ -21,12 +21,14 @@ if(in_array($action,['integrations_adsense_credentials','integrations_adsense_di
         $client=igua_adsense_oauth_client($id,$secret);
         igua_adsense_api_write($client+['refresh_token'=>'','account'=>'']);
         unset($_SESSION['igua_adsense_api_last'],$_SESSION['igua_adsense_api_attempt'],$_SESSION['igua_adsense_oauth_pending']);
+        unset($_SESSION['igua_int_diag_latest']['adsense']);
         igua_security_event('settings_changed','adsense_client_saved');
         flash('Cliente OAuth AdSense salvo em storage privado. Agora autorize sua conta Google.');
     }elseif($action==='integrations_adsense_disconnect'){
         if(($_POST['confirm_remove']??'')!=='1')throw new InvalidArgumentException('Confirme a desconexão do AdSense.');
         igua_adsense_api_delete();
         unset($_SESSION['igua_adsense_api_last'],$_SESSION['igua_adsense_api_attempt'],$_SESSION['igua_adsense_oauth_pending']);
+        unset($_SESSION['igua_int_diag_latest']['adsense']);
         igua_security_event('settings_changed','adsense_connection_removed');
         flash('Autorização e cliente OAuth removidos da hospedagem. Para revogar também no Google, use a área de permissões da conta.');
     }elseif($action==='integrations_adsense_connect'){
@@ -52,6 +54,7 @@ if(in_array($action,['integrations_adsense_credentials','integrations_adsense_di
         $credentials=igua_adsense_api_read();
         if($credentials===null)throw new RuntimeException('Conecte a conta Google AdSense primeiro.');
         $_SESSION['igua_adsense_api_last']=igua_adsense_api_report($credentials,$publisher);
+        igua_int_diag_event($_SESSION,'adsense','success');
         igua_security_event('admin_action','adsense_report_viewed');
         flash('Relatório AdSense consultado para os últimos 30 dias completos, na conta do editor.');
     }
@@ -78,6 +81,7 @@ if($action==='integrations_pagespeed_test'){
     $attempts[$strategy]=['url'=>$target,'time'=>time()];
     $_SESSION['igua_pagespeed_attempts']=$attempts;
     $_SESSION['igua_pagespeed_results'][$strategy]=igua_pagespeed_check($cfg,null,null,$strategy);
+    igua_int_diag_event($_SESSION,$strategy==='desktop'?'pagespeed_desktop':'pagespeed_mobile','success');
     igua_security_event('admin_action','pagespeed_manual_test_'.$strategy);
     flash('PageSpeed consultado para '.($strategy==='mobile'?'celular':'computador').'. O resultado é de laboratório.');
     redirect('/admin.php?action=integrations#google-pagespeed');
@@ -99,6 +103,7 @@ if($action==='integrations_search_console_test'){
     $credentials=igua_ga4_read_service_account(igua_ga4_credentials_path());
     if($credentials===null)throw new InvalidArgumentException('Importe primeiro a conta de serviço na seção Google Analytics 4.');
     $_SESSION['igua_search_console_api_last']=igua_search_console_query($credentials,$cfg,$mode);
+    igua_int_diag_event($_SESSION,'search','success');
     igua_security_event('admin_action','search_console_report_test');
     flash('Consulta autorizada ao Search Console concluída. Confira os resultados e o período abaixo.');
     redirect('/admin.php?action=integrations#google-search');
@@ -130,6 +135,7 @@ if($action==='integrations_search_console_inspect'){
     $credentials=igua_ga4_read_service_account(igua_ga4_credentials_path());
     if($credentials===null)throw new InvalidArgumentException('Cadastre a conta de serviço Google na seção GA4 antes de inspecionar notícias.');
     $_SESSION['igua_search_inspection_last']=igua_search_inspection_query($credentials,$cfg,$mode,$target);
+    igua_int_diag_event($_SESSION,'indexing','success');
     igua_security_event('admin_action','search_console_url_inspection');
     flash('Inspeção concluída. O resultado é do índice conhecido pelo Google, não um teste ao vivo.');
     redirect('/admin.php?action=integrations&page='.rawurlencode($raw).'#paginas');
@@ -142,6 +148,7 @@ if($action==='integrations_check_dns'){
         ?$last:igua_search_dns_check($cfg);
     $result['expected_hash']=hash('sha256',$cfg['google_dns_verification_txt']);
     $_SESSION['igua_search_dns_last_check']=$result;
+    igua_int_diag_event($_SESSION,'dns',($result['status']??'')==='unavailable'?'error':'success',($result['status']??'')==='unavailable'?'connection':'');
     igua_security_event('admin_action','search_console_dns_check');
     redirect('/admin.php?action=integrations#google-search');
 }
@@ -160,6 +167,7 @@ if($action==='integrations_ga4_report'){
     $credentials=igua_ga4_read_service_account(igua_ga4_credentials_path());
     if($credentials===null)throw new InvalidArgumentException('Importe primeiro a conta de serviço Google em GA4.');
     $_SESSION['igua_ga4_audience_last']=igua_ga4_audience_report($credentials,$property);
+    igua_int_diag_event($_SESSION,'ga4','success');
     igua_security_event('admin_action','ga4_audience_report');
     flash('Relatório do Google Analytics consultado. Dados agregados da propriedade, últimos 28 dias completos.');
     redirect('/admin.php?action=integrations#google-ga4');
@@ -186,12 +194,14 @@ if($action==='integrations_ga4_credentials' || $action==='integrations_ga4_remov
         if(!is_string($raw) || strlen($raw)>32768)throw new InvalidArgumentException('Não foi possível validar o JSON.');
         igua_ga4_store_service_account($raw,igua_ga4_credentials_path());
         unset($_SESSION['igua_ga4_last_test'],$_SESSION['igua_ga4_audience_last'],$_SESSION['igua_ga4_audience_attempt'],$_SESSION['igua_search_console_api_last'],$_SESSION['igua_search_console_api_attempt']);
+        unset($_SESSION['igua_int_diag_latest']['ga4'],$_SESSION['igua_int_diag_latest']['search'],$_SESSION['igua_int_diag_latest']['indexing']);
         igua_security_event('settings_changed','ga4_credential_updated');
         flash('Conta de serviço salva em armazenamento privado. Ela precisa de acesso de Leitor à propriedade GA4.');
     }elseif($action==='integrations_ga4_remove'){
         if(($_POST['confirm_remove']??'')!=='1')throw new InvalidArgumentException('Confirme a remoção da credencial.');
         igua_ga4_delete_service_account(igua_ga4_credentials_path());
         unset($_SESSION['igua_ga4_last_test'],$_SESSION['igua_ga4_audience_last'],$_SESSION['igua_ga4_audience_attempt'],$_SESSION['igua_search_console_api_last'],$_SESSION['igua_search_console_api_attempt']);
+        unset($_SESSION['igua_int_diag_latest']['ga4'],$_SESSION['igua_int_diag_latest']['search'],$_SESSION['igua_int_diag_latest']['indexing']);
         igua_security_event('settings_changed','ga4_credential_removed');
         flash('Credencial privada removida; rastreamento público não foi alterado.');
     }else {
@@ -200,16 +210,18 @@ if($action==='integrations_ga4_credentials' || $action==='integrations_ga4_remov
         $credentials=igua_ga4_read_service_account(igua_ga4_credentials_path());
         if($credentials===null)throw new InvalidArgumentException('Importe o JSON da conta de serviço antes do teste.');
         unset($_SESSION['igua_ga4_last_test'],$_SESSION['igua_ga4_audience_last'],$_SESSION['igua_ga4_audience_attempt'],$_SESSION['igua_search_console_api_last'],$_SESSION['igua_search_console_api_attempt']);
+        unset($_SESSION['igua_int_diag_latest']['ga4'],$_SESSION['igua_int_diag_latest']['search'],$_SESSION['igua_int_diag_latest']['indexing']);
         $_SESSION['igua_ga4_last_test']=igua_ga4_test_receiving($credentials,$property);
+        igua_int_diag_event($_SESSION,'ga4','success');
         igua_security_event('admin_action','ga4_realtime_test');
         flash('Consulta à Google Analytics Data API concluída. Veja o resultado abaixo.');
     }
     redirect('/admin.php?action=integrations#google-ga4');
 }
 igua_integrations_save($db,$action,$_POST);
-if($action==='integrations_save_ga4')unset($_SESSION['igua_ga4_last_test'],$_SESSION['igua_ga4_audience_last'],$_SESSION['igua_ga4_audience_attempt']);
-if($action==='integrations_save_dns')unset($_SESSION['igua_search_dns_last_check']);
-if($action==='integrations_save_search_console_mode')unset($_SESSION['igua_search_console_api_last'],$_SESSION['igua_search_console_api_attempt'],$_SESSION['igua_search_inspection_last'],$_SESSION['igua_search_inspection_attempt']);
+if($action==='integrations_save_ga4'){unset($_SESSION['igua_ga4_last_test'],$_SESSION['igua_ga4_audience_last'],$_SESSION['igua_ga4_audience_attempt']);unset($_SESSION['igua_int_diag_latest']['ga4']);}
+if($action==='integrations_save_dns'){unset($_SESSION['igua_search_dns_last_check']);unset($_SESSION['igua_int_diag_latest']['dns']);}
+if($action==='integrations_save_search_console_mode'){unset($_SESSION['igua_search_console_api_last'],$_SESSION['igua_search_console_api_attempt'],$_SESSION['igua_search_inspection_last'],$_SESSION['igua_search_inspection_attempt']);unset($_SESSION['igua_int_diag_latest']['search'],$_SESSION['igua_int_diag_latest']['indexing']);}
 igua_security_event('settings_changed','integrations');
 flash('Integração atualizada. Verifique o diagnóstico local para conferir a configuração.');
 redirect('/admin.php?action=integrations'.(in_array($action,['integrations_save_dns','integrations_save_search_console_mode'],true)?'#google-search':''));

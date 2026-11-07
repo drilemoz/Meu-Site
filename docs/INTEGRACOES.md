@@ -1,4 +1,4 @@
-# Integrações, Analytics e verificações — versão 1.0.87
+# Integrações, Analytics e verificações — versão 1.0.88
 
 A Central de Integrações é acessível em **Configurações → Integrações e APIs** e requer permissão de gerenciamento de configurações. O projeto preserva schema MySQL 36.
 
@@ -94,3 +94,11 @@ Testes: `tests/integrations_169.php`, `tests/page_inspector_170.php`, `tests/sea
 - A API **não faz teste ao vivo e não solicita indexação**. Uma notícia publicada pode ainda não ter sido rastreada; números e estados podem refletir uma versão antiga. A consulta real exige cURL/OpenSSL e permissões na hospedagem, ainda não verificadas neste ambiente.
 
 Documentação Google: https://developers.google.com/webmaster-tools/v1/urlInspection.index/inspect e https://developers.google.com/webmaster-tools/v1/urlInspection.index/UrlInspectionResult.
+
+## Diagnóstico central — v1.0.88 (última versão desta série)
+
+A aba **Diagnóstico** reúne GA4, AdSense, Search Console (relatório e inspeção), PageSpeed (celular/computador) e DNS. Em cada ficha aparecem os pré-requisitos **locais**, a **última operação** e seu horário, se houve uma consulta manual desde a implantação desta versão na sessão corrente. Uma configuração aparentemente completa não significa API aprovada nem dados recebidos.
+
+Após consultas manuais, a sessão administrativa armazena apenas nome interno do serviço, estado (sucesso/erro), categoria de erro e horário. São guardadas no máximo **12 operações**; o encerramento da sessão apaga esse registro. As categorias são *heurísticas* e podem exigir revisão da mensagem na própria operação. **Nunca** são guardados relatórios brutos, URLs de OAuth, senhas, chaves ou tokens no diagnóstico. Reconfigurar uma integração invalida a marca da última verificação desse serviço, sem modificar o histórico anterior da sessão.
+
+O acesso à aba não faz requisições externas. Para efetuar uma nova consulta, abra o serviço desejado na aba **Google** ou a inspeção da notícia na aba **Páginas**. A Central de Saúde acompanha a integridade local da hospedagem; diagnósticos não substituem verificação real de OAuth/credenciais, permissões, aprovação AdSense nem indexação no Google.
