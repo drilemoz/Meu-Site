@@ -8,6 +8,7 @@ require_once __DIR__.'/adsense_review.php';
 require_once __DIR__.'/page_inspector.php';
 require_once __DIR__.'/ga4_realtime.php';
 require_once __DIR__.'/search_console_dns.php';
+require_once __DIR__.'/pagespeed_insights.php';
 
 /** Token do Search Console, nunca HTML bruto. A metatag é visível publicamente por definição. */
 function igua_google_verification_token(string $value): string {
@@ -98,6 +99,8 @@ function igua_integrations_admin_view(PDO $db): void {
     $ga4CredentialsReady=false;
     try{$ga4CredentialsReady=igua_ga4_read_service_account(igua_ga4_credentials_path())!==null;}
     catch(Throwable $e){igua_health_log('GA4_CREDENTIAL_UNREADABLE',$e);}
+    $pageSpeedUrl=igua_pagespeed_site_url($cfg);
+    $pageSpeedLast=igua_pagespeed_last_check($cfg,$_SESSION);
     $ga4Live=null;
     if(isset($_SESSION['igua_ga4_last_test']) && is_array($_SESSION['igua_ga4_last_test'])){
         $test=$_SESSION['igua_ga4_last_test'];

@@ -2,6 +2,8 @@
 $cfg['ga4_property_id']=$cfg['ga4_property_id']??'';
 $ga4CredentialsReady=$ga4CredentialsReady??false;
 $ga4Live=$ga4Live??null;
+$pageSpeedUrl=$pageSpeedUrl??igua_pagespeed_site_url($cfg);
+$pageSpeedLast=$pageSpeedLast??null;
 $pass=count(array_filter($rows,static fn($v)=>(bool)$v['ok']));
 $total=count($rows);
 $gaOn=$cfg['ga4_enabled']==='1' && analytics_ga4_measurement_id($cfg['ga4_measurement_id'])!=='';
@@ -19,20 +21,27 @@ $searchStatusClass=$dnsFound?'int-on':(($tokenOn||$dnsConfigured)?'int-ready':'i
   <section class="int-hero" aria-labelledby="int-title">
     <div class="int-hero-orb" aria-hidden="true"></div>
     <div class="int-hero-top"><span class="int-overline"><span class="int-live-dot"></span> CENTRAL DE SERVIÇOS</span><span class="int-release">v<?=h(igua_brand_version())?></span></div>
-    <h2 id="int-title">Um painel.<br><span>Todas as conexões.</span></h2>
+    <h2 id="int-title">Integrações <span>em um lugar.</span></h2>
     <p>Controle os serviços, confira a configuração e prepare novas integrações.</p>
     <div class="int-hero-metrics" aria-label="Resumo de configuração">
       <div><strong><?= $pass ?><small>/<?= $total ?></small></strong><span>checagens locais</span></div>
-      <div><strong><?= (int)$gaOn+(int)$adOn+(int)$tokenOn ?></strong><span>serviços preparados</span></div>
+      <div><strong><?= (int)$gaOn+(int)$adOn+(int)($tokenOn||$dnsConfigured) ?></strong><span>serviços preparados</span></div>
       <a href="/admin.php?action=integrations&amp;check=1#diagnostico"><span aria-hidden="true">↗</span><span>Conferir<br>agora</span></a>
     </div>
   </section>
-  <nav class="int-tabs" data-integrations-nav aria-label="Seções da Central de Integrações">
+  <div class="int-quick-links" aria-label="Acesso rápido aos serviços">
+    <a href="#google-ga4"><span>GA4</span><strong><?= $gaOn?'Ativo no site':'Desligado' ?></strong></a>
+    <a href="#google-adsense"><span>AdSense</span><strong><?= $adOn?'ID cadastrado':'Sem ID' ?></strong></a>
+    <a href="#google-search"><span>Search Console</span><strong><?=h($searchStatus)?></strong></a>
+    <a href="#google-pagespeed"><span>PageSpeed</span><strong><?= $pageSpeedLast!==null?'Nota '.(int)$pageSpeedLast['score'].'/100':'Não testado' ?></strong></a>
+  </div>
+  <nav class="int-tabs data-integrations-nav aria-label="Seções da Central de Integrações">
     <button type="button" class="is-active" aria-pressed="true" data-int-target="google"><span aria-hidden="true">◈</span> Google</button>
     <button type="button" aria-pressed="false" data-int-target="diagnostico"><span aria-hidden="true">◉</span> Diagnóstico</button>
     <button type="button" aria-pressed="false" data-int-target="paginas"><span aria-hidden="true">▤</span> Páginas</button>
     <button type="button" aria-pressed="false" data-int-target="catalogo"><span aria-hidden="true">✧</span> Catálogo</button>
   </nav>
+  <div class="int-copy-feedback" data-int-copy-feedback role="status" aria-live="polite" hidden></div>
   <section class="int-section" id="google" data-int-section aria-labelledby="int-google-title">
     <div class="int-section-head"><div><span class="int-eyebrow">ATIVOS E PREPARADOS</span><h3 id="int-google-title">Serviços Google</h3></div><details class="compact-help"><summary aria-label="Ajuda sobre as integrações">?</summary><div class="compact-help-content">Usamos os mesmos valores de Métricas e Publicidade. Nenhuma API é ativada sem configuração. Os estados abaixo são locais, não aprovação dos provedores.</div></details></div>
     <details class="int-service int-ga" id="google-ga4">
@@ -43,7 +52,7 @@ $searchStatusClass=$dnsFound?'int-on':(($tokenOn||$dnsConfigured)?'int-ready':'i
           <label class="int-switch"><input type="checkbox" name="ga4_enabled" value="1" <?=$gaOn?'checked':''?>><span>Ativar GA4</span></label>
           <label for="int-ga-id">ID de medição<input id="int-ga-id" name="ga4_measurement_id" value="<?=h($cfg['ga4_measurement_id'])?>" maxlength="22" pattern="G-[a-zA-Z0-9]{4,20}" autocapitalize="characters" spellcheck="false" placeholder="G-XXXXXXXXXX"></label>
           <label for="int-ga-property">Propriedade GA4 (ID numérico)<input id="int-ga-property" name="ga4_property_id" inputmode="numeric" value="<?=h($cfg['ga4_property_id'])?>" maxlength="20" pattern="[0-9]{4,20}" autocomplete="off" placeholder="123456789"></label>
-          <div class="int-service-actions"><button class="btn primary" type="submit">Salvar GA4</button><a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer">Abrir Google ↗</a></div>
+          <div class="int-service-actions"><button class="btn primary" type="submit">Salvar GA4</button><button type="button" class="btn outline" data-int-copy="int-ga-id" aria-label="Copiar ID de medição GA4">Copiar ID</button><a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer">Abrir Google ↗</a></div>
         </form>
         <div class="int-live-panel" aria-labelledby="int-live-title">
           <div class="int-live-heading"><span class="int-live-icon" aria-hidden="true">◉</span><div><strong id="int-live-title">Recebimento de dados</strong><small>Consulta autorizada · Últimos 30 minutos e 7 dias</small></div><details class="compact-help"><summary aria-label="Ajuda para o diagnóstico GA4">?</summary><div class="compact-help-content">O ID G- identifica o fluxo do site; a propriedade é numérica. A API verifica eventos da propriedade, que pode ter outros fluxos. Zero eventos não prova falha. É necessário habilitar a Analytics Data API e dar acesso de Leitor à conta de serviço.</div></details></div>
@@ -98,7 +107,7 @@ $searchStatusClass=$dnsFound?'int-on':(($tokenOn||$dnsConfigured)?'int-ready':'i
         <div class="int-hint-row"><span>O ID é compartilhado com Publicidade</span><details class="compact-help"><summary aria-label="Ajuda do AdSense">?</summary><div class="compact-help-content">Salvar o ID publica apenas a identificação para análise. Não ativa anúncios nem garante aprovação. A ativação das posições continua em Publicidade.</div></details></div>
         <form method="post" action="/admin.php?action=integrations_save_adsense" class="int-form"><?= csrf_field() ?>
           <label for="int-adsense-id">ID do editor<input id="int-adsense-id" name="adsense_publisher" value="<?=h($cfg['adsense_publisher'])?>" maxlength="23" pattern="ca-pub-[0-9]{16}" placeholder="ca-pub-1234567890123456"></label>
-          <div class="int-service-actions"><button class="btn primary" type="submit">Salvar AdSense</button><a href="<?=h(admin_link('ads'))?>">Gerenciar anúncios ↗</a></div>
+          <div class="int-service-actions"><button class="btn primary" type="submit">Salvar AdSense</button><button type="button" class="btn outline" data-int-copy="int-adsense-id" aria-label="Copiar ID AdSense">Copiar ID</button><a href="<?=h(admin_link('ads'))?>">Gerenciar anúncios ↗</a></div>
         </form>
       </div>
     </details>
@@ -109,7 +118,7 @@ $searchStatusClass=$dnsFound?'int-on':(($tokenOn||$dnsConfigured)?'int-ready':'i
         <div class="int-dns-domain"><span>Domínio a consultar</span><strong><?=h($dnsDomain!==''?$dnsDomain:'URL oficial não configurada')?></strong><?php if($dnsDomain===''): ?><a href="<?=h(admin_link('settings'))?>">Configurar HTTPS ↗</a><?php endif; ?></div>
         <form method="post" action="/admin.php?action=integrations_save_dns" class="int-form"><?=csrf_field() ?>
           <label for="int-dns-token">TXT esperado <small>(opcional)</small><input id="int-dns-token" name="google_dns_verification_txt" value="<?=h($cfg['google_dns_verification_txt']??'')?>" maxlength="300" autocomplete="off" spellcheck="false" placeholder="google-site-verification=..."></label>
-          <div class="int-service-actions"><button type="submit" class="btn outline">Salvar TXT</button><details class="compact-help"><summary aria-label="Por que informar o registro esperado?">?</summary><div class="compact-help-content">Sem o valor exato, detectamos somente a presença de um registro Google, que pode pertencer a outra conta. Copie o TXT fornecido pelo Search Console e salve para conferir uma correspondência exata. Limpe o campo e salve para voltar ao teste genérico.</div></details></div>
+          <div class="int-service-actions"><button type="submit" class="btn outline">Salvar TXT</button><button type="button" class="btn outline" data-int-copy="int-dns-token" aria-label="Copiar registro DNS TXT">Copiar TXT</button><details class="compact-help"><summary aria-label="Por que informar o registro esperado?">?</summary><div class="compact-help-content">Sem o valor exato, detectamos somente a presença de um registro Google, que pode pertencer a outra conta. Copie o TXT fornecido pelo Search Console e salve para conferir uma correspondência exata. Limpe o campo e salve para voltar ao teste genérico.</div></details></div>
         </form>
         <form method="post" action="/admin.php?action=integrations_check_dns" class="int-dns-check-form" data-dns-test-form><?=csrf_field() ?>
           <button class="btn primary" type="submit" <?= $dnsDomain===''?'disabled':'' ?>>⌕ Consultar DNS</button>
@@ -131,16 +140,38 @@ $searchStatusClass=$dnsFound?'int-on':(($tokenOn||$dnsConfigured)?'int-ready':'i
         <a class="int-dns-console-link" href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">Abrir Search Console ↗</a>
       </div>
     </details>
-    <div class="int-section-note"><span class="int-note-icon" aria-hidden="true">ⓘ</span><p>A consulta do GA4 exige autenticação e ocorre somente por ação do administrador. Configuração local não garante recebimento ou aprovação.</p></div>
+    <details class="int-service int-speed" id="google-pagespeed">
+      <summary><span class="int-service-icon" aria-hidden="true">◷</span><span class="int-service-copy"><strong>PageSpeed Insights</strong><small>Desempenho mobile · Lighthouse</small></span><span class="int-state <?= $pageSpeedLast!==null?'int-ready':'int-off' ?>"><?= $pageSpeedLast!==null?'Medido':'Não testado' ?></span><span class="int-chevron" aria-hidden="true"></span></summary>
+      <div class="int-service-body">
+        <div class="int-hint-row"><span>Consulta real à API Google, somente quando solicitada</span><details class="compact-help"><summary aria-label="Ajuda PageSpeed Insights">?</summary><div class="compact-help-content">Usa a URL HTTPS oficial definida em Geral e SEO, sem exigir chave de API para consultas ocasionais. O teste executa Lighthouse em ambiente controlado pelo Google e pode demorar ou atingir limites. A nota não mede diretamente a experiência de todos os visitantes.</div></details></div>
+        <div class="int-speed-target"><span>URL analisada</span><strong><?=h($pageSpeedUrl!==''?$pageSpeedUrl:'Configure a URL HTTPS em Geral e SEO')?></strong><?php if($pageSpeedUrl===''): ?><a href="<?=h(admin_link('settings'))?>">Configurar URL ↗</a><?php endif; ?></div>
+        <?php if($pageSpeedLast!==null): ?>
+          <div class="int-speed-report" role="status" aria-label="Resultado do último teste PageSpeed">
+            <div class="int-speed-score <?= $pageSpeedLast['score']>=90?'is-good':($pageSpeedLast['score']>=50?'is-mid':'is-low') ?>"><strong><?= (int)$pageSpeedLast['score'] ?></strong><span>/100</span></div>
+            <div class="int-speed-summary"><strong>Desempenho mobile</strong><small>Lighthouse · <?=date('d/m/Y H:i',(int)$pageSpeedLast['checked_at'])?></small><span><?= $pageSpeedLast['score']>=90?'Boa pontuação no teste':($pageSpeedLast['score']>=50?'Há oportunidades de melhoria':'Atenção ao desempenho') ?></span></div>
+          </div>
+          <?php if(!empty($pageSpeedLast['metrics'])): ?><div class="int-speed-metrics" role="list">
+            <?php foreach($pageSpeedLast['metrics'] as $metric): ?><div role="listitem"><small><?=h((string)$metric['label'])?></small><strong><?=h((string)$metric['value'])?></strong></div><?php endforeach; ?>
+          </div><?php endif; ?>
+        <?php else: ?><p class="int-speed-empty">Ainda não há medição. O botão abaixo solicita uma análise externa do endereço público do portal.</p><?php endif; ?>
+        <form method="post" action="/admin.php?action=integrations_pagespeed_test" data-pagespeed-test-form><?=csrf_field() ?>
+          <button type="submit" class="btn primary" <?= $pageSpeedUrl===''?'disabled':'' ?>>◷ Medir desempenho</button>
+          <span data-pagespeed-wait role="status" aria-live="polite" hidden>O Google está analisando a página. Isso pode levar alguns segundos…</span>
+        </form>
+        <div class="int-service-actions"><a href="https://pagespeed.web.dev/" target="_blank" rel="noopener noreferrer">Abrir PageSpeed ↗</a><details class="compact-help"><summary aria-label="Como interpretar a nota">?</summary><div class="compact-help-content">Notas entre 90 e 100 são boas, 50 a 89 pedem melhorias e abaixo de 50 indicam atenção. Resultado de laboratório, variável entre consultas. Sem dados suficientes, não conclua que visitantes reais tiveram a mesma experiência.</div></details></div>
+      </div>
+    </details>
+    <div class="int-section-note"><span class="int-note-icon" aria-hidden="true">ⓘ</span><p>GA4, DNS e PageSpeed usam verificações sob demanda. Valores salvos, registros encontrados e notas Lighthouse não significam aprovação no Google.</p></div>
   </section>
   <section class="int-section" id="diagnostico" data-int-section aria-labelledby="int-diag-title">
-    <div class="int-section-head"><div><span class="int-eyebrow">VERIFICAÇÕES LOCAIS</span><h3 id="int-diag-title">Diagnóstico local</h3></div><details class="compact-help"><summary aria-label="Ajuda do diagnóstico">?</summary><div class="compact-help-content">Conferimos apenas arquivos e valores armazenados no servidor. Esta aba não consulta o DNS automaticamente. A consulta de registro TXT está na seção Search Console da aba Google e só executa sob demanda. O teste GA4 também é manual. Nenhuma verificação é uma certificação do Google.</div></details></div>
+    <div class="int-section-head"><div><span class="int-eyebrow">VERIFICAÇÕES LOCAIS</span><h3 id="int-diag-title">Diagnóstico local</h3></div><details class="compact-help"><summary aria-label="Ajuda do diagnóstico">?</summary><div class="compact-help-content">Conferimos apenas arquivos e valores armazenados no servidor. Esta aba não consulta serviços externos automaticamente. DNS, GA4 e PageSpeed têm botões específicos na aba Google para testes sob demanda. Nenhuma verificação é uma certificação do Google.</div></details></div>
     <div class="int-diag-overview"><div><strong><?= $pass ?> de <?= $total ?></strong><span>checagens locais atendidas</span></div><a href="/admin.php?action=integrations&amp;check=1#diagnostico" class="btn outline">↻ Verificar tudo</a></div>
     <div class="int-checks" role="list">
       <?php foreach($rows as $row): ?><div class="int-check" role="listitem"><span class="int-check-mark <?= $row['ok']?'good':'attention' ?>" aria-hidden="true"><?= $row['ok']?'✓':'!' ?></span><div><strong><?=h($row['name'])?></strong><p><?=h($row['detail'])?></p></div><span class="int-check-label"><?= $row['ok']?'OK local':'Atenção' ?></span></div><?php endforeach; ?>
     </div>
     <?php if($dnsLast!==null): ?><div class="int-dns-diag"><strong>DNS Search Console</strong><span><?=h(['matched'=>'TXT esperado encontrado','found'=>'TXT Google encontrado','missing'=>'Não encontrado','mismatch'=>'Divergente','unavailable'=>'Indisponível','no_domain'=>'Sem domínio'][''.$dnsStatus]??'Não confirmado')?></span><small>Consulta sob demanda, não confirmação de propriedade Google.</small></div><?php endif; ?>
-    <div class="int-section-note"><span class="int-note-icon" aria-hidden="true">ⓘ</span><p>A conexão GA4 está na aba Google; demais testes de domínio e aprovação seguem pendentes. Não confunda configuração com funcionamento confirmado.</p></div>
+    <?php if($pageSpeedLast!==null): ?><div class="int-dns-diag"><strong>PageSpeed mobile</strong><span><?= (int)$pageSpeedLast['score'] ?>/100</span><small>Última consulta Lighthouse nesta sessão, não uma métrica de usuários reais.</small></div><?php endif; ?>
+    <div class="int-section-note"><span class="int-note-icon" aria-hidden="true">ⓘ</span><p>Diagnósticos locais e consultas externas são diferentes. Consulte GA4, DNS e PageSpeed pelos respectivos botões na aba Google.</p></div>
   </section>
   <section class="int-section" id="paginas" data-int-section aria-labelledby="int-pages-title">
     <div class="int-section-head"><div><span class="int-eyebrow">CHECKLIST DA PUBLICAÇÃO</span><h3 id="int-pages-title">Verificador de Páginas</h3></div><details class="compact-help"><summary aria-label="Sobre o verificador de páginas">?</summary><div class="compact-help-content">Analisa o banco e os arquivos do próprio portal. Não acessa sites externos, não mede HTTP, não consulta o Google e não garante indexação. Selecione uma notícia publicada, uma categoria ou a página inicial.</div></details></div>
@@ -173,7 +204,7 @@ $searchStatusClass=$dnsFound?'int-on':(($tokenOn||$dnsConfigured)?'int-ready':'i
     <div class="int-section-head"><div><span class="int-eyebrow">EXPANSÃO MODULAR</span><h3 id="int-catalog-title">Próximas integrações</h3></div><details class="compact-help"><summary aria-label="Ajuda sobre futuras integrações">?</summary><div class="compact-help-content">Estes serviços ainda não possuem conexão ativa, tokens cadastráveis nem testes de API. Cada um precisará de autenticação e validação separadas.</div></details></div>
     <div class="int-catalog-grid">
       <?php foreach([
-        ['◷','PageSpeed Insights','Desempenho mobile'],['✦','Google Gemini','Assistente editorial futuro'],['▤','Google Tag Manager','Gerenciamento de tags'],['↗','Google Ads','Campanhas e conversões'],['▥','Google Notícias','Dados estruturados'],['⌕','Bing Webmaster','Busca e indexação'],['◈','Microsoft Clarity','Análise de experiência'],['⬡','Cloudflare','Proteção e desempenho'],['⇪','IndexNow','Aviso de URLs novas']
+        ['✦','Google Gemini','Assistente editorial futuro'],['▤','Google Tag Manager','Gerenciamento de tags'],['↗','Google Ads','Campanhas e conversões'],['▥','Google Notícias','Dados estruturados'],['⌕','Bing Webmaster','Busca e indexação'],['◈','Microsoft Clarity','Análise de experiência'],['⬡','Cloudflare','Proteção e desempenho'],['⇪','IndexNow','Aviso de URLs novas']
       ] as $item): ?><div class="int-future"><span aria-hidden="true"><?=h($item[0])?></span><div><strong><?=h($item[1])?></strong><small><?=h($item[2])?></small></div><em>Em breve</em></div><?php endforeach; ?>
     </div>
   </section>

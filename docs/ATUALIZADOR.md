@@ -1,4 +1,4 @@
-# Atualizações e recuperação — versão 1.0.79
+# Atualizações e recuperação — versão 1.0.80
 
 ## Pacotes
 
@@ -21,3 +21,9 @@ O servidor verifica versão, tamanho, caminhos, manifesto, CSRF e reautenticaç�
 Uma atualização de código **não substitui** um backup. O restaurador de código e o backup de dados são fluxos distintos. Ver [BACKUP.md](BACKUP.md).
 
 Teste de CI: `php tests/updater_modal_175.php`, `node tests/updater_modal_175.js`, `node tests/updater_progress_167.js` e `python3 tools/build_update_package.py --output <arquivo>`.
+
+## Novas versões disponibilizadas automaticamente no GitHub
+
+Após um envio com nova `VERSION` para `main` pelo GitHub Manager, o workflow de integração MariaDB verifica o código e publica, quando aprovado e `VERSION` alterado, a Release `vX.Y.Z` com o único pacote destinado à hospedagem `Atualizacao-vX.Y.Z.zip`. O painel consulta a API de `releases/latest` para `drilemoz/Meu-Site` e usa cache de 30 minutos. Se houver uma versão superior à instalada, mostra a opção de obtê-la. Uma Release de versão igual à instalada não é exibida como novidade.
+
+O processo GitHub é automático; **instalar continua sendo uma decisão do administrador**. Não confundir o ZIP de código-fonte com o ZIP de atualização. Não confundir SHA-256 com assinatura de autoria: é necessário confiar na conta/repositório que publicou.

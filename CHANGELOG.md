@@ -1,3 +1,16 @@
+## 1.0.81 — 07/11/2026
+- PageSpeed Insights v5 operacional, somente por consulta do administrador, URL canônica HTTPS validada e requisição fixa/sem redirecionamentos, limites de uso, resultado resumido por sessão e sem persistência de relatórios externos.
+- Central de Integrações com cartões de acesso rápido, botões para copiar identificadores públicos e estado/andamento do teste mobile; sem confundir configuração local com aprovação ou métricas de usuários reais.
+- Novos testes offline `tests/pagespeed_181.php` e `tests/integrations_181.js`; regressões de JS antigas adaptadas à adição de controles.
+- Sem migração de MySQL (schema 36), alterações nas credenciais GA4, segurança, consentimento ou no workflow de publicação automático da 1.0.80.
+
+## 1.0.80 — 07/11/2026 — Releases automáticas após validação do CI
+- O workflow `integration-mariadb.yml` agora possui job de publicação dependente do sucesso de todos os testes PHP, JavaScript, upload segmentado e integração real MariaDB/ZipArchive.
+- Em push para `main` que altera `VERSION`, gera com `tools/build_update_package.py` um pacote v2 `Atualizacao-vX.Y.Z.zip`, confere manifesto e SHA-256, e publica uma GitHub Release `vX.Y.Z` com o ZIP anexado.
+- Publicação usa `GITHUB_TOKEN` com `contents: write` **somente** no job publicador. Não exige PAT, não cria release se os testes falharem e impede sobrescrever tags/versões já publicadas.
+- Pushes de `VERSION`, metadados e documentação também disparam o workflow; execuções manuais continuam testando sem publicar.
+- Adicionado teste preventivo `tests/release_workflow_180.js`; documentação e metadados atualizados. Mantidos schema 36, backups, autenticação e atualizador. A instalação no site continua manual e protegida por senha. Pacote sem assinatura Ed25519 porque nenhuma chave foi fornecida.
+
 ## 1.0.79 — 07/11/2026 — Dependências do teste de migração de índices
 - Corrigida a falha no teste `tests/integration/news_indexes_mariadb_146.php`: `igua_migrate_schema()` chama migrações de Publicidade, Editor, URLs e Métricas. O processo CLI agora carrega explicitamente `ads.php`, `news_editor.php`, `analytics.php`, `auth_remember.php` e `elections/schema.php` junto dos módulos anteriores.
 - Adicionado preflight que verifica todas as funções de migração **antes de remover índices** no banco MariaDB isolado; uma dependência ausente não deixa o banco de teste parcialmente modificado.

@@ -2,11 +2,20 @@ name: Integracao MariaDB backup e restore
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
+      - 'VERSION'
       - 'app/**'
       - 'public/**'
+      - 'bin/**'
       - 'tools/**'
       - 'tests/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'RELEASE_NOTES.md'
+      - 'github-manager.json'
+      - 'app_identity.json'
       - '.github/workflows/integration-mariadb.yml'
 permissions:
   contents: read
@@ -70,3 +79,114 @@ jobs:
           php tests/integration/remember_mariadb_140.php
           php tests/integration/elections_mariadb_141.php
           php tests/integration/news_indexes_mariadb_146.php
+
+  publicar_release:
+    name: Publicar Release apos todos os testes
+    needs: integration
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: meu-site-release-main
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout da versao validada
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Conferir versao, tag e Release existentes
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(tr -d '\r\n' < VERSION)"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo 'VERSION invalida: use X.Y.Z' >&2
+            exit 1
+          fi
+          tag="v${version}"
+          expected="Atualizacao-v${version}.zip"
+          # Somente uma nova VERSION enviada via GitHub Manager deve publicar.
+          previous="$(git show HEAD^:VERSION 2>/dev/null | tr -d '\r\n' || true)"
+          if [[ "$previous" == "$version" ]]; then
+            echo "VERSION nao mudou (${version}); validacao apenas, sem nova Release."
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" --json assets --jq '.assets[].name' > "$RUNNER_TEMP/release-assets.txt" 2>/dev/null; then
+            if grep -Fxq "$expected" "$RUNNER_TEMP/release-assets.txt"; then
+              echo "Release ${tag} ja publicada com ${expected}; sem duplicar."
+              echo 'publish=false' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Release ${tag} ja existe, mas nao tem ${expected}. Revisao manual necessaria." >&2
+            exit 1
+          fi
+          if git ls-remote --tags --exit-code origin "refs/tags/${tag}" >/dev/null 2>&1; then
+            echo "Tag ${tag} existe sem Release. Nao sobrescrever tags automaticamente." >&2
+            exit 1
+          fi
+          # Nunca sobrescrever/republicar uma versao anterior ao ultimo release.
+          latest="$(gh release view --json tagName --jq '.tagName' 2>/dev/null || true)"
+          if [[ "$latest" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            latest_version="${latest#v}"
+            newest="$(printf '%s\n%s\n' "$latest_version" "$version" | sort -V | tail -n 1)"
+            if [[ "$newest" != "$version" || "$latest_version" == "$version" ]]; then
+              echo "Nao publicar versao ${version}: ultima Release e ${latest_version}." >&2
+              exit 1
+            fi
+          fi
+          echo 'publish=true' >> "$GITHUB_OUTPUT"
+      - name: Gerar ZIP de atualizacao a partir do commit aprovado
+        if: steps.release.outputs.publish == 'true'
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          python3 tools/build_update_package.py --output "$RUNNER_TEMP/Atualizacao-v${VERSION}.zip"
+      - name: Verificar manifesto e hashes do ZIP
+        if: steps.release.outputs.publish == 'true'
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          python3 - "$RUNNER_TEMP/Atualizacao-v${VERSION}.zip" "$VERSION" <<'PYCODE'
+          import hashlib,json,sys,zipfile
+          file,version=sys.argv[1:]
+          with zipfile.ZipFile(file) as z:
+              assert z.testzip() is None
+              manifest=json.loads(z.read('release.json'))
+              assert manifest['format']=='meu-site-update-v2'
+              assert manifest['version']==version
+              assert len(manifest['files'])>0
+              assert len(z.namelist())==len(manifest['files'])+1
+              names=set()
+              for item in manifest['files']:
+                  name=item['path']
+                  assert name not in names and (name=='VERSION' or name.startswith(('app/','public/')))
+                  assert not name.startswith('public/uploads/')
+                  data=z.read(name)
+                  assert len(data)==item['size']
+                  assert hashlib.sha256(data).hexdigest()==item['sha256']
+                  names.add(name)
+          print('Manifesto e hashes SHA-256 confirmados para',version)
+          PYCODE
+      - name: Publicar Release e anexar ZIP
+        if: steps.release.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" "$RUNNER_TEMP/Atualizacao-v${VERSION}.zip" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Meu Site v${VERSION}" \
+            --notes-file RELEASE_NOTES.md \
+            --latest

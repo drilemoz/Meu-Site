@@ -8,7 +8,7 @@ const sections=['google','diagnostico','catalogo'].map(node);
 const details=node('google-adsense'); details.tagName='DETAILS'; details.closest=()=>sections[0];
 const buttons=sections.map(x=>{const b=node('btn-'+x.id);b.dataset.intTarget=x.id;b.addEventListener=(name,cb)=>{b.cb=cb;};return b;});
 const nav={querySelectorAll:()=>buttons};
-const hub={querySelector:(selector)=>selector==='[data-integrations-nav]'?nav:null,querySelectorAll:()=>sections,contains:()=>true};
+const hub={querySelector:(selector)=>selector==='[data-integrations-nav]'?nav:null,querySelectorAll:(selector)=>selector==='[data-int-section]'?sections:[],contains:()=>true};
 const ids=Object.fromEntries([...sections,details].map(x=>[x.id,x]));
 const location={hash:''};const handlers={};
 const context={document:{getElementById:(id)=>id==='integrations-hub'?hub:ids[id]},location,history:{replaceState(a,b,hash){location.hash=hash;}},window:{addEventListener(name,cb){handlers[name]=cb;}},decodeURIComponent,encodeURIComponent};

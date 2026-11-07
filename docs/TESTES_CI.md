@@ -1,4 +1,4 @@
-# Testes e integração MariaDB — versão 1.0.79
+# Testes e integração MariaDB — versão 1.0.81
 
 ## Comandos locais
 
@@ -11,11 +11,28 @@ python3 tools/build_news_editor.py --check
 python3 tools/audit_project.py
 ```
 
+Testes novos: `php tests/pagespeed_181.php` (transportes simulados, validação de URL pública, erros e expiração) e `node tests/integrations_181.js` (navegação e UX). A API PageSpeed externa **não** é consultada pelos testes automáticos, evitando cotas, rede variável e falsos positivos.
+
 ## GitHub Actions
 
 O workflow `.github/workflows/integration-mariadb.yml` configura MariaDB 11.4 e instala `php-cli php-mysql php-zip`, executa testes, testa uploads segmentados e restauração em base isolada. **Não** execute os scripts de restauração no banco de produção.
 
 `tests/fixtures/backup133_duplicate_names.zip` é um ZIP deliberadamente inválido, com nomes repetidos, criado para provar que o restaurador rejeita entradas duplicadas. Ele pertence **somente aos testes**, nunca ao pacote de atualização da hospedagem.
+
+## Publicação automática de Releases
+
+Em qualquer push para `main` que altere o código, versão, documentação ou o próprio workflow, o job `integration` testa PHP, JS, CSS e MariaDB. O job `publicar_release` só executa **depois do sucesso** e publica somente quando `VERSION` mudou em relação ao commit anterior, com permissão temporária `contents: write` obtida do `GITHUB_TOKEN` do Actions. Não há PAT.
+
+O job lê o arquivo `VERSION` (X.Y.Z), procura a Release/tag `vX.Y.Z` e:
+
+- se já existir Release com `Atualizacao-vX.Y.Z.zip`, não recria nem substitui;
+- se a tag existir sem a Release ou a Release estiver incompleta, aborta para inspeção manual;
+- se a versão for inferior ou igual à última Release publicada, não publica;
+- caso contrário, gera o pacote v2, verifica `release.json`/SHA-256 e publica o ZIP **daquele commit validado**.
+
+Execução manual (`workflow_dispatch`) somente executa os testes, sem publicar; publicação ocorre em pushes `main`. Para a próxima entrega, incremente `VERSION` e `github-manager.json`/`app_identity.json` juntos. O GitHub Manager não precisa ter a função de criar Release para projetos PHP.
+
+**Limites:** se GitHub Actions não conceder `contents: write`, o job falhará; revisar as permissões do repositório. SHA-256 no ZIP garante integridade interna, não identidade criptográfica de origem. A instalação no painel exige senha/confirmacão; não há instalação silenciosa.
 
 ## Limites
 

@@ -1,4 +1,4 @@
-/* Central de Integrações: abas progressivas, sem alterar formulários ou credenciais. */
+/* Central de Integrações: abas acessíveis, estados sob demanda e cópia explícita de IDs públicos. */
 (()=>{
   'use strict';
   const hub=document.getElementById('integrations-hub');
@@ -16,7 +16,8 @@
     });
   };
   const fromHash=()=>{
-    const hash=decodeURIComponent(location.hash.slice(1));
+    let hash;
+    try{hash=decodeURIComponent(location.hash.slice(1));}catch{return;}
     const target=document.getElementById(hash);
     if(!target || !hub.contains(target))return;
     const section=target.closest('[data-int-section]');
@@ -32,18 +33,35 @@
   window.addEventListener('hashchange',fromHash);
   activate('google');
   if(location.hash)fromHash();
-  const dnsTest=hub.querySelector('[data-dns-test-form]');
-  if(dnsTest)dnsTest.addEventListener('submit',()=>{
-    const button=dnsTest.querySelector('button[type=submit]');
-    const wait=dnsTest.querySelector('[data-dns-wait]');
-    if(button){button.disabled=true;button.textContent='Consultando…';}
-    if(wait)wait.hidden=false;
-  });
-  const test=hub.querySelector('[data-ga4-test-form]');
-  if(test)test.addEventListener('submit',()=>{
-    const button=test.querySelector('button[type=submit]');
-    const wait=test.querySelector('[data-ga4-wait]');
-    if(button){button.disabled=true;button.textContent='Consultando…';}
-    if(wait)wait.hidden=false;
-  });
+  // Os três testes consultam serviços externos apenas após POST protegido por CSRF.
+  for(const [selector,waiting] of [
+    ['[data-dns-test-form]','[data-dns-wait]'],
+    ['[data-ga4-test-form]','[data-ga4-wait]'],
+    ['[data-pagespeed-test-form]','[data-pagespeed-wait]']
+  ]){
+    const form=hub.querySelector(selector);
+    if(!form)continue;
+    form.addEventListener('submit',()=>{
+      const button=form.querySelector('button[type=submit]');
+      const wait=form.querySelector(waiting);
+      if(button){button.disabled=true;button.textContent='Consultando…';}
+      if(wait)wait.hidden=false;
+    });
+  }
+  const feedback=hub.querySelector('[data-int-copy-feedback]');
+  hub.querySelectorAll('[data-int-copy]').forEach(button=>button.addEventListener('click',async()=>{
+    const field=document.getElementById(button.getAttribute('data-int-copy'));
+    if(!field || typeof field.value!=='string')return;
+    const value=field.value.trim();
+    if(feedback)feedback.hidden=false;
+    if(!value){if(feedback)feedback.textContent='O campo ainda está vazio.';return;}
+    try{
+      if(!navigator.clipboard?.writeText)throw new Error('clipboard_unavailable');
+      await navigator.clipboard.writeText(value);
+      if(feedback)feedback.textContent='Copiado. Confirme o valor antes de compartilhar.';
+    }catch{
+      field.focus();field.select();
+      if(feedback)feedback.textContent='Selecionei o valor. Use Copiar no teclado do aparelho.';
+    }
+  }));
 })();

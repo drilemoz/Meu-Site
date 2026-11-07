@@ -16,6 +16,7 @@ function igua_admin_post_module(string $action): ?string {
         'integrations_save_verification'=>'integrations',
         'integrations_save_dns'=>'integrations',
         'integrations_check_dns'=>'integrations',
+        'integrations_pagespeed_test'=>'integrations',
         'integrations_ga4_credentials'=>'integrations',
         'integrations_ga4_remove'=>'integrations',
         'integrations_ga4_test'=>'integrations',

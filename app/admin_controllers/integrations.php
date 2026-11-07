@@ -1,6 +1,24 @@
 <?php
 // Acesso ocorre após require_admin(), require_ability() e check_csrf() no roteador central.
 require_ability('manage_settings',$me);
+if($action==='integrations_pagespeed_test'){
+    $cfg=['seo_site_url'=>setting('seo_site_url','')];
+    $target=igua_pagespeed_site_url($cfg);
+    if($target==='')throw new InvalidArgumentException('Configure primeiro uma URL oficial HTTPS pública em Geral e SEO.');
+    $last=igua_pagespeed_last_check($cfg,$_SESSION);
+    if($last!==null && time()-(int)$last['checked_at']<180){
+        flash('Exibindo análise recente. Aguarde 3 minutos para executar outra consulta.');
+        redirect('/admin.php?action=integrations#google-pagespeed');
+    }
+    $attempt=$_SESSION['igua_pagespeed_attempt']??null;
+    if(is_array($attempt) && ($attempt['url']??'')===$target && time()-(int)($attempt['time']??0)<90)
+        throw new RuntimeException('Aguarde 90 segundos entre as consultas PageSpeed.');
+    $_SESSION['igua_pagespeed_attempt']=['url'=>$target,'time'=>time()];
+    $_SESSION['igua_pagespeed_last']=igua_pagespeed_check($cfg);
+    igua_security_event('admin_action','pagespeed_manual_test');
+    flash('PageSpeed consultado. A nota é uma medição Lighthouse, não garantia de desempenho real.');
+    redirect('/admin.php?action=integrations#google-pagespeed');
+}
 if($action==='integrations_check_dns'){
     $cfg=['seo_site_url'=>setting('seo_site_url',''),'google_dns_verification_txt'=>setting('google_dns_verification_txt','')];
     $last=igua_search_dns_last_check($cfg,$_SESSION);

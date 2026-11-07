@@ -1086,3 +1086,28 @@ html,body{max-width:100%;overflow-x:clip}
 .int-dns-console-link{min-height:44px;display:flex;align-items:center;font-size:.75rem;font-weight:750;color:#1668a2;text-decoration:none}
 .int-dns-diag{padding:12px;border:1px solid #cce5ef;border-radius:13px;background:#f1faff;display:flex;gap:5px 12px;flex-wrap:wrap;align-items:center}.int-dns-diag strong{font-size:.8rem}.int-dns-diag span{font-size:.72rem;font-weight:750;color:#226b8f}.int-dns-diag small{width:100%;font-size:.66rem;color:#58748e}
 @media(max-width:370px){.int-dns-domain{padding:9px}.int-method-secondary>summary{flex-wrap:wrap}.int-dns-check-form .btn{width:100%}}
+/* 1.0.81: atalhos compactos e teste PageSpeed sob demanda (mobile-first). */
+.int-quick-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.int-quick-links a{min-width:0;display:flex;flex-direction:column;gap:4px;text-decoration:none;border:1px solid #dce8f3;background:#fff;border-radius:12px;padding:11px 12px;min-height:57px}
+.int-quick-links a span{font-size:.69rem;font-weight:730;color:#57728b}
+.int-quick-links a strong{font-size:.78rem;color:#184c75;overflow-wrap:anywhere}
+.int-copy-feedback:not([hidden]){padding:9px 12px;border-radius:11px;border:1px solid #c6e5d9;background:#eafaf2;color:#146b57;font-size:.76rem;font-weight:720}
+.int-speed .int-service-icon{background:linear-gradient(145deg,#fff2e2,#ffdfba);color:#a45c13}
+.int-speed-target{padding:11px 12px;border:1px solid #d7e8f2;background:#f5faff;border-radius:12px;min-width:0;display:flex;flex-direction:column;gap:5px}
+.int-speed-target span{font-size:.68rem;color:#6b7d8d}.int-speed-target strong{font-size:.79rem;color:#24577c;overflow-wrap:anywhere}
+.int-speed-target a{color:#136a9c;font-size:.73rem;font-weight:750}
+.int-speed-report{display:flex;gap:14px;align-items:center;padding:12px;border:1px solid #deebf1;border-radius:14px;background:#fff}
+.int-speed-score{flex:0 0 92px;display:flex;align-items:baseline;justify-content:center;border:3px solid #d9a64e;border-radius:14px;padding:13px 5px;color:#ab731c;background:#fff9ed}
+.int-speed-score.is-good{color:#148260;border-color:#91d5bb;background:#effbf5}.int-speed-score.is-low{color:#b74242;border-color:#eeb9b9;background:#fff3f3}
+.int-speed-score strong{font-size:2rem;font-weight:850;font-variant-numeric:tabular-nums}.int-speed-score span{font-size:.78rem}
+.int-speed-summary{display:grid;gap:5px;min-width:0}.int-speed-summary strong{font-size:.89rem;color:#29485f}.int-speed-summary small,.int-speed-summary span{font-size:.71rem;color:#678096}
+.int-speed-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.int-speed-metrics>div{background:#f7fafc;border:1px solid #dce8f1;border-radius:11px;padding:9px 5px;display:grid;gap:5px;min-width:0}
+.int-speed-metrics small{color:#637b8e;font-size:.65rem;line-height:1.3}
+.int-speed-metrics strong{font-size:.84rem;color:#234c6e;overflow-wrap:anywhere}
+.int-speed-empty{padding:10px 12px;background:#f7fafc;border:1px dashed #d4e2ec;border-radius:12px;color:#557187;font-size:.75rem;line-height:1.45;margin:0}
+.int-speed form[data-pagespeed-test-form]{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.int-speed form[data-pagespeed-test-form] button{min-height:44px;border-radius:11px}
+.int-speed [data-pagespeed-wait]{font-size:.73rem;line-height:1.4;color:#376c87}
+@media(min-width:650px){.int-quick-links{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:360px){.int-quick-links a{padding:9px 10px}.int-speed-score{flex-basis:75px}.int-speed-score strong{font-size:1.6rem}.int-speed-metrics{grid-template-columns:1fr}}
