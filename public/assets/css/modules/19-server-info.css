@@ -1,0 +1,38 @@
+/* Ferramentas: painel de informações não sensíveis do servidor, mobile-first. */
+.server-info{display:grid;gap:16px;max-width:1120px;margin:0 auto;color:#1b3553}
+.server-info-hero{border-radius:19px;background:linear-gradient(125deg,#0f294b,#164a76 67%,#1e6384);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:25px 27px;box-shadow:0 12px 30px #102f5230}
+.server-info-intro{min-width:0;display:grid;gap:7px}
+.server-info-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:#a9d4fb}
+.server-info-hero h2{font-size:clamp(21px,3vw,29px);line-height:1.25;margin:0;color:#fff}
+.server-info-hero p{font-size:14px;line-height:1.5;color:#e0edf9;margin:0;max-width:530px}
+.server-info-hero small{color:#c8deee;font-size:12px}
+.server-info-refresh{background:#fff!important;color:#123e65!important;border-color:#dae9f7!important;white-space:nowrap;min-height:44px}
+.server-info-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.server-info-card{min-width:0;padding:17px;background:#fff;border:1px solid #e0e9f2;border-radius:17px;display:grid;gap:6px;box-shadow:0 4px 18px #14335408;align-content:start}
+.server-info-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#e8f3fe;color:#236ba2;font-size:21px;margin-bottom:4px}
+.server-info-card small{font-size:12px;color:#61758c;font-weight:600}
+.server-info-card strong{font-size:clamp(17px,2vw,23px);font-weight:800;color:#19395c;overflow-wrap:anywhere;line-height:1.25}
+.server-info-secondary{font-size:11px;color:#728396;line-height:1.45;overflow-wrap:anywhere}
+.server-info-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.server-info-panel{background:#fff;border:1px solid #e1e8f1;border-radius:17px;padding:19px;min-width:0}
+.server-info-panel-heading{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:15px}
+.server-info-panel-heading h3{font-size:17px;color:#183a5b;margin:0}
+.server-info-tag{font-size:10px;font-weight:750;color:#3d6690;padding:5px 9px;border:1px solid #d9e5ef;background:#f4f8fc;border-radius:99px;white-space:nowrap}
+.server-info-space{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:13px}
+.server-info-space strong{font-size:25px;color:#1b4e78}
+.server-info-space span{font-size:13px;color:#62768d}
+.server-info-meter{height:11px;background:#e6eef8;border-radius:999px;overflow:hidden}
+.server-info-meter>span{display:block;height:100%;min-width:0;border-radius:999px;background:linear-gradient(90deg,#178bc0,#1a5d9e)}
+.server-info-subnote{font-size:12px;line-height:1.55;color:#687a90;margin:12px 0 0}
+.server-info-facts{display:grid;gap:0;margin:0}
+.server-info-facts>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #edf1f5}
+.server-info-facts>div:last-child{border-bottom:0}
+.server-info-facts dt{color:#64788e;font-size:12px;min-width:0}
+.server-info-facts dd{color:#263e5a;font-size:12px;font-weight:750;text-align:right;margin:0;overflow-wrap:anywhere;max-width:55%}
+.server-info-extensions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.server-info-extension{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:9px 11px;background:#f7f9fc;border:1px solid #ebf0f6;border-radius:10px;font-size:12px;color:#344e69}
+.server-info-pill{white-space:nowrap;font-size:10px;border-radius:99px;padding:4px 7px;background:#fff0ec;color:#a64c34;font-weight:800}
+.server-info-pill.is-on{background:#e0f5ec;color:#11765b}
+.server-info-footer{font-size:12px;color:#6d7f92;line-height:1.55;text-align:center;margin:0}
+@media(max-width:850px){.server-info-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.server-info-panels{grid-template-columns:1fr}}
+@media(max-width:520px){.server-info{gap:12px}.server-info-hero{display:grid;padding:18px;border-radius:16px}.server-info-refresh{justify-self:start}.server-info-cards{gap:9px}.server-info-card{padding:13px;border-radius:14px}.server-info-icon{width:33px;height:33px;font-size:18px}.server-info-card strong{font-size:18px}.server-info-panel{padding:15px;border-radius:15px}.server-info-extensions{grid-template-columns:1fr}.server-info-space strong{font-size:23px}}

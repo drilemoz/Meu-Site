@@ -1,3 +1,11 @@
+## [1.0.126] - 2026-11-08
+
+### Ferramentas > Informações do Servidor
+- Criado submenu dedicado com painel mobile-first em cartões, indicador de disco da partição visível ao PHP, limites de execução, extensões e dados de conexão MySQL/MariaDB.
+- As leituras usam somente APIs internas do PHP, sem shell ou chamadas externas; valores indisponíveis não são inventados, e dados sensíveis do host não são exibidos.
+- ACL `manage_settings`, GET sem cache, nova tela em `app/admin_views/routes/server_info.php`, coleta em `app/server_info.php` e CSS modular `19-server-info.css`.
+- Teste `tests/server_info_226.php`, regressão geral e build CSS. Sem migrações, alterações do banco, backups ou configuração da hospedagem.
+
 ## [1.0.125] - 2026-11-08
 
 ### Gerenciador de Arquivos: experiência de navegação móvel

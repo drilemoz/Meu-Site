@@ -1,3 +1,9 @@
+## IguatamaOnline 1.0.126
+
+**Novo em Ferramentas → Informações do Servidor:** painel leve, pensado para celular, com cartões de PHP, servidor web, banco de dados e memória por processo. Mostra também limites de upload e POST, espaço disponível na partição do PHP, extensões essenciais e permissões de gravação de pastas.
+
+**Limitações e segurança:** informação pontual, somente leitura e exclusiva do administrador. Espaço do disco não é a franquia do plano; memória por processo não é RAM física; CPU e uptime não são monitorados. A página não revela credenciais, caminhos internos ou IPs. Sem mudança no schema 37, dados ou integrações.
+
 ## IguatamaOnline 1.0.125
 
 **Explorador mais limpo no celular:** a seleção de arquivos agora é ativada pelo botão **Selecionar**, sem exibir caixas e comandos por toda a tela desde a abertura. Cancelar desmarca os itens. A busca mostra contagem de resultados e aviso de nenhum arquivo encontrado.

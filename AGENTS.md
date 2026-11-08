@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.125)
+# Diretrizes de manutenção — Meu Site (v1.0.126)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -282,3 +282,10 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Ao cancelar a seleção, desmarcar os itens; ao filtrar, desmarcar itens ocultos e atualizar a contagem. Preservar limite de 20 itens por operação e operações POST autenticadas com CSRF.
 - Comandos ZIP marcados indisponíveis pelo PHP **não podem ser reativados pelo JavaScript** mesmo quando há seleção. Executar `tests/file_manager_225.php` e `.js` além das regressões anteriores, build CSS e auditoria.
 - Manter as restrições de escrita em `public/uploads/arquivos`, com navegação da raiz somente leitura, proibições de symlink, segredos e `storage/`.
+
+## Informações do servidor — 1.0.126
+
+- O submenu **Ferramentas → Informações do Servidor** é `server_info` e exige `manage_settings` no backend. A rota é somente GET autenticado com `no-store`; não criar endpoints públicos.
+- Coletar apenas informações acessíveis via funções PHP de baixo custo: PHP/SAPI, família de servidor sem versão bruta, conexão do banco com `SELECT VERSION()`, `ini_get` de limites operacionais, extensão carregada, espaço da partição (não franquia), permissões de pastas e pico de memória da **requisição atual**.
+- Nunca incluir `phpinfo()`, shell, varredura de rede, IPs, nomes de host, variáveis de ambiente, credenciais, paths completos, tokens ou logs neste painel. Não inventar CPU/RAM física ou uptime.
+- Preservar separação com a Central de Saúde (diagnósticos) e controle de acesso. Executar `tests/server_info_226.php`, CSS com 19 módulos e regressão geral. Sem migração SQL.

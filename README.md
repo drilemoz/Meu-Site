@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.125** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.126** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.126 — Informações do Servidor em Ferramentas
+
+- Novo submenu **Ferramentas → Informações do Servidor**, separado da Central de Saúde, com cartões responsivos e botão para consultar novamente os dados.
+- Exibe informações reais da execução PHP: versão, SAPI, família do servidor web quando detectável, status e versão do banco via `SELECT VERSION()`, extensões PHP, limite de memória por processo, pico de memória **desta requisição**, upload, POST, tempo e variáveis.
+- Mostra espaço total e livre **da partição acessível ao PHP**, sem afirmar que essa é a franquia contratada da hospedagem; também verifica se `storage` e a pasta de uploads estão graváveis.
+- Sem varredura de rede, shell, `phpinfo`, endereços IP, hostnames, paths privados, tokens ou credenciais. Não informa CPU/RAM física ou uptime sem fonte confiável. Apenas administradores (`manage_settings`), somente leitura e sem cache.
+- Novo módulo CSS `19-server-info.css`, com testes `tests/server_info_226.php`. Sem mudança no schema 37 nem no formato de backup.
 
 ## Versão 1.0.125 — Seleção sob demanda no Gerenciador de Arquivos
 

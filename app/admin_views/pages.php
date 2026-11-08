@@ -2,6 +2,7 @@
 <?php elseif(in_array($action,['bus','bus_edit','bus_import'],true)): bus_admin_view($db,$action); ?>
 <?php elseif($action==='ads'): ad_admin_view($db); ?>
 <?php elseif($action==='files'): require __DIR__.'/routes/files.php'; ?>
+<?php elseif($action==='server_info'): require __DIR__.'/routes/server_info.php'; ?>
 <?php elseif($action==='media'): ?><?php media_admin_modal(true); ?>
 <?php elseif($action==='health'): igua_health_admin_view($db); ?>
 <?php elseif($action==='security'): igua_security_admin_view(); ?>
