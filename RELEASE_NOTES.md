@@ -1,3 +1,9 @@
+## 1.0.121 — Novo Gerenciador de Arquivos em Ferramentas
+
+O painel administrativo agora inclui **Ferramentas → Gerenciador de Arquivos** (somente administradores). Permite pastas, envio de arquivos JPG/PNG/WebP/PDF/TXT/CSV, downloads, renomear, excluir e editar textos; também permite editar `ads.txt` e `robots.txt` com segurança.
+
+Os arquivos de `uploads/arquivos` são públicos; não guarde dados privados ali. Upload limitado a 8 MiB, texto a 128 KiB. Não permite scripts PHP nem acesso à configuração interna do servidor. Exige permissões de escrita na hospedagem. Nenhuma migração SQL.
+
 ## 1.0.120 — Navegação sem aviso de métricas
 
 O aviso fixo “Google Analytics” deixa de aparecer sobre as notícias. A autorização opcional está na Política de Privacidade, acessível pelo rodapé. Consentimentos já registrados continuam válidos, e a preferência DNT/GPC do navegador permanece respeitada; não há ativação automática da tag para visitantes sem autorização. O painel de métricas internas não foi afetado. Sem alterações de banco, schema 37, backup v12 ou APIs Google. A publicação no site exige instalar a atualização e validar manualmente.

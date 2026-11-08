@@ -47,3 +47,5 @@ O script concatena os arquivos por uma lista explícita; ele não minifica, reor
 - O teste `tests/css_modules_131.php` compara integralmente o conteúdo montado com o distribuído, verifica a ordem e mantém os pontos de inclusão PHP.
 - O teste real de aparência no Chrome Android e o funcionamento de imagens/contatos na instalação Termux **não foram executados** no ambiente de geração.
 - Banco de dados, backup lógico v10, pacote de mídias v2, rotas administrativas e três etapas do editor não foram alterados.
+
+- v1.0.121: `18-file-manager.css` traz os estilos de **Ferramentas → Gerenciador de Arquivos**. Atualize o `ORDER` no `tools/build_css.py` ao adicionar novos módulos.

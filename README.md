@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.120** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.121** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.121 — Ferramentas > Gerenciador de Arquivos
+
+- Incluído no **submenu Ferramentas** do drawer administrativo (somente administradores).
+- Gerenciamento restrito à pasta pública `public/uploads/arquivos/`: criar pastas, enviar, listar, filtrar, baixar, renomear e excluir arquivos/pastas vazias. Upload até 8 MiB de JPG/JPEG/PNG/WebP/PDF/TXT/CSV com validação de tipo real; textos TXT/CSV podem ser editados até 128 KiB.
+- Editor explícito para `public/ads.txt` e `public/robots.txt`, com proteção contra sobrescrita de arquivo modificado após a abertura. Operações de escrita usam CSRF e controle de acesso, sem tocar em `storage/`, segredos, scripts PHP ou outras áreas.
+- Arquivos enviados são **públicos**. O gerenciador não é FTP nem editor irrestrito do código. Mudanças permanentes em `public/uploads/` não entram no ZIP de atualização; schema 37, GA4, AdSense, bancos e backups não foram alterados.
+- Testes locais: `tests/file_manager_221.php`. Validar no servidor real antes de administrar conteúdos importantes.
 
 ## Versão 1.0.120 — Leitura sem aviso fixo do GA4
 

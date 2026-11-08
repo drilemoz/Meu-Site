@@ -16,6 +16,7 @@ function igua_admin_post_module(string $action): ?string {
         'ads_save_slot'=>'ads',
         'ads_toggle_campaign'=>'ads',
         'analytics_settings'=>'system',
+        'files_save'=>'file_manager',
         'integrations_save_ga4'=>'integrations',
         'integrations_save_adsense'=>'integrations',
         'integrations_save_verification'=>'integrations',

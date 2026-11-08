@@ -11,8 +11,8 @@ function css131_assert(bool $ok,string $label): void {
     if(!$ok)throw new RuntimeException('Falha: '.$label);
     echo 'OK: '.$label."\n";
 }
-css131_assert(count($modules)===17,'17 módulos CSS separados por área');
-$expected=['foundation','installer','editorial-articles','transport','site-layout-contact','advertising','editor-structured','analytics','editorial-admin','health','editor-visual','media-library','editor-mobile','seo','archive','security'];
+css131_assert(count($modules)===18,'18 módulos CSS separados por área');
+$expected=['foundation','installer','editorial-articles','transport','site-layout-contact','advertising','editor-structured','analytics','editorial-admin','health','editor-visual','media-library','editor-mobile','seo','archive','security','legal-apps','file-manager'];
 foreach($expected as $i=>$label){
     css131_assert(basename($modules[$i])===sprintf('%02d-%s.css',$i+1,$label),'ordem de módulo '.($i+1));
 }

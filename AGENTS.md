@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.120)
+# Diretrizes de manutenção — Meu Site (v1.0.121)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -28,7 +28,7 @@ Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de edit
 
 - Design mobile-first compacto, ícone `?` para ajuda opcional. Avisos importantes sobre perda de dados, privacidade e erros permanecem **visíveis**. Alvos de toque ~44 px e boa leitura no celular.
 - O menu do painel é um drawer à direita, estreito (248 px no celular, 270 px demais telas). Biblioteca de mídia integrada ao admin sem perder cabeçalho/rodapé; seletor de fotos pode usar modal.
-- CSS é fonte modular (17 módulos); alterar `public/assets/css/modules/` e executar `tools/build_css.py`. Editor JS usa 8 módulos; alterar fonte e executar `tools/build_news_editor.py`.
+- CSS é fonte modular (18 módulos); alterar `public/assets/css/modules/` e executar `tools/build_css.py`. Editor JS usa 8 módulos; alterar fonte e executar `tools/build_news_editor.py`.
 - AdSense e GA4 têm IDs em configuração **única** na Central de Integrações; campos antigos não podem apagar esses valores. Publicidade e analytics próprios mantêm seus switches independentes.
 - GA4 só carrega no público quando configurado e após consentimento; respeitar GPC/DNT e revogação. Chaves de serviço Google ficam em `storage/integrations/` e a consulta à API é sob demanda com autorização administrativa.
 - O GA4 1.0.87 consulta relatório de audiência apenas sob demanda por administradores, usando `batchRunReports` (quatro relatórios em uma chamada); OAuth somente leitura, propriedade validada, cache em sessão por até uma hora e limites entre tentativas, sem persistir tokens. Dados GA4 de propriedade não se confundem com métricas internas nem com o fluxo específico do portal.
@@ -244,3 +244,11 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - O HTML público contém somente a configuração `ga4ConsentConfig`; sem consentimento explícito prévio o arquivo JS não carrega a tag de terceiros.
 - Não remover as proteções DNT/GPC, opt-out local e revogação ao modificar métricas. O GA4 pode permanecer zerado em navegadores sem autorização; não alegar correção de coleta sem testar eventos recebidos no Google.
 - Os testes `tests/ga4_consent_168.js` e `tests/ga4_no_banner_220.php` protegem a UX e a separação das métricas internas.
+
+## Ferramentas > Gerenciador de Arquivos (1.0.121)
+
+- Gerenciador restrito ao administrador (`manage_settings`); entrada `/admin.php?action=files`, downloads via rota autenticada e POST com CSRF. A navegação fica no submenu **Ferramentas**, não em Configurações.
+- Operações de pastas/arquivos limitadas a `public/uploads/arquivos/`; arquivos especiais editáveis apenas `public/ads.txt` e `public/robots.txt`. Bloquear symlinks, traversal, extensões executáveis e edição irrestrita de PHP/credenciais.
+- Upload até 8 MiB: JPG/JPEG/PNG/WebP/PDF/TXT/CSV com verificações de MIME e conteúdo. Textos editáveis no máximo 128 KiB com SHA-256 de concorrência. Nenhuma migração SQL. Pastas/arquivos do gerenciador permanecem em `public/uploads` e devem sobreviver às atualizações.
+- Não afirmar equivalência a FTP/SSH nem recomendar depósito de arquivos privados: uploads gerenciados são públicos. Não carregar ou devolver segredos de `storage/`.
+- Executar `php tests/file_manager_221.php` e a suíte geral antes de entregar.

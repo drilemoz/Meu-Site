@@ -1,3 +1,11 @@
+## [1.0.121] - 2026-11-08
+
+### Novo
+- Submenu **Ferramentas → Gerenciador de Arquivos**, com interface responsiva e ACL de administrador.
+- Gerenciamento seguro de arquivos públicos sob `uploads/arquivos/` (criar pastas, upload, download, renomear, excluir, editar TXT/CSV) e edição controlada de `ads.txt` e `robots.txt`.
+- Proteções contra traversal/symlinks, tipos executáveis, sobrescrita acidental, uploads incompatíveis, e teste de regressão 221.
+- Nenhuma mudança de schema, credenciais, métricas ou atualização automática da hospedagem.
+
 ## [1.0.120] - 2026-11-08
 
 ### Google Analytics sem aviso invasivo
