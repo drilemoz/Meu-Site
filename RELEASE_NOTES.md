@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.119
+
+- Central de Integrações → Google Analytics 4: estado mais preciso. Ter um ID informado não garante que o Google está recebendo acessos.
+- Novo diagnóstico manual sem chave: verifica apenas se o ID da tag e o script estão no HTML da página pública. Não mede eventos nem substitui Tempo real/DebugView.
+- Guia de confirmação pelo Google e área de relatórios pela API recolhida inicialmente, diferenciando o rastreamento público de consultas opcionais com conta de serviço.
+- Regressões PHP/JS e verificações visuais. Consentimento, GPC/DNT, configuração salva, CSRF, schema 37 e backup v12 preservados.
+- A ausência de dados vista nas capturas ainda precisa ser investigada com acesso ao fluxo Web e ao ambiente de produção; esta versão não afirma ter solucionado a coleta sem testes reais.
+
 ## IguatamaOnline 1.0.118
 
 - Corrigido o ensaio integrado de ZIP adulterado após falha do workflow #33. Antes, um payload com tamanho diferente era rejeitado antes da verificação SHA-256; o teste agora separa as rejeições por tamanho e por hash (mantendo o tamanho original).

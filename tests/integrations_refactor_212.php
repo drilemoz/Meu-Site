@@ -2,12 +2,12 @@
 declare(strict_types=1);
 require_once __DIR__.'/support/integrations_source.php';
 
-// Este checksum é o template da 1.0.111, antes da divisão em componentes.
-// Garante que a refatoração 1.0.112 não modificou HTML, formulários, permissões ou textos.
-$original='4ddb1cc71d3fc72f3d7f9380d3e509f5d086e715a2ecc27bd7cb8d33ddf83e12';
+// Snapshot atualizado conscientemente na 1.0.119 para a nova interface GA4.
+// Preserva a integridade do conjunto recomposto com nove componentes, ações e controles.
+$original='2d8ead917757478c91749fbe0f34cfb4e4ea1e6ed1c63c37b936412721f48df9';
 $assembled=igua_test_integrations_source();
 if (hash('sha256',$assembled)!==$original) {
-    throw new RuntimeException('A divisão dos componentes alterou o template de Integrações.');
+    throw new RuntimeException('O template recomposto difere do snapshot aprovado em 1.0.119.');
 }
 $dir=dirname(__DIR__).'/app/admin_views/routes/integrations';
 $components=['ga4','adsense','search_console','pagespeed','gemini',
@@ -33,4 +33,4 @@ foreach (['integrations_save_ga4','integrations_save_adsense',
 if (str_contains($assembled,'private_key')) {
     throw new RuntimeException('Referência a credencial privada no template.');
 }
-echo "Integrações 1.0.112: 9 componentes, template preservado byte a byte, ações e segurança verificadas.\n";
+echo "Integrações: 9 componentes, snapshot 1.0.119, ações e segurança verificadas.\n";

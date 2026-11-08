@@ -170,6 +170,47 @@
   window.addEventListener('hashchange',fromHash);
   activate('google');
   if(location.hash)fromHash();
+  // Diagnóstico local da tag pública, sob clique e na mesma origem; nunca envia evento ao Google.
+  const ga4PublicCheck=hub.querySelector('[data-ga4-public-test]');
+  if(ga4PublicCheck){
+    ga4PublicCheck.addEventListener('click',async()=>{
+      const result=hub.querySelector('[data-ga4-public-result]');
+      if(!result)return;
+      const id=(hub.querySelector('#int-ga-id')?.value||'').trim().toUpperCase();
+      result.hidden=false;
+      result.classList.remove('is-error','is-ok');
+      if(!/^G-[A-Z0-9]{4,20}$/.test(id)){
+        result.textContent='Preencha e salve um ID G- válido antes de verificar a instalação pública.';
+        result.classList.add('is-error');return;
+      }
+      ga4PublicCheck.disabled=true;
+      result.textContent='Verificando o HTML público do portal…';
+      try{
+        const response=await fetch('/index.php',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{Accept:'text/html'}});
+        if(!response.ok)throw new Error('A página inicial retornou HTTP '+response.status+'.');
+        if(!(response.headers.get('content-type')||'').toLowerCase().includes('text/html'))throw new Error('A página inicial não retornou HTML.');
+        const html=await response.text();
+        const doc=new DOMParser().parseFromString(html,'text/html');
+        const publicId=(doc.querySelector('#ga4Consent[data-ga4-id]')?.getAttribute('data-ga4-id')||'').toUpperCase();
+        const hasScript=Array.from(doc.querySelectorAll('script[src]')).some(node=>{
+          try{return new URL(node.getAttribute('src'),location.origin).pathname==='/assets/js/ga4-consent.js';}catch{return false;}
+        });
+        if(publicId===id && hasScript){
+          result.textContent='Tag GA4 e ID correspondente encontrados no HTML público. A instalação parece correta, mas o envio e o recebimento de eventos ainda precisam ser confirmados no Tempo real do Google após consentimento.';
+          result.classList.add('is-ok');
+        }else if(publicId && publicId!==id){
+          result.textContent='O ID presente no site público difere do campo mostrado aqui. Salve a configuração e verifique cache, versão instalada e ID do fluxo Web.';
+          result.classList.add('is-error');
+        }else{
+          result.textContent='Não encontrei a tag GA4 completa no HTML público. Verifique se a configuração foi salva, se a versão está instalada e se há cache de página.';
+          result.classList.add('is-error');
+        }
+      }catch(error){
+        result.textContent='Não foi possível verificar a página pública: '+(error instanceof Error?error.message:'falha de leitura')+' Abra a página inicial e confira a configuração.';
+        result.classList.add('is-error');
+      }finally{ga4PublicCheck.disabled=false;}
+    });
+  }
   // Todas as consultas externas permanecem POST com CSRF, sem disparo automático.
   for(const [selector,waiting] of [
     ['[data-dns-test-form]','[data-dns-wait]'],

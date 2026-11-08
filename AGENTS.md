@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.117)
+# Diretrizes de manutenção — Meu Site (v1.0.119)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -230,3 +230,11 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - O arquivo de payload do teste de SHA deve ter comprimento **idêntico** ao descrito em `release.json`, mas bytes e hash diferentes. Teste de contrato offline `tests/updater_ci_contract_217.php` protege essa condição.
 - Logs do workflow #33 aprovaram MariaDB real, ZipArchive, instalação, backup e rollback; a falha final foi da asserção de SHA, não prova de aceitação de conteúdo adulterado. Novo CI ainda precisa comprovar sucesso completo.
 - Preservar schema 37, backup v12 e ZIP v2; não executar ensaio em Plesk, banco real do portal ou fora das guardas `igua_ci_*` + opt-in CLI.
+
+## Integração GA4 e diagnóstico — 1.0.119
+
+- Nunca chamar a configuração da tag de prova de recebimento. O status só pode afirmar eventos quando resultado real da Data API estiver disponível; sem API e sem verificação no Google, o estado é **não confirmado**.
+- A verificação por `[data-ga4-public-test]` exige clique, busca somente `/index.php` na mesma origem, lê o HTML com `DOMParser` e confere `#ga4Consent[data-ga4-id]` e `/assets/js/ga4-consent.js`. Ela não executa o HTML consultado, não envia eventos GA4 nem realiza chamadas externas. Tratar erro/caches/versão desatualizada sem prometer sucesso.
+- Preservar consentimento explícito e bloqueios GPC/DNT no site público. Não medir visitas do admin como teste automático. Distinção entre ID G-, ID do fluxo e ID numérico da propriedade; conta de serviço é opcional somente para consultas pela API.
+- `details.int-ga-api-details` agrupa consulta em tempo real, histórico e chave privada sem alterar formulários POST, CSRF, permissões ou endpoints. O snapshot de `tests/integrations_refactor_212.php` foi atualizado para refletir mudança visual intencional no GA4.
+- Executar `tests/ga4_ui_219.php`, `tests/ga4_diagnostics_219.js`, suíte completa e verificação responsiva antes da distribuição. Nenhuma mudança no schema 37, backup v12, configuração ou hospedagem automática.

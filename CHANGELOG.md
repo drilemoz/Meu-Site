@@ -1,3 +1,11 @@
+## [1.0.119] - 2026-11-08
+
+### Diagnóstico GA4 e reorganização da janela
+- Separada a ativação da tag pública da consulta de relatórios por API, com indicadores que não chamam configuração de recebimento confirmado.
+- Adicionada verificação manual do HTML público, apenas na mesma origem e após clique, para comparar ID de medição e presença do script de consentimento. O teste não envia eventos nem acessa APIs Google; recibo só pode ser confirmado no GA4.
+- Relatórios em tempo real/históricos e conta de serviço foram agrupados em uma seção opcional, com guia de diagnóstico de consentimento, ID G-, Tempo real, Tag Assistant e DebugView.
+- Testes de interface, consentimento e snapshot da view revisados; layout sem rolagem horizontal em 320, 390 e 1280 px no Chromium. Sem migração de banco ou alteração da coleta pública.
+
 ## [1.0.118] - 2026-11-08
 
 ### Correção do teste de integração MariaDB/ZIP no CI

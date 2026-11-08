@@ -500,3 +500,35 @@
 .igua-gemini-test-body [data-gemini-test-result].is-success{border-color:#b8e3d3;background:#ebfaf2;color:#176b51}
 .igua-gemini-test-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .igua-gemini-test-actions .btn{width:100%;min-height:44px;padding:8px;white-space:normal}
+
+/* v1.0.119 — GA4: diferenciar coleta mediante consentimento de relatórios API. */
+.int-ga-collection-state{min-width:0;padding:12px 13px;background:#f1f7fd;border:1px solid #d2e3f2;border-radius:14px;display:grid;gap:8px}
+.int-ga-collection-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.int-ga-collection-top>strong{font-size:.84rem;line-height:1.35;color:#174362}
+.int-ga-collection-badge{font-size:.68rem;line-height:1.35;font-weight:750;color:#6c5526;background:#fff8e8;border:1px solid #e7d8b0;padding:5px 9px;border-radius:100px;max-width:100%}
+.int-ga-collection-badge.is-confirmed{color:#126454;background:#e2f7ef;border-color:#a5d9cc}
+.int-ga-collection-state p,.int-ga-verify-inner p,.int-ga-api-note,.int-ga-api-notice{font-size:.76rem;line-height:1.6;color:#4e687b;margin:0;overflow-wrap:anywhere}
+.int-ga-verify-guide,.int-ga-api-details{border:1px solid #d3e2ee;background:#fff;border-radius:14px;min-width:0;overflow:hidden}
+.int-ga-verify-guide>summary,.int-ga-api-details>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:54px;padding:12px 13px;cursor:pointer;font-weight:750;color:#174c73;font-size:.81rem}
+.int-ga-verify-guide>summary{display:grid;grid-template-columns:minmax(0,1fr)}
+.int-ga-verify-guide>summary small,.int-ga-api-details>summary small{display:block;font-size:.7rem;color:#68849a;font-weight:500;margin-top:4px;line-height:1.35}
+.int-ga-verify-guide[open]>summary,.int-ga-api-details[open]>summary{border-bottom:1px solid #dce9f3;background:#f5faff}
+.int-ga-verify-inner{display:grid;gap:12px;padding:12px 14px 15px}
+.int-ga-verify-inner ol{display:grid;gap:10px;margin:0;padding-left:20px;color:#415c73;font-size:.77rem;line-height:1.6}
+.int-ga-verify-inner li{padding-left:2px;overflow-wrap:anywhere}
+.int-ga-verify-inner li strong{color:#1b567d}
+.int-ga-help-links{display:flex;gap:10px;flex-wrap:wrap}
+.int-ga-help-links a{font-size:.74rem;min-height:44px;display:inline-flex;align-items:center;padding:8px 10px;background:#eff6ff;border:1px solid #d1e3f5;border-radius:10px;font-weight:700;color:#155c92}
+.int-ga-api-details>summary>span:first-child{min-width:0}
+.int-ga-api-state{font-size:.67rem;font-weight:700;color:#60768d;background:#eff4f9;padding:6px 8px;border-radius:30px;text-align:center;max-width:45%;flex-shrink:0}
+.int-ga-api-content{padding:12px;display:grid;gap:12px;min-width:0}
+.int-ga-api-note{padding:0 2px}
+.int-ga-api-notice{background:#fff8e8;border:1px solid #e8dcb9;color:#705526;padding:11px;border-radius:11px}
+.int-ga-api-content .int-live-panel{min-width:0}
+@media(max-width:400px){.int-ga-api-details>summary{align-items:flex-start;flex-direction:column}.int-ga-api-state{max-width:100%}.int-ga-api-content{padding:9px}.int-ga-verify-inner{padding:10px}}
+.int-ga-public-probe{display:grid;gap:7px;background:#f5faff;border:1px solid #dbeaf7;padding:11px;border-radius:12px}
+.int-ga-public-probe .btn{justify-self:start;min-height:44px;white-space:normal;text-align:center}
+.int-ga-public-probe>small{font-size:.68rem;line-height:1.45;color:#667b8d}
+.int-ga-public-probe [data-ga4-public-result]{font-size:.75rem;line-height:1.55;border-radius:9px;padding:10px;background:#f0f4fc;color:#24527b;overflow-wrap:anywhere}
+.int-ga-public-probe [data-ga4-public-result].is-error{background:#fff2e9;color:#7d421f}
+.int-ga-public-probe [data-ga4-public-result].is-ok{background:#e6f8ed;color:#125d41}
