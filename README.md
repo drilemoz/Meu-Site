@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.119** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.120** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -16,12 +16,19 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
 
-## Versão 1.0.119 — Diagnóstico e interface GA4
+## Versão 1.0.120 — Leitura sem aviso fixo do GA4
 
-- O painel diferencia explicitamente **tag configurada**, **recebimento ainda não confirmado** e **eventos retornados pela API**. Um ID salvo não é prova de coleta. A identificação de versão publicada, bloqueio por consentimento/GPC/DNT e possíveis falhas de cache são explicadas no próprio painel.
-- Novo botão manual **Verificar tag no site público** consulta somente o HTML da página inicial na mesma origem e compara o ID G- com o publicado e com a referência ao script de consentimento. Não executa JavaScript do HTML consultado, não chama o Google e não comprova eventos recebidos.
-- Guia simples de verificação no fluxo Web, Tempo real, Tag Assistant e DebugView, sem exigir chave. Os relatórios avançados pela API e a conta de serviço ficam numa seção opcional expansível. CSRF, ACL e consulta externa exclusivamente sob clique permanecem inalterados.
-- Novos testes estáticos/renderização para estados sem credencial, ativo/inativo, consentimento, além da regressão. Schema 37, backup v12 e ZIP v2 preservados. **A coleta real depende de visita com consentimento e confirmação no GA4**; não validada na hospedagem.
+- Retirado o cartão flutuante de autorização Google Analytics que cobria notícias e rodapé no celular. A autorização **não aparece automaticamente** em nenhuma página.
+- No rodapé, **Preferências de métricas** direciona à seção correspondente da **Política de Privacidade**, com escolha opcional para autorizar ou recusar o GA4. Sem escolha, a tag externa não é carregada.
+- Consentimentos antigos válidos permanecem respeitados; opt-out, GPC/DNT e revogação continuam bloqueando o envio externo. A coleta interna do próprio portal não foi modificada.
+- Não há mudanças na propriedade/ID GA4, consultas da API, schema 37, banco ou backups. O relatório Tempo real deve ser verificado depois que um navegador autorizar; remover o aviso não faz o GA4 coletar dados automaticamente.
+
+## Versão 1.0.119 — Clareza no Google Analytics 4
+
+- Reorganizada a janela GA4 para separar **rastreamento público com consentimento** de **consultas opcionais pela Analytics Data API**. O formulário identifica a finalidade de cada ID, e o estado visual não afirma coleta confirmada quando só há valores salvos.
+- Incluído acesso à confirmação de coleta pelo relatório **Tempo real** no Google Analytics, sem exigir credencial JSON. A seção de relatórios internos ao painel inicia recolhida e explica quando é necessária uma conta de serviço.
+- Botões de API realmente desabilitados deixam de parecer ativos; UI e estilos mobile-first alinhados. Formulários e rotas continuam protegidos, sem alterações na coleta, consentimento, consultas, schema 37 ou backups.
+- Conferência por testes de código/HTML e simulação das respostas da API. A coleta real na propriedade 563104989 continua pendente de verificação com acesso ao Google Analytics e consentimento de um visitante.
 
 ## Versão 1.0.118 — Correção do teste integrado de ZIP adulterado
 

@@ -1,3 +1,5 @@
+> **GA4 desde 1.0.120:** nenhum aviso fixo aparece durante a leitura. O visitante encontra a autorização opcional em **Política de Privacidade → Preferências do Google Analytics**, pelo link do rodapé. Sem consentimento, não há coleta pelo GA4. As métricas locais PHP continuam independentes.
+
 > **Estado atual (v1.0.79):** filtros Hoje/24h/7d/30d/90d, gráfico por hora em Hoje/24h; GA4 opcional centralizado em Configurações → Integrações. Ver [INTEGRACOES.md](INTEGRACOES.md). O texto abaixo descreve a implementação original de métricas.
 
 # Métricas IguaNews 1.0.11

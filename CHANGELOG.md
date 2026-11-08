@@ -1,10 +1,18 @@
-## [1.0.119] - 2026-11-08
+## [1.0.120] - 2026-11-08
 
-### Diagnóstico GA4 e reorganização da janela
-- Separada a ativação da tag pública da consulta de relatórios por API, com indicadores que não chamam configuração de recebimento confirmado.
-- Adicionada verificação manual do HTML público, apenas na mesma origem e após clique, para comparar ID de medição e presença do script de consentimento. O teste não envia eventos nem acessa APIs Google; recibo só pode ser confirmado no GA4.
-- Relatórios em tempo real/históricos e conta de serviço foram agrupados em uma seção opcional, com guia de diagnóstico de consentimento, ID G-, Tempo real, Tag Assistant e DebugView.
-- Testes de interface, consentimento e snapshot da view revisados; layout sem rolagem horizontal em 320, 390 e 1280 px no Chromium. Sem migração de banco ou alteração da coleta pública.
+### Google Analytics sem aviso invasivo
+- Retirado o aviso fixo de consentimento de métricas exibido no rodapé das páginas públicas.
+- Transferida a escolha voluntária para a Política de Privacidade, acessível pelo link “Preferências de métricas” do rodapé.
+- Preservados cookie de autorização/recusa de até 180 dias, sinais DNT/GPC, opt-out interno e carregamento da tag apenas mediante autorização.
+- Removido CSS do banner flutuante; controles acessíveis inline, com validação de regressão sem modificar o schema 37, o banco ou o formato ZIP v2.
+- O GA4 ainda depende de consentimento e de testes de envio reais na hospedagem; não confundir remoção do aviso com coleta confirmada.
+
+## 1.0.119 — 2026-11-08
+
+- GA4: distinguido rastreamento público condicionado ao aceite de métricas de consulta opcional à Analytics Data API.
+- Janela GA4: status não afirma tráfego confirmado, link para consulta Tempo real, descrições dos IDs, relatórios recolhidos e credenciais explicadas.
+- Melhorias mobile: campos e status legíveis; botões sem credencial visualmente desabilitados.
+- Nenhuma mudança de regras de consentimento, chamadas à API, schema 37, migrações, dados ou backups.
 
 ## [1.0.118] - 2026-11-08
 

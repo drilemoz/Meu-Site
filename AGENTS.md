@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.119)
+# Diretrizes de manutenção — Meu Site (v1.0.120)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -231,10 +231,16 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Logs do workflow #33 aprovaram MariaDB real, ZipArchive, instalação, backup e rollback; a falha final foi da asserção de SHA, não prova de aceitação de conteúdo adulterado. Novo CI ainda precisa comprovar sucesso completo.
 - Preservar schema 37, backup v12 e ZIP v2; não executar ensaio em Plesk, banco real do portal ou fora das guardas `igua_ci_*` + opt-in CLI.
 
-## Integração GA4 e diagnóstico — 1.0.119
+## GA4 — clareza de configuração (1.0.119)
 
-- Nunca chamar a configuração da tag de prova de recebimento. O status só pode afirmar eventos quando resultado real da Data API estiver disponível; sem API e sem verificação no Google, o estado é **não confirmado**.
-- A verificação por `[data-ga4-public-test]` exige clique, busca somente `/index.php` na mesma origem, lê o HTML com `DOMParser` e confere `#ga4Consent[data-ga4-id]` e `/assets/js/ga4-consent.js`. Ela não executa o HTML consultado, não envia eventos GA4 nem realiza chamadas externas. Tratar erro/caches/versão desatualizada sem prometer sucesso.
-- Preservar consentimento explícito e bloqueios GPC/DNT no site público. Não medir visitas do admin como teste automático. Distinção entre ID G-, ID do fluxo e ID numérico da propriedade; conta de serviço é opcional somente para consultas pela API.
-- `details.int-ga-api-details` agrupa consulta em tempo real, histórico e chave privada sem alterar formulários POST, CSRF, permissões ou endpoints. O snapshot de `tests/integrations_refactor_212.php` foi atualizado para refletir mudança visual intencional no GA4.
-- Executar `tests/ga4_ui_219.php`, `tests/ga4_diagnostics_219.js`, suíte completa e verificação responsiva antes da distribuição. Nenhuma mudança no schema 37, backup v12, configuração ou hospedagem automática.
+- Informar claramente que tag de rastreamento após consentimento não equivale a eventos confirmados; a verificação real independente da API é realizada no relatório Tempo real do Google Analytics.
+- Consultas de eventos/audiência por conta de serviço são opcionais, exigem JSON privado e permissão Leitor, não impedem a coleta pública quando ausentes.
+- No celular, exibir status explícito, botões API desabilitados com aparência neutra, detalhes opcionais recolhidos e ajuda útil sem falsa confirmação de tráfego.
+- Não alterar endpoints, escopo de autenticação, consentimento, schema ou persistência durante ajustes visuais.
+
+## GA4 — aviso removido na navegação pública (1.0.120)
+
+- A integração GA4 não apresenta aviso fixo, modal ou solicitação automática ao visitante. O controle está exclusivamente na seção `#preferencias-ga4` da Política de Privacidade, acessível pelo rodapé.
+- O HTML público contém somente a configuração `ga4ConsentConfig`; sem consentimento explícito prévio o arquivo JS não carrega a tag de terceiros.
+- Não remover as proteções DNT/GPC, opt-out local e revogação ao modificar métricas. O GA4 pode permanecer zerado em navegadores sem autorização; não alegar correção de coleta sem testar eventos recebidos no Google.
+- Os testes `tests/ga4_consent_168.js` e `tests/ga4_no_banner_220.php` protegem a UX e a separação das métricas internas.

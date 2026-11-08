@@ -47,7 +47,7 @@ check168(str_contains($db->queries[1],'DATE_FORMAT(occurred_at') && str_contains
 check168(str_contains($db->queries[0],'occurred_at >= ?')&&str_contains($db->queries[0],'occurred_at <= ?')&&str_contains($db->queries[0],'event_day >= ?'),'filtro exato com índice existente de dia');
 check168($out['period']==='24h'&&$out['hourly']===true,'formato de dados retorna granularidade');
 $view=file_get_contents(__DIR__.'/../app/public_views/layout.php');
-check168(str_contains($view,'analytics_ga4_public_id()')&&str_contains($view,'ga4Consent') && str_contains($view,'ga4-consent.js'),'tag GA4 condicional no portal');
+check168(str_contains($view,'analytics_ga4_public_id()')&&str_contains($view,'ga4ConsentConfig') && str_contains($view,'ga4-consent.js'),'tag GA4 condicional no portal');
 check168(!str_contains($view,'googletagmanager.com/gtag/js'),'nenhum script Google estático sem consentimento');
 $controller=file_get_contents(__DIR__.'/../app/admin_controllers/system.php');
 check168(str_contains($controller,'analytics_ga4_measurement_id($measurement)') && str_contains($controller,'$db->beginTransaction()'),'salvamento do ID e ativação com validação e transação');

@@ -24,19 +24,14 @@ if($iguaFavicon==='')$iguaFavicon='/assets/img/favicon.svg';
 <div class="local-info"><span class="sun">☀</span><span><b><?= h(setting('city','Iguatama - MG')) ?></b><small><?= h(date('d/m/Y')) ?></small></span></div>
 <button type="button" class="mobile-menu" id="menuToggle" aria-label="Abrir menu" aria-controls="mainNav" aria-expanded="false">☰</button></div>
 <div class="nav-wrap"><nav class="container main-nav" id="mainNav" aria-label="Navegação principal"><a class="<?= $route==='inicio'?'active':'' ?>" href="/index.php">Início</a><?php foreach (array_slice($categories,0,6) as $c): ?><a href="<?= h(cat_link($c)) ?>" class="<?= $category&&$category['id']===$c['id']?'active':'' ?>"><?= h($c['name']) ?></a><?php endforeach; ?><a href="/index.php?p=onibus" class="<?= $route==='onibus'?'active':'' ?>">🚌 Ônibus</a><a class="submit-story" href="/index.php?p=contato">✉ Enviar notícia</a></nav></div></header>
+<?php $ga4Id=analytics_ga4_public_id(); ?>
 <main class="container page-main">
 <?php // O aviso de demonstração pertence exclusivamente a cada matéria marcada is_demo. ?>
 <?php require __DIR__.'/pages.php'; ?>
 <?php ad_display_slot($db,'p03'); ?>
 </main>
-<?php $ga4Id=analytics_ga4_public_id(); ?>
 <?php if($ga4Id!==''): ?>
-<section class="container ga4-consent" id="ga4Consent" data-ga4-id="<?= h($ga4Id) ?>" hidden aria-label="Preferências de métricas do Google">
-  <div class="ga4-consent-header"><strong>Google Analytics</strong><a href="/index.php?p=privacidade">Privacidade</a></div>
-  <p>Podemos usar o Google Analytics para medir acessos. Só carregaremos o Google após sua autorização. Isso é separado da publicidade.</p>
-  <div class="ga4-consent-actions"><button type="button" id="ga4Deny">Não permitir</button><button type="button" id="ga4Allow" class="primary">Permitir métricas</button></div>
-  <p class="ga4-consent-status" id="ga4ConsentStatus" aria-live="polite" hidden></p>
-</section>
+<div id="ga4ConsentConfig" data-ga4-id="<?= h($ga4Id) ?>" hidden></div>
 <?php endif; ?>
 <?php
 $googleReady=false;
@@ -48,7 +43,7 @@ try {if(setting('ads_enabled','0')==='1' && setting('seo_index','0')==='1' && $d
 <footer class="site-footer"><div class="container footer-new">
   <div class="footer-new-top"><div class="footer-identity"><a href="/index.php" class="footer-wordmark"><?=h(igua_brand_name())?></a><p><?=h(setting('site_tagline','A notícia da nossa cidade, sempre com você.'))?></p><span class="footer-place">📍 <?=h(setting('city','Iguatama - MG'))?></span></div>
   <nav aria-label="Links do portal" class="footer-new-nav"><div><strong>Explorar</strong><a href="/index.php">Página inicial</a><a href="/index.php?p=buscar">Notícias</a><a href="/index.php?p=onibus">Horários de ônibus</a></div><div><strong><?=h(igua_brand_name())?></strong><a href="/index.php?p=contato">Contato</a><a href="/index.php?p=anuncie">Anuncie</a><a href="/index.php?p=sobre">Sobre</a><a href="/index.php?p=privacidade">Política de Privacidade</a><a href="/index.php?p=termos">Termos de Uso</a></div></nav></div>
-  <div class="footer-new-bottom"><small>© <?=date('Y')?> <?=h(igua_brand_name())?> · <?=h(setting('site_tagline','Informação da nossa região'))?></small><?php if($googleReady):?><a href="#adConsent" id="adConsentChange" class="footer-pref">Preferências de anúncios</a><?php endif;?><?php if($ga4Id!==''):?><a href="#ga4Consent" id="ga4ConsentChange" class="footer-pref">Preferências de métricas</a><?php endif;?><a href="/admin.php" class="footer-admin-gear" aria-label="Acessar painel administrativo" title="Administração">⚙</a></div>
+  <div class="footer-new-bottom"><small>© <?=date('Y')?> <?=h(igua_brand_name())?> · <?=h(setting('site_tagline','Informação da nossa região'))?></small><?php if($googleReady):?><a href="#adConsent" id="adConsentChange" class="footer-pref">Preferências de anúncios</a><?php endif;?><?php if($ga4Id!==''):?><a href="/index.php?p=privacidade#preferencias-ga4" class="footer-pref">Preferências de métricas</a><?php endif;?><a href="/admin.php" class="footer-admin-gear" aria-label="Acessar painel administrativo" title="Administração">⚙</a></div>
 <?php igua_developer_footer(); ?></div></footer>
 <nav class="bottom-nav" aria-label="Navegação móvel"><a href="/index.php" class="<?= $route==='inicio'?'active':'' ?>"><span>⌂</span>Início</a><a href="<?= h(url(['p'=>'categoria','slug'=>'cidade'])) ?>" class="<?= $route==='categoria' && ($category['slug']??'')==='cidade'?'active':'' ?>"><span aria-hidden="true">▥</span>Cidade</a><a href="<?= h(url(['p'=>'buscar'])) ?>" class="<?= $route==='buscar'?'active':'' ?>"><span aria-hidden="true">▤</span>Notícias</a><a href="<?= h(url(['p'=>'categoria','slug'=>'eventos'])) ?>" class="<?= $route==='categoria' && ($category['slug']??'')==='eventos'?'active':'' ?>"><span aria-hidden="true">▣</span>Eventos</a><a href="/index.php?p=onibus" class="<?= $route==='onibus'?'active':'' ?>"><span aria-hidden="true">🚌</span>Ônibus</a></nav>
 <script src="/assets/js/main.js" defer></script><script src="/assets/js/analytics.js" defer></script><?php if($ga4Id!==''):?><script src="/assets/js/ga4-consent.js?v=<?= h(igua_brand_version()) ?>" defer></script><?php endif;?></body></html>

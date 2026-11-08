@@ -15,6 +15,7 @@ A Central de Integrações é acessível em **Configurações → Integrações 
 ## Google Analytics 4
 
 - As opções `ga4_enabled` e `ga4_measurement_id` são centralizadas; a tag `G-...` só é carregada no site público quando ativada **e** autorizada pelo visitante. Respeitar GPC/DNT e a revogação de consentimento.
+- Desde a versão 1.0.120 não há aviso flutuante de métricas; o visitante autoriza ou recusa opcionalmente na Política de Privacidade (rodapé → Preferências de métricas). Sem aceite, a tag do Google não carrega. Consentimentos anteriores continuam válidos. O painel interno de estatísticas PHP funciona de modo independente.
 - A consulta autorizada da **Data API** exige também o ID numérico da propriedade, conta de serviço com acesso **Leitor** à propriedade, habilitação da API e importação do JSON **privado**; o arquivo fica em `storage/integrations/`, não no HTML, GitHub, backup, nem nos pacotes.
 - **Testar recebimento** consulta dados dos últimos 30 minutos e histórico recente de 7 dias quando a hospedagem tem cURL/OpenSSL/rede e credenciais válidas. O total pertence à *propriedade GA4*, não comprova origem específica do fluxo nem garante visita atual.
 - A ausência de eventos não prova que a tag falhou; o consentimento ou filtros também podem impedir a coleta.

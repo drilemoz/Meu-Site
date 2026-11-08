@@ -1,13 +1,12 @@
-/* GA4 opcional: modo básico, sem carregar/consultar servidores Google antes de consentimento. */
+/* GA4 opcional: sem aviso fixo; escolha exclusiva na Política de Privacidade. */
 (function () {
   'use strict';
-  var banner = document.getElementById('ga4Consent');
-  if (!banner) return;
-  var id = banner.getAttribute('data-ga4-id') || '';
+  var config = document.getElementById('ga4ConsentConfig');
+  if (!config) return;
+  var id = config.getAttribute('data-ga4-id') || '';
   if (!/^G-[A-Z0-9]{4,20}$/.test(id)) return;
   var allow = document.getElementById('ga4Allow');
   var deny = document.getElementById('ga4Deny');
-  var change = document.getElementById('ga4ConsentChange');
   var status = document.getElementById('ga4ConsentStatus');
   var key = 'igua_ga4_choice';
   var accepted = 'allow.' + id;
@@ -24,22 +23,19 @@
     return cookie('igua_analytics_optout') === '1' || navigator.globalPrivacyControl === true ||
       navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.msDoNotTrack === '1';
   }
-  function setStatus(message) {
+  function updateControls() {
+    if (allow) allow.disabled = disabledByBrowser();
     if (!status) return;
-    status.textContent = message;
-    status.hidden = !message;
-  }
-  function updateBanner(force) {
-    var blocked = disabledByBrowser();
-    if (allow) allow.disabled = blocked;
-    if (blocked) setStatus('Medição externa bloqueada pela preferência de privacidade deste navegador.');
-    else setStatus('');
-    banner.hidden = !force && (blocked || cookie(key) === accepted || cookie(key) === rejected);
+    var choice = cookie(key);
+    if (disabledByBrowser()) status.textContent = 'O navegador impede o envio de métricas externas por sua configuração de privacidade.';
+    else if (choice === accepted) status.textContent = 'Google Analytics autorizado neste navegador.';
+    else if (choice === rejected) status.textContent = 'Google Analytics não autorizado neste navegador.';
+    else status.textContent = 'Google Analytics desativado. Nenhum dado externo é enviado sem autorização.';
   }
   function start() {
     if (loaded || disabledByBrowser() || cookie(key) !== accepted) return;
     loaded = true;
-    // Nenhuma requisição ou tag externa antes do aceite. Publicidade segue negada.
+    // Nenhuma tag externa antes do aceite; consentimento de anúncios continua negado.
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () { window.dataLayer.push(arguments); };
     window.gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' });
@@ -54,23 +50,25 @@
   function revoke() {
     save('deny');
     if (loaded) {
-      // A tag já carregada não pode ser descarregada; reload garante modo básico após revogação.
+      // Após carregar, recarrega para interromper o envio nesta aba.
       if (typeof window.gtag === 'function') window.gtag('consent', 'update', { analytics_storage: 'denied' });
       location.reload();
       return;
     }
-    updateBanner(false);
+    updateControls();
   }
-  allow && allow.addEventListener('click', function () {
-    if (disabledByBrowser()) { updateBanner(true); return; }
-    save('allow'); updateBanner(false); start();
+  if (allow) allow.addEventListener('click', function () {
+    if (disabledByBrowser()) { updateControls(); return; }
+    save('allow');
+    updateControls();
+    start();
   });
-  deny && deny.addEventListener('click', revoke);
-  change && change.addEventListener('click', function (event) { event.preventDefault(); updateBanner(true); });
+  if (deny) deny.addEventListener('click', revoke);
   document.addEventListener('igua:analytics-optout', function (event) {
     if (event.detail && event.detail.optedOut) revoke();
-    else updateBanner(false);
+    else updateControls();
   });
-  updateBanner(false);
+  updateControls();
+  // Mantém consentimentos antigos sem abrir nenhuma interface ou nova solicitação.
   if (!disabledByBrowser() && cookie(key) === accepted) start();
 })();

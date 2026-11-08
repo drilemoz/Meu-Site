@@ -395,17 +395,13 @@ html,body{max-width:100%;overflow-x:clip}
 .analytics-technical{border-top:1px solid #dce5f3;margin-top:14px;padding-top:10px}
 .analytics-technical summary{cursor:pointer;color:#245b9a;font-size:12px;font-weight:700}
 .analytics-technical p{font-size:12px;line-height:1.55;margin:8px 0 0}
-.ga4-consent{position:fixed;bottom:18px;left:12px;right:12px;margin:0 auto;max-width:480px;z-index:500;background:#fff;border:1px solid #c3d6ef;box-shadow:0 12px 35px #143f7c30;border-radius:14px;padding:14px 15px;color:#17365b}
-.ga4-consent[hidden],.ga4-consent-status[hidden]{display:none}
-.ga4-consent-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ga4-consent-header strong{font-size:14px}.ga4-consent-header a{font-size:12px;color:#1765d5;text-decoration:underline}
-.ga4-consent p{font-size:12px;line-height:1.5;margin:7px 0}
-.ga4-consent-actions{display:flex;flex-wrap:wrap;gap:8px}
-.ga4-consent-actions button{cursor:pointer;min-height:44px;padding:9px 13px;background:#fff;border:1px solid #bfcee5;color:#24527c;font-weight:700;border-radius:9px}
-.ga4-consent-actions button.primary{background:#1765d5;color:#fff;border-color:#1765d5}
-.ga4-consent-actions button:disabled{opacity:.5;cursor:not-allowed}
-.ga4-consent .ga4-consent-status{font-size:12px;color:#755121}
-@media(max-width:800px){.ga4-consent{bottom:77px}.analytics-panel .panel-heading{gap:8px}.analytics-periods{width:100%;justify-content:space-between}.analytics-periods a{flex:1;padding:7px 4px}.analytics-kpis{gap:7px}.analytics-kpi{padding:10px}}
+.privacy-ga4{scroll-margin-top:18px}
+.privacy-ga4 .ga4-consent-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.privacy-ga4 .ga4-consent-actions button{cursor:pointer;min-height:44px;padding:10px 15px;background:#fff;border:1px solid #bfcee5;color:#24527c;font-weight:700;border-radius:9px}
+.privacy-ga4 .ga4-consent-actions button.primary{background:#1765d5;color:#fff;border-color:#1765d5}
+.privacy-ga4 .ga4-consent-actions button:disabled{opacity:.5;cursor:not-allowed}
+.privacy-ga4 .ga4-consent-status{font-size:13px;line-height:1.5;color:#4f6176;margin:12px 0 0}
+@media(max-width:800px){.analytics-panel .panel-heading{gap:8px}.analytics-periods{width:100%;justify-content:space-between}.analytics-periods a{flex:1;padding:7px 4px}.analytics-kpis{gap:7px}.analytics-kpi{padding:10px}}
 
 .analytics-bars i.is-zero{min-height:0}
 /* 1.0.12: cadastro simples, opções avançadas apenas quando necessárias */
@@ -1818,37 +1814,31 @@ html,body{max-width:100%;overflow-x:clip}
 .igua-gemini-test-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .igua-gemini-test-actions .btn{width:100%;min-height:44px;padding:8px;white-space:normal}
 
-/* v1.0.119 — GA4: diferenciar coleta mediante consentimento de relatórios API. */
-.int-ga-collection-state{min-width:0;padding:12px 13px;background:#f1f7fd;border:1px solid #d2e3f2;border-radius:14px;display:grid;gap:8px}
-.int-ga-collection-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.int-ga-collection-top>strong{font-size:.84rem;line-height:1.35;color:#174362}
-.int-ga-collection-badge{font-size:.68rem;line-height:1.35;font-weight:750;color:#6c5526;background:#fff8e8;border:1px solid #e7d8b0;padding:5px 9px;border-radius:100px;max-width:100%}
-.int-ga-collection-badge.is-confirmed{color:#126454;background:#e2f7ef;border-color:#a5d9cc}
-.int-ga-collection-state p,.int-ga-verify-inner p,.int-ga-api-note,.int-ga-api-notice{font-size:.76rem;line-height:1.6;color:#4e687b;margin:0;overflow-wrap:anywhere}
-.int-ga-verify-guide,.int-ga-api-details{border:1px solid #d3e2ee;background:#fff;border-radius:14px;min-width:0;overflow:hidden}
-.int-ga-verify-guide>summary,.int-ga-api-details>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:54px;padding:12px 13px;cursor:pointer;font-weight:750;color:#174c73;font-size:.81rem}
-.int-ga-verify-guide>summary{display:grid;grid-template-columns:minmax(0,1fr)}
-.int-ga-verify-guide>summary small,.int-ga-api-details>summary small{display:block;font-size:.7rem;color:#68849a;font-weight:500;margin-top:4px;line-height:1.35}
-.int-ga-verify-guide[open]>summary,.int-ga-api-details[open]>summary{border-bottom:1px solid #dce9f3;background:#f5faff}
-.int-ga-verify-inner{display:grid;gap:12px;padding:12px 14px 15px}
-.int-ga-verify-inner ol{display:grid;gap:10px;margin:0;padding-left:20px;color:#415c73;font-size:.77rem;line-height:1.6}
-.int-ga-verify-inner li{padding-left:2px;overflow-wrap:anywhere}
-.int-ga-verify-inner li strong{color:#1b567d}
-.int-ga-help-links{display:flex;gap:10px;flex-wrap:wrap}
-.int-ga-help-links a{font-size:.74rem;min-height:44px;display:inline-flex;align-items:center;padding:8px 10px;background:#eff6ff;border:1px solid #d1e3f5;border-radius:10px;font-weight:700;color:#155c92}
-.int-ga-api-details>summary>span:first-child{min-width:0}
-.int-ga-api-state{font-size:.67rem;font-weight:700;color:#60768d;background:#eff4f9;padding:6px 8px;border-radius:30px;text-align:center;max-width:45%;flex-shrink:0}
-.int-ga-api-content{padding:12px;display:grid;gap:12px;min-width:0}
-.int-ga-api-note{padding:0 2px}
-.int-ga-api-notice{background:#fff8e8;border:1px solid #e8dcb9;color:#705526;padding:11px;border-radius:11px}
-.int-ga-api-content .int-live-panel{min-width:0}
-@media(max-width:400px){.int-ga-api-details>summary{align-items:flex-start;flex-direction:column}.int-ga-api-state{max-width:100%}.int-ga-api-content{padding:9px}.int-ga-verify-inner{padding:10px}}
-.int-ga-public-probe{display:grid;gap:7px;background:#f5faff;border:1px solid #dbeaf7;padding:11px;border-radius:12px}
-.int-ga-public-probe .btn{justify-self:start;min-height:44px;white-space:normal;text-align:center}
-.int-ga-public-probe>small{font-size:.68rem;line-height:1.45;color:#667b8d}
-.int-ga-public-probe [data-ga4-public-result]{font-size:.75rem;line-height:1.55;border-radius:9px;padding:10px;background:#f0f4fc;color:#24527b;overflow-wrap:anywhere}
-.int-ga-public-probe [data-ga4-public-result].is-error{background:#fff2e9;color:#7d421f}
-.int-ga-public-probe [data-ga4-public-result].is-ok{background:#e6f8ed;color:#125d41}
+/* 1.0.119: GA4: diferenciar coleta pública dos relatórios opcionais, mobile-first. */
+.int-ga-state{display:flex;gap:10px;align-items:flex-start;border:1px solid #cce5db;background:#f2fbf7;border-radius:12px;padding:12px;color:#245b4d}
+.int-ga-state-icon{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;border-radius:50%;background:#d6f5e6;color:#16745d;font-weight:800}
+.int-ga-state strong{display:block;font-size:.83rem;line-height:1.4}
+.int-ga-state p,.int-ga-api-info p{font-size:.76rem;line-height:1.55;margin:4px 0 0;color:#466578}
+.int-ga-field-hint{font-size:.7rem!important;font-weight:400!important;color:#60788a;line-height:1.45}
+.int-ga-verify{display:grid;gap:6px;padding:13px;border:1px solid #cbdfea;background:#f5f9fd;border-radius:13px}
+.int-ga-verify strong{font-size:.85rem;color:#235579}
+.int-ga-verify p,.int-ga-verify small{margin:0;color:#547087;font-size:.75rem;line-height:1.55}
+.int-ga-verify small{font-size:.69rem}
+.int-ga-verify a,.int-ga-api-info a{justify-self:start;color:#0966ad;text-decoration:underline;text-underline-offset:3px;min-height:44px;display:inline-flex;align-items:center;font-size:.78rem;font-weight:750}
+.int-ga-api-tools{border:1px solid #d3e2ee;border-radius:14px;background:#fff;overflow:visible;min-width:0}
+.int-ga-api-tools>summary{display:flex;align-items:center;gap:12px;justify-content:space-between;list-style:none;cursor:pointer;min-height:64px;padding:12px 13px;color:#245574}
+.int-ga-api-tools>summary::-webkit-details-marker{display:none}
+.int-ga-api-tools>summary span:first-child{display:grid;gap:4px;min-width:0}
+.int-ga-api-tools>summary strong{font-size:.84rem;line-height:1.35}
+.int-ga-api-tools>summary small{font-size:.7rem;line-height:1.4;color:#5d788f}
+.int-ga-api-chevron{width:10px;height:10px;flex:0 0 10px;border:solid #6c91ae;border-width:0 2px 2px 0;transform:rotate(45deg);transition:transform .15s ease}
+.int-ga-api-tools[open] .int-ga-api-chevron{transform:rotate(225deg)}
+.int-ga-api-inner{display:grid;gap:12px;padding:0 12px 12px}
+.int-ga-api-info{padding:12px;border-radius:11px;background:#fffaf0;border:1px solid #f1dcae}
+.int-ga-api-info strong{font-size:.82rem;color:#805d26}
+.int-ga-api-info a{color:#845922}
+.int-ga .int-live-panel .btn:disabled,.int-ga .int-ga-report .btn:disabled{background:#edf1f6!important;color:#687d90!important;border:1px solid #d6dfe8!important;box-shadow:none!important;opacity:1!important;cursor:not-allowed!important}
+@media(max-width:400px){.int-ga .int-service-actions .btn,.int-ga .int-service-actions a{font-size:.76rem}.int-ga-api-inner{padding:0 9px 9px}.int-ga .int-live-panel{padding:10px}.int-ga .int-ga-report{padding:10px}}
 /* Aplicativos e páginas legais, painel e leitura pública. */
 .legal-admin{max-width:100%;min-width:0}
 .legal-admin-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}

@@ -1,10 +1,10 @@
-## IguatamaOnline 1.0.119
+## 1.0.120 — Navegação sem aviso de métricas
 
-- Central de Integrações → Google Analytics 4: estado mais preciso. Ter um ID informado não garante que o Google está recebendo acessos.
-- Novo diagnóstico manual sem chave: verifica apenas se o ID da tag e o script estão no HTML da página pública. Não mede eventos nem substitui Tempo real/DebugView.
-- Guia de confirmação pelo Google e área de relatórios pela API recolhida inicialmente, diferenciando o rastreamento público de consultas opcionais com conta de serviço.
-- Regressões PHP/JS e verificações visuais. Consentimento, GPC/DNT, configuração salva, CSRF, schema 37 e backup v12 preservados.
-- A ausência de dados vista nas capturas ainda precisa ser investigada com acesso ao fluxo Web e ao ambiente de produção; esta versão não afirma ter solucionado a coleta sem testes reais.
+O aviso fixo “Google Analytics” deixa de aparecer sobre as notícias. A autorização opcional está na Política de Privacidade, acessível pelo rodapé. Consentimentos já registrados continuam válidos, e a preferência DNT/GPC do navegador permanece respeitada; não há ativação automática da tag para visitantes sem autorização. O painel de métricas internas não foi afetado. Sem alterações de banco, schema 37, backup v12 ou APIs Google. A publicação no site exige instalar a atualização e validar manualmente.
+
+## 1.0.119 — Google Analytics mais claro
+
+A janela do GA4 agora diferencia a coleta de visitantes mediante consentimento dos relatórios opcionais dentro do painel. Inclui orientações para verificar visitas no relatório Tempo real do Google, explica o papel dos IDs e da conta de serviço, recolhe as opções avançadas e deixa os botões indisponíveis com aparência coerente. Nenhuma migração de banco.
 
 ## IguatamaOnline 1.0.118
 
