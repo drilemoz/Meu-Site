@@ -185,3 +185,113 @@ function igua_files_download(string $scope,string $relative): void {
     header('Content-Length: '.$size);
     readfile($path);exit;
 }
+
+
+/** Explorador read-only do projeto: não confundir com a área pública editável. */
+function igua_files_project_name(string $name): bool {
+    return $name !== '' && strlen($name) <= 200 && $name !== '.' && $name !== '..'
+        && !str_starts_with($name, '.') && (bool)preg_match('//u', $name)
+        && !preg_match('/[\x00-\x1f\x7f\/\\\\]/u', $name);
+}
+function igua_files_project_relative(string $relative): string {
+    if(strlen($relative) > 700 || str_contains($relative, '\\') || str_starts_with($relative, '/'))
+        throw new InvalidArgumentException('Caminho fora do projeto.');
+    if($relative === '') return '';
+    foreach(explode('/', $relative) as $part) {
+        if(!igua_files_project_name($part)) throw new InvalidArgumentException('Caminho inválido.');
+    }
+    return $relative;
+}
+function igua_files_project_protected(string $segment): bool {
+    $name = strtolower($segment);
+    if(in_array($name, ['storage', 'vendor', '.git', '.svn', 'node_modules', 'backups',
+        'backup', 'cache', 'tmp', '.env', 'config.php', '.htpasswd', '.user.ini',
+        '.setup.lock', 'private', 'secrets', 'credentials'], true)) return true;
+    return (bool)preg_match('/(?:^|[._-])(?:secret|credential|private[-_]?key|token)(?:[._-]|$)|\.(?:pem|key|p12|pfx|jks|sqlite|sqlite3|db|sql|log|bak|gz)$/i', $segment);
+}
+function igua_files_project_root(): string {
+    $root=realpath(IGUA_ROOT);
+    if($root===false || !is_dir($root) || is_link(IGUA_ROOT))
+        throw new RuntimeException('Raiz do site indisponível.');
+    return $root;
+}
+/** Caminho existente, sem links simbólicos, arquivos privados ou escapes da raiz. */
+function igua_files_project_resolve(string $relative, ?bool $directory=null): string {
+    $relative=igua_files_project_relative($relative);
+    $root=igua_files_project_root();$path=$root;
+    foreach($relative===''?[]:explode('/', $relative) as $part){
+        if(igua_files_project_protected($part))throw new InvalidArgumentException('Item protegido do projeto.');
+        $path.='/'.$part;
+        if(is_link($path))throw new InvalidArgumentException('Links simbólicos não são acessíveis.');
+    }
+    $resolved=realpath($path);
+    if($resolved===false || !igua_files_is_below($resolved,$root))
+        throw new InvalidArgumentException('Arquivo ou pasta indisponível.');
+    if($directory===true && !is_dir($resolved))throw new InvalidArgumentException('Pasta não encontrada.');
+    if($directory===false && !is_file($resolved))throw new InvalidArgumentException('Arquivo não encontrado.');
+    return $resolved;
+}
+function igua_files_project_list(string $relative, int $page=1): array {
+    $relative=igua_files_project_relative($relative);
+    $page=max(1,min(50,$page));
+    if($relative==='public/uploads/arquivos' && !is_dir(IGUA_PUBLIC.'/uploads/arquivos')) {
+        // Diretório criado somente no primeiro POST de upload/pasta.
+        if(is_link(IGUA_PUBLIC.'/uploads/arquivos'))throw new InvalidArgumentException('Pasta insegura.');
+        return ['items'=>[],'truncated'=>false,'page'=>1,'pages'=>1,'total'=>0];
+    }
+    $dir=igua_files_project_resolve($relative,true);
+    $items=[];$scanned=0;$truncated=false;
+    foreach(new DirectoryIterator($dir) as $item){
+        if($item->isDot())continue;
+        if(++$scanned>6000){$truncated=true;break;}
+        $name=$item->getFilename();
+        if(!igua_files_project_name($name))continue;
+        if(!$item->isDir() && !$item->isFile() && !$item->isLink())continue;
+        $blocked=$item->isLink() || igua_files_project_protected($name);
+        $items[]=['name'=>$name,'dir'=>$item->isDir(), 'blocked'=>$blocked,
+          'size'=>$item->isFile()&&!$blocked?$item->getSize():null,
+          'modified'=>!$blocked?$item->getMTime():null];
+    }
+    if($relative==='public/uploads' && !is_dir(IGUA_PUBLIC.'/uploads/arquivos') && !is_link(IGUA_PUBLIC.'/uploads/arquivos')) {
+        $items[]=['name'=>'arquivos','dir'=>true,'blocked'=>false,'size'=>null,'modified'=>null];
+    }
+    usort($items,static fn(array $a,array $b)=>($b['dir']<=>$a['dir']) ?: strnatcasecmp($a['name'],$b['name']));
+    $total=count($items);$perPage=120;$pages=max(1,(int)ceil($total/$perPage));
+    $page=min($page,$pages);
+    return ['items'=>array_slice($items,($page-1)*$perPage,$perPage),
+      'truncated'=>$truncated,'page'=>$page,'pages'=>$pages,'total'=>$total];
+}
+function igua_files_project_is_managed(string $relative): bool {
+    return $relative==='public/uploads/arquivos' || str_starts_with($relative,'public/uploads/arquivos/');
+}
+function igua_files_project_managed_relative(string $relative): string {
+    $relative=igua_files_project_relative($relative);
+    if(!igua_files_project_is_managed($relative))
+        throw new InvalidArgumentException('Alterações permitidas somente em uploads/arquivos.');
+    $suffix=substr($relative,strlen('public/uploads/arquivos'));
+    return igua_files_relative(ltrim($suffix,'/'));
+}
+function igua_files_project_is_special(string $relative): bool {
+    return in_array($relative,['public/ads.txt','public/robots.txt'],true);
+}
+function igua_files_project_editable(string $relative): bool {
+    $relative=igua_files_project_relative($relative);
+    return igua_files_project_is_special($relative) ||
+      (igua_files_project_is_managed($relative) && in_array(igua_files_extension($relative),['txt','csv'],true));
+}
+function igua_files_project_text_previewable(string $relative): bool {
+    return in_array(igua_files_extension($relative),
+      ['php','txt','csv','md','json','xml','css','js','html','htm','svg','yml','yaml'],true)
+      || basename($relative)==='VERSION';
+}
+/** Download autenticado e limitado, sem enviar diretamente arquivos de credenciais. */
+function igua_files_project_download(string $relative): void {
+    try{$file=igua_files_project_resolve($relative,false);}catch(Throwable $e){http_response_code(404);exit('Arquivo não disponível.');}
+    $bytes=filesize($file);
+    if($bytes===false || $bytes>IGUA_FILES_MAX_BYTES){http_response_code(413);exit('Arquivo acima do limite de 8 MiB.');}
+    header('Cache-Control: private, no-store, max-age=0');header('X-Content-Type-Options: nosniff');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="'.str_replace('"','',basename($file)).'"');
+    header('Content-Length: '.$bytes);
+    readfile($file);exit;
+}

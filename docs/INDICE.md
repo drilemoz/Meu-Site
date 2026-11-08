@@ -1,4 +1,4 @@
-# Documentação atual do Meu Site (1.0.121)
+# Documentação atual do Meu Site (1.0.122)
 
 Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `RELATORIO_ARQUIVOS_LINHAS_*` e instruções de atualizadores antigos foram retirados do ZIP; seu histórico permanece nas versões anteriores do repositório, se disponíveis.
 

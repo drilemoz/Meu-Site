@@ -32,7 +32,7 @@ if(igua_security_blocked()) {
     http_response_code(429);header('Retry-After: 900');exit('Este acesso administrativo está temporariamente bloqueado.');
 }
 $action=(string)($_GET['action']??'dashboard');
-if($action==='updates'){header('Cache-Control: private, no-store, max-age=0');header('Pragma: no-cache');}
+if(in_array($action,['updates','files','files_download'],true)){header('Cache-Control: private, no-store, max-age=0');header('Pragma: no-cache');}
 // Se post_max_size for ultrapassado, PHP esvazia $_POST e $_FILES antes do CSRF.
 if(request_post()&&in_array($action,['save_article','ads_save_campaign','media_upload','save_legal_app','files_save'],true)){
     $maxPost=igua_ini_bytes((string)ini_get('post_max_size'));
@@ -171,7 +171,7 @@ if($action==='integrations_adsense_callback'){
 if($action==='files_save' && !request_post()){http_response_code(405);exit('Método não permitido.');}
 if($action==='files_download'){
     if(request_post()){http_response_code(405);exit('Método não permitido.');}
-    igua_files_download(($_GET['scope']??'')==='special'?'special':'managed',is_string($_GET['file']??null)?$_GET['file']:'');
+    igua_files_project_download(is_string($_GET['file']??null)?$_GET['file']:'');
 }
 // Operações privadas de mídias e downloads permanecem antes do POST geral.
 require __DIR__.'/../app/admin_controllers/media.php';

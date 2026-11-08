@@ -1,3 +1,16 @@
+## [1.0.122] - 2026-11-08
+
+### Alterado
+- Transformado o gerenciador de arquivos em um explorador mobile-first da **raiz do projeto**, diretamente no submenu Ferramentas.
+- Removidos da página os cartões Biblioteca de mídias, Backups, Arquivos essenciais e o formulário sempre aberto; a listagem de pastas e arquivos agora é o conteúdo principal.
+- Adicionados breadcrumbs, visualização em modo leitura de textos/código, prévia de imagens públicas, download autenticado e paginação de diretórios grandes.
+- Preservadas as operações existentes no diretório público gerenciado, com upload/criação recolhidos, e a edição controlada de ads.txt/robots.txt dentro da navegação por pastas.
+- Privacidade reforçada com bloqueio de storage, segredos, symlinks e caminhos externos, sem editor de PHP e com cache desativado para o explorador.
+- Nenhuma alteração de schema 37, backup v12, métricas ou conteúdo publicado.
+
+### Testes
+- `tests/file_manager_221.php` e novo `tests/file_manager_222.php` com sandbox privado; validações locais não equivalem a homologação em produção.
+
 ## [1.0.121] - 2026-11-08
 
 ### Novo

@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.122
+
+- O submenu **Ferramentas → Gerenciador de Arquivos** agora mostra a estrutura do projeto desde a raiz, em vez de começar na pasta vazia de uploads. Entre em `app/`, `public/` e outras pastas disponíveis pelo celular.
+- Tela dedicada, com pastas e arquivos em lista, caminho navegável, pesquisa rápida, paginação e prévia de códigos/textos e imagens. Removidos os cartões de Biblioteca de mídias, Backups e Arquivos essenciais desta tela.
+- Arquivos PHP e demais arquivos do sistema podem ser lidos ou baixados por administradores, mas **não podem ser alterados por esse módulo**. `storage/` e segredos permanecem protegidos.
+- Upload e gerenciamento continuam na pasta `public/uploads/arquivos/`, e a edição de `ads.txt` / `robots.txt` continua disponível ao navegar em `public/`. Nenhum dado ou banco foi alterado.
+- Testes locais de PHP, JS, segurança de caminhos e pacotes; testar navegação, permissões e operações em aparelho/hospedagem após instalação.
+
 ## 1.0.121 — Novo Gerenciador de Arquivos em Ferramentas
 
 O painel administrativo agora inclui **Ferramentas → Gerenciador de Arquivos** (somente administradores). Permite pastas, envio de arquivos JPG/PNG/WebP/PDF/TXT/CSV, downloads, renomear, excluir e editar textos; também permite editar `ads.txt` e `robots.txt` com segurança.

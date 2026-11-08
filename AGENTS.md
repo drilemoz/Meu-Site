@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.121)
+# Diretrizes de manutenção — Meu Site (v1.0.122)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -252,3 +252,10 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Upload até 8 MiB: JPG/JPEG/PNG/WebP/PDF/TXT/CSV com verificações de MIME e conteúdo. Textos editáveis no máximo 128 KiB com SHA-256 de concorrência. Nenhuma migração SQL. Pastas/arquivos do gerenciador permanecem em `public/uploads` e devem sobreviver às atualizações.
 - Não afirmar equivalência a FTP/SSH nem recomendar depósito de arquivos privados: uploads gerenciados são públicos. Não carregar ou devolver segredos de `storage/`.
 - Executar `php tests/file_manager_221.php` e a suíte geral antes de entregar.
+
+## Explorador da raiz — 1.0.122
+
+- Ferramentas → Gerenciador de Arquivos abre a árvore real `IGUA_ROOT`, sem introduções/cartões de mídias, backups ou essenciais. Pastas são navegáveis, arquivos aparecem em visualizador de leitura com download autenticado e busca na pasta/paginação.
+- NUNCA permitir leitura de `storage/` (configuração/credenciais), arquivos `.env`, `config.php`, chaves e tokens, nem atravessar links simbólicos ou sair da raiz. Entrada administrativa exige `manage_settings`, com páginas e download sem cache.
+- O acesso a código PHP/JS/CSS é exclusivamente **de leitura**; nenhuma API de edição, exclusão, renomeação ou upload deve atuar fora de `public/uploads/arquivos/` e da edição especial `ads.txt`/`robots.txt`. Manter CSRF nos POSTs e validação MIME no upload.
+- Execução mínima de testes `php tests/file_manager_221.php`, `php tests/file_manager_222.php`, CSS build e suíte completa. Sem migração SQL ou modificação do backup.

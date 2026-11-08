@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.121** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.122** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.122 — Explorador da raiz do projeto
+
+- **Ferramentas → Gerenciador de Arquivos** agora abre diretamente na raiz do site (`IGUA_ROOT`), com navegação por pastas como `app/`, `public/`, `tools/` (quando presentes), breadcrumbs, busca local e páginas de até 120 itens. A interface é um explorador compacto, sem os antigos cartões de Biblioteca de Mídias, Backups e Arquivos essenciais.
+- Arquivos são abertos em tela de visualização: fonte PHP/JS/CSS, JSON, Markdown e outros textos em **somente leitura**, imagens públicas com prévia, e download autenticado com limite de 8 MiB. Textos de até 128 KiB; arquivos maiores oferecem download.
+- **Gravação permanece restrita** a `public/uploads/arquivos/` para JPG/PNG/WebP/PDF/TXT/CSV e aos arquivos especiais `public/ads.txt` e `public/robots.txt`. Ações de envio/criação aparecem recolhidas somente na pasta autorizada. Não se altera código PHP pela web.
+- Diretórios privados (`storage/`), credenciais e links simbólicos aparecem bloqueados ou são omitidos; não há navegação fora do projeto. Download/leitura exigem sessão de administrador e cabeçalhos anti-cache. Sem alterações de schema, backups, SEO, GA4 ou AdSense.
+- Testes: `tests/file_manager_221.php` (compatibilidade) e `tests/file_manager_222.php` (raiz, bloqueios, navegação, página, integração e limites). A interface na hospedagem deve ser validada após instalar.
 
 ## Versão 1.0.121 — Ferramentas > Gerenciador de Arquivos
 
