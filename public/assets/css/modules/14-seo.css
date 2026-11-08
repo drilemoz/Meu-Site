@@ -165,3 +165,13 @@
 .seo-favicon-description>div{min-width:0}
 .seo-portal-commands{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:650px){.seo-portal-commands{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-favicon-description{width:100%}}
+
+/* 1.0.110: controles de mídia sem caminhos técnicos expostos. */
+.seo-portal-image-row .seo-social-description{display:flex;align-items:center;gap:12px;min-width:0}
+.seo-portal-image-row .seo-social-description img{width:76px;height:54px;object-fit:cover;border-radius:9px;border:1px solid var(--line,#dbe4ed);flex-shrink:0}
+.seo-portal-image-row .seo-social-description>div{min-width:0}
+.seo-portal-image-row .seo-media-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.seo-portal-dialog .seo-page-field{padding:10px 0;border-bottom:1px solid var(--line,#dbe4ed)}
+.seo-portal-dialog .seo-page-field:last-of-type{border-bottom:0}
+.seo-portal-dialog .seo-page-field textarea{width:100%;min-height:70px;overflow-wrap:anywhere}
+@media(max-width:440px){.seo-portal-image-row{align-items:flex-start;gap:8px}.seo-portal-image-row .seo-media-actions{max-width:140px}.seo-portal-image-row .seo-media-actions button{font-size:.82rem;padding:9px}}

@@ -54,7 +54,9 @@ function analytics_bot(string $ua): string {
       'Googlebot'=>'googlebot','Bingbot'=>'bingbot','DuckDuckBot'=>'duckduckbot','Baiduspider'=>'baiduspider',
       'YandexBot'=>'yandexbot','Applebot'=>'applebot','GPTBot'=>'gptbot','ChatGPT-User'=>'chatgpt-user',
       'Facebook'=>'facebookexternalhit','WhatsApp'=>'whatsapp','Telegram'=>'telegrambot',
-      'Headless'=>'headlesschrome','curl'=>'curl/','wget'=>'wget/','Python'=>'python-requests',
+      'Headless'=>'(headlesschrome|phantomjs|puppeteer|playwright|selenium|webdriver)','curl'=>'curl/','wget'=>'wget/','Python'=>'(python-requests|python-urllib|aiohttp)',
+      'Cliente HTTP'=>'(go-http-client|libwww-perl|node-fetch|httpx/|axios/|scrapy/|okhttp/|java/)',
+      'Monitoramento'=>'(uptimerobot|statuscake|pingdom|site24x7|datadog|bytespider|petalbot|ccbot|semrushbot)',
       'Scanner'=>'(scrapy|spider|crawler|bot/|\bbot\b|uptime|scanner|httpclient|ahrefs|semrush)'
     ] as $name=>$pattern){if($pattern[0]==='(' ? preg_match('~'.$pattern.'~i',$ua) : stripos($ua,$pattern)!==false)return $name;}
     return '';
@@ -66,11 +68,23 @@ function analytics_device(string $ua): string {
     if(preg_match('/windows|macintosh|linux|x11/i',$ua))return 'computador';
     return 'desconhecido';
 }
-function analytics_page(string $p): string {
+/** Registra apenas rotas públicas conhecidas. Não registra buscas, tokens ou consultas arbitrárias. */
+function analytics_page(string $p,array $routeContext=[]): string {
     $parts=parse_url($p);
     if($parts===false)return '/index.php';
-    $path=$parts['path']??'/index.php';
-    if(!is_string($path)||!in_array($path,['/', '/index.php'],true))return '/index.php';
+    $path=(string)($parts['path']??'/index.php');
+    if(preg_match('~^/(noticia|categoria)/([a-z0-9]+(?:-[a-z0-9]+)*)/?$~D',$path,$m) && strlen($m[2])<=95){
+        return '/'.$m[1].'/'.$m[2];
+    }
+    // Somente uma rota legal que o roteador público já identificou como válida.
+    if(($routeContext['p']??'')==='app' && is_string($routeContext['app_slug']??null)){
+        $slug=$routeContext['app_slug'];$page=$routeContext['app_page']??'inicio';
+        if(is_string($page) && preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$slug) && strlen($slug)<=95
+           && preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$page) && strlen($page)<=95){
+           return '/'.$slug.($page==='inicio'?'':'/'.$page);
+        }
+    }
+    if(!in_array($path,['/', '/index.php'],true))return '/index.php';
     $query=[];parse_str((string)($parts['query']??''),$query);
     $safe=[];
     foreach(['p','slug'] as $key){
@@ -135,7 +149,13 @@ function analytics_log(PDO $db,string $type,string $page,string $target='',array
     $day=date('Y-m-d');
     $key=analytics_secret();
     $hash=analytics_visitor_hash($ip,$ua,$day,$key);
-    $route=analytics_page($page);
+    // Detector conservador de rajadas; a identidade não é verificada, e pode haver NAT.
+    if($type==='pageview' && $bot==='' && $ip!=='' && $ua!==''){
+        $rate=$db->prepare("SELECT COUNT(*) FROM analytics_events WHERE visitor_day_hash=? AND event_day=? AND event_type='pageview' AND occurred_at >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)");
+        $rate->execute([$hash,$day]);
+        if((int)$rate->fetchColumn()>=29)$bot='Volume suspeito';
+    }
+    $route=analytics_page($page,$query);
     $dest=$type==='click'?analytics_target($target):'';
     if($type==='click'&&$dest==='')return false;
     [$source,$refHost]=analytics_referrer((string)($server['HTTP_REFERER']??''),$server);

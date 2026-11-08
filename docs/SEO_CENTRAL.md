@@ -45,3 +45,9 @@ Em Configurações → SEO e compartilhamento, use **Títulos das páginas** par
 Em **Ícone do site (favicon)**, selecione uma imagem existente da biblioteca ou informe uma URL HTTPS de PNG/JPG/WebP/ICO. O campo é validado antes de salvar e o ícone é anunciado com `rel="icon"` no HTML público. Sem configuração, é usado `/assets/img/favicon.svg`. Prefira imagem quadrada de 48×48 ou superior; o navegador pode manter o ícone em cache.
 
 O pop-up de ajustes técnicos mantém endereço oficial HTTPS, imagem social, indexação e URLs amigáveis. Os valores só são persistidos ao tocar em **Salvar configurações**.
+
+## Ajustes 1.0.110
+
+- Escolha imagem de compartilhamento e favicon pelos botões da biblioteca de mídias na seção SEO. A URL é gravada na configuração interna e não precisa ser digitada no pop-up técnico; **Limpar** e **Padrão** removem a seleção.
+- **Páginas: título e descrição** define títulos e metadescrições específicos para Ônibus, Sobre, Contato, Anuncie, Privacidade e Termos. A página inicial usa título exato (se definido) e descrição geral. Descrição vazia preserva os defaults.
+- O texto salvo pode ter até 320 caracteres; a prévia do Google é ilustrativa e o buscador pode escolher outro snippet.

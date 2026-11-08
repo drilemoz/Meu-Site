@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.109)
+# Diretrizes de manutenção — Meu Site (v1.0.110)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -167,3 +167,10 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - A listagem exibe caminho curto, mas Abrir/Copiar/Testar mantêm destino completo e checagem de mesma origem. Paginação em 12 por página.
 - Contato do desenvolvedor mantém telefone/e-mail e oferece link externo HTTPS com `noopener noreferrer`.
 - Executar `tests/sitemap_layout_208.php`, regressão PHP/JS completa, verificação CSS/editor, auditoria e integridade ZIP antes de distribuir. Schema 37 sem migrações.
+
+## Atualização 1.0.110
+
+- Imagem social/favicon são selecionados por biblioteca de mídia e campos de formulário ocultos; não remover validação de MIME/URL/registro de mídia no PHP. Após salvar, o caminho continua na configuração, não texto digitado no modal.
+- SEO permite `seo_page_description_{onibus,sobre,contato,anuncie,privacidade,termos}` via settings existentes, sem schema novo. Prioridade: descrição individual preenchida, fallback anterior se vazia. Nunca sobrescrever descrições de artigos e páginas legais.
+- Métricas não podem chamar `is_bot=0` de prova de pessoa humana; rotular como acesso não classificado e identificadores estimados. Detector de volume é heurístico e pode ter falsos positivos. Não reclassificar eventos antigos, não armazenar IP/UA brutos e preservar GPC/DNT.
+- Rotas amigáveis registradas apenas em padrões conhecidos ou contexto validado de páginas legais, sem registrar query privada. Executar `tests/seo_analytics_210.php`/`.js` junto à suíte completa.

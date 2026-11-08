@@ -25,7 +25,7 @@
   const snapshots = new WeakMap();
   const snapshotFields = {
     'seo-content-dialog':['seo_default_description','seo_title_template'],
-    'seo-pages-dialog':['seo_home_title','seo_page_title_onibus','seo_page_title_sobre','seo_page_title_contato','seo_page_title_anuncie','seo_page_title_privacidade','seo_page_title_termos'],
+    'seo-pages-dialog':['seo_home_title',...['onibus','sobre','contato','anuncie','privacidade','termos'].flatMap(route=>['seo_page_title_'+route,'seo_page_description_'+route])],
     'seo-advanced-dialog':['seo_site_url','seo_social_image','seo_favicon_image','seo_pretty_urls','seo_index']
   };
   const saveSnapshot = dialog => {
@@ -56,6 +56,8 @@
     el('seo-description-count').textContent = `${Array.from(desc.value).length}/320 caracteres`;
     const valid = imageUrl(get('seo_social_image'));
     const img = el('seo-social-preview-image');
+    const selected = el('seo-social-selected-image');
+    if (selected) { selected.hidden=!valid; if(valid && selected.src!==valid)selected.src=valid; else if(!valid)selected.removeAttribute('src'); }
     const fallback = el('seo-social-preview-empty');
     if (valid) {
       img.hidden = false; fallback.hidden = true;
@@ -152,6 +154,11 @@
   form.addEventListener('input',()=>{summary();updateDirty();});
   form.addEventListener('change',()=>{summary();updateDirty();});
   el('seo-portal-check').addEventListener('click',()=>runChecks(true));
+  el('seo-social-selected-image')?.addEventListener('error',()=>{el('seo-social-selected-image').hidden=true;});
+  form.querySelectorAll('[data-seo-clear]').forEach(button=>button.addEventListener('click',()=>{
+    const input=field(button.dataset.seoClear); if(!input)return;
+    input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));
+  }));
   el('seo-social-preview-image').addEventListener('error',()=>{
     el('seo-social-preview-image').hidden=true;
     el('seo-social-preview-empty').hidden=false;

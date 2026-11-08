@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.110
+
+- Biblioteca de mídias agora é o caminho visual único para trocar imagem social e favicon, com prévia e limpeza. Os caminhos técnicos deixam de aparecer em Configurações avançadas.
+- SEO de páginas fixas: títulos e metadescrições opcionais individuais; em branco, os padrões anteriores permanecem. A descrição salva de até 320 caracteres não é silenciosamente cortada a 260 pelo gerador público.
+- Métricas com rótulos mais precisos: visualizações não identificadas como robôs não são equivalentes a pessoas; visitantes/dia são identificadores estimados. Sinais adicionais de automação e limiar de volume elevado; relatórios antigos não são reclassificados.
+- URLs amigáveis passam a ser contabilizadas por página quando a rota válida está disponível. Logs completos do servidor podem ser necessários para investigar visitas passadas.
+- Sem migração, schema 37 e backup v12. Testes externos e ambiente Plesk ainda requerem validação.
+
 ## IguatamaOnline 1.0.109
 
 - Página de ônibus: lupa abre/recolhe o formulário de busca, sem alterar horários existentes.

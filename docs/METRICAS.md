@@ -46,3 +46,11 @@ A MaxMind não garante correspondência exata entre IP e local físico. Se sua h
 4. Simule user-agent de bot em ambiente isolado e confirme classificação. Não use essa categoria como certeza de autenticidade.
 5. Faça backup v8 e restaure numa cópia **de testes** do banco, sem afetar as notícias da instalação principal.
 6. Configure GeoLite2 offline e teste com um endereço IP público conhecido (não em 127.0.0.1).
+
+## Leitura dos relatórios após 1.0.110
+
+- **Visualizações não identificadas como robôs:** solicitações HTTP que os filtros não classificaram como automação. Não há confirmação de que foram pessoas.
+- **Identificadores/dia (estim.):** combinações pseudonimizadas de IP e User-Agent, renovadas a cada dia. Uma pessoa pode gerar vários identificadores; pessoas distintas podem compartilhar um.
+- **Automação detectada:** identificadores em User-Agent e padrão conservador de 30 ou mais requisições no intervalo de um minuto do mesmo identificador diário. Podem ocorrer falsos positivos e negativos. O sistema não verifica autenticação do Googlebot/Bingbot.
+- **Páginas mais acessadas:** rotas amigáveis conhecidas e páginas legais válidas são diferenciadas, mas eventos antigos permanecem com os caminhos históricos, sem reprocessamento retroativo.
+- Logs de servidor da hospedagem e relatórios GA4 autorizados podem ajudar na análise; números GA4 e do PHP não são equivalentes. Nenhum IP ou User-Agent completo é salvo pelo módulo próprio.

@@ -1,3 +1,17 @@
+## [1.0.110] - 2026-11-07
+
+### SEO
+- Imagens social e favicon selecionados pela biblioteca, sem URLs técnicas no modal avançado; limpar ou retornar ao favicon padrão.
+- Metadescrições independentes para seis páginas fixas; fallback seguro quando vazias. Descrições públicas configuradas não são truncadas arbitrariamente a 260 caracteres.
+
+### Métricas
+- Nomes e avisos deixam de classificar tráfego não detectado como humano comprovado.
+- Detector conservador de rajadas e novas assinaturas de automação, sem confiança absoluta no User-Agent; URLs amigáveis registradas individualmente quando validadas.
+- Sem alteração nem reclassificação dos eventos passados; nenhum IP ou User-Agent bruto é persistido.
+
+### Compatibilidade
+- Schema 37, backups v12 e permissões mantidos, sem novas migrações.
+
 ## [1.0.109] - 2026-11-07
 
 ### Melhorias

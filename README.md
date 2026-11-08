@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.109** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.110** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.110 — SEO por página e métricas sem certeza artificial
+
+- SEO: a imagem de redes sociais e o favicon agora são selecionados na biblioteca, com miniatura e botões de troca/limpeza. Os caminhos continuam armazenados internamente, mas não aparecem como texto no pop-up avançado.
+- Cada página fixa (Ônibus, Sobre, Contato, Anuncie, Privacidade, Termos) aceita metadescrição individual opcional. O conteúdo público usa a descrição específica ou mantém o fallback existente. A descrição geral permanece na página inicial e deixa de ser truncada silenciosamente de 320 para 260 caracteres.
+- Métricas: painéis distinguem visualizações não classificadas como automação de pessoas comprovadas, que não podem ser identificadas por este sistema. Acrescentados novos sinais de User-Agent e um detector conservador de rajadas (30 ou mais requisições no mesmo minuto, por identificador diário pseudonimizado). Nenhuma visita histórica é reclassificada.
+- Rotas amigáveis de notícias e categorias e URLs públicas de aplicativos agora podem aparecer individualmente no relatório quando a solicitação chega por rota validada; consultas arbitrárias não são armazenadas. O armazenamento continua sem IP bruto ou User-Agent bruto; respeita GPC/DNT.
+- Schema 37 e backup v12 preservados, sem migração. A classificação é heurística; não comprova que um visitante é humano nem que um bot é legítimo.
 
 ## Versão 1.0.109 — Busca de ônibus, títulos das páginas e favicon
 

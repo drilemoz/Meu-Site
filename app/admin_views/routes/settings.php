@@ -46,16 +46,18 @@ $seoExampleTitle=$seoHomeTitle!==''?$seoHomeTitle:$seoExampleTitle;
       </section>
 
       <div class="seo-portal-image-row">
-        <div><strong>Imagem para redes sociais</strong><p class="muted" id="seo-image-status">Conferir endereço e prévia da imagem.</p></div>
-        <button type="button" class="btn outline small" data-media-pick="social">▧ Escolher imagem</button>
+        <div class="seo-social-description"><img id="seo-social-selected-image" src="/assets/img/cidade.jpg" alt="Imagem social selecionada" width="76" height="54" hidden><div><strong>Imagem para redes sociais</strong><p class="muted" id="seo-image-status">Conferir endereço e prévia da imagem.</p></div></div>
+        <div class="seo-media-actions"><button type="button" class="btn outline small" data-media-pick="social">▧ Trocar imagem</button><button type="button" class="btn outline small" data-seo-clear="seo_social_image">Limpar</button></div>
       </div>
       <div class="seo-portal-image-row seo-favicon-row">
         <div class="seo-favicon-description"><img id="seo-favicon-preview" src="<?=h($seoFavicon!==''?$seoFavicon:'/assets/img/favicon.svg')?>" alt="Favicon configurado" width="40" height="40"><div><strong>Ícone do site (favicon)</strong><p class="muted" id="seo-favicon-status">Aparece nas abas do navegador. Prefira imagem quadrada de 48×48 px ou maior.</p></div></div>
-        <button type="button" class="btn outline small" data-media-pick="favicon">▧ Escolher favicon</button>
+        <div class="seo-media-actions"><button type="button" class="btn outline small" data-media-pick="favicon">▧ Trocar ícone</button><button type="button" class="btn outline small" data-seo-clear="seo_favicon_image">Padrão</button></div>
       </div>
+      <input type="hidden" name="seo_social_image" value="<?=h($seoSocialImage)?>">
+      <input type="hidden" name="seo_favicon_image" value="<?=h($seoFavicon)?>">
       <div class="seo-portal-commands">
         <button class="btn outline small" type="button" data-seo-dialog-open="seo-content-dialog">✎ Título e descrição</button>
-        <button class="btn outline small" type="button" data-seo-dialog-open="seo-pages-dialog">▤ Títulos das páginas</button>
+        <button class="btn outline small" type="button" data-seo-dialog-open="seo-pages-dialog">▤ Páginas: título e descrição</button>
         <button class="btn outline small" type="button" data-seo-dialog-open="seo-advanced-dialog">⚙ Ajustes técnicos</button>
         <button class="btn outline small" type="button" data-seo-dialog-open="seo-diagnostic-dialog">✓ Diagnóstico</button>
       </div>
@@ -75,13 +77,13 @@ $seoExampleTitle=$seoHomeTitle!==''?$seoHomeTitle:$seoExampleTitle;
       <div class="seo-portal-dialog-footer"><button class="btn outline" type="button" data-seo-dialog-close="cancel">Cancelar</button><button type="button" class="btn primary" data-seo-dialog-close="apply">Aplicar na prévia</button></div>
     </dialog>
     <dialog id="seo-pages-dialog" class="igua-modal seo-portal-dialog" aria-labelledby="seo-pages-title">
-      <div class="seo-portal-dialog-heading"><h2 id="seo-pages-title">Títulos das páginas</h2><button type="button" class="seo-portal-dialog-close" data-seo-dialog-close aria-label="Fechar">×</button></div>
+      <div class="seo-portal-dialog-heading"><h2 id="seo-pages-title">Títulos e descrições das páginas</h2><button type="button" class="seo-portal-dialog-close" data-seo-dialog-close aria-label="Fechar">×</button></div>
       <div class="seo-portal-dialog-body">
-        <p class="muted">Defina o texto completo da aba do navegador e do título SEO. Em branco, o título original do portal continua valendo.</p>
+        <p class="muted">Título e descrição exclusivos por página. Campos vazios utilizam os padrões do portal.</p>
         <label>Página inicial<input name="seo_home_title" maxlength="220" placeholder="Ex.: Iguatama Online" value="<?=h($seoHomeTitle)?>"></label>
         <p class="muted tiny">Exemplo: escreva apenas <strong>Iguatama Online</strong> para não adicionar “Últimas notícias”.</p>
         <?php foreach($seoPageTitles as $route=>$label): ?>
-        <label><?=h($label)?><input name="seo_page_title_<?=h($route)?>" maxlength="220" placeholder="<?=h($label)?> | <?=h($seoSiteName)?>" value="<?=h(setting('seo_page_title_'.$route,''))?>"></label>
+        <div class="seo-page-field"><label><?=h($label)?> · Título<input name="seo_page_title_<?=h($route)?>" maxlength="220" placeholder="<?=h($label)?> | <?=h($seoSiteName)?>" value="<?=h(setting('seo_page_title_'.$route,''))?>"></label><label>Descrição SEO<textarea name="seo_page_description_<?=h($route)?>" rows="2" maxlength="320" placeholder="Descrição específica desta página (opcional)"><?=h(setting('seo_page_description_'.$route,''))?></textarea></label></div>
         <?php endforeach; ?>
         <p class="muted tiny">Notícias têm título SEO no editor de notícias; categorias usam seus nomes; páginas de aplicativos têm editor próprio. Estes campos não modificam os títulos visíveis H1.</p>
       </div>
@@ -91,10 +93,7 @@ $seoExampleTitle=$seoHomeTitle!==''?$seoHomeTitle:$seoExampleTitle;
       <div class="seo-portal-dialog-heading"><h2 id="seo-advanced-title">Configurações avançadas</h2><button type="button" class="seo-portal-dialog-close" data-seo-dialog-close aria-label="Fechar">×</button></div>
       <div class="seo-portal-dialog-body">
         <label>Endereço público oficial (HTTPS)<input name="seo_site_url" type="url" maxlength="240" placeholder="https://seudominio.com.br" value="<?=h($seoSiteUrl)?>"></label>
-        <label>Imagem padrão das redes sociais (URL HTTPS ou imagem da biblioteca)<input name="seo_social_image" type="text" inputmode="url" maxlength="600" placeholder="https://seudominio.com.br/capa.webp" value="<?=h($seoSocialImage)?>"></label>
-        <p class="muted tiny">A imagem deve apontar para um arquivo real, não apenas para o domínio do portal.</p>
-        <label>Favicon (PNG, JPG, WebP ou ICO)<input name="seo_favicon_image" type="text" maxlength="600" placeholder="/uploads/seu-icone.png" value="<?=h($seoFavicon)?>"></label>
-        <p class="muted tiny">Escolha uma imagem pela biblioteca acima ou cole o endereço HTTPS de um ícone. Deixe vazio para usar o ícone padrão do portal.</p>
+        <p class="muted tiny">Imagens e favicon são escolhidos pela biblioteca de mídias na tela principal. Os caminhos dos arquivos são preenchidos automaticamente.</p>
         <label class="checkbox-line"><input type="checkbox" name="seo_pretty_urls" value="1" <?=setting('seo_pretty_urls','0')==='1'?'checked':''?>><span>Usar URLs amigáveis (/noticia/nome-do-endereco)</span></label>
         <p class="muted tiny">URLs amigáveis exigem roteamento funcional. Verifique o Apache ou o roteador PHP antes de ativar.</p>
         <label class="checkbox-line"><input type="checkbox" name="seo_index" value="1" <?=setting('seo_index','0')==='1'?'checked':''?>><span>Permitir indexação pelos buscadores</span></label>

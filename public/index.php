@@ -115,7 +115,14 @@ $seoPageKey=['inicio'=>'seo_home_title','onibus'=>'seo_page_title_onibus','sobre
 $seoCustomPageTitle=(!$article && !$category && !$legalPage && $seoPageKey!=='')?trim((string)setting($seoPageKey,'')):'';
 $seoTitle=$seoCustomPageTitle!==''?$seoCustomPageTitle:page_title((string)$pageTitle);
 $seoDesc=$legalPage ? (trim((string)$legalPage['seo_description']) ?: excerpt((string)$legalPage['body'],155)) : ($article ? (trim((string)($article['seo_description']??'')) ?: ($article['summary'] ?: excerpt($article['body'],155))) : ($route==='onibus'?'Consulte horários de ônibus programados, cidades de origem, destinos e próximas saídas em '.igua_brand_name().'.':igua_brand_description()));
-$seoDesc=excerpt($seoDesc,260);
+// Descrição particular de cada página fixa, com fallback para o texto existente.
+$seoPageDescriptionKey=(!$article && !$category && !$legalPage && in_array($route,['onibus','sobre','contato','anuncie','privacidade','termos'],true))?'seo_page_description_'.$route:'';
+if($seoPageDescriptionKey!==''){
+    $seoPageDescription=trim((string)setting($seoPageDescriptionKey,''));
+    if($seoPageDescription!=='')$seoDesc=$seoPageDescription;
+}
+// As configurações aceitam 320 caracteres. Evitar truncamento silencioso a 260.
+$seoDesc=excerpt($seoDesc,320);
 $indexable=$legalPage!==null || (setting('seo_index','0')==='1' && !in_array($route,['404','buscar'],true) && !($route==='categoria' && $archiveDays>0) && !($article && (int)$article['is_demo']===1) && ($article || $demoCount===0));
 $siteBase=setting('seo_site_url');
 try{$siteBase=safe_seo_url($siteBase);}catch(Throwable){$siteBase='';}
