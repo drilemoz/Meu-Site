@@ -1,3 +1,15 @@
+## IguatamaOnline 1.0.117
+
+- Teste integrado de atualização ZIP v2 com MariaDB e ZipArchive reais em ambiente isolado de CI: instala arquivos de teste, gera backup lógico v12, verifica SHA-256, executa rollback e rejeita pacote adulterado.
+- A suíte nova exige banco `igua_ci_*`, host local e autorização explícita; não toca nos arquivos publicados nem restaura dados reais. Inclui teste offline de contrato para assegurar que o workflow continua protegendo essa integração.
+- Não houve mudanças no comportamento do portal, schema 37, backup v12 ou código de atualização. Ainda é necessária execução bem-sucedida do GitHub Actions e homologação no Plesk; os testes locais não podem substituí-las.
+
+## IguatamaOnline 1.0.116
+
+- Corrigido um risco de perda de alterações manuais ao recuperar uma atualização interrompida. Antes de reverter qualquer arquivo, o atualizador confirma que cada destino ainda está igual ao estado original ou ao novo estado registrado; conteúdo inesperado exige recuperação assistida, sem sobrescrevê-lo automaticamente.
+- Teste adversarial reproduziu o problema na base 1.0.115 e validou a correção, inclusive na retomada de rollback parcial. Estados `complete`, snapshots privados e bloqueio de alterações posteriores continuam protegidos.
+- Schema 37, backups v12, ZIP v2 e recursos do portal preservados. Nenhuma restauração real com banco ou instalação no Plesk. Faça backup externo antes da atualização.
+
 ## IguatamaOnline 1.0.115
 
 - Atualizador revisado para validar todos os snapshots antes do rollback e evitar restauração parcial quando algum backup já está ausente/adulterado.

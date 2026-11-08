@@ -96,3 +96,9 @@ Executar `php tests/refactor_211.php` e `node tests/refactor_211.js`. O teste Ja
 ## Refatoração de integrações (v1.0.112)
 
 Executar `php tests/integrations_refactor_212.php` além da suíte completa. Os testes que analisam texto-fonte de `integrations.php` usam o auxiliar `tests/support/integrations_source.php` para recompor os blocos da view. Isso preserva validações de IDs, guias, CSRF, formulários, rótulos, modal e documentação após a divisão em componentes. A execução do template também é conferida em testes existentes como `tests/render_integrations_169.php` e `tests/integrations_169.php`.
+
+## Ciclo integrado de atualização — versão 1.0.117
+
+O CI agora executa `tests/integration/updater_mariadb_217.php` com as extensões reais `pdo_mysql` e `ZipArchive`, depois de preparar o banco isolado com `restore_mariadb_134.php`. O ensaio instala e restaura **somente código fictício na pasta temporária**, gera backup SQL lógico no armazenamento temporário e recusa um ZIP adulterado, sem restauração ou exclusão de banco. O teste de contrato `tests/updater_ci_contract_217.php` funciona offline e verifica o isolamento e a ordem de execução.
+
+Os testes locais não conseguem executar esse cenário quando as extensões MariaDB e ZIP não estão instaladas. Consulte [Integração do atualizador 1.0.117](INTEGRACAO_ATUALIZADOR_117.md) para a matriz de verificação e as limitações de homologação.

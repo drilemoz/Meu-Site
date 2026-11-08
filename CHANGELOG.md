@@ -1,3 +1,22 @@
+## [1.0.117] - 2026-11-08
+
+### Testes integrados do atualizador
+
+- Adicionado `tests/integration/updater_mariadb_217.php` para exercitar o ciclo instalação ZIP v2 → backup MariaDB real → verificação → rollback manual, em projeto fictício efêmero e banco de integração local exclusivo.
+- Teste do ZIP adulterado recusa arquivos com SHA-256 divergente e garante que a falha não altera arquivos nem cria backups adicionais.
+- Workflow `integration-mariadb.yml` executa novo ensaio após o preparo do banco e demais integrações; incluída verificação offline das guardas em `tests/updater_ci_contract_217.php`.
+- Nenhuma alteração funcional no atualizador, nos dados do portal, schema 37, backup v12 ou formato ZIP v2. O novo cenário real depende de execução no CI; não foi reproduzido em Plesk.
+
+## [1.0.116] - 2026-11-07
+
+### Atualizador: proteção contra sobrescrita de mudanças externas
+- Corrigida a recuperação de instalação `prepared`, `applying` ou `recovery_needed`: antes do primeiro rollback, todos os destinos devem corresponder ao conteúdo antigo ou novo conhecido; arquivos inesperados/alterados manualmente bloqueiam a restauração automática integral.
+- Novos testes `tests/updater_foreign_changes_216.php` reproduzem o defeito da 1.0.115 e cobrem arquivo antigo alterado, arquivo novo substituído, estado preparado e retomada legítima de recuperação parcial.
+- Mantidas a proteção de snapshots, verificação de integridade em jobs `complete`, recuperação repetível, journal e manutenção. Ver `docs/ROLLBACK_EXTERNO_116.md`.
+
+### Compatibilidade
+- Schema 37, backup v12 e ZIP v2 sem alterações. Nenhuma migração ou acesso ao banco real; testes apenas com arquivos isolados. Homologação com MariaDB, ZipArchive e Plesk continua pendente.
+
 ## [1.0.115] - 2026-11-07
 
 ### Atualizador: falhas e recuperação

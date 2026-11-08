@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.115)
+# Diretrizes de manutenção — Meu Site (v1.0.117)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -210,3 +210,16 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Recuperação manual deve ativar a manutenção e gravar `recovery_needed` **antes** de modificar arquivos. O estado `rolled_back` só pode ser registrado após restaurar; falha para limpar marcador não é sucesso e deve permitir tentativa posterior.
 - `igua_updater_apply_code` mantém `VERSION` por último. Os callbacks opcionais de `igua_updater_apply_code` e `igua_updater_rollback` só servem à injeção de falhas em testes offline; **não os conectar à entrada HTTP, parâmetros POST ou configuração de produção**.
 - Executar `tests/updater_failure_215.php` com arquivos efêmeros, além da regressão completa. Testes locais não comprovam resistência a timeout do Plesk, falta de disco real nem restauração SQL. Consulte `docs/RECUPERACAO_FALHAS_115.md`.
+
+## Rollback e alterações externas — 1.0.116
+
+- Para journal `prepared`, `applying` e `recovery_needed`, `igua_updater_rollback_plan` deve rejeitar arquivo de destino com hash estranho **antes** de qualquer substituição. Permitir somente hash antigo, hash novo ou ausência de arquivo originalmente inexistente.
+- Preservar checagem mais estrita de estado `complete` e a capacidade de retomar rollback legitimamente parcial. Não aceitar parâmetros HTTP para contornar essa validação.
+- Executar `tests/updater_foreign_changes_216.php` e `tests/updater_failure_215.php` além da regressão completa. Ver `docs/ROLLBACK_EXTERNO_116.md`.
+
+## Teste integrado de atualização — 1.0.117
+
+- `tests/integration/updater_mariadb_217.php` executa somente no CLI e em banco MariaDB local `igua_ci_*` com `IGUA_TEST_ALLOW_WRITE=YES_ISOLATED_DB`; define as três raízes (`IGUA_ROOT`, `IGUA_STORAGE`, `IGUA_PUBLIC`) num diretório efêmero e não usa o bootstrap público.
+- Executá-lo **após** `tests/integration/restore_mariadb_134.php` no serviço MariaDB de CI, nunca em banco do portal ou em diretório de produção. Testa ZIP v2 real, backup v12, instalação, integridade, rollback e ZIP adulterado; não restaura SQL, não apaga banco.
+- `tests/updater_ci_contract_217.php` valida guardas e encadeamento sem precisar de extensões MariaDB/ZIP; executar ambos os testes existentes `updater_failure_215.php` e `updater_foreign_changes_216.php`. Consultar `docs/INTEGRACAO_ATUALIZADOR_117.md`.
+- Não declarar o novo ensaio integrado como executado sem resultado real do CI. O schema 37, backup v12 e motor do atualizador não mudaram nesta versão.

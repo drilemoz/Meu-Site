@@ -81,6 +81,16 @@ jobs:
           php tests/integration/news_indexes_mariadb_146.php
           php tests/integration/legal_apps_mariadb_196.php
           php tests/integration/teixeira_mariadb_206.php
+      - name: Ciclo integrado do atualizador ZIP com MariaDB isolado
+        env:
+          IGUA_TEST_ALLOW_WRITE: YES_ISOLATED_DB
+          IGUA_TEST_DB_HOST: 127.0.0.1
+          IGUA_TEST_DB_PORT: '3306'
+          IGUA_TEST_DB_NAME: igua_ci_backup134
+          IGUA_TEST_DB_USER: igua_ci_runner
+          IGUA_TEST_DB_PASSWORD: temporary-ci-database-only
+        run: |
+          php tests/integration/updater_mariadb_217.php
 
   publicar_release:
     name: Publicar Release apos todos os testes

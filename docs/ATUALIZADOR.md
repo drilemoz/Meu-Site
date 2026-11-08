@@ -55,3 +55,9 @@ O botão **Diagnosticar ZIP antes de instalar** envia o arquivo apenas para vali
 - Na recuperação manual, um marcador coloca o portal em manutenção e o journal muda para `recovery_needed` antes de começar a restauração. Uma queda durante a restauração deixa o processo recuperável em nova tentativa autenticada; não reenvie uma instalação de resultado incerto.
 - O marcador de manutenção precisa ser realmente removido para informar êxito; em caso de erro ou estado inconsistente, faça recuperação assistida. Nunca apague `storage/updater/jobs` ou `.update-maintenance` sem examinar o journal, os snapshots e backups externos.
 - Testes com interrupções simuladas ocorreram **somente em arquivos temporários no CLI**. Ainda é necessário reproduzir em homologação com MariaDB e ZipArchive. Ver [RECUPERACAO_FALHAS_115.md](RECUPERACAO_FALHAS_115.md).
+
+## Proteção contra modificações externas na 1.0.116
+
+- Jobs interrompidos (`prepared`, `applying`, `recovery_needed`) só podem restaurar quando **todos os destinos** ainda estão no estado antigo ou novo registrado. Arquivo inesperadamente alterado/ausente bloqueia o processo, sem sobrescrever mudanças do proprietário.
+- A verificação ocorre antes de modificar qualquer arquivo de destino; a retomada legítima de rollback parcial continua permitida.
+- Ver [ROLLBACK_EXTERNO_116.md](ROLLBACK_EXTERNO_116.md) e executar `tests/updater_foreign_changes_216.php`. Os testes são offline, sem MariaDB/ZipArchive reais no ambiente local.

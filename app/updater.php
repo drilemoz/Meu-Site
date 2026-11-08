@@ -318,10 +318,23 @@ function igua_updater_rollback_plan(string $jobDir,array $journal): array {
             throw new RuntimeException('Registro de recuperação inválido.');
         $path=$entry['path'];
         $dest=igua_updater_checked_target($path);
+        $newSha=$entry['new_sha256']??null;
+        $oldSha=$entry['sha256']??null;
+        if(!is_string($newSha)||!preg_match('/^[a-f0-9]{64}$/D',$newSha)||
+           ($entry['exists']&&(!is_string($oldSha)||!preg_match('/^[a-f0-9]{64}$/D',$oldSha))))
+            throw new RuntimeException('Registro de recuperação contém hash inválido.');
+        // Em aplicações parciais, cada destino só pode conter a versão antiga,
+        // a nova, ou estar ausente quando o arquivo não existia originalmente.
+        // Isso impede sobrescrever uma intervenção externa feita após a falha.
+        $currentSha=is_file($dest)?@hash_file('sha256',$dest):false;
         if(($journal['status']??'')==='complete'){
-            if(!is_file($dest)||!is_string($entry['new_sha256']??null)||
-               !hash_equals($entry['new_sha256'],hash_file('sha256',$dest)))
+            if(!is_string($currentSha)||!hash_equals($newSha,$currentSha))
                 throw new RuntimeException('Arquivos foram modificados após a atualização. Não é seguro restaurar automaticamente.');
+        } elseif($currentSha===false) {
+            if($entry['exists'])throw new RuntimeException('Arquivos foram modificados fora da atualização. Recuperação automática bloqueada.');
+        } elseif(!hash_equals($newSha,$currentSha)&&
+                !($entry['exists']&&hash_equals($oldSha,$currentSha))) {
+            throw new RuntimeException('Arquivos foram modificados fora da atualização. Recuperação automática bloqueada.');
         }
         $old=null;
         if($entry['exists']){

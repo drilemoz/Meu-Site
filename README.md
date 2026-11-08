@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.115** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.117** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,20 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.117 — Ensaio integrado do ciclo de atualização
+
+- Novo `tests/integration/updater_mariadb_217.php` exercita, em CI com MariaDB e ZipArchive reais, instalação do ZIP v2, criação de backup lógico, verificação de integridade, rollback manual e rejeição de ZIP adulterado, **somente em diretório efêmero**.
+- O workflow existente agora executa o cenário após os demais testes de integração com o banco `igua_ci_backup134`. A regressão offline `tests/updater_ci_contract_217.php` verifica a configuração de segurança, a ordem e o isolamento.
+- O teste não executa SQL de restauração nem altera o portal publicado. A execução real depende do GitHub Actions; localmente, PHP sem `pdo_mysql` e `ZipArchive` só permite lint e verificações estáticas. Ver [Integração do atualizador 1.0.117](docs/INTEGRACAO_ATUALIZADOR_117.md).
+- Schema 37, backup v12, formato ZIP v2 e código do atualizador inalterados. Não afirmar homologação no Plesk apenas com um CI aprovado.
+
+## Versão 1.0.116 — Rollback que respeita mudanças externas
+
+- O atualizador verifica **os arquivos de destino** antes de reverter uma atualização interrompida, além de conferir snapshots; só aceita o conteúdo antigo, o novo ou a ausência esperada de arquivos recém-criados.
+- Se alguém editar um arquivo durante a interrupção, a restauração automática é bloqueada antes da primeira troca, em vez de sobrescrever essa edição. A recuperação de arquivos parcialmente revertidos continua suportada.
+- Adicionado `tests/updater_foreign_changes_216.php` com reprodução do defeito e testes de retomada, sem usar dados reais. Consulte [Validação do rollback 1.0.116](docs/ROLLBACK_EXTERNO_116.md).
+- Nenhuma alteração no schema 37, backup v12 ou formatos ZIP. Homologação do Plesk com MariaDB e ZipArchive continua necessária.
 
 ## Versão 1.0.115 — Recuperação segura do atualizador
 
