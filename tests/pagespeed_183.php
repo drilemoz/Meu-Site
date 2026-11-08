@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/editorial.php';
 require_once __DIR__.'/../app/pagespeed_insights.php';
@@ -54,7 +55,7 @@ $harm=$fixture;
 $harm['lighthouseResult']['audits']['image-alt']['title']='<script>alert(1)</script>';
 $e=igua_pagespeed_result(['status'=>200,'body'=>json_encode($harm)],'https://iguatama.online/');
 check183($e['recommendations'][1]['title']==='<script>alert(1)</script>','resultado não é HTML confiável e requer escaping na view');
-$view=(string)file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php');
+$view=(string)igua_test_integrations_source();
 check183(str_contains($view,'h((string)$recommendation[\'title\'])') && str_contains($view,'h((string)$recommendation[\'tip\'])'),'escaping de títulos e dicas de auditoria');
 check183(str_contains($view,'igua_pagespeed_categories()') && str_contains($view,'int-speed-categories') && str_contains($view,'int-speed-recommendations'),'quatro notas e sugestões acessíveis na UI');
 $css=(string)file_get_contents(__DIR__.'/../public/assets/css/modules/16-security.css');

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/editorial.php';
 require_once __DIR__.'/../app/indexnow.php';
@@ -49,7 +50,7 @@ try{
  ix205(str_contains($router,"'indexnow_setup'=>'manage_settings'")&&str_contains($router,"'indexnow_setup','indexnow_submit'"),'ACL e allowlist');
  $ui=file_get_contents(__DIR__.'/../app/admin_views/routes/sitemap.php');
  ix205(str_contains($ui,'indexnow_setup')&&str_contains($ui,'indexnow_submit')&&str_contains($ui,'csrf_field()'),'UI exige CSRF');
- $catalogView=file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php');
+ $catalogView=igua_test_integrations_source();
  ix205(str_contains($catalogView,'/admin.php?action=sitemap#indexnow'),'catálogo aponta para integração real');
 }finally{
  foreach(glob($root.'/public/*')?:[] as $f)@unlink($f);

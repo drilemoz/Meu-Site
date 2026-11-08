@@ -1,4 +1,4 @@
-/* 1.0.102 — prévias locais e modais acessíveis de SEO. Sem requisições externas. */
+/* Prévia e janelas de SEO: estado local, nenhuma consulta externa automática. */
 (() => {
   'use strict';
   const form = document.getElementById('site-settings-form');
@@ -43,36 +43,62 @@
       return parsed.href;
     } catch { return ''; }
   };
-  const summary = () => {
+  // As prévias usam os mesmos valores do formulário; não publicam nem salvam dados.
+  const updateTextPreviews = () => {
     const title = get('seo_home_title') || get('seo_title_template').replaceAll('%title%', 'Últimas notícias').replaceAll('%site%', get('site_name'));
     const site = get('seo_site_url');
     const description = get('seo_default_description');
-    el('seo-preview-title').textContent = title || 'Título não configurado';
-    el('seo-social-preview-title').textContent = title || 'Título não configurado';
-    el('seo-preview-description').textContent = description || 'Descrição não configurada';
-    el('seo-social-preview-description').textContent = description || 'Descrição não configurada';
+    for (const id of ['seo-preview-title', 'seo-social-preview-title']) {
+      el(id).textContent = title || 'Título não configurado';
+    }
+    for (const id of ['seo-preview-description', 'seo-social-preview-description']) {
+      el(id).textContent = description || 'Descrição não configurada';
+    }
     el('seo-preview-url').textContent = site || 'Endereço HTTPS não configurado';
     el('seo-social-domain').textContent = site || 'Domínio não configurado';
     el('seo-description-count').textContent = `${Array.from(desc.value).length}/320 caracteres`;
-    const valid = imageUrl(get('seo_social_image'));
+  };
+  const updateSocialPreview = () => {
+    const imagePath = get('seo_social_image');
+    const valid = imageUrl(imagePath);
     const img = el('seo-social-preview-image');
     const selected = el('seo-social-selected-image');
-    if (selected) { selected.hidden=!valid; if(valid && selected.src!==valid)selected.src=valid; else if(!valid)selected.removeAttribute('src'); }
+    if (selected) {
+      selected.hidden = !valid;
+      if (valid && selected.src !== valid) selected.src = valid;
+      else if (!valid) selected.removeAttribute('src');
+    }
     const fallback = el('seo-social-preview-empty');
     if (valid) {
-      img.hidden = false; fallback.hidden = true;
+      img.hidden = false;
+      fallback.hidden = true;
       if (img.src !== valid) img.src = valid;
     } else {
-      img.hidden = true; img.removeAttribute('src'); fallback.hidden = false;
+      img.hidden = true;
+      img.removeAttribute('src');
+      fallback.hidden = false;
     }
     el('seo-image-status').textContent = valid ? 'Imagem selecionada. Confira a prévia social.' :
-      (get('seo_social_image') ? 'Endereço inválido ou sem arquivo de imagem reconhecido.' : 'Nenhuma imagem social selecionada.');
-    const favUrl=get('seo_favicon_image');
-    const favImg=el('seo-favicon-preview');
-    let favValid=imageUrl(favUrl);
-    if (!favValid && favUrl) { try {const u=new URL(favUrl,window.location.origin);if(u.protocol==='https:' && /\.ico$/i.test(u.pathname)) favValid=u.href;}catch{}}
-    favImg.src=favValid || '/assets/img/favicon.svg';
-    el('seo-favicon-status').textContent=favUrl && !favValid?'Endereço inválido para favicon. Use PNG, JPG, WebP ou ICO.':(favValid?'Ícone escolhido. Salve as configurações para publicar.':'Ícone padrão do portal. Escolha uma imagem quadrada.');
+      (imagePath ? 'Endereço inválido ou sem arquivo de imagem reconhecido.' : 'Nenhuma imagem social selecionada.');
+  };
+  const updateFaviconPreview = () => {
+    const favUrl = get('seo_favicon_image');
+    const favImg = el('seo-favicon-preview');
+    let favValid = imageUrl(favUrl);
+    if (!favValid && favUrl) {
+      try {
+        const u = new URL(favUrl, window.location.origin);
+        if (u.protocol === 'https:' && /\.ico$/i.test(u.pathname)) favValid = u.href;
+      } catch {}
+    }
+    favImg.src = favValid || '/assets/img/favicon.svg';
+    el('seo-favicon-status').textContent = favUrl && !favValid ? 'Endereço inválido para favicon. Use PNG, JPG, WebP ou ICO.' :
+      (favValid ? 'Ícone escolhido. Salve as configurações para publicar.' : 'Ícone padrão do portal. Escolha uma imagem quadrada.');
+  };
+  const summary = () => {
+    updateTextPreviews();
+    updateSocialPreview();
+    updateFaviconPreview();
   };
   const checks = () => {
     const descLength = Array.from(get('seo_default_description')).length;

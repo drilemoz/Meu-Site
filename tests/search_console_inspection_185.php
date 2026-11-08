@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/integrations.php';
 function assert185(bool $x,string $why):void{if(!$x)throw new RuntimeException('URL Inspection 185: '.$why);}
@@ -79,7 +80,7 @@ $routes=file_get_contents(__DIR__.'/../public/admin.php');$post=file_get_content
 assert185(str_contains($routes,"'integrations_search_console_inspect'=>'manage_settings'") && str_contains($post,"'integrations_search_console_inspect'=>'integrations'"),'roteamento com ACL');
 assert185(str_contains($routes,'check_csrf();'),'CSRF aplicado antes do POST');
 assert185(str_contains(file_get_contents(__DIR__.'/../app/admin_controllers/integrations.php'),'igua_page_inspect_subject($db,$raw)'),'post escolhe notícia pelo banco');
-assert185(!str_contains(file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php'),'private_key'),'HTML não expõe chave');
+assert185(!str_contains(igua_test_integrations_source(),'private_key'),'HTML não expõe chave');
 // Renderização de resposta externa maliciosa usando escaping central h().
 require_once __DIR__.'/../app/branding.php';
 if(!function_exists('admin_link')){function admin_link(string $action):string{return '/admin.php?action='.$action;}}

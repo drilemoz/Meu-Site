@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/news_controller_source.php';
 require_once __DIR__.'/../app/admin_controllers/post_routes.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/news_archive.php';
@@ -10,7 +11,7 @@ function regression201(bool $ok,string $message):void {
     echo "OK: $message\n";
 }
 $admin=(string)file_get_contents(__DIR__.'/../public/admin.php');
-$newsController=(string)file_get_contents(__DIR__.'/../app/admin_controllers/news.php');
+$newsController=(string)igua_test_news_controller_source();
 $js=(string)file_get_contents(__DIR__.'/../public/assets/js/news-editor-modules/08-submit-init.js');
 foreach(['news_create_category','news_create_source'] as $action){
     regression201(igua_admin_post_module($action)==='news','controlador POST registrado: '.$action);

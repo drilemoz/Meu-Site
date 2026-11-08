@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/news_controller_source.php';
 require __DIR__.'/../app/bootstrap.php';
 require __DIR__.'/../app/news_editor.php';
 function n191(bool $condition,string $description): void {if(!$condition)throw new RuntimeException('Falhou: '.$description);echo "OK: $description\n";}
@@ -17,7 +18,7 @@ n191(news_attachment_extension('documento.pdf','application/pdf',$temp)==='pdf',
 n191(news_attachment_extension('documento.php','application/pdf',$temp)===null,'extensão proibida mesmo com MIME PDF');
 n191(news_attachment_extension('documento.pdf','text/html',$temp)===null,'MIME divergente recusado');
 file_put_contents($temp,'não é um PDF');n191(news_attachment_extension('documento.pdf','application/pdf',$temp)===null,'PDF sem cabeçalho recusado');unlink($temp);
-$controller=file_get_contents(__DIR__.'/../app/admin_controllers/news.php');
+$controller=igua_test_news_controller_source();
 n191(str_contains($controller,"'news_create_category'")&&str_contains($controller,"require_ability('manage_taxonomy'"),'criação de categoria e fonte exige ACL de taxonomia');
 n191(str_contains($controller,'!empty($_POST[\'remove_cover\'])'),'remoção de capa validada no salvamento');
 $backup=file_get_contents(__DIR__.'/../app/backup.php');

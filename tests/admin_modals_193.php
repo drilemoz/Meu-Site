@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 $root=dirname(__DIR__);
 function assert193(bool $ok,string $label):void {if(!$ok)throw new RuntimeException('193: '.$label);}
 $css=file_get_contents($root.'/public/assets/css/modules/16-security.css');
 $global=file_get_contents($root.'/public/assets/js/admin-dialogs.js');
 $layout=file_get_contents($root.'/app/admin_views/layout.php');
-$integrations=file_get_contents($root.'/app/admin_views/routes/integrations.php');
+$integrations=igua_test_integrations_source();
 $updates=file_get_contents($root.'/app/admin_views/routes/updates.php');
 $ads=file_get_contents($root.'/app/admin_views/routes/ads_dashboard.php');
 $editor=file_get_contents($root.'/app/news_admin_view/details.php');

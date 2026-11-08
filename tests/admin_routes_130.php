@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/news_controller_source.php';
 require_once __DIR__.'/../app/admin_controllers/post_routes.php';
 require_once __DIR__.'/../app/editorial.php';
 function route130(bool $cond,string $message):void {if(!$cond)throw new RuntimeException('Falhou: '.$message);echo "OK: {$message}\n";}
@@ -31,5 +32,5 @@ route130(str_contains($admin,'catch (Throwable $e)'), 'erros continuam tratados 
 route130(str_contains($admin,"'health'=>'manage_settings'")&&str_contains($admin,"'media_trash'=>'manage_settings'"), 'proteção de páginas e mídias preservada');
 route130(!role_allowed('author','manage_users')&&!role_allowed('author','publish')&&role_allowed('editor','publish'),'permissões por papel mantidas');
 route130(str_contains(file_get_contents(__DIR__.'/../app/admin_controllers/media.php'),'media_link_count'), 'proteção de vínculo antes da lixeira preservada');
-route130(str_contains(file_get_contents(__DIR__.'/../app/admin_controllers/news.php'),'article_record_slug_change')&&str_contains(file_get_contents(__DIR__.'/../app/admin_controllers/news.php'),'$db->beginTransaction()'), 'mudança de slug continua dentro da transação');
+route130(str_contains(igua_test_news_controller_source(),'article_record_slug_change')&&str_contains(igua_test_news_controller_source(),'$db->beginTransaction()'), 'mudança de slug continua dentro da transação');
 echo "Rotas privadas 1.0.30 verificadas sem banco; integração MySQL e sessão real pendentes.\n";

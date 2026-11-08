@@ -13,7 +13,7 @@ Os arquivos da pasta `app/admin_controllers/` ficam **fora** da raiz pública `p
 | `media.php` | Listagem, upload, metadados, lixeira, recuperação e download da biblioteca |
 | `downloads.php` | Pacotes ZIP e backups |
 | `post_routes.php` | Associação explícita de nomes de ação POST aos módulos |
-| `news.php` | Autosave, importação editorial, revisão, edição, duplicação, status e exclusão |
+| `news.php` | Entrada de POST com `require` fixos; ações separadas em `news/{taxonomy,gemini,drafts,save,lifecycle}.php` |
 | `editorial.php` | Editorias, autores, fontes e acervos fictícios de exemplo |
 | `ads.php` | Configurações/campanhas de publicidade e exemplos fictícios |
 | `bus.php` | Integração do controlador administrativo de ônibus existente |
@@ -27,9 +27,9 @@ A função `igua_admin_post_module()` retorna somente identificadores literais d
 
 - URLs e nomes dos campos dos formulários não mudam.
 - O controle de acesso por papel continua em `app/editorial.php` e nos próprios controladores; edições não podem contornar a publicação/autorização.
-- O formulário de notícias permanece com **Básico, Texto e Foto**, sem etapa adicional.
+- O formulário de notícias permanece com **nove passos** e revisão final, conforme fluxo atual.
 - Respostas de mídia continuam JSON ou downloads autenticados, inclusive status de erro.
-- Sem alteração no esquema SQL, backup lógico v10 e pacote de mídias v2.
+- Sem alteração no esquema SQL, backup lógico v12 e pacote de mídias v2.
 - Controladores privados não devem ser expostos como URLs do servidor; a raiz pública correta continua sendo `public/`.
 
 ## Validação

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/editorial.php';
 require_once __DIR__.'/../app/pagespeed_insights.php';
@@ -42,7 +43,7 @@ foreach([
 $site=(string)file_get_contents(__DIR__.'/../public/admin.php');
 $routes=(string)file_get_contents(__DIR__.'/../app/admin_controllers/post_routes.php');
 $controller=(string)file_get_contents(__DIR__.'/../app/admin_controllers/integrations.php');
-$view=(string)file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php');
+$view=(string)igua_test_integrations_source();
 check181(str_contains($site,"'integrations_pagespeed_test'=>'manage_settings'") && str_contains($routes,"'integrations_pagespeed_test'=>'integrations'"),'rota protegida por autorização e roteador POST');
 check181(str_contains($site,'check_csrf();') && str_contains($view,'data-pagespeed-test-form') && str_contains($view,'csrf_field()'),'CSRF e formulário PageSpeed presentes');
 check181(str_contains($controller,'igua_pagespeed_check($cfg,null,null,$strategy)') && str_contains($controller,"'igua_pagespeed_attempts'"),'consulta manual por dispositivo sujeita a intervalo mínimo');

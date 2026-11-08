@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/ga4_realtime.php';
 function check171(bool $value,string $label): void {if(!$value)throw new RuntimeException('GA4 171: '.$label); echo 'OK: '.$label.PHP_EOL;}
@@ -59,7 +60,7 @@ check171(igua_ga4_test_receiving($creds,'123456789',$recent)['status']==='recent
 foreach([401,403,404,429,500] as $code){$fail=false;try{igua_ga4_google_response(['status'=>$code,'body'=>'{"error":{"message":"SECRET MOCK"}}'],'teste');}catch(RuntimeException $e){$fail=true;check171(!str_contains($e->getMessage(),'SECRET MOCK'),'erro HTTP sem eco do servidor Google');}check171($fail,'erro HTTP tratado');}
 try {igua_ga4_delete_service_account($path);check171(!is_file($path),'remove chave privada');}finally{if(is_file($path))unlink($path);@rmdir(dirname($path));@rmdir($dir);}
 $admin=file_get_contents(__DIR__.'/../public/admin.php');
-$view=file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php');
+$view=igua_test_integrations_source();
 check171(str_contains($admin,"'integrations_ga4_test'=>'manage_settings'") && str_contains($admin,"'integrations_ga4_credentials'=>'manage_settings'"),'rotas protegidas por ACL');
 check171(str_contains($view,'data-ga4-test-form') && str_contains($view,'Testar recebimento') && substr_count($view,'csrf_field()')>=5,'painel mobile e CSRF presentes');
 check171(!str_contains($view,'private_key')&&!str_contains($view,'access_token'),'credencial e token nunca vão ao HTML');

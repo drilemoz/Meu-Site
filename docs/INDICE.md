@@ -1,4 +1,4 @@
-# Documentação atual do Meu Site (1.0.109)
+# Documentação atual do Meu Site (1.0.113)
 
 Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `RELATORIO_ARQUIVOS_LINHAS_*` e instruções de atualizadores antigos foram retirados do ZIP; seu histórico permanece nas versões anteriores do repositório, se disponíveis.
 
@@ -8,7 +8,7 @@ Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `REL
 - [Backup: banco ou banco + mídias](BACKUP.md)
 - [Atualização do código e recuperação](ATUALIZADOR.md)
 - [Integrações Google e verificações locais](INTEGRACOES.md)
-- [Auditoria da versão](AUDITORIA_176.md) e [testes/CI](TESTES_CI.md)
+- [Refatoração do controlador de notícias 1.0.113](REFATORACAO_113.md), [Refatoração das integrações 1.0.112](REFATORACAO_112.md), [Refatoração interna 1.0.111](REFATORACAO_111.md), [Auditoria da versão](AUDITORIA_176.md) e [testes/CI](TESTES_CI.md)
 - [Publicidade](PUBLICIDADE.md), [métricas](METRICAS.md), [Segurança](SEGURANCA.md), [Central de Saúde](SAUDE_SISTEMA.md)
 - [Arquitetura do admin](ARQUITETURA_ADMIN.md), [CSS](CSS_MODULOS.md), [editor JavaScript](EDITOR_JS_MODULOS.md), [mídias](MIDIAS.md)
 - [Editor](EDITOR_2_0.md), [notícias e fontes](NOTICIAS_E_FONTES.md), [SEO](SEO_CENTRAL.md), [ônibus](ONIBUS.md) e [eleições](ELEICOES.md)

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/integrations.php';
 function test169(bool $ok,string $message):void {if(!$ok)throw new RuntimeException('Integrations 169: '.$message);echo 'OK: '.$message.PHP_EOL;}
@@ -64,7 +65,7 @@ unlink($dir.'/sitemap.php');rmdir($dir);
 $root=dirname(__DIR__);
 $admin=(string)file_get_contents($root.'/public/admin.php');
 $menu=(string)file_get_contents($root.'/app/admin_views/layout.php');
-$view=(string)file_get_contents($root.'/app/admin_views/routes/integrations.php');
+$view=(string)igua_test_integrations_source();
 $public=(string)file_get_contents($root.'/app/public_views/layout.php');
 test169(str_contains($admin,"'integrations'=>'manage_settings'") && str_contains($admin,"'integrations_save_ga4'=>'manage_settings'") && str_contains($admin,'check_csrf();'),'rotas central e POST protegidas');
 test169(str_contains($menu,'Integrações e APIs') && str_contains($view,'data-integrations-nav'),'menu e navegação mobile implementados');

@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.110** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.113** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,25 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.113 — Refatoração do controlador do Wizard de Notícias
+
+- `app/admin_controllers/news.php` foi reduzido a uma entrada de cinco inclusões fixas: taxonomia, Gemini, rascunhos/importação/revisões, salvamento transacional e ações de publicação/duplicação/exclusão.
+- A lógica original é reconstruída byte a byte pelos testes, incluindo permissões, CSRF no ponto de entrada, upload de arquivos/ZIP, revisão, rollback e tratamento de commit incerto. O JavaScript modular e a interface do wizard permanecem sem alterações.
+- Acrescentados teste de equivalência `tests/news_controller_refactor_213.php` e leitura dos fragmentos para regressões antigas. Não altera dados existentes, permissões, formulários, campos, schema 37 ou backup v12. A publicação no Plesk permanece sob responsabilidade do administrador.
+
+## Versão 1.0.112 — Refatoração de Integrações e APIs
+
+- A visualização administrativa `app/admin_views/routes/integrations.php` foi dividida em nove componentes de apresentação, separados por GA4, AdSense, Search Console, PageSpeed, Gemini, diagnóstico, inspeção de páginas, catálogo e janelas.
+- Preservados o HTML original, os formulários, as URLs/ações POST, identificadores do DOM, JavaScript, credenciais no armazenamento privado, CSRF, ACL e as chamadas sob demanda. Nenhuma mudança visual pretendida.
+- Os testes que conferem o código-fonte da view agora recompõem os componentes; o teste `tests/integrations_refactor_212.php` compara o template reconstituído com a versão original por SHA-256.
+- Schema 37, backup v12, registros e configurações existentes permanecem inalterados. A integração real na hospedagem ainda precisa ser verificada após instalar.
+
+## Versão 1.0.111 — Refatoração interna de métricas e SEO
+
+- Rotas, identificação de automações, privacidade (GPC/DNT) e normalização de acessos foram isoladas em `app/analytics_helpers.php`, mantendo `app/analytics.php` como interface de entrada e responsável por SQL, séries e relatórios. Não modifica classificação, armazenamento, tabelas, contadores nem dados existentes.
+- A lógica das prévias de SEO foi organizada em três funções internas (títulos/descrições, imagem de compartilhamento e favicon), preservando os controles, mensagens, atualizações e cancelamento de pop-ups. Nenhuma mudança visual planejada.
+- Inclusão de testes de compatibilidade PHP e testes JavaScript executados com DOM simulado. Banco schema 37, backup v12 e autorização existentes preservados; sem migração.
 
 ## Versão 1.0.110 — SEO por página e métricas sem certeza artificial
 

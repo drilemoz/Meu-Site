@@ -9,7 +9,10 @@ assert.match(s,/new FormData\(geminiTestForm\)/);
 assert.match(s,/response\.headers\.get\('content-type'\)/);
 assert.match(s,/report\(code\+String\(data\.message/);
 assert.match(s,/geminiTestBusy/);
-const html=fs.readFileSync(__dirname+'/../app/admin_views/routes/integrations.php','utf8');
+let html=fs.readFileSync(__dirname+'/../app/admin_views/routes/integrations.php','utf8');
+for (const name of ['ga4','adsense','search_console','pagespeed','gemini','diagnostics','page_inspector','catalog','dialogs']) {
+  html=html.replace(`<?php require __DIR__.'/integrations/${name}.php'; ?>\n`,fs.readFileSync(__dirname+`/../app/admin_views/routes/integrations/${name}.php`,'utf8'));
+}
 assert.match(html,/data-gemini-test-form/);
 assert.match(html,/name="gemini_ajax" value="1"/);
 console.log('Gemini 1.0.104: teste manual modal, JSON e ausência de segredo em URL verificados.');

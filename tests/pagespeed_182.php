@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/editorial.php';
 require_once __DIR__.'/../app/pagespeed_insights.php';
@@ -36,7 +37,7 @@ foreach(['','tablet','MOBILE','desktop\n'] as $bad){
     $failed=false;try{igua_pagespeed_check($cfg,$transport,1731010101,$bad);}catch(InvalidArgumentException){$failed=true;}
     check182($failed,'estratégia inválida bloqueada');
 }
-$view=(string)file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php');
+$view=(string)igua_test_integrations_source();
 $controller=(string)file_get_contents(__DIR__.'/../app/admin_controllers/integrations.php');
 $js=(string)file_get_contents(__DIR__.'/../public/assets/js/integrations-admin.js');
 check182(str_contains($view,"['mobile'=>'Celular','desktop'=>'Computador']") && str_contains($view,'name="pagespeed_strategy"'),'dois formulários e campo de estratégia na interface');

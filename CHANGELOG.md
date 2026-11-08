@@ -1,3 +1,33 @@
+## [1.0.113] - 2026-11-07
+
+### Refatoração do Wizard de Notícias
+- Controlador administrativo `news.php` dividido em cinco fragmentos especializados (`taxonomy`, `gemini`, `drafts`, `save`, `lifecycle`), mantendo a entrada POST e imports fixos.
+- Código reconstituído idêntico ao controlador da 1.0.112 por SHA-256, preservando publicação, rascunhos, ACL, mídia, anexos, transação, rollback e proteção contra commit incerto.
+- Testes de leitura estática adequados ao novo layout e novo contrato `tests/news_controller_refactor_213.php`.
+
+### Compatibilidade
+- Wizard e módulos JavaScript existentes inalterados. Nenhuma migração, mudança de esquema ou dados; schema 37 e backup v12 mantidos. Testes com hospedagem/MariaDB reais pendentes.
+
+## [1.0.112] - 2026-11-07
+
+### Refatoração
+- Separados os nove blocos de Integrações e APIs em `app/admin_views/routes/integrations/`, mantendo `integrations.php` como template principal e preservando integralmente a apresentação e formulários existentes.
+- Testes estáticos passam a recompor o código-fonte dividido; teste de checksum confirma equivalência exata com a versão 1.0.111.
+
+### Segurança e compatibilidade
+- Mantidos controles administrativos, senhas, CSRF, IDs do DOM e as APIs sob demanda. Nenhuma alteração em endpoints, conteúdo público, chaves ou banco de dados.
+- Schema 37 e backup v12 inalterados, sem migração. Validação externa no Plesk pendente.
+
+## [1.0.111] - 2026-11-07
+
+### Refatoração
+- Separados auxiliares de métricas em `app/analytics_helpers.php`; `analytics.php` mantém entrada pública, registro, relatórios e consultas. Mesmas funções externas, contratos de segurança e esquema SQL.
+- Atualização da prévia SEO dividida em três rotinas específicas para textos, imagem social e favicon, sem alterar layout nem modo de salvar.
+- Acrescentados testes `refactor_211.php` e `refactor_211.js` para rotas, privacidade, heurística de bots, prévias e diagnóstico.
+
+### Compatibilidade
+- Schema 37 e backups v12 inalterados; sem migração ou alteração de registros.
+
 ## [1.0.110] - 2026-11-07
 
 ### SEO

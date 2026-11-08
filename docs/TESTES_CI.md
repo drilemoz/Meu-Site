@@ -88,3 +88,11 @@ A v1.0.95 utiliza `date_create_immutable()`, que retorna `false` para entrada in
 ## Módulo Aplicativos e Páginas Legais (v1.0.96)
 
 O teste offline `tests/legal_apps_196.php` verifica slugs, reservados, renderização Markdown sem HTML executável, rotas públicas e autorização estrutural. O CI `integration-mariadb.yml` ganhou `tests/integration/legal_apps_mariadb_196.php` para exercitar **dois aplicativos reais**, rascunho versus publicação, revisões, slugs antigos e round-trip de backup v12 em MariaDB isolado. O teste requer opt-in `IGUA_TEST_ALLOW_WRITE=YES_ISOLATED_DB`, banco local de nome `igua_ci_*` e `pdo_mysql`. Não confundir sua inclusão no workflow com resultado aprovado: precisa de execução nova no GitHub Actions.
+
+## Refatoração 1.0.111
+
+Executar `php tests/refactor_211.php` e `node tests/refactor_211.js`. O teste JavaScript usa DOM simulado para validar prévias, mas não substitui a inspeção visual real no navegador Android.
+
+## Refatoração de integrações (v1.0.112)
+
+Executar `php tests/integrations_refactor_212.php` além da suíte completa. Os testes que analisam texto-fonte de `integrations.php` usam o auxiliar `tests/support/integrations_source.php` para recompor os blocos da view. Isso preserva validações de IDs, guias, CSRF, formulários, rótulos, modal e documentação após a divisão em componentes. A execução do template também é conferida em testes existentes como `tests/render_integrations_169.php` e `tests/integrations_169.php`.

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/integrations.php';
 function t170(bool $condition,string $reason): void {if(!$condition)throw new RuntimeException('Verificador 170: '.$reason); echo 'OK: '.$reason.PHP_EOL;}
@@ -31,7 +32,7 @@ $bad=igua_page_inspect_report($article,array_replace($cfg,['seo_site_url'=>'http
 t170($bad['canonical']==='' && $bad['counts']['attention']>=1,'HTTP não é aceito como base canônica');
 $files=(string)file_get_contents(__DIR__.'/../app/page_inspector.php');
 t170(!str_contains($files,'curl_exec(') && !str_contains($files,'file_get_contents(') && !str_contains($files,'fsockopen('),'verificador não envia requisições a destinos de rede');
-$view=(string)file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php');
+$view=(string)igua_test_integrations_source();
 t170(str_contains($view,'data-int-target="paginas"')&&str_contains($view,'id="int-page-choice"')&&str_contains($view,'<?=h($check['),'formulário mobile e saídas escapadas');
 $admin=(string)file_get_contents(__DIR__.'/../public/admin.php');
 t170(str_contains($admin,"'integrations'=>'manage_settings'") && str_contains($admin,'require_admin();'),'auditoria restrita ao administrador');

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/integrations.php';
 function dns172(bool $cond,string $message):void {if(!$cond)throw new RuntimeException('Search DNS 172: '.$message);echo 'OK: '.$message.PHP_EOL;}
@@ -47,7 +48,7 @@ dns172($invalid,'reject array field in DNS settings');
 $root=dirname(__DIR__);
 $routes=file_get_contents($root.'/public/admin.php');
 $postRoutes=file_get_contents($root.'/app/admin_controllers/post_routes.php');
-$view=file_get_contents($root.'/app/admin_views/routes/integrations.php');
+$view=igua_test_integrations_source();
 dns172(str_contains($routes,"'integrations_check_dns'=>'manage_settings'")&&str_contains($postRoutes,"'integrations_check_dns'=>'integrations'")&&str_contains($routes,'check_csrf();'),'DNS check restricted to admin with CSRF and explicit POST route');
 dns172(str_contains($view,'DNS (TXT)')&&str_contains($view,'TXT esperado')&&str_contains($view,'data-dns-test-form')&&str_contains($view,'iguatama.online')===false,'mobile UI includes DNS test without hardcoded client domain');
 dns172(substr_count($view,'<details')===substr_count($view,'</details>'),'new and old collapsible HTML sections balanced');

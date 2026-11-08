@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 $root=dirname(__DIR__);
-$view=file_get_contents($root.'/app/admin_views/routes/integrations.php');
+$view=igua_test_integrations_source();
 $js=file_get_contents($root.'/public/assets/js/integrations-admin.js');
 $ui=file_get_contents($root.'/public/assets/js/admin-ui.js');
 $css=file_get_contents($root.'/public/assets/css/modules/16-security.css');

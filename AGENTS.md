@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.110)
+# Diretrizes de manutenção — Meu Site (v1.0.113)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -174,3 +174,25 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - SEO permite `seo_page_description_{onibus,sobre,contato,anuncie,privacidade,termos}` via settings existentes, sem schema novo. Prioridade: descrição individual preenchida, fallback anterior se vazia. Nunca sobrescrever descrições de artigos e páginas legais.
 - Métricas não podem chamar `is_bot=0` de prova de pessoa humana; rotular como acesso não classificado e identificadores estimados. Detector de volume é heurístico e pode ter falsos positivos. Não reclassificar eventos antigos, não armazenar IP/UA brutos e preservar GPC/DNT.
 - Rotas amigáveis registradas apenas em padrões conhecidos ou contexto validado de páginas legais, sem registrar query privada. Executar `tests/seo_analytics_210.php`/`.js` junto à suíte completa.
+
+## Refatoração 1.0.111 — limites preservados
+
+- `app/analytics.php` continua sendo o ponto de entrada único das métricas, carregando `app/analytics_helpers.php` com `require_once`. Não alterar os nomes das funções usadas pelos controladores, relatórios e página pública.
+- `analytics_helpers.php` contém somente funções auxiliares (privacidade, classificação heurística, normalização de rotas, referenciadores e localização offline). Persistência, agregação e SQL permanecem em `analytics.php`.
+- `public/assets/js/seo-settings.js` tem atualizadores separados para textos, imagem social e favicon, acionados pelo mesmo `summary()`; preservar snapshots e o cancelamento dos diálogos, validação do formulário, consentimento para desativar indexação e integração com biblioteca.
+- Testes da refatoração: `php tests/refactor_211.php` e `node tests/refactor_211.js`, além de toda a regressão. Schema 37 e backup v12 inalterados.
+
+## Refatoração 1.0.112 — Integrações
+
+- O ponto de entrada `app/admin_views/routes/integrations.php` prepara as variáveis e inclui os blocos estáticos de `app/admin_views/routes/integrations/`. Preservar o escopo PHP dos `require` fixos, as ações POST/CSRF/senha, os IDs utilizados por `integrations-admin.js`, os diálogos e o HTML acessível.
+- Os testes de contrato que leem o template como texto usam `tests/support/integrations_source.php` para recompor os fragmentos, sem executar PHP. Não restaurar dependências de um arquivo monolítico.
+- O teste `tests/integrations_refactor_212.php` compara SHA-256 do template remontado com a versão 1.0.111; revisar conscientemente esse contrato antes de futuras alterações legítimas no HTML.
+- Sem schema novo (37), sem backup novo (v12) e sem alterações de credenciais/API. Testar a página em sessão real no Plesk antes de considerar a implantação validada.
+
+## Refatoração 1.0.113 — Wizard e controlador de notícias
+
+- `app/admin_controllers/news.php` é a entrada privada única da rota POST `news`, mantida por `igua_admin_post_module()`. Ela faz cinco `require` fixos de `app/admin_controllers/news/`, na ordem `taxonomy.php`, `gemini.php`, `drafts.php`, `save.php` e `lifecycle.php`. Nunca derivar caminhos de `$_GET`, `$_POST` ou `$action`.
+- Os fragmentos são executados no mesmo escopo do ponto de entrada (`$db`, `$me`, `$action`, sessão e payload), preservando `require_ability`, CSRF de `public/admin.php`, validações, respostas JSON, redirecionamentos e a semântica de `exit`.
+- `save.php` mantém transação, revisões, mídias, anexos e ZIP, remoção de uploads após rollback confirmado e conservação de arquivos quando o resultado do COMMIT é incerto. Não fragmentar a transação sem testes com MariaDB e falhas injetadas.
+- `tests/support/news_controller_source.php` recompõe os cinco fragmentos sem executá-los para regressões estáticas antigas; `tests/news_controller_refactor_213.php` confirma equivalência SHA-256 exata com 1.0.112 e rotas/ACL. Em futuras mudanças de negócio legítimas, atualizar conscientemente esse contrato.
+- Os oito módulos JS e os oito componentes de view do editor permanecem como antes; regenerar `news-editor.js` somente se suas fontes JS forem alteradas. Schema 37 e backup v12 inalterados.

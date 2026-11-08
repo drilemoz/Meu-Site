@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/news_controller_source.php';
 require_once __DIR__ . '/support/entry_view_source.php';
 require __DIR__.'/../app/bootstrap.php';
 require __DIR__.'/../app/news_editor.php';
@@ -27,7 +28,7 @@ assert_workflow(article_stable_slug($db,'Notícia renovada',1,'slug-antigo')==='
 $js=file_get_contents(__DIR__.'/../public/assets/js/news-editor.js');
 assert_workflow(str_contains($js,'lastJson=value;status.textContent=')&&str_contains($js,'finally{saving=false;}'),'salvamento automático confirma resposta e tenta de novo');
 $admin=igua_refactor_page_source('public/admin.php');
-$newsController=file_get_contents(__DIR__.'/../app/admin_controllers/news.php');
+$newsController=igua_test_news_controller_source();
 assert_workflow(str_contains($newsController,"$".'action===\'duplicate_article\'') && str_contains($newsController,'can_edit_article($me,$original)'),'duplicação protegida por autorização');
 assert_workflow(str_contains($newsController,"$".'action===\'toggle_article_status\'') && str_contains($newsController,'article_toggle_publication($db,$id,$me)'),'atalho de publicação rápida disponível');
 assert_workflow(str_contains($admin,'news_admin_conditions(')&&str_contains($admin,'PDO::PARAM_INT'),'paginação e parâmetros tipados');

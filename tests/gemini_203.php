@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 const IGUA_STORAGE=__DIR__.'/__not_a_real_storage_dir';
 require_once __DIR__.'/../app/gemini_api.php';
 function gem203(bool $condition,string $message):void {if(!$condition)throw new RuntimeException('Gemini v1.0.103: '.$message);echo "OK: $message\n";}
@@ -34,7 +35,7 @@ try {
     foreach(['integrations_gemini_save','integrations_gemini_test','integrations_gemini_remove','news_gemini_suggest'] as $action){
         gem203(str_contains($routes,"'".$action."'")&&str_contains($admin,"'".$action."'"),'ação '.$action.' roteada e autorizada');
     }
-    $view=file_get_contents($root.'/app/admin_views/routes/integrations.php');
+    $view=igua_test_integrations_source();
     gem203(str_contains($view,'Testar API')&&str_contains($view,'type="password" id="int-gemini-key"'),'formulário de chave e teste presente');
     gem203(!str_contains($view,$key),'nenhuma chave de teste inserida em HTML');
 }finally {if(is_file($path))unlink($path);if(is_dir(dirname($path)))rmdir(dirname($path));}

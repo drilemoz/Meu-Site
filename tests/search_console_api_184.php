@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/integrations_source.php';
 require_once __DIR__.'/../app/bootstrap.php';
 require_once __DIR__.'/../app/integrations.php';
 function check184(bool $ok,string $msg):void {if(!$ok)throw new RuntimeException('Search Console 184: '.$msg);}
@@ -61,7 +62,7 @@ $ranked=igua_search_console_ranked(['rows'=>[
  ['keys'=>['\0x'],'clicks'=>-1,'impressions'=>3],
 ]],'query');
 check184(count($ranked)===1 && str_contains($ranked[0]['label'],'<script>'),'texto de API exige escaping no HTML');
-$source=(string)file_get_contents(__DIR__.'/../app/admin_views/routes/integrations.php');
+$source=(string)igua_test_integrations_source();
 $routes=(string)file_get_contents(__DIR__.'/../public/admin.php');
 $action=(string)file_get_contents(__DIR__.'/../app/admin_controllers/post_routes.php');
 check184(str_contains($source,"h(\$item['label'])") && str_contains($source,"csrf_field()") && str_contains($source,'data-search-console-test-form'),'view escapa conteúdo e tem CSRF');

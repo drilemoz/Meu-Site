@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/support/news_controller_source.php';
 require __DIR__.'/../app/bootstrap.php';
 require __DIR__.'/../app/news_editor.php';
 function wizard190(bool $ok,string $name):void {if(!$ok)throw new RuntimeException('FALHOU: '.$name); echo 'OK: '.$name.PHP_EOL;}
@@ -30,5 +31,5 @@ wizard190(news_seo_description('Título confirmado','Notícia com dados verifica
 $long='A decisão foi confirmada pela prefeitura e publicada em comunicado oficial. '.str_repeat('Detalhes adicionais para análise. ',8);
 wizard190(news_seo_description('Nota oficial publicada','',$long)==='A decisão foi confirmada pela prefeitura e publicada em comunicado oficial.','SEO escolhe frase completa se texto longo');
 wizard190(news_seo_description('Título seguro','',str_repeat('Texto sem pontuação ',20))==='Título seguro','SEO não inventa trecho truncado');
-$controller=file_get_contents(__DIR__.'/../app/admin_controllers/news.php');
+$controller=igua_test_news_controller_source();
 wizard190(str_contains($controller,"$".'publicationChoice')&&str_contains($controller,'news_photo_zip_import('),'publicação e ZIP validados no servidor');

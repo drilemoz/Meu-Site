@@ -1,3 +1,23 @@
+## IguatamaOnline 1.0.113
+
+- Melhor organização interna do Wizard de Notícias: ações de categorias/fontes, Gemini, rascunhos/importação, salvamento e publicação separadas em arquivos pequenos, com mesma rota administrativa.
+- Fluxo da notícia, formulários, editor, mídias, categorias, fonte principal, SEO, agendamento, anexos e fotos ZIP não receberam alteração funcional. O controlador original foi reconstituído byte a byte para validar equivalência.
+- Schema 37 e backup v12 preservados; sem migração e sem exclusão de mídia. Testes locais não substituem conferência no Plesk após a atualização.
+
+## IguatamaOnline 1.0.112
+
+- Refatoração de manutenção na Central de Integrações e APIs: o template principal chama componentes específicos de Google Analytics 4, AdSense, Search Console, PageSpeed Insights, Gemini, Diagnóstico, Inspeção de Páginas, Catálogo e Janelas.
+- O template foi reconstruído byte a byte no teste de regressão; não foram redesenhados formulários, pop-ups, credenciais, rotas ou funções do Google/Bing.
+- Sem novas permissões, migração ou mudança de dados. Schema 37, backup v12, arquivos privados e APIs existentes preservados.
+- Testes offline não substituem validação visual e funcional no Plesk/Chrome Android.
+
+## IguatamaOnline 1.0.111
+
+- Refatoração interna de `app/analytics.php`: funções de privacidade, classificação, roteamento e leitura auxiliar isoladas em `app/analytics_helpers.php`; a inclusão é automática e a API de métricas não muda.
+- A tela SEO mantém exatamente os mesmos campos e modais, mas atualiza prévias de texto, imagem social e favicon em funções separadas, facilitando manutenção futura.
+- Novos testes PHP/JavaScript de compatibilidade e regressão. Não altera métricas históricas, classificação, notícias, credenciais, configurações nem SEO público.
+- Schema 37 e backup v12 preservados. É necessário testar na hospedagem após instalar.
+
 ## IguatamaOnline 1.0.110
 
 - Biblioteca de mídias agora é o caminho visual único para trocar imagem social e favicon, com prévia e limpeza. Os caminhos técnicos deixam de aparecer em Configurações avançadas.
