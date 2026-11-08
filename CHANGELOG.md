@@ -1,3 +1,12 @@
+## [1.0.123] - 2026-11-08
+
+### Ferramentas > Gerenciador de Arquivos
+- Ações em lista compacta e seleção de até 20 itens, menu por arquivo, área de transferência de 15 minutos, copiar/recortar/colar entre subpastas gerenciadas, upload ZIP, compactação, extração segura, exclusão em lote, renomeação e controle limitado de permissões.
+- A raiz do projeto agora permite selecionar arquivos/pastas acessíveis e baixar ZIP autenticado. Arquivos protegidos e links simbólicos não entram no pacote.
+- Limites de 300 arquivos/32 MiB por operação na área gerenciada, 8 MiB por arquivo, extração isolada, bloqueio de extensões executáveis, travessia e sobrescrita. `ZipArchive` necessário na hospedagem.
+- Editor e pastas do código permanecem em somente leitura, sem alterações em schema 37, backups, métricas e integradores.
+- Testes adicionais em `tests/file_manager_223.php`, suíte geral PHP/JS e inspeção estática. Testes ZIP com extensão real e interface móvel na hospedagem ainda pendentes.
+
 ## [1.0.122] - 2026-11-08
 
 ### Alterado

@@ -27,6 +27,32 @@ if($operation==='upload'){
 }elseif($operation==='rename'){
     igua_files_rename(igua_files_project_managed_relative((string)($_POST['file']??'')),(string)($_POST['name']??''));
     igua_security_event('admin_action','files_rename');flash('Item renomeado.');
+}elseif($operation==='export_zip'){
+    igua_security_event('admin_action','files_export_zip');
+    igua_fm_export_zip($_POST['selected']??[]);
+    exit;
+}elseif($operation==='copy' || $operation==='cut'){
+    igua_fm_clipboard($_SESSION,$operation,$_POST['selected']??[]);
+    igua_security_event('admin_action','files_clipboard');
+    flash($operation==='copy'?'Arquivos prontos para copiar. Abra a pasta de destino e toque em Colar.':'Arquivos prontos para mover. Abra a pasta de destino e toque em Colar.');
+}elseif($operation==='paste'){
+    $n=igua_fm_paste($_SESSION,$folder);
+    igua_security_event('admin_action','files_paste');flash($n.' item(ns) colado(s).');
+}elseif($operation==='clipboard_clear'){
+    unset($_SESSION['igua_files_clipboard']);flash('Área de transferência limpa.');
+}elseif($operation==='zip'){
+    $name=igua_fm_zip_selection($_POST['selected']??[],$folder,(string)($_POST['name']??''));
+    igua_security_event('admin_action','files_zip');flash('Arquivo '.$name.' criado.');
+}elseif($operation==='unzip'){
+    $name=igua_fm_zip_extract((string)($_POST['file']??''));
+    igua_security_event('admin_action','files_unzip');flash('ZIP extraído na pasta '.$name.'.');
+}elseif($operation==='bulk_delete'){
+    if(($_POST['confirm']??'')!=='EXCLUIR')throw new InvalidArgumentException('Digite EXCLUIR para confirmar a remoção.');
+    $n=igua_fm_delete_selection($_POST['selected']??[]);
+    igua_security_event('admin_action','files_bulk_delete');flash($n.' item(ns) excluído(s) permanentemente.');
+}elseif($operation==='chmod'){
+    igua_fm_chmod((string)($_POST['file']??''),(string)($_POST['mode']??''));
+    igua_security_event('admin_action','files_chmod');flash('Permissões atualizadas.');
 }elseif($operation==='delete'){
     igua_files_delete(igua_files_project_managed_relative((string)($_POST['file']??'')));
     igua_security_event('admin_action','files_delete');flash('Item excluído permanentemente.');

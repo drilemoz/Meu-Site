@@ -12,6 +12,8 @@ try{
 $encodedFolder=rawurlencode($folder);
 $crumbs=$folder===''?[]:explode('/',$folder);
 $managed=igua_files_project_is_managed($folder);
+$clipboard=igua_fm_clipboard_info($_SESSION);
+$zipReady=class_exists('ZipArchive');
 $selected=isset($_GET['view'])&&is_string($_GET['view'])?$_GET['view']:'';
 $editing=isset($_GET['edit'])&&is_string($_GET['edit'])?$_GET['edit']:'';
 if($editing!=='')$selected=$editing;
@@ -55,7 +57,7 @@ if($selected!==''){
     <h3>📄 <?=h(basename($selected))?></h3>
     <?php if($selectedPath===null): ?><p class="alert error"><?=h($selectedError)?></p>
     <?php else: ?>
-     <p class="files-meta"><?=h($selected)?> · <?=h(number_format((float)$selectedSize/1024,1,',','.'))?> KiB<?= $canEdit?' · Editável':' · Somente leitura' ?></p>
+     <p class="files-meta"><?=h($selected)?> · <?=h(number_format((float)$selectedSize/1024,1,',','.'))?> KiB<?= $canEdit?' · Editável':' · Somente leitura' ?> · Permissões <?=h(igua_fm_permissions($selected))?></p>
      <?php if($editing!=='' && $canEdit && $selectedContent!==null): ?>
       <form action="<?=h(admin_link('files_save'))?>" method="post" class="files-edit-form">
        <?=csrf_field()?><input type="hidden" name="operation" value="save">
@@ -82,13 +84,46 @@ if($selected!==''){
     <label for="files-filter" class="files-filter-label">Pesquisar nesta pasta</label>
     <input id="files-filter" type="search" placeholder="Buscar arquivos ou pastas..." autocomplete="off">
    </div>
+   <?php if(!$managed): ?>
+    <form id="files-bulk" method="post" action="<?=h(admin_link('files_save'))?>" class="files-readonly-tools files-operations">
+     <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>">
+     <div class="files-selection-head"><label class="files-check-all"><input id="files-select-all" type="checkbox"> Selecionar até 20</label><span id="files-selected-count">0 selecionados</span></div>
+     <button class="btn outline small" type="submit" name="operation" value="export_zip" data-files-needs-selection <?=$zipReady?'':'disabled title="ZipArchive indisponível na hospedagem"'?>>↓ Baixar seleção em ZIP</button>
+     <a class="btn primary small" href="<?=h($base.'&folder='.rawurlencode('public/uploads/arquivos'))?>">↑ Área de uploads e edição</a>
+     <small>Áreas protegidas e arquivos privados serão omitidos da exportação.</small>
+    </form>
+   <?php endif; ?>
    <?php if($managed): ?>
+    <div class="files-operations" aria-label="Ações de arquivos">
+     <form id="files-bulk" method="post" action="<?=h(admin_link('files_save'))?>" class="files-bulk-form">
+      <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>">
+      <div class="files-selection-head"><label class="files-check-all"><input id="files-select-all" type="checkbox"> Selecionar até 20</label><span id="files-selected-count" aria-live="polite">0 selecionados</span></div>
+      <div class="files-bulk-buttons">
+       <button class="btn outline small" type="submit" name="operation" value="copy" data-files-needs-selection>⧉ Copiar</button>
+       <button class="btn outline small" type="submit" name="operation" value="cut" data-files-needs-selection>✂ Recortar</button>
+       <label class="files-inline-field">Nome do ZIP <input type="text" name="name" maxlength="100" value="arquivos.zip" aria-label="Nome do arquivo ZIP"></label>
+       <button class="btn outline small" type="submit" name="operation" value="zip" data-files-needs-selection <?=$zipReady?'':'disabled title="ZipArchive indisponível na hospedagem"'?>>▣ Compactar</button>
+      </div>
+     </form>
+     <details class="files-danger-bulk"><summary>Excluir selecionados</summary>
+      <form method="post" action="<?=h(admin_link('files_save'))?>" id="files-bulk-delete" data-confirm="Excluir permanentemente os arquivos e pastas selecionados? Não há lixeira nesta versão.">
+       <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>"><input type="hidden" name="operation" value="bulk_delete">
+       <label>Digite EXCLUIR para confirmar <input name="confirm" required pattern="EXCLUIR" autocomplete="off" placeholder="EXCLUIR"></label>
+       <button class="btn danger small" type="submit">Excluir definitivamente</button>
+      </form>
+     </details>
+    </div>
+    <?php if($clipboard): ?>
+     <div class="files-clipboard"><strong>📋 <?=count($clipboard['items'])?> item(ns) para <?=($clipboard['mode']==='cut'?'mover':'copiar')?></strong>
+      <form method="post" action="<?=h(admin_link('files_save'))?>"><?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>"><button class="btn primary small" name="operation" value="paste" type="submit">Colar nesta pasta</button><button class="btn outline small" name="operation" value="clipboard_clear" type="submit">Limpar</button></form>
+     </div>
+    <?php endif; ?>
     <details class="files-create-menu">
      <summary>＋ Enviar arquivo ou criar pasta</summary>
      <div class="files-toolbar">
       <form method="post" action="<?=h(admin_link('files_save'))?>" enctype="multipart/form-data">
        <?=csrf_field()?><input type="hidden" name="operation" value="upload"><input type="hidden" name="folder" value="<?=h($folder)?>">
-       <label for="files-upload">Enviar arquivo (até 8 MiB)</label><input id="files-upload" name="file" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,.txt,.csv" required>
+       <label for="files-upload">Enviar arquivo (até 8 MiB)</label><input id="files-upload" name="file" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,.txt,.csv,.zip" required>
        <button class="btn primary" type="submit">Enviar</button>
       </form>
       <form method="post" action="<?=h(admin_link('files_save'))?>">
@@ -97,7 +132,7 @@ if($selected!==''){
        <button class="btn outline" type="submit">Criar pasta</button>
       </form>
      </div>
-     <p class="files-hint">Somente JPG, PNG, WebP, PDF, TXT e CSV. Tudo aqui é público por URL. Não envie credenciais.</p>
+     <p class="files-hint">JPG, PNG, WebP, PDF, TXT, CSV e ZIP validado, até 8 MiB. Os arquivos desta pasta podem ser públicos por URL; não envie dados privados.</p>
     </details>
    <?php endif; ?>
    <div class="files-list" id="files-list">
@@ -111,23 +146,45 @@ if($selected!==''){
       $writable=igua_files_project_is_managed($rel) && !$blocked;
     ?>
      <div class="files-row" data-file-name="<?=h(strtolower($item['name']))?>">
+      <?php if(!$blocked && $rel!=='public/uploads/arquivos'): ?><input class="files-select" type="checkbox" name="selected[]" value="<?=h($rel)?>" form="files-bulk" aria-label="Selecionar <?=h($item['name'])?>"><?php endif; ?>
       <span class="files-icon" aria-hidden="true"><?=$blocked?'🔒':($isDir?'📁':'📄')?></span>
       <?php if($blocked): ?>
        <div class="files-main"><strong><?=h($item['name'])?></strong><small>Protegido · acesso bloqueado</small></div>
       <?php else: ?>
        <a class="files-main files-entry-link" href="<?=h($base.'&folder='.rawurlencode($isDir?$rel:$folder).($isDir?'':'&view='.rawurlencode($rel)))?>">
-        <strong><?=h($item['name'])?></strong><small><?=$isDir?'Pasta':h(number_format(((float)$item['size'])/1024,1,',','.').' KiB')?><?php if($item['modified']!==null): ?> · <?=h(date('d/m/Y H:i',(int)$item['modified']))?><?php endif; ?></small>
+        <strong><?=h($item['name'])?></strong><small><?=$isDir?'Pasta':h(number_format(((float)$item['size'])/1024,1,',','.').' KiB')?><?php if($item['modified']!==null): ?> · <?=h(date('d/m/Y H:i',(int)$item['modified']))?><?php endif; ?> · <?=h(igua_fm_permissions($rel))?></small>
        </a>
        <div class="files-row-actions">
         <?php if($isDir): ?><a class="btn outline small" href="<?=h($base.'&folder='.rawurlencode($rel))?>" aria-label="Abrir <?=h($item['name'])?>">Abrir</a>
         <?php else: ?><a class="btn outline small" href="<?=h($base.'&folder='.$encodedFolder.'&view='.rawurlencode($rel))?>">Ver</a><?php endif; ?>
         <?php if($writable && !($isDir && $rel==='public/uploads/arquivos')): ?>
-         <details class="files-options"><summary aria-label="Opções de <?=h($item['name'])?>">⋮</summary><div class="files-options-content">
+         <details class="files-options"><summary aria-label="Comandos de <?=h($item['name'])?>">⋮</summary><div class="files-options-content">
+          <strong class="files-options-title">Comandos · <?=h($item['name'])?></strong>
+          <form method="post" action="<?=h(admin_link('files_save'))?>">
+           <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>"><input type="hidden" name="selected[]" value="<?=h($rel)?>">
+           <div class="files-option-pair"><button class="btn outline small" name="operation" value="copy">⧉ Copiar</button><button class="btn outline small" name="operation" value="cut">✂ Recortar</button></div>
+          </form>
+          <form method="post" action="<?=h(admin_link('files_save'))?>">
+           <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>"><input type="hidden" name="selected[]" value="<?=h($rel)?>">
+           <label>Compactar como<input name="name" type="text" value="<?=h(pathinfo($item['name'], PATHINFO_FILENAME).'-compactado.zip')?>" maxlength="100" required></label>
+           <button class="btn outline small" type="submit" name="operation" value="zip" <?=$zipReady?'':'disabled'?>>▣ Compactar ZIP</button>
+          </form>
+          <?php if(!$isDir && igua_files_extension($item['name'])==='zip'): ?>
+           <form method="post" action="<?=h(admin_link('files_save'))?>" data-confirm="Extrair ZIP em uma pasta nova, sem sobrescrever arquivos?">
+            <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>"><input type="hidden" name="file" value="<?=h($rel)?>"><button class="btn outline small" type="submit" name="operation" value="unzip" <?=$zipReady?'':'disabled'?>>↧ Descompactar</button>
+           </form>
+          <?php endif; ?>
           <form method="post" action="<?=h(admin_link('files_save'))?>">
            <?=csrf_field()?><input type="hidden" name="operation" value="rename"><input type="hidden" name="folder" value="<?=h($folder)?>"><input type="hidden" name="file" value="<?=h($rel)?>">
            <label>Renomear<input name="name" type="text" value="<?=h($item['name'])?>" maxlength="100" required></label><button class="btn outline small" type="submit">Renomear</button>
           </form>
-          <form method="post" action="<?=h(admin_link('files_save'))?>" data-confirm="Excluir definitivamente <?=h($item['name'])?>? Essa ação não pode ser desfeita.">
+          <form method="post" action="<?=h(admin_link('files_save'))?>">
+           <?=csrf_field()?><input type="hidden" name="operation" value="chmod"><input type="hidden" name="folder" value="<?=h($folder)?>"><input type="hidden" name="file" value="<?=h($rel)?>">
+           <label>Permissões atuais: <?=h(igua_fm_permissions($rel))?>
+            <select name="mode"><?php foreach(($isDir?['0755','0700']:['0644','0600']) as $mode): ?><option value="<?=h($mode)?>" <?=igua_fm_permissions($rel)===$mode?'selected':''?>><?=h($mode)?></option><?php endforeach; ?></select>
+           </label><button class="btn outline small" type="submit">Aplicar permissões</button>
+          </form>
+          <form method="post" action="<?=h(admin_link('files_save'))?>" data-confirm="Excluir <?=h($item['name'])?> definitivamente? Pastas devem estar vazias nessa ação.">
            <?=csrf_field()?><input type="hidden" name="operation" value="delete"><input type="hidden" name="folder" value="<?=h($folder)?>"><input type="hidden" name="file" value="<?=h($rel)?>"><button class="btn danger small" type="submit">Excluir</button>
           </form>
          </div></details>
@@ -143,7 +200,7 @@ if($selected!==''){
     <?php if($page<$pages): ?><a class="btn outline small" href="<?=h($base.'&folder='.$encodedFolder.'&page='.($page+1))?>">Próxima →</a><?php endif; ?>
    </nav><?php endif; ?>
    <?php if($truncated): ?><p class="files-hint">Mais de 6.000 entradas nesta pasta. A listagem foi limitada para proteger o desempenho; use FTP para diretórios muito grandes.</p><?php endif; ?>
-   <p class="files-footer-note">Navegação pela raiz do projeto. Pastas privadas e credenciais ficam bloqueadas. Edição e envio são restritos a <code>public/uploads/arquivos</code> e aos arquivos públicos <code>ads.txt</code> / <code>robots.txt</code>.</p>
+   <p class="files-footer-note">A leitura e o download abrangem arquivos acessíveis do projeto. Copiar, mover, compactar, extrair, excluir, enviar e alterar permissões funcionam apenas em <code>public/uploads/arquivos</code>. Pastas privadas, credenciais e código de produção não podem ser alterados por esta ferramenta. Os arquivos gerenciados podem ser públicos.</p>
   <?php endif; ?>
  </section>
 </div>

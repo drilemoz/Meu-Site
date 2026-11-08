@@ -1,3 +1,9 @@
+## IguatamaOnline 1.0.123
+
+**Comandos úteis no Gerenciador de Arquivos:** seleção múltipla, copiar, recortar, colar, compactar, descompactar, upload ZIP, excluir arquivos e pastas (com confirmação), renomear e permissões limitadas para arquivos gerenciados. Fora dessa pasta, visualização e download de seleção em ZIP para arquivos permitidos do projeto. Ferramentas permanece o submenu de acesso.
+
+**Segurança:** sem edição de executáveis, symlinks ou pastas privadas; limite de quantidade/tamanho, extração sempre em pasta nova, sem substituir nomes existentes. `ZipArchive` é necessário para ZIP; o ZIP não foi testado com extensão real no ambiente local. Manter backup externo antes de exclusões. Nenhuma mudança de banco.
+
 ## IguatamaOnline 1.0.122
 
 - O submenu **Ferramentas → Gerenciador de Arquivos** agora mostra a estrutura do projeto desde a raiz, em vez de começar na pasta vazia de uploads. Entre em `app/`, `public/` e outras pastas disponíveis pelo celular.

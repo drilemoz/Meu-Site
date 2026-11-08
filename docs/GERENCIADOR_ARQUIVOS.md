@@ -1,4 +1,4 @@
-# Gerenciador de Arquivos — 1.0.122
+# Gerenciador de Arquivos — 1.0.123
 
 ## Acesso e visualização
 
@@ -24,3 +24,18 @@ Apenas a pasta `public/uploads/arquivos/` e suas subpastas permitem ações de c
 
 - `php tests/file_manager_221.php` confirma operações antigas e bloqueios da pasta gerenciada.
 - `php tests/file_manager_222.php` testa a raiz, diretórios visíveis, proibição de `storage`, symlinks, traversal, navegação e controles de visualização.
+
+## Comandos acrescentados na versão 1.0.123
+
+Na **raiz do projeto** e diretórios de leitura, marque até 20 itens e pressione **Baixar seleção em ZIP**. O ZIP é gerado para download autenticado em pasta temporária privada, não na raiz pública. Entradas bloqueadas/ocultas e symlinks não entram na exportação. Limites: 1.000 entradas e 64 MiB de conteúdo; `ZipArchive` necessário.
+
+Em `public/uploads/arquivos/` e subpastas, a barra de seleção oferece copiar, recortar e compactar. As opções `⋮` por item oferecem cópia/recorte, ZIP, extração ZIP, renomear, mudar permissões seguras e excluir. O botão **Colar nesta pasta** aparece quando há itens copiados/recortados na sessão; expira em 15 minutos. A seleção em lote permite excluir arquivos e pastas depois de digitar `EXCLUIR`. Não há lixeira: o backup externo é indispensável.
+
+ZIP enviado e ZIP extraído aceitam somente JPG/JPEG/PNG/WebP/PDF/TXT/CSV/ZIP, proibindo arquivos executáveis, caminhos relativos, links simbólicos e duplicatas. A extração é feita em pasta nova `<nome>-extraido`, sem sobrescrever existentes. Operações do depósito são limitadas a 300 itens/32 MiB totais e 8 MiB por arquivo. O ZIP compactado fica limitado a 8 MiB. ZIP exige a extensão PHP `ZipArchive`.
+
+Permissões permitidas: arquivo `0644` ou `0600`; diretório `0755` ou `0700`. Permissões dos arquivos do restante do projeto podem ser consultadas, não alteradas. O gerenciador não edita PHP, JavaScript ou CSS do portal nem arquivos internos. Toda gravação permanece sujeita à permissão real do usuário PHP na hospedagem.
+
+### Testes
+
+- `php tests/file_manager_223.php` verifica movimentação, colisões, recusa de symlink/travessia, exclusão em lote, permissões e contrato de interface.
+- A extensão ZIP não estava disponível no ambiente local de desenvolvimento: compactar, extrair e exportar ZIP necessitam de teste real na hospedagem ou em CI com `ZipArchive`.

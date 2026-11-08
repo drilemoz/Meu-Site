@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.122)
+# Diretrizes de manutenção — Meu Site (v1.0.123)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -259,3 +259,11 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - NUNCA permitir leitura de `storage/` (configuração/credenciais), arquivos `.env`, `config.php`, chaves e tokens, nem atravessar links simbólicos ou sair da raiz. Entrada administrativa exige `manage_settings`, com páginas e download sem cache.
 - O acesso a código PHP/JS/CSS é exclusivamente **de leitura**; nenhuma API de edição, exclusão, renomeação ou upload deve atuar fora de `public/uploads/arquivos/` e da edição especial `ads.txt`/`robots.txt`. Manter CSRF nos POSTs e validação MIME no upload.
 - Execução mínima de testes `php tests/file_manager_221.php`, `php tests/file_manager_222.php`, CSS build e suíte completa. Sem migração SQL ou modificação do backup.
+
+## Comandos do explorador — 1.0.123
+
+- Ferramentas > Gerenciador de Arquivos mantém o acesso à raiz do projeto. Seleção múltipla permite baixar um ZIP autenticado da árvore **visível** (até 20 seleções, 1.000 itens e 64 MiB descompactados); subárvores privadas, links simbólicos e nomes ocultos são omitidos.
+- Somente `public/uploads/arquivos` e suas subpastas permitem copiar, recortar, colar, enviar ZIP/JPG/PNG/WebP/PDF/TXT/CSV, criar pasta, compactar, extrair, renomear, excluir recursivamente com confirmação e alterar permissões (`0644`/`0600` arquivo, `0755`/`0700` pasta). `ads.txt` e `robots.txt` mantêm a edição específica anterior.
+- A área de transferência é limitada a 20 entradas e 15 minutos por sessão; nomes duplicados nunca são sobrescritos. Pré-validar operações em lote e recusar symlinks e arquivos inesperados. Limite geral: 300 entradas / 32 MiB por operação, 8 MiB por arquivo e ZIP final. Upload ZIP exige `ZipArchive`; validar nomes, tamanho descompactado, extensão permitida e links antes de gravar. Extrair sempre em pasta nova, nunca na raiz do código.
+- Não incluir editor/alteração irrestrita de arquivos PHP do projeto, `storage`, credenciais, `vendor`, arquivos ocultos ou acesso fora da raiz. O gerenciador **não é** substituto pleno de FTP/SSH. Operações administrativas exigem sessão, `manage_settings`, CSRF e eventos sem conteúdo confidencial.
+- Testes adicionais: `tests/file_manager_223.php`; teste ZIP real somente em ambiente com a extensão PHP `ZipArchive` habilitada.

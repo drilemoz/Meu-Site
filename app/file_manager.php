@@ -3,7 +3,7 @@ declare(strict_types=1);
 /** Gerenciador restrito. Nunca monta caminhos a partir da URL fora de public/uploads/arquivos. */
 const IGUA_FILES_MAX_BYTES = 8 * 1024 * 1024;
 const IGUA_FILES_TEXT_MAX = 128 * 1024;
-const IGUA_FILES_EXTENSIONS = ['jpg','jpeg','png','webp','pdf','txt','csv'];
+const IGUA_FILES_EXTENSIONS = ['jpg','jpeg','png','webp','pdf','txt','csv','zip'];
 
 function igua_files_root(): string { return IGUA_PUBLIC.'/uploads/arquivos'; }
 function igua_files_name(string $name): bool {
@@ -125,15 +125,17 @@ function igua_files_upload(array $upload,string $relative): string {
     $name=(string)($upload['name']??'');
     $bytes=(int)($upload['size']??0);
     if(!igua_files_allowed($name) || $bytes<=0 || $bytes>IGUA_FILES_MAX_BYTES)
-        throw new InvalidArgumentException('Envie imagem JPG/PNG/WebP, PDF, TXT ou CSV com até 8 MiB.');
+        throw new InvalidArgumentException('Envie JPG/PNG/WebP, PDF, TXT, CSV ou ZIP seguro com até 8 MiB.');
     $mime=(new finfo(FILEINFO_MIME_TYPE))->file($upload['tmp_name']);
     $ext=igua_files_extension($name);
     $expected=['jpg'=>['image/jpeg'],'jpeg'=>['image/jpeg'],'png'=>['image/png'],'webp'=>['image/webp'],
-      'pdf'=>['application/pdf'],'txt'=>['text/plain'],'csv'=>['text/plain','text/csv','application/csv','application/vnd.ms-excel']];
+      'pdf'=>['application/pdf'],'txt'=>['text/plain'],'csv'=>['text/plain','text/csv','application/csv','application/vnd.ms-excel'],
+      'zip'=>['application/zip','application/x-zip','application/x-zip-compressed','application/octet-stream']];
     if(!in_array($mime,$expected[$ext]??[],true))throw new InvalidArgumentException('Tipo real do arquivo não corresponde à extensão.');
     if(in_array($ext,['jpg','jpeg','png','webp'],true) && !@getimagesize($upload['tmp_name']))throw new InvalidArgumentException('Imagem inválida.');
     if($ext==='pdf' && file_get_contents($upload['tmp_name'],false,null,0,5)!=='%PDF-')throw new InvalidArgumentException('PDF inválido.');
     if(in_array($ext,['txt','csv'],true))igua_files_text_read($upload['tmp_name']);
+    if($ext==='zip')igua_fm_zip_check($upload['tmp_name']);
     $destination=$dir.'/'.$name;
     if(file_exists($destination) || is_link($destination))throw new InvalidArgumentException('Já existe um arquivo com esse nome.');
     // x: evita sobrescrever uma criação concorrente e limita a um arquivo novo.
@@ -295,3 +297,5 @@ function igua_files_project_download(string $relative): void {
     header('Content-Length: '.$bytes);
     readfile($file);exit;
 }
+
+require_once __DIR__.'/file_manager_actions.php';
