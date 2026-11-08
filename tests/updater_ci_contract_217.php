@@ -27,6 +27,11 @@ assert217(!str_contains($test,'/app/bootstrap.php')&&
     !str_contains($test,'DROP DATABASE') && !str_contains($test,'TRUNCATE TABLE') &&
     !str_contains($test,'restore_backup('),
     'teste não define raiz publicada nem restaura ou elimina dados de banco');
-assert217(str_contains($test,'schema 37')&&str_contains($test,'1.0.117'),
+assert217(str_contains($test,'strlen($tamperedPayload)===strlen($originalPayload)') &&
+    str_contains($test,'hash(\'sha256\',$tamperedPayload)!==hash(\'sha256\',$originalPayload)') &&
+    str_contains($test,"'SHA-256'") &&
+    str_contains($test,"'arquivo inesperado ou incorreto'"),
+    'CI testa separadamente tamanho divergente e hash divergente com tamanho idêntico');
+assert217(str_contains($test,'schema 37')&&str_contains($test,'1.0.118'),
     'teste integrado acompanha versão e schema atuais');
 echo "Contrato do teste integrado aprovado. MariaDB e ZipArchive reais são exercitados no CI, não nesta suíte offline.\n";

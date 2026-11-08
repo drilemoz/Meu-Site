@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.117** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.118** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,12 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.118 — Correção do teste integrado de ZIP adulterado
+
+- Os logs do workflow MariaDB #33 confirmaram instalação, backup e rollback em sandbox; a falha restante era do teste de adulteração, que mudava também o tamanho do arquivo e exigia, indevidamente, erro SHA-256.
+- O teste `updater_mariadb_217.php` agora cobre duas alterações independentes: tamanho divergente, rejeitado antes da extração, e conteúdo divergente de mesmo tamanho, rejeitado por SHA-256.
+- Reforçado o teste de contrato offline e documentado o resultado real do CI. Motor do atualizador, schema 37, backup v12 e aplicações públicas sem alteração funcional. Validar novamente o workflow após publicar o código.
 
 ## Versão 1.0.117 — Ensaio integrado do ciclo de atualização
 

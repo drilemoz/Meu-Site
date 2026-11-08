@@ -223,3 +223,10 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Executá-lo **após** `tests/integration/restore_mariadb_134.php` no serviço MariaDB de CI, nunca em banco do portal ou em diretório de produção. Testa ZIP v2 real, backup v12, instalação, integridade, rollback e ZIP adulterado; não restaura SQL, não apaga banco.
 - `tests/updater_ci_contract_217.php` valida guardas e encadeamento sem precisar de extensões MariaDB/ZIP; executar ambos os testes existentes `updater_failure_215.php` e `updater_foreign_changes_216.php`. Consultar `docs/INTEGRACAO_ATUALIZADOR_117.md`.
 - Não declarar o novo ensaio integrado como executado sem resultado real do CI. O schema 37, backup v12 e motor do atualizador não mudaram nesta versão.
+
+## Correção de integração 1.0.118 — falso negativo no CI #33
+
+- O teste real `tests/integration/updater_mariadb_217.php` **não** deve confundir divergência de tamanho do arquivo no ZIP com divergência de SHA-256. Deve criar dois pacotes adulterados, validar cada rejeição na etapa correspondente e verificar que não há novo backup, manutenção persistente ou alterações no código do sandbox.
+- O arquivo de payload do teste de SHA deve ter comprimento **idêntico** ao descrito em `release.json`, mas bytes e hash diferentes. Teste de contrato offline `tests/updater_ci_contract_217.php` protege essa condição.
+- Logs do workflow #33 aprovaram MariaDB real, ZipArchive, instalação, backup e rollback; a falha final foi da asserção de SHA, não prova de aceitação de conteúdo adulterado. Novo CI ainda precisa comprovar sucesso completo.
+- Preservar schema 37, backup v12 e ZIP v2; não executar ensaio em Plesk, banco real do portal ou fora das guardas `igua_ci_*` + opt-in CLI.

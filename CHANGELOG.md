@@ -1,3 +1,11 @@
+## [1.0.118] - 2026-11-08
+
+### Correção do teste de integração MariaDB/ZIP no CI
+- Corrigida a fixture de ZIP adulterado identificada nos logs do workflow #33: ela modificava também o tamanho de `app/module.php` e falhava na verificação de tamanho, antes de alcançar a validação SHA-256.
+- O ensaio agora verifica separadamente a rejeição de tamanho divergente e de conteúdo adulterado **com o mesmo tamanho**, exigindo erro SHA-256 neste segundo cenário.
+- O teste de contrato offline reforça a exigência de payload do mesmo tamanho com hash diferente. Não foi modificado o mecanismo do atualizador, os dados publicados ou o schema 37.
+- No workflow #33, os testes reais de MariaDB/ZipArchive, instalação, backup e rollback foram aprovados; o ensaio novo falhou apenas na última asserção. O CI atualizado ainda precisa ser executado no GitHub Actions para confirmar o cenário corrigido.
+
 ## [1.0.117] - 2026-11-08
 
 ### Testes integrados do atualizador

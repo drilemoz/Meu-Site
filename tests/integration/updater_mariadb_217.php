@@ -49,7 +49,7 @@ function fixture217(string $file,array $new): void {
     foreach($new as $path=>$content){
         $files[]=['path'=>$path,'sha256'=>hash('sha256',$content),'size'=>strlen($content)];
     }
-    $manifest=['format'=>IGUA_UPDATE_FORMAT,'version'=>'1.0.117','min_php'=>'8.1.0',
+    $manifest=['format'=>IGUA_UPDATE_FORMAT,'version'=>'1.0.118','min_php'=>'8.1.0',
         'schema_revision'=>IGUA_SCHEMA_REVISION,'files'=>$files];
     $zip=new ZipArchive();
     if($zip->open($file,ZipArchive::CREATE|ZipArchive::OVERWRITE)!==true)
@@ -74,9 +74,9 @@ try {
     check217($admin>=1,'banco CI já preparado com administrador ativo');
     $articlesBefore=(int)$db->query('SELECT COUNT(*) FROM articles')->fetchColumn();
     $logsBefore=(int)$db->query('SELECT COUNT(*) FROM backup_logs')->fetchColumn();
-    $old=['VERSION'=>"1.0.116\n",'app/updater.php'=>"<?php // sandbox updater antigo\n",
+    $old=['VERSION'=>"1.0.117\n",'app/updater.php'=>"<?php // sandbox updater antigo\n",
         'app/module.php'=>"<?php // modulo anterior\n",'public/admin.php'=>"<?php // admin anterior\n"];
-    $new=['VERSION'=>"1.0.117\n",'app/updater.php'=>"<?php // sandbox updater novo\n",
+    $new=['VERSION'=>"1.0.118\n",'app/updater.php'=>"<?php // sandbox updater novo\n",
         'app/module.php'=>"<?php // modulo novo\n",'public/admin.php'=>"<?php // admin novo\n",
         'public/new.js'=>"// novo no sandbox\n"];
     foreach($old as $path=>$body){
@@ -85,7 +85,7 @@ try {
     $zipPath=$root.'/update-test.zip';fixture217($zipPath,$new);
     $stageTrace=[];
     $result=igua_updater_install_zip($zipPath,$db,static function(string $stage,string $message)use(&$stageTrace):void{$stageTrace[]=$stage;});
-    check217(($result['version']??'')==='1.0.117','instalação pelo ZIP real concluída');
+    check217(($result['version']??'')==='1.0.118','instalação pelo ZIP real concluída');
     check217($stageTrace===['validating','preflight','backup','applying','complete'],'etapas do instalador registradas na ordem');
     foreach($new as $path=>$body)check217(file_get_contents($root.'/'.$path)===$body,'conteúdo instalado: '.$path);
     check217(!is_file(igua_updater_maintenance()),'manutenção retirada após instalação');
@@ -109,20 +109,47 @@ try {
         (igua_updater_last_job()['journal']['status']??'')==='rolled_back','rollback encerra manutenção e journal');
     check217(is_file($backup),'backup de banco continua preservado após rollback do código');
 
-    // Pacote adulterado: hashes do manifesto devem impedir aplicação dos arquivos.
-    $badZip=$root.'/update-tampered.zip';
-    if(!copy($zipPath,$badZip))throw new RuntimeException('Falha ao duplicar ZIP de testes.');
+    // Pacotes adulterados: tamanho e SHA-256 são proteções independentes.
+    // O CI #33 revelou que o antigo payload era 1 byte menor e, por isso,
+    // era recusado pelo tamanho antes de chegar à etapa de SHA-256.
+    $originalPayload=$new['app/module.php'];
+    $shortPayload=substr($originalPayload,0,-1);
+    check217(strlen($shortPayload)!==strlen($originalPayload),
+        'fixture de tamanho inválido altera o número de bytes');
+    $badSizeZip=$root.'/update-wrong-size.zip';
+    if(!copy($zipPath,$badSizeZip))throw new RuntimeException('Falha ao duplicar ZIP de tamanho inválido.');
     $zip=new ZipArchive();
-    if($zip->open($badZip)!==true)throw new RuntimeException('ZIP copiado não abre.');
-    try{if(!$zip->addFromString('app/module.php',"<?php // adulterado\n"))throw new RuntimeException('Falha ao adulterar ZIP.');}
-    finally{$zip->close();}
-    $rejected=false;
-    try{igua_updater_install_zip($badZip,$db);}
-    catch(RuntimeException $e){$rejected=str_contains($e->getMessage(),'SHA-256');}
-    check217($rejected,'ZIP adulterado recusado pelo instalador via SHA-256 real');
+    if($zip->open($badSizeZip)!==true)throw new RuntimeException('ZIP copiado não abre.');
+    try {
+        if(!$zip->addFromString('app/module.php',$shortPayload))
+            throw new RuntimeException('Falha ao adulterar tamanho do ZIP.');
+    } finally {$zip->close();}
+    $sizeRejected=false;
+    try {igua_updater_install_zip($badSizeZip,$db);}
+    catch(RuntimeException $e) {$sizeRejected=str_contains($e->getMessage(),'arquivo inesperado ou incorreto');}
+    check217($sizeRejected,'ZIP com tamanho divergente recusado antes da extração');
+
+    $tamperedPayload=str_replace('modulo novo','modulo ruim',$originalPayload);
+    check217($tamperedPayload!==$originalPayload &&
+        strlen($tamperedPayload)===strlen($originalPayload) &&
+        hash('sha256',$tamperedPayload)!==hash('sha256',$originalPayload),
+        'fixture de SHA-256 mantém o mesmo tamanho e altera o conteúdo');
+    $badHashZip=$root.'/update-wrong-hash.zip';
+    if(!copy($zipPath,$badHashZip))throw new RuntimeException('Falha ao duplicar ZIP de hash inválido.');
+    $zip=new ZipArchive();
+    if($zip->open($badHashZip)!==true)throw new RuntimeException('ZIP copiado não abre.');
+    try {
+        if(!$zip->addFromString('app/module.php',$tamperedPayload))
+            throw new RuntimeException('Falha ao adulterar conteúdo do ZIP.');
+    } finally {$zip->close();}
+    $hashRejected=false;
+    try {igua_updater_install_zip($badHashZip,$db);}
+    catch(RuntimeException $e) {$hashRejected=str_contains($e->getMessage(),'SHA-256');}
+    check217($hashRejected,'ZIP de mesmo tamanho com SHA-256 divergente recusado pelo instalador');
     check217((int)$db->query('SELECT COUNT(*) FROM backup_logs')->fetchColumn()===$logsBefore+1,
-        'ZIP adulterado falha antes de registrar outro backup');
-    check217(!is_file(igua_updater_maintenance()),'ZIP adulterado não deixa manutenção ativa');
-    foreach($old as $path=>$body)check217(file_get_contents($root.'/'.$path)===$body,'adulteração não tocou no código: '.$path);
+        'ZIPs adulterados falham antes de registrar outro backup');
+    check217(!is_file(igua_updater_maintenance()),'ZIPs adulterados não deixam manutenção ativa');
+    foreach($old as $path=>$body)
+        check217(file_get_contents($root.'/'.$path)===$body,'adulterações não tocaram no código: '.$path);
     echo "INTEGRAÇÃO 217: ciclo completo ZIP + MariaDB + rollback aprovado em sandbox.\n";
 } finally {cleanup217($root);}

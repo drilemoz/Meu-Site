@@ -1,3 +1,10 @@
+## IguatamaOnline 1.0.118
+
+- Corrigido o ensaio integrado de ZIP adulterado após falha do workflow #33. Antes, um payload com tamanho diferente era rejeitado antes da verificação SHA-256; o teste agora separa as rejeições por tamanho e por hash (mantendo o tamanho original).
+- O pipeline e o teste offline passam a proteger os dois cenários, sem alterar o atualizador ou as rotinas de banco, backup e restauração.
+- Os logs comprovaram a instalação ZIP, o backup MariaDB e o rollback com sucesso no CI da 1.0.117. A execução dos cenários corrigidos em MariaDB/ZipArchive reais permanece pendente até um novo workflow.
+- Schema 37, backup v12 e ZIP v2 preservados. Nenhuma instalação na hospedagem.
+
 ## IguatamaOnline 1.0.117
 
 - Teste integrado de atualização ZIP v2 com MariaDB e ZipArchive reais em ambiente isolado de CI: instala arquivos de teste, gera backup lógico v12, verifica SHA-256, executa rollback e rejeita pacote adulterado.
