@@ -1,3 +1,9 @@
+## IguatamaOnline 1.0.127
+
+**Mais informações do servidor:** uma nova área de compatibilidade mostra se este PHP oferece versão mínima, PDO MySQL, ZIP, GD, Fileinfo e upload de arquivos. Outra área resume diretivas de erros e preferências de cookies de sessão; a seção de limites também mostra quantos arquivos podem ser enviados e se o envio está habilitado.
+
+**Consulta segura e realista:** os indicadores refletem apenas as configurações e extensões vistas pela requisição atual. Não fazem auditoria de segurança nem confirmam que todas as operações funcionam no provedor. Tudo segue restrito aos administradores e somente leitura. Nenhuma alteração no banco ou no restante do portal.
+
 ## IguatamaOnline 1.0.126
 
 **Novo em Ferramentas → Informações do Servidor:** painel leve, pensado para celular, com cartões de PHP, servidor web, banco de dados e memória por processo. Mostra também limites de upload e POST, espaço disponível na partição do PHP, extensões essenciais e permissões de gravação de pastas.

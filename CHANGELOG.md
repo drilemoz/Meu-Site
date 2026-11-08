@@ -1,3 +1,11 @@
+## [1.0.127] - 2026-11-08
+
+### Ferramentas > Informações do Servidor
+- Acrescentado resumo mobile-first de compatibilidade com seis recursos observáveis: PHP mínimo, PDO MySQL, ZIP, GD, Fileinfo e `file_uploads`, sinalizando os indisponíveis sem executar testes invasivos.
+- Nova seção de diretivas de erro e sessão do PHP (`display_errors`, `log_errors`, `expose_php`, `session.cookie_secure`, `session.cookie_httponly`, `session.cookie_samesite`), apenas com estados categorizados. A aplicação pode sobrescrever essas opções; não são garantia de segurança.
+- Expostos limite de número de arquivos por envio e estado de uploads do PHP. Sem nomes de host, caminhos internos, credenciais, comandos de shell, requests externos ou alterações de estado.
+- Adicionado `tests/server_info_227.php`, preservando schema 37, backups, menu e permissões administrativas.
+
 ## [1.0.126] - 2026-11-08
 
 ### Ferramentas > Informações do Servidor

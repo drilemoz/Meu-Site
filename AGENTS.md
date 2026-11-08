@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.126)
+# Diretrizes de manutenção — Meu Site (v1.0.127)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -289,3 +289,10 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Coletar apenas informações acessíveis via funções PHP de baixo custo: PHP/SAPI, família de servidor sem versão bruta, conexão do banco com `SELECT VERSION()`, `ini_get` de limites operacionais, extensão carregada, espaço da partição (não franquia), permissões de pastas e pico de memória da **requisição atual**.
 - Nunca incluir `phpinfo()`, shell, varredura de rede, IPs, nomes de host, variáveis de ambiente, credenciais, paths completos, tokens ou logs neste painel. Não inventar CPU/RAM física ou uptime.
 - Preservar separação com a Central de Saúde (diagnósticos) e controle de acesso. Executar `tests/server_info_226.php`, CSS com 19 módulos e regressão geral. Sem migração SQL.
+
+## Ampliação de Informações do Servidor — 1.0.127
+
+- A tela somente leitura exibe capacidades locais derivadas de versão PHP, extensões e `file_uploads`, sem executar operações externas. Não chamar capacidade disponível de funcionalidade testada.
+- Para opções do PHP (`display_errors`, `log_errors`, `expose_php` e atributos de sessão), mostrar apenas estados categorizados. Qualquer string desconhecida deve permanecer como valor não identificado e não ser impressa diretamente.
+- Sem revelar caminhos, variáveis ambientais, nomes de host, credenciais ou dados de cookies. A aplicação pode definir cookies por conta própria e alterar os comportamentos da sessão independentemente de `ini_get`.
+- Executar `tests/server_info_226.php`, `tests/server_info_227.php` e a regressão geral com o CSS de 19 módulos. Schema 37 sem migrações.

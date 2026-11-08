@@ -36,3 +36,19 @@
 .server-info-footer{font-size:12px;color:#6d7f92;line-height:1.55;text-align:center;margin:0}
 @media(max-width:850px){.server-info-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.server-info-panels{grid-template-columns:1fr}}
 @media(max-width:520px){.server-info{gap:12px}.server-info-hero{display:grid;padding:18px;border-radius:16px}.server-info-refresh{justify-self:start}.server-info-cards{gap:9px}.server-info-card{padding:13px;border-radius:14px}.server-info-icon{width:33px;height:33px;font-size:18px}.server-info-card strong{font-size:18px}.server-info-panel{padding:15px;border-radius:15px}.server-info-extensions{grid-template-columns:1fr}.server-info-space strong{font-size:23px}}
+/* 1.0.127: diagnóstico de compatibilidade e diretivas PHP, sem leituras sensíveis. */
+.server-info-checklist{background:#fff;border:1px solid #dbe7f3;border-radius:18px;padding:19px;min-width:0}
+.server-info-checklist .server-info-panel-heading{align-items:center;margin-bottom:4px}
+.server-info-kicker-light{display:block;font-size:10px;font-weight:800;letter-spacing:.11em;color:#5682ad;margin-bottom:5px}
+.server-info-checklist h3{font-size:20px;color:#183a5b;margin:0;line-height:1.25}
+.server-info-coverage{font-size:12px;font-weight:800;border-radius:999px;background:#e9f3ff;border:1px solid #d5e6f7;color:#275e92;padding:8px 10px;white-space:nowrap}
+.server-info-capabilities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:16px}
+.server-info-capability{display:flex;gap:10px;align-items:center;padding:11px;border-radius:12px;background:#f8fafd;border:1px solid #e8eef6;min-width:0}
+.server-info-capability-symbol{display:grid;place-items:center;flex:0 0 29px;height:29px;border-radius:10px;background:#fff0e9;color:#ab5739;font-size:15px;font-weight:800}
+.server-info-capability-symbol.is-on{background:#e4f6ed;color:#187457}
+.server-info-capability>div{display:grid;gap:4px;flex:1;min-width:0}
+.server-info-capability strong{font-size:12px;line-height:1.35;color:#284560}
+.server-info-capability small{font-size:11px;line-height:1.4;color:#71849a}
+.server-info-capability>.server-info-pill{font-size:10px}
+@media(max-width:850px){.server-info-capabilities{grid-template-columns:1fr}}
+@media(max-width:520px){.server-info-checklist{padding:15px;border-radius:15px}.server-info-checklist h3{font-size:18px}.server-info-coverage{font-size:11px;padding:7px 9px}.server-info-capability{padding:10px 9px}}

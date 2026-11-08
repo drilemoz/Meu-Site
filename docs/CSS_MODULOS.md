@@ -51,3 +51,5 @@ O script concatena os arquivos por uma lista explícita; ele não minifica, reor
 - v1.0.121: `18-file-manager.css` traz os estilos de **Ferramentas → Gerenciador de Arquivos**. Atualize o `ORDER` no `tools/build_css.py` ao adicionar novos módulos.
 
 - v1.0.126: `19-server-info.css` estiliza o novo submenu Ferramentas → Informações do Servidor. O bundle continua servido em um único `style.css`.
+
+- v1.0.127: `19-server-info.css` amplia a página com cartões de compatibilidade e diretivas PHP categorizadas, mantendo o mesmo CSS consolidado.

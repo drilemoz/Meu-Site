@@ -16,4 +16,4 @@ Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `REL
 
 As documentações funcionais remanescentes podem registrar as versões em que cada recurso nasceu; isso não significa que a versão do código atual seja aquela. Em caso de divergência, validar a implementação e os testes atuais.
 
-- Ferramentas: Informações do Servidor (v1.0.126). Dados consultados em `app/server_info.php`, visual em `app/admin_views/routes/server_info.php`; sem acesso a segredos.
+- Ferramentas: Informações do Servidor (v1.0.127). Dados consultados em `app/server_info.php`, visual em `app/admin_views/routes/server_info.php`; sem acesso a segredos.

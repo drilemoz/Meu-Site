@@ -19,6 +19,30 @@ function igua_server_info_platform(string $software): string {
     foreach(['LiteSpeed'=>'LiteSpeed','nginx'=>'Nginx','Apache'=>'Apache','Microsoft-IIS'=>'IIS','Caddy'=>'Caddy'] as $needle=>$name){if(stripos($software,$needle)!==false)return $name;}
     return 'Não identificado';
 }
+/** Resultado booleano apenas para valores de configuração PHP conhecidos; não é auditoria de segurança. */
+function igua_server_info_ini_flag(string $value): ?bool {
+    $value=strtolower(trim($value));
+    if(in_array($value,['1','on','yes','true'],true))return true;
+    if(in_array($value,['0','off','no','false',''],true))return false;
+    return null;
+}
+/** Rótulos limitados para evitar expor conteúdos arbitrários de configuração. */
+function igua_server_info_samesite(string $value): string {
+    return match(strtolower(trim($value))){
+        'lax'=>'Lax', 'strict'=>'Strict', 'none'=>'None', default=>'Não informado'
+    };
+}
+/** Avaliação local e superficial das extensões usadas pelo portal, não mede a saúde dos serviços. */
+function igua_server_info_capabilities(array $extensions, bool $uploadEnabled, bool $phpCompatible): array {
+    return [
+        ['label'=>'PHP 8.1 ou superior','ok'=>$phpCompatible,'description'=>'Versão mínima do projeto'],
+        ['label'=>'MySQL pelo PDO','ok'=>(bool)($extensions['pdo_mysql']??false),'description'=>'Driver usado pela aplicação'],
+        ['label'=>'Arquivos ZIP','ok'=>(bool)($extensions['zip']??false),'description'=>'Necessário para compactar, extrair e atualizar'],
+        ['label'=>'Imagens com GD','ok'=>(bool)($extensions['gd']??false),'description'=>'Recursos de imagem dependentes de GD'],
+        ['label'=>'Identificação de arquivos','ok'=>(bool)($extensions['fileinfo']??false),'description'=>'Validação do tipo de arquivos'],
+        ['label'=>'Uploads via PHP','ok'=>$uploadEnabled,'description'=>'Diretiva file_uploads neste processo'],
+    ];
+}
 function igua_server_info_snapshot(?PDO $db=null, ?string $diskRoot=null): array {
     $software=(string)($_SERVER['SERVER_SOFTWARE']??'');
     $diskRoot=$diskRoot??(defined('IGUA_ROOT')?IGUA_ROOT:__DIR__);
@@ -39,6 +63,22 @@ function igua_server_info_snapshot(?PDO $db=null, ?string $diskRoot=null): array
     }
     $upload=(string)ini_get('upload_max_filesize');$post=(string)ini_get('post_max_size');
     $memory=(string)ini_get('memory_limit');$seconds=(string)ini_get('max_execution_time');
+    $fileUploads=igua_server_info_ini_flag((string)ini_get('file_uploads'));
+    $settings=[
+        'display_errors'=>igua_server_info_ini_flag((string)ini_get('display_errors')),
+        'log_errors'=>igua_server_info_ini_flag((string)ini_get('log_errors')),
+        'expose_php'=>igua_server_info_ini_flag((string)ini_get('expose_php')),
+        'session_secure'=>igua_server_info_ini_flag((string)ini_get('session.cookie_secure')),
+        'session_httponly'=>igua_server_info_ini_flag((string)ini_get('session.cookie_httponly')),
+        'session_samesite'=>igua_server_info_samesite((string)ini_get('session.cookie_samesite')),
+    ];
+    $capabilityStatus=[
+        'pdo_mysql'=>extension_loaded('pdo_mysql'),
+        'zip'=>extension_loaded('zip'),
+        'gd'=>extension_loaded('gd'),
+        'fileinfo'=>extension_loaded('fileinfo'),
+    ];
+    $capabilities=igua_server_info_capabilities($capabilityStatus,$fileUploads===true,PHP_VERSION_ID>=80100);
     $uploadBytes=igua_server_info_ini_bytes($upload);$postBytes=igua_server_info_ini_bytes($post);
     $maxUpload=($uploadBytes!==null && $postBytes!==null)?min($uploadBytes,$postBytes):null;
     return [
@@ -56,6 +96,10 @@ function igua_server_info_snapshot(?PDO $db=null, ?string $diskRoot=null): array
         'max_upload_bytes'=>$maxUpload,
         'execution_limit'=>$seconds===''?'Indisponível':($seconds==='0'?'Sem limite definido no PHP':$seconds.' s'),
         'max_input_vars'=>(string)ini_get('max_input_vars'),
+        'max_file_uploads'=>(string)ini_get('max_file_uploads'),
+        'file_uploads'=>$fileUploads,
+        'capabilities'=>$capabilities,
+        'php_settings'=>$settings,
         'opcache'=>function_exists('opcache_get_status') && is_array(@opcache_get_status(false)),
         'db'=>$dbResult,
         'extensions'=>$extensions,

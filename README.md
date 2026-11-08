@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.126** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.127** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,13 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.127 — Compatibilidade e parâmetros do PHP
+
+- O submenu **Ferramentas → Informações do Servidor** recebeu uma seção de **compatibilidade do portal**, com seis verificações locais: versão mínima do PHP, PDO MySQL, ZIP, GD, Fileinfo e uploads habilitados.
+- Nova seção **Configurações do PHP**, mostrando somente o estado permitido de diretivas de exibição/log de erros, assinatura PHP e opções de cookies de sessão (`Secure`, `HttpOnly`, `SameSite`), sem expor caminhos de configuração, tokens ou informações internas.
+- Também exibe `max_file_uploads` e a situação da diretiva `file_uploads`. Todas as informações são pontuais e somente leitura; status de extensão não é prova de funcionalidade e diretivas não são auditoria completa de segurança.
+- Teste `tests/server_info_227.php`, sem alteração no banco, backups, permissões ou integrações. O painel não executa comandos nem varreduras externas.
 
 ## Versão 1.0.126 — Informações do Servidor em Ferramentas
 
