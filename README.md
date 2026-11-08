@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.128** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.129** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,15 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.129 — Auditoria e correção de segurança da migração
+
+- O ZIP portátil agora inclui obrigatoriamente `public/.htaccess`, `public/.user.ini` e `public/uploads/.htaccess`, preservando regras Apache e parâmetros PHP transportáveis. **Configurações do provedor como Nginx, DNS, TLS e tarefas agendadas continuam externas.**
+- Manifesto portátil v2 com hash SHA-256 e tamanho para **cada arquivo do código**, validado pelo instalador antes de criar tabelas. Pacotes v1 devem ser regenerados: não migre usando ZIP portátil 1.0.128.
+- O instalador bloqueia a instalação limpa ou importação legada se detectar payload portátil pendente; exige autenticação do administrador antigo, verifica todas as mídias do ZIP interno e espaço disponível antes de gravar no MySQL novo completamente vazio.
+- O gerador evita embutir duas vezes as mídias já incluídas no backup interno. Em falhas iniciais, tenta desfazer somente tabelas criadas que permaneçam vazias; MySQL DDL e sistema de arquivos **não formam uma transação conjunta**.
+- Campo opcional para trocar o domínio oficial HTTPS durante a migração. A limpeza final confirma se removeu o backup privado; se falhar, o login avisa para remover `storage/migration/` manualmente.
+- Testes de regressão e segurança: `tests/migration_hardening_229.php` e os testes 228. ZIP real e ciclo integral com MariaDB/ZipArchive continuam exigindo teste na hospedagem antes de desligar o provedor antigo.
 
 ## Versão 1.0.128 — Migração portátil de hospedagem
 

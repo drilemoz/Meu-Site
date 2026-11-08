@@ -48,6 +48,8 @@ $db->counts=['users'=>1,'settings'=>11];$a=igua_setup_database_inventory($db);
 verify151($a['status']==='recoverable' && !igua_database_empty($db)[0],'instalação com dados não é tratada como vazia');
 verify151(igua_setup_recovery_allowed($db),'instalação completa revisão 37 recuperável');
 verify151(igua_setup_verify_recovery_admin($db,'admin@example.test','minha-senha-segura'),'senha administrativa correta validada');
+$db->counts['users']=4;verify151(igua_setup_database_inventory($db)['status']==='recoverable' && igua_setup_recovery_allowed($db),'recuperação permite portal migrado com vários usuários e exige admin');
+$db->counts['users']=1;
 verify151(!igua_setup_verify_recovery_admin($db,'admin@example.test','errada'),'senha administrativa incorreta rejeitada');
 $db->revision=35;verify151(!igua_setup_recovery_allowed($db),'revisão antiga requer migração, sem recuperação cega');
 $db->revision=37;$db->tables=['users','settings'];verify151(igua_setup_database_inventory($db)['status']==='occupied','esquema incompleto com dados bloqueado');

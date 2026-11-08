@@ -53,3 +53,15 @@ Arquivos de backup representados por links simbólicos e pastas de backup redire
 O ZIP é **confidencial** e deve ser guardado fora do alcance público. Ele não inclui `storage/config.php`, JSON de contas de serviço, segredos privados ou logs da instalação antiga, mas contém usuários e configurações guardados no banco. Credenciais privadas de integrações externas, PHP/Apache/Nginx, cron, domínio, DNS, certificado HTTPS e e-mail requerem reconfiguração manual.
 
 Limites: backup de mídia até 350 MiB, arquivos extras até 300 MiB, pacote final até 700 MiB. Requer PHP `ZipArchive`, `pdo_mysql`, espaço livre e permissões. Um arquivo PHP de código não é assinado apenas porque consta de manifesto SHA-256: transfira o ZIP por canal confiável. Faça teste isolado em nova hospedagem/banco vazio antes de alterar o DNS. Em interrupção de instalação, não repita sobre banco parcialmente preenchido; crie outro banco vazio e tente novamente.
+
+## Correções do pacote portátil — 1.0.129
+
+A versão 1.0.129 requer **novo ZIP portátil** produzido pela própria versão 1.0.129. O manifesto foi elevado para `version=2` e contém os hashes e tamanhos dos arquivos de código. Pacotes portáteis gerados pela 1.0.128 não passam nessa verificação mais estrita. Os ZIPs de atualização e fonte do Google Drive continuam **sem dados reais** da hospedagem.
+
+O pacote agora inclui `public/.htaccess`, `public/.user.ini` e `public/uploads/.htaccess`; conteúdos privados permanecem excluídos. Fotos e anexos já embutidos no backup interno não são duplicados como extras. A preparação confere SHA-256 de código, backup e mídias antes de tocar no MySQL. O banco de destino precisa estar **totalmente vazio** e a presença do backup embutido bloqueia atalhos de instalação limpa/importação legada. O proprietário deve autenticar uma conta administrativa anterior.
+
+O instalador aceita um domínio HTTPS opcional para atualizar `seo_site_url`; deixe vazio para manter o endereço original. URLs de OAuth, DNS, certificados, cron e integrações que dependem do provedor precisam de revisão manual.
+
+**Falhas e recuperação:** MySQL DDL não é transacional. Uma falha anterior à restauração poderá desfazer o esquema criado **somente se todas as tabelas estiverem vazias e pertencerem à lista conhecida**. Se dados já foram persistidos ou a configuração privada falhou, preserve o banco e faça recuperação controlada. O assistente aceita restaurar a configuração de uma instalação completa com múltiplos usuários, exigindo senha de um administrador ativo. Não repita a importação sobre um banco ocupado. A limpeza de `storage/migration` informa quando arquivos não puderem ser excluídos; remova-os pelo painel da hospedagem antes de expor o site.
+
+Testes PHP de regressão e segurança não substituem uma migração integral com MySQL/MariaDB e ZipArchive reais. Preserve a Boa Hospedagem até validar notícias, imagens, anexos, login, DNS/SSL e integridade do destino.

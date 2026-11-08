@@ -10,7 +10,8 @@ function check228(bool $yes,string $message):void{global $tests;$tests++;if(!$ye
 function reject228(callable $fn,string $message):void{global $tests;$tests++;try{$fn();}catch(Throwable $e){return;}throw new RuntimeException('Aceitou: '.$message);}
 function purge228(string $dir):void{foreach(new FilesystemIterator($dir) as $f){$p=$f->getPathname();if($f->isDir()&&!$f->isLink())purge228($p);else unlink($p);}rmdir($dir);}
 try{
- file_put_contents($root.'/VERSION','1.0.128');
+ file_put_contents($root.'/VERSION','1.0.129');
+ foreach(['public/.htaccess','public/.user.ini','public/uploads/.htaccess'] as $file)file_put_contents($root.'/'.$file,'# teste');
  foreach(['public/setup.php','app/bootstrap.php','app/backup.php','app/migration_package.php','app/schema.php'] as $file)file_put_contents($root.'/'.$file,'<?php // teste');
  file_put_contents($root.'/app/config.php','<?php return ["secret"=>"hide"];');
  file_put_contents($root.'/app/news.php','<?php echo "test";');
@@ -27,16 +28,20 @@ try{
  foreach(['storage/config.php','public/uploads/../config.php','public/uploads/arquivos/novo.php','public/uploads/a/.env','/etc/passwd','public/uploads/\x.txt'] as $path){check228(!igua_migration_extra_allowed($path),'caminho de mídia inseguro rejeitado: '.$path);}
  $bundle=$root.'/storage/migration/backup.zip';file_put_contents($bundle,'simulado-banco');
  $media=$root.'/storage/migration/extras/public/uploads/arquivos/foto.png';file_put_contents($media,'IMG');
- $manifest=['format'=>IGUA_MIGRATION_FORMAT,'version'=>1,'site_version'=>'1.0.128','backup'=>'storage/migration/backup.zip','backup_sha256'=>hash_file('sha256',$bundle),'extra'=>['public/uploads/arquivos/foto.png'=>hash_file('sha256',$media)]];
+ $manifest=['format'=>IGUA_MIGRATION_FORMAT,'version'=>IGUA_MIGRATION_SCHEMA,'site_version'=>'1.0.129','backup'=>'storage/migration/backup.zip','backup_sha256'=>hash_file('sha256',$bundle),'code'=>array_map(static fn($p)=>['sha256'=>hash_file('sha256',$p),'bytes'=>filesize($p)],igua_migration_code_files($root)),'extra'=>['public/uploads/arquivos/foto.png'=>hash_file('sha256',$media)]];
  file_put_contents($root.'/storage/migration/manifest.json',json_encode($manifest));
  $p=igua_migration_payload($root);
  check228(is_array($p)&&$p['bundle']===$bundle,'backup portátil detectado');
+ check228(isset($manifest['code']['public/.htaccess'],$manifest['code']['public/.user.ini']),'configurações web no manifesto');
+ file_put_contents($root.'/app/news.php','<?php // mudou');
+ reject228(fn()=>igua_migration_payload($root),'código PHP adulterado detectado');
+ file_put_contents($root.'/app/news.php','<?php echo "test";');
  file_put_contents($media,'MODIFICADO');
  reject228(fn()=>igua_migration_payload($root),'alteração de mídia é detectada');
  file_put_contents($media,'IMG');
  $manifest['site_version']='1.0.999';file_put_contents($root.'/storage/migration/manifest.json',json_encode($manifest));
  reject228(fn()=>igua_migration_payload($root),'versão diferente rejeitada');
- $manifest['site_version']='1.0.128';file_put_contents($root.'/storage/migration/manifest.json',json_encode($manifest));
+ $manifest['site_version']='1.0.129';file_put_contents($root.'/storage/migration/manifest.json',json_encode($manifest));
  $p=igua_migration_payload($root);
  igua_migration_cleanup($p);
  check228(!file_exists($bundle)&&!file_exists($media)&&is_file($root.'/public/uploads/arquivos/foto.png'),'limpa somente payload e mantém mídia original');

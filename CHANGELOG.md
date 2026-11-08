@@ -1,3 +1,13 @@
+## [1.0.129] - 2026-11-08
+
+### Backup e migração: correções de auditoria
+- Pacote portátil inclui `.htaccess` e `.user.ini` essenciais e manifesto v2 com SHA-256/tamanho para todos os arquivos do código, verificados antes da restauração.
+- Impedido desvio pela instalação limpa/importação legada quando backup portátil está no destino; apenas banco inteiramente vazio, senha administrativa antiga e validação completa do ZIP/mídias são aceitos.
+- Duplicação de mídias já incluídas no backup interno removida; pré-verificação da pasta, espaço livre e checksums reduz falhas após criação do schema.
+- Em falha e estrutura ainda vazia, compensação controlada pode desfazer tabelas criadas pelo instalador; dados existentes nunca são descartados automaticamente.
+- Domínio HTTPS opcional na migração; limpeza dos arquivos privados confirma exclusões e sinaliza pendências no login.
+- Tests: `tests/migration_hardening_229.php` e atualização dos ensaios de migração 228. Limitação: MySQL/ZipArchive reais ainda não testados neste ambiente.
+
 ## [1.0.128] - 2026-11-08
 
 ### Migração de hospedagem

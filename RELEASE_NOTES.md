@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.129
+
+**Migração portátil revisada:** o ZIP leva as configurações `.htaccess`/`.user.ini` necessárias, evita duplicar mídias referenciadas, inclui manifesto v2 com checksums por arquivo PHP/CSS/JS e valida banco e mídias antes de criar tabelas no destino. O instalador não permite contornar a autenticação administrativa escolhendo instalação limpa quando encontra um pacote portátil.
+
+**Recuperação e transparência:** banco novo precisa estar totalmente vazio. Falha durante a preparação pode reverter apenas o esquema ainda vazio; não há rollback atômico entre MySQL e arquivos. Um novo campo HTTPS opcional permite atualizar o domínio oficial. A recuperação da configuração passa a aceitar banco restaurado com mais de um usuário, exigindo a conta de administrador antigo. Falha de limpeza do backup privado é destacada no login.
+
+**Atenção:** pacotes portáteis da versão 1.0.128 não atendem às novas verificações; gere novo backup na 1.0.129. Extensões PHP ZipArchive e PDO MySQL são indispensáveis, e o teste real entre duas hospedagens ainda é obrigatório antes da migração definitiva.
+
 ## IguatamaOnline 1.0.128
 
 **Backup de migração portátil** em Backups e Restauração. Um único ZIP leva os arquivos do portal, instalador PHP, dados MySQL e mídias permitidas para outra hospedagem. O instalador de destino pergunta se a instalação é limpa ou migração, encontra automaticamente o backup do pacote e restaura dados e mídias após testar o MySQL vazio e confirmar a conta administrativa antiga.

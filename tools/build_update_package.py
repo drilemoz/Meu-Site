@@ -48,6 +48,7 @@ def allowed(p:Path)->bool:
     parts=rel.split('/')
     if p.is_symlink() or not p.is_file() or any(s in {'.','..',''} for s in parts):return False
     if rel=='VERSION':return True
+    if rel=='public/.user.ini':return True # somente este arquivo de configuração pública do PHP
     if rel=='public/ads.txt':return False # configuração gerada na hospedagem; preservar
     if parts[0] not in ('app','public') or len(parts)<2:return False
     if parts[:2]==['app','src'] or parts[:2]==['public','uploads']:return False

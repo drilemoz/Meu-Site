@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.128)
+# Diretrizes de manutenção — Meu Site (v1.0.129)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -303,3 +303,11 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Só restaurar com banco novo vazio e autenticação por senha do administrador existente no backup; não sobrescrever instalação existente. Validar SHA-256, caminhos e limites do pacote antes de criar tabelas no novo servidor. Credenciais MySQL novas nunca entram no ZIP.
 - Restaurar mídias e banco com as rotinas existentes; remover arquivos temporários de migração após sucesso, mas sem comprometer recuperação em falha. Document root deve apontar para `public/`.
 - A garantia só é válida após teste integrado real com MariaDB e ZipArchive. Executar `tests/migration_portable_228.php`, `tests/migration_auth_228.php`, `tests/migration_archive_228.php`, suite PHP/JS completa, audit, CSS/editor checks e lint antes de distribuir.
+
+## Endurecimento da migração portátil — 1.0.129
+
+- O gerador deve incluir `public/.htaccess`, `public/.user.ini` e `public/uploads/.htaccess`; não incluir configs privadas. O manifesto `IGUA_MIGRATION_SCHEMA=2` lista SHA-256 e tamanho de cada arquivo do código, validado ANTES de criar tabelas. Pacotes anteriores precisam ser regenerados.
+- Com payload presente, nunca permitir atalhos de instalação limpa ou JSON/GZIP legado sem autorização do administrador antigo. Exigir banco novo completamente vazio. A pré-verificação deve ler e validar todas as mídias do ZIP interno antes de `install_schema` e checar condições básicas de espaço disponível.
+- Evitar mídias duplicadas já cobertas no ZIP interno. Não prometer rollback completo de MySQL DDL: apenas estrutura conhecida que permaneceu vazia pode ser revertida. Nunca apagar tabelas populadas, estrangeiras ou código/arquivos existentes.
+- Permitir domínio HTTPS opcional para `seo_site_url`, validado sem credenciais/fragmentos. Confirmar limpeza dos dados portáteis temporários e avisar explicitamente quando parcial, mesmo depois de ativar a configuração do banco.
+- Executar `tests/migration_hardening_229.php`, testes 228, suíte PHP/JS inteira, lint, auditoria, validação de ZIP. Homologação em MariaDB e ZipArchive reais continua necessária; não afirmar que foi executada sem evidência.

@@ -30,5 +30,7 @@ try{
  if(igua_migration_authorized($p,'admin@teste.invalid','senha-errada'))throw new RuntimeException('Aceitou senha incorreta');
  if(igua_migration_authorized($p,'outro@teste.invalid','SenhaBemForte123!'))throw new RuntimeException('Aceitou e-mail incorreto');
  if(igua_migration_authorized($p,'admin@teste.invalid',''))throw new RuntimeException('Aceitou senha vazia');
+ $preflight=igua_migration_preflight($p);
+ if(($preflight['rows']??0)!==1 || ($preflight['media_files']??-1)!==0)throw new RuntimeException('Falha na pré-verificação do backup fictício');
  echo "OK migration_auth_228: conta antiga obrigatória antes de restaurar banco.\n";
 }finally{if(is_file($archive))unlink($archive);}

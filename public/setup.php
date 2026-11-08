@@ -24,7 +24,8 @@ if(!request_post() && $step===2 && in_array($_GET['mode']??'', ['fresh','migrate
     unset($_SESSION['iguanews_setup_db']);
 }
 $setupMode=in_array($_SESSION['igua_setup_install_mode']??'', ['fresh','migrate'],true)?$_SESSION['igua_setup_install_mode']:'fresh';
-$hasEmbeddedMigration=is_file(IGUA_STORAGE.'/migration/manifest.json') && is_file(IGUA_STORAGE.'/migration/backup.zip') && !is_link(IGUA_STORAGE.'/migration');
+$migrationFolder=IGUA_STORAGE.'/migration';
+$hasEmbeddedMigration=is_link($migrationFolder)||is_dir($migrationFolder)&& (is_file($migrationFolder.'/manifest.json')||is_file($migrationFolder.'/backup.zip')||is_dir($migrationFolder.'/extras'));
 $setupData=$_SESSION['iguanews_setup_db']??null;
 if (!is_array($setupData) || (time()-(int)($setupData['verified_at']??0))>1200) {
     unset($_SESSION['iguanews_setup_db']);
@@ -100,6 +101,8 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                 } elseif (!in_array($inventory['status'],['empty','partial_empty'],true)) {
                     throw new DomainException($inventory['detail']);
                 }
+                if($setupMode==='migrate' && $hasEmbeddedMigration && $inventory['status']!=='empty')
+                    throw new DomainException('Migração exige um banco completamente vazio. Crie outro banco no novo provedor.');
                 if (!igua_setup_config_write_probe()) {
                     throw new DomainException('O PHP conecta ao banco, mas não consegue criar e renomear arquivos privados em storage/. Ajuste as permissões da hospedagem antes de instalar.');
                 }
@@ -133,9 +136,13 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
             $resetting=$action==='reset_existing';
             $recovery=$action==='recover_config' || $resetting;
             $pendingConfig=null;
+            $migrationSchemaOwned=false;
+            $migrationCleanupPending=false;
             $phase='validation';
             $lock=null;
             try {
+                if($hasEmbeddedMigration && !$recovery && $action!=='install_migration')
+                    throw new DomainException('Este pacote contém um backup portátil. Use Migrar meu portal e confirme o administrador antigo. Para instalação limpa, retire o pacote privado do servidor e comece com um diretório vazio.');
                 if (($mode==='recover')!==$recovery) throw new DomainException('O modo de instalação mudou. Verifique novamente o banco na etapa 2.');
                 if ($runtime['kind']==='hosting' && !$runtime['https']) throw new DomainException('Ative HTTPS antes de enviar senhas administrativas.');
                 if (!igua_setup_config_write_probe()) throw new DomainException('Não foi possível criar e renomear arquivos privados em storage/. Verifique permissões e open_basedir.');
@@ -157,6 +164,9 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                         throw new DomainException('Não foi possível autenticar o administrador da instalação anterior.');
                     }
                     unset($_SESSION['igua_migration_auth_failures']);
+                    $migrationCheck=igua_migration_preflight($payload); // ZIP, mídias e dados íntegros antes de criar tabelas.
+                    igua_migration_capacity_check($payload,$migrationCheck);
+                    $migrationSiteUrl=igua_migration_site_url((string)($_POST['migration_site_url']??''));
                 } elseif ($action==='install_restore') {
                     $uploadToken=$_POST['upload_token']??'';
                     if (!is_string($uploadToken)) throw new DomainException('Identificador do backup inválido.');
@@ -204,15 +214,22 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                     $phase='config';
                     igua_store_config($setupData);
                 } else {
+                    if($action==='install_migration' && $inventory['status']!=='empty')throw new DomainException('Migração exige um banco novo completamente vazio.');
                     if (!in_array($inventory['status'],['empty','partial_empty'],true)) throw new DomainException($inventory['detail']);
                     // O arquivo com credenciais é preparado ANTES de criar tabelas, mas não ativado ainda.
                     $phase='config_stage';
                     $pendingConfig=igua_stage_config($setupData);
                     $phase='schema';
-                    install_schema($db);
+                    $migrationSchemaOwned=($action==='install_migration');
+                    install_schema($db,!$migrationSchemaOwned); // Não registra revisão antes da restauração portátil.
                     if ($action==='install_restore' || $action==='install_migration') {
                         $phase='restore';
-                        if($action==='install_migration')igua_migration_restore($db,$payload);
+                        if($action==='install_migration'){
+                            igua_migration_restore($db,$payload);
+                            igua_migration_update_site_url($db,$migrationSiteUrl);
+                            // Para banco antigo v12, confirma o schema atual ao concluir os dados.
+                            igua_record_schema_revision($db);
+                        }
                         else restore_backup($db,$import);
                     } else {
                         $phase='admin';
@@ -231,16 +248,25 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                     $phase='config';
                     igua_activate_config($pendingConfig);
                     $pendingConfig=null;
-                    if($action==='install_migration')igua_migration_cleanup($payload);
+                    if($action==='install_migration'){
+                        try{$migrationCleanupPending=!igua_migration_cleanup($payload);}
+                        catch(Throwable){$migrationCleanupPending=true;}
+                        if($migrationCleanupPending)error_log('[Meu Site setup] cleanup_pending=1');
+                    }
+                    $migrationSchemaOwned=false;
                 }
                 $phase='complete';
                 igua_setup_clear_chunk();
                 unset($_SESSION['iguanews_setup_db'],$_SESSION['igua_recovery_errors']);
                 session_regenerate_id(true);
                 if (is_resource($lock)) { flock($lock,LOCK_UN); fclose($lock); $lock=null; }
-                redirect('/admin.php?action=login&'.($recovery?'recovered=1':(in_array($action,['install_restore','install_migration'],true)?'restored=1':'installed=1')));
+                redirect('/admin.php?action=login&'.($recovery?'recovered=1':(in_array($action,['install_restore','install_migration'],true)?'restored=1':'installed=1')).($migrationCleanupPending?'&cleanup_pending=1':''));
             } catch (Throwable $e) {
                 if (isset($db) && $db instanceof PDO && $db->inTransaction()) $db->rollBack();
+                if($migrationSchemaOwned && in_array($phase,['schema','restore'],true) && isset($db) && $db instanceof PDO){
+                    try{if(igua_migration_rollback_empty_schema($db))$notices[]=['O esquema criado nesta tentativa foi revertido porque permaneceu vazio.'];}
+                    catch(Throwable){error_log('[Meu Site setup] rollback_schema_failed=1');}
+                }
                 // Nunca registrar senha, SQL ou texto completo de exceções (podem conter segredos).
                 error_log('[Meu Site setup] etapa='.$phase.'; tipo='.get_class($e).'; codigo='.(is_int($e->getCode())?$e->getCode():0));
                 if ($e instanceof DomainException) $errors[]=$e->getMessage();
@@ -350,6 +376,7 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
       <p class="muted">Para impedir que terceiros importem seu backup antes da instalação, confirme o e-mail e a senha de um administrador do portal antigo.</p>
       <div class="form-grid"><label>E-mail do administrador antigo<input name="migration_email" type="email" required autocomplete="username"></label>
       <label>Senha do administrador antigo<input name="migration_password" type="password" required autocomplete="current-password"></label></div>
+      <label>Endereço do novo domínio (opcional, se mudou)<input name="migration_site_url" type="url" maxlength="240" placeholder="https://novodominio.com.br" autocomplete="url"><small>Se mantiver o domínio atual, deixe em branco. Após migrar, revise DNS, SEO e integrações.</small></label>
       <label class="checkbox-line"><input type="checkbox" name="confirm_migration" value="1" required> Confirmo que o banco novo está vazio e quero restaurar o portal antigo.</label>
       <div class="wizard-actions"><button class="btn primary" type="submit">Validar e migrar portal →</button></div>
      </form>

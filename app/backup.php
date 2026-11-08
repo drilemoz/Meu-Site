@@ -356,7 +356,7 @@ function media_bundle_verify_manifest(ZipArchive $zip,array $manifest,string $db
 }
 
 /** Restaura pacote completo, verificando tudo antes de substituir o banco. */
-function restore_media_bundle(PDO $db,string $path): void {
+function restore_media_bundle(PDO $db,string $path,bool $skipPreventiveBackup=false): void {
     if(!class_exists('ZipArchive'))throw new RuntimeException('Ative a extensão PHP zip para importar este pacote.');
     if(!is_file($path)||!media_bundle_size_allowed((int)filesize($path)))throw new RuntimeException('Arquivo ZIP inválido ou acima de 350 MiB.');
     $zip=new ZipArchive();if($zip->open($path)!==true)throw new RuntimeException('Não foi possível abrir ZIP.');
@@ -407,7 +407,7 @@ function restore_media_bundle(PDO $db,string $path): void {
             if($temp!==null)$staged[$target]=$temp;
         }
         // Antes de tocar no banco, confirme que todas as mídias cabem no disco.
-        make_backup($db); // cópia preventiva, com dados atuais intactos.
+        if(!$skipPreventiveBackup)make_backup($db); // Migração usa banco novo vazio; não grava log preventivo desnecessário.
         try{
             foreach($staged as $target=>$temp){
                 if(file_exists($target)||is_link($target))throw new RuntimeException('Destino mudou durante restauração: '.basename($target));

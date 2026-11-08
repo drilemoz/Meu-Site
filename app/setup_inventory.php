@@ -31,7 +31,7 @@ function igua_setup_database_inventory(PDO $db): array {
     }
     if (!$populated) return ['status'=>'partial_empty','tables'=>count($tables),'unexpected'=>0,'populated'=>0,
         'detail'=>'Estrutura parcial conhecida, sem registros. A criação idempotente de tabelas pode prosseguir.'];
-    if (count(array_diff($known,$tables))===0 && ($counts['users']??0)===1 && ($counts['settings']??0)>0) {
+    if (count(array_diff($known,$tables))===0 && ($counts['users']??0)>=1 && ($counts['settings']??0)>0) {
         return ['status'=>'recoverable','tables'=>count($tables),'unexpected'=>0,'populated'=>$populated,
             'detail'=>'O banco possui tabelas e administrador de uma instalação anterior. É possível verificar a recuperação com a senha desse administrador, sem duplicar tabelas.'];
     }

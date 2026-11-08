@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-function install_schema(PDO $db): void {
+function install_schema(PDO $db,bool $recordRevision=true): void {
     $db->exec("CREATE TABLE IF NOT EXISTS users (
       id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(100) NOT NULL, email VARCHAR(190) NOT NULL UNIQUE,
@@ -58,7 +58,7 @@ function install_schema(PDO $db): void {
     require_once __DIR__.'/apps_legal.php';
     igua_migrate_apps_schema($db);
     require_once __DIR__.'/schema_migrations.php';
-    igua_record_schema_revision($db);
+    if($recordRevision)igua_record_schema_revision($db);
 }
 
 /** A migração só acrescenta campos; nunca destrói imagens nem notícias. */
