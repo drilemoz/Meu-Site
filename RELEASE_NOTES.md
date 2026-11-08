@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.124
+
+**Gerenciador de Arquivos com visual mais limpo no celular:** reorganizado o topo com um cartão de contexto, separando melhor a navegação em leitura da pasta pública com edição. A área da raiz ficou menos carregada, com o atalho de uploads separado do botão de baixar ZIP.
+
+**Ações em lote mais organizadas:** na pasta `public/uploads/arquivos`, copiar, recortar, compactar e o campo do nome do ZIP passam a usar uma grade mais estável e compacta. O contador de itens selecionados virou selo visual, e o menu de criação foi renomeado para **Novo arquivo ou pasta**.
+
+**Segurança e dados:** nenhuma regra de acesso foi afrouxada. Código do portal continua somente leitura fora da área gerenciada; schema 37, backups, GA4, AdSense e demais integrações permanecem inalterados. Teste novo: `tests/file_manager_224.php`.
+
 ## IguatamaOnline 1.0.123
 
 **Comandos úteis no Gerenciador de Arquivos:** seleção múltipla, copiar, recortar, colar, compactar, descompactar, upload ZIP, excluir arquivos e pastas (com confirmação), renomear e permissões limitadas para arquivos gerenciados. Fora dessa pasta, visualização e download de seleção em ZIP para arquivos permitidos do projeto. Ferramentas permanece o submenu de acesso.

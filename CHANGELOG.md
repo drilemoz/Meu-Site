@@ -1,3 +1,12 @@
+## [1.0.124] - 2026-11-08
+
+### Ferramentas > Gerenciador de Arquivos
+- Refinado o visual mobile-first do gerenciador: cartão de status no topo, distinção clara entre exploração em leitura e pasta com edição liberada, e organização mais estável no celular.
+- A barra de seleção da raiz foi simplificada para priorizar o download em ZIP; o atalho para uploads agora aparece como ação auxiliar separada, evitando o bloco azul dominante visto na versão anterior.
+- Na pasta `public/uploads/arquivos`, as ações em lote passaram para uma grade mais compacta, com melhor alinhamento de botões, selo de itens selecionados e campo do nome do ZIP ocupando a largura adequada.
+- O menu recolhido foi renomeado para **Novo arquivo ou pasta** e os estilos dos cartões/listas foram ajustados para leitura e toque mais confortáveis, sem alterar regras de segurança, schema 37 ou permissões.
+- Novo teste `tests/file_manager_224.php` para contrato visual/estrutural, além da regressão `tests/file_manager_223.php`, suíte geral PHP/JS e rebuild do CSS.
+
 ## [1.0.123] - 2026-11-08
 
 ### Ferramentas > Gerenciador de Arquivos

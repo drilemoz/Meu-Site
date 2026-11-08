@@ -14,7 +14,7 @@ function cleanup223(string $root):void{foreach(new FilesystemIterator($root) as 
 function h($value):string{return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');}
 function admin_link(string $action):string{return '/admin.php?action='.$action;}
 function csrf_field():string{return '<input type="hidden" name="csrf" value="test">';}
-function igua_updater_version():string{return '1.0.123';}
+function igua_updater_version():string{return '1.0.124';}
 try {
  $_SESSION=[];$_GET=['folder'=>''];
  ob_start();require __DIR__.'/../app/admin_views/routes/files.php';$rootHtml=ob_get_clean();

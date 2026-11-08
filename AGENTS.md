@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.123)
+# Diretrizes de manutenção — Meu Site (v1.0.124)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -259,6 +259,14 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - NUNCA permitir leitura de `storage/` (configuração/credenciais), arquivos `.env`, `config.php`, chaves e tokens, nem atravessar links simbólicos ou sair da raiz. Entrada administrativa exige `manage_settings`, com páginas e download sem cache.
 - O acesso a código PHP/JS/CSS é exclusivamente **de leitura**; nenhuma API de edição, exclusão, renomeação ou upload deve atuar fora de `public/uploads/arquivos/` e da edição especial `ads.txt`/`robots.txt`. Manter CSRF nos POSTs e validação MIME no upload.
 - Execução mínima de testes `php tests/file_manager_221.php`, `php tests/file_manager_222.php`, CSS build e suíte completa. Sem migração SQL ou modificação do backup.
+
+## Refino visual do explorador — 1.0.124
+
+- A experiência do Gerenciador de Arquivos no celular deve priorizar legibilidade, baixo ruído visual e alvos de toque claros. Na raiz, apresentar um cartão de contexto para explicar rapidamente o modo atual (somente leitura x edição permitida).
+- O atalho para a pasta de uploads não deve competir visualmente com o comando principal da raiz. Preferir hierarquia clara: ação principal (baixar ZIP) separada das ações auxiliares.
+- Na área gerenciada `public/uploads/arquivos`, organizar os comandos em lote em grade compacta, com contador de seleção em selo visual. O menu recolhido de criação continua presente, mas com rótulo claro (`Novo arquivo ou pasta`).
+- Não alterar a política de segurança: escrita continua restrita à área gerenciada e aos arquivos especiais anteriores, sem liberar edição irrestrita de PHP, `storage`, segredos ou links simbólicos.
+- Executar `php tests/file_manager_223.php`, `php tests/file_manager_224.php`, rebuild do CSS e a regressão geral antes de empacotar.
 
 ## Comandos do explorador — 1.0.123
 

@@ -1,4 +1,4 @@
-# Gerenciador de Arquivos — 1.0.123
+# Gerenciador de Arquivos — 1.0.124
 
 ## Acesso e visualização
 
@@ -25,6 +25,12 @@ Apenas a pasta `public/uploads/arquivos/` e suas subpastas permitem ações de c
 - `php tests/file_manager_221.php` confirma operações antigas e bloqueios da pasta gerenciada.
 - `php tests/file_manager_222.php` testa a raiz, diretórios visíveis, proibição de `storage`, symlinks, traversal, navegação e controles de visualização.
 
+## Ajustes visuais na versão 1.0.124
+
+A interface foi refinada para celular. Agora há um cartão de contexto no topo para indicar se a pasta atual é apenas de leitura ou se permite edição. Na raiz do projeto, o atalho para uploads fica visualmente separado da ação de baixar ZIP, evitando competir com o comando principal.
+
+Na pasta gerenciada, a barra de ações foi reorganizada em uma grade mobile-first: copiar, recortar e compactar aparecem em botões alinhados, o contador de itens selecionados virou um selo visual e o campo **Nome do ZIP** ocupa a linha correta. O menu recolhido passou a se chamar **Novo arquivo ou pasta**.
+
 ## Comandos acrescentados na versão 1.0.123
 
 Na **raiz do projeto** e diretórios de leitura, marque até 20 itens e pressione **Baixar seleção em ZIP**. O ZIP é gerado para download autenticado em pasta temporária privada, não na raiz pública. Entradas bloqueadas/ocultas e symlinks não entram na exportação. Limites: 1.000 entradas e 64 MiB de conteúdo; `ZipArchive` necessário.
@@ -38,4 +44,5 @@ Permissões permitidas: arquivo `0644` ou `0600`; diretório `0755` ou `0700`. P
 ### Testes
 
 - `php tests/file_manager_223.php` verifica movimentação, colisões, recusa de symlink/travessia, exclusão em lote, permissões e contrato de interface.
+- `php tests/file_manager_224.php` verifica a presença dos blocos visuais novos e o contrato estrutural do layout do explorador.
 - A extensão ZIP não estava disponível no ambiente local de desenvolvimento: compactar, extrair e exportar ZIP necessitam de teste real na hospedagem ou em CI com `ZipArchive`.

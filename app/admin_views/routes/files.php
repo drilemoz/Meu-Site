@@ -84,25 +84,37 @@ if($selected!==''){
     <label for="files-filter" class="files-filter-label">Pesquisar nesta pasta</label>
     <input id="files-filter" type="search" placeholder="Buscar arquivos ou pastas..." autocomplete="off">
    </div>
+   <div class="files-status-card <?= $managed?'is-managed':'is-readonly' ?>">
+    <div class="files-status-copy">
+     <strong><?= $managed?'Pasta com edição liberada':'Explorador do projeto' ?></strong>
+     <small><?= $managed?'Aqui você pode enviar, mover, compactar, excluir e ajustar permissões dos arquivos públicos desta pasta.':'Nesta área você navega pelo projeto, vê o código em leitura e baixa seleções em ZIP. Alterações continuam restritas à pasta de uploads.' ?></small>
+    </div>
+    <?php if(!$managed): ?><a class="btn outline small files-jump-link" href="<?=h($base.'&folder='.rawurlencode('public/uploads/arquivos'))?>">↑ Ir para uploads</a><?php endif; ?>
+   </div>
    <?php if(!$managed): ?>
     <form id="files-bulk" method="post" action="<?=h(admin_link('files_save'))?>" class="files-readonly-tools files-operations">
      <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>">
      <div class="files-selection-head"><label class="files-check-all"><input id="files-select-all" type="checkbox"> Selecionar até 20</label><span id="files-selected-count">0 selecionados</span></div>
-     <button class="btn outline small" type="submit" name="operation" value="export_zip" data-files-needs-selection <?=$zipReady?'':'disabled title="ZipArchive indisponível na hospedagem"'?>>↓ Baixar seleção em ZIP</button>
-     <a class="btn primary small" href="<?=h($base.'&folder='.rawurlencode('public/uploads/arquivos'))?>">↑ Área de uploads e edição</a>
-     <small>Áreas protegidas e arquivos privados serão omitidos da exportação.</small>
+     <div class="files-bulk-buttons files-bulk-buttons-compact">
+      <button class="btn outline small" type="submit" name="operation" value="export_zip" data-files-needs-selection <?=$zipReady?'':'disabled title="ZipArchive indisponível na hospedagem"'?>>↓ Baixar seleção em ZIP</button>
+     </div>
+     <p class="files-operations-note">Áreas protegidas e arquivos privados serão omitidos da exportação. Para enviar ou editar arquivos públicos, use a pasta de uploads.</p>
     </form>
    <?php endif; ?>
    <?php if($managed): ?>
     <div class="files-operations" aria-label="Ações de arquivos">
+     <div class="files-operations-head">
+      <strong>Comandos desta pasta</strong>
+      <small>Selecione até 20 itens por operação. ZIP, copiar, mover e permissões atuam apenas nesta área pública gerenciada.</small>
+     </div>
      <form id="files-bulk" method="post" action="<?=h(admin_link('files_save'))?>" class="files-bulk-form">
       <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>">
       <div class="files-selection-head"><label class="files-check-all"><input id="files-select-all" type="checkbox"> Selecionar até 20</label><span id="files-selected-count" aria-live="polite">0 selecionados</span></div>
-      <div class="files-bulk-buttons">
+      <div class="files-bulk-buttons files-bulk-buttons-grid">
        <button class="btn outline small" type="submit" name="operation" value="copy" data-files-needs-selection>⧉ Copiar</button>
        <button class="btn outline small" type="submit" name="operation" value="cut" data-files-needs-selection>✂ Recortar</button>
+       <button class="btn outline small" type="submit" name="operation" value="zip" data-files-needs-selection <?=$zipReady?'':'disabled title="ZipArchive indisponível na hospedagem"'?>>▣ Compactar ZIP</button>
        <label class="files-inline-field">Nome do ZIP <input type="text" name="name" maxlength="100" value="arquivos.zip" aria-label="Nome do arquivo ZIP"></label>
-       <button class="btn outline small" type="submit" name="operation" value="zip" data-files-needs-selection <?=$zipReady?'':'disabled title="ZipArchive indisponível na hospedagem"'?>>▣ Compactar</button>
       </div>
      </form>
      <details class="files-danger-bulk"><summary>Excluir selecionados</summary>
@@ -119,7 +131,7 @@ if($selected!==''){
      </div>
     <?php endif; ?>
     <details class="files-create-menu">
-     <summary>＋ Enviar arquivo ou criar pasta</summary>
+     <summary>＋ Novo arquivo ou pasta</summary>
      <div class="files-toolbar">
       <form method="post" action="<?=h(admin_link('files_save'))?>" enctype="multipart/form-data">
        <?=csrf_field()?><input type="hidden" name="operation" value="upload"><input type="hidden" name="folder" value="<?=h($folder)?>">
