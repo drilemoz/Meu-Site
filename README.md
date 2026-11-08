@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.124** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.125** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,13 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.125 — Seleção sob demanda no Gerenciador de Arquivos
+
+- A navegação pela raiz ficou mais compacta no celular: as caixas de seleção e os comandos em lote aparecem somente ao tocar em **Selecionar**. O mesmo botão permite cancelar e limpar os itens marcados.
+- A busca mostra quantos itens correspondem ao filtro e uma mensagem quando não há resultados. Ao filtrar, itens ocultos são desmarcados. A lista reduz metadados secundários no celular, mantendo as informações completas no computador e nos detalhes.
+- Corrigido o JavaScript que poderia habilitar o botão ZIP mesmo quando `ZipArchive` está indisponível no servidor. Sem JavaScript, a seleção tradicional permanece funcional.
+- Testes `tests/file_manager_225.php` e `.js`, sem alterações de backend, banco, permissões, uploads ou políticas de segurança.
 
 ## Versão 1.0.124 — Refino visual do Gerenciador de Arquivos
 

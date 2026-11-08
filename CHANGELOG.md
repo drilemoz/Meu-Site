@@ -1,3 +1,12 @@
+## [1.0.125] - 2026-11-08
+
+### Gerenciador de Arquivos: experiência de navegação móvel
+- Incluído botão **Selecionar** para mostrar/ocultar a seleção múltipla e os comandos em lote no celular, com cancelamento limpando os itens marcados.
+- Busca da pasta com contagem de resultados, estado vazio e limpeza de itens ocultos pelo filtro; metadados secundários não ocupam espaço na lista em telas estreitas.
+- Corrigido o JavaScript para não habilitar operações ZIP desativadas no PHP por falta de `ZipArchive`.
+- Sem JavaScript, a interface básica permanece acessível. Mantidas autenticação, CSRF, limite de seleção e restrições de gravação anteriores. Sem migrações de banco.
+- Testes `tests/file_manager_225.php` e `.js`, além das regressões completas.
+
 ## [1.0.124] - 2026-11-08
 
 ### Ferramentas > Gerenciador de Arquivos

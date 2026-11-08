@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.124)
+# Diretrizes de manutenção — Meu Site (v1.0.125)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -275,3 +275,10 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - A área de transferência é limitada a 20 entradas e 15 minutos por sessão; nomes duplicados nunca são sobrescritos. Pré-validar operações em lote e recusar symlinks e arquivos inesperados. Limite geral: 300 entradas / 32 MiB por operação, 8 MiB por arquivo e ZIP final. Upload ZIP exige `ZipArchive`; validar nomes, tamanho descompactado, extensão permitida e links antes de gravar. Extrair sempre em pasta nova, nunca na raiz do código.
 - Não incluir editor/alteração irrestrita de arquivos PHP do projeto, `storage`, credenciais, `vendor`, arquivos ocultos ou acesso fora da raiz. O gerenciador **não é** substituto pleno de FTP/SSH. Operações administrativas exigem sessão, `manage_settings`, CSRF e eventos sem conteúdo confidencial.
 - Testes adicionais: `tests/file_manager_223.php`; teste ZIP real somente em ambiente com a extensão PHP `ZipArchive` habilitada.
+
+## Exploração compacta por modo de seleção — 1.0.125
+
+- O Gerenciador de Arquivos segue no submenu **Ferramentas**. Se houver JavaScript, a lista inicia sem checkboxes de seleção; o botão Selecionar ativa/desativa o modo. Sem JS, os controles originais continuam visíveis, sem bloquear ações essenciais.
+- Ao cancelar a seleção, desmarcar os itens; ao filtrar, desmarcar itens ocultos e atualizar a contagem. Preservar limite de 20 itens por operação e operações POST autenticadas com CSRF.
+- Comandos ZIP marcados indisponíveis pelo PHP **não podem ser reativados pelo JavaScript** mesmo quando há seleção. Executar `tests/file_manager_225.php` e `.js` além das regressões anteriores, build CSS e auditoria.
+- Manter as restrições de escrita em `public/uploads/arquivos`, com navegação da raiz somente leitura, proibições de symlink, segredos e `storage/`.

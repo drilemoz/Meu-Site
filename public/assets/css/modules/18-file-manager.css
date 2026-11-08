@@ -112,3 +112,27 @@
  .files-clipboard{align-items:flex-start}
  .files-options-content{right:0;width:min(285px,80vw)}
 }
+
+/* 1.0.125: modo de seleção sob demanda, lista compacta e feedback de pesquisa. */
+.files-quick-bar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:10px 0;min-height:44px}
+.files-select-toggle{min-height:44px;white-space:nowrap}
+.files-quick-note{font-size:12px;color:#708094;line-height:1.4;text-align:right}
+.files-browser-toolbar{position:relative;margin-bottom:10px}
+.files-filter-count{font-size:11px;color:#6c8096;text-align:right}
+.files-filter-empty{border:1px dashed #cbd8e8;border-radius:12px;margin:12px 0 0}
+.files-manager.files-enhanced:not(.files-selecting) .files-selection-panel,
+.files-manager.files-enhanced:not(.files-selecting) .files-select{display:none}
+.files-manager.files-selecting .files-quick-bar{position:sticky;top:8px;z-index:11;background:#eff6ff;border:1px solid #c8daf3;border-radius:12px;padding:6px 10px;box-shadow:0 6px 18px #0b254018}
+.files-manager.files-selecting .files-select-toggle{background:#e7efff}
+.files-manager.files-selecting .files-row:has(.files-select:checked){background:#eef5ff}
+.files-manager .files-row-extra{font-variant-numeric:tabular-nums}
+@media(max-width:650px){
+ .files-quick-note{font-size:11px;max-width:48%}
+ .files-manager .files-row-meta{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+ .files-manager .files-row-extra{display:none}
+ .files-manager .files-row{min-height:58px}
+ .files-manager .files-row-actions .btn{min-height:40px}
+}
+/* O controle Selecionar só aparece quando o JavaScript estiver ativo. */
+.files-select-toggle{display:none}
+.files-manager.files-enhanced .files-select-toggle{display:inline-flex;align-items:center;justify-content:center}

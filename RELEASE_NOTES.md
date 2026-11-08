@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.125
+
+**Explorador mais limpo no celular:** a seleção de arquivos agora é ativada pelo botão **Selecionar**, sem exibir caixas e comandos por toda a tela desde a abertura. Cancelar desmarca os itens. A busca mostra contagem de resultados e aviso de nenhum arquivo encontrado.
+
+**Correção de compatibilidade:** botões ZIP que a hospedagem desativou por falta de `ZipArchive` não são reativados pelo JavaScript. Navegação, downloads, controles de permissões e segurança permanecem como antes.
+
+Nenhuma alteração no banco ou no sistema de autenticação. Exige instalação da atualização para aparecer no site e teste visual no Chrome Android.
+
 ## IguatamaOnline 1.0.124
 
 **Gerenciador de Arquivos com visual mais limpo no celular:** reorganizado o topo com um cartão de contexto, separando melhor a navegação em leitura da pasta pública com edição. A área da raiz ficou menos carregada, com o atalho de uploads separado do botão de baixar ZIP.

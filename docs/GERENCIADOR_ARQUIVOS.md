@@ -1,4 +1,4 @@
-# Gerenciador de Arquivos — 1.0.124
+# Gerenciador de Arquivos — 1.0.125
 
 ## Acesso e visualização
 
@@ -46,3 +46,11 @@ Permissões permitidas: arquivo `0644` ou `0600`; diretório `0755` ou `0700`. P
 - `php tests/file_manager_223.php` verifica movimentação, colisões, recusa de symlink/travessia, exclusão em lote, permissões e contrato de interface.
 - `php tests/file_manager_224.php` verifica a presença dos blocos visuais novos e o contrato estrutural do layout do explorador.
 - A extensão ZIP não estava disponível no ambiente local de desenvolvimento: compactar, extrair e exportar ZIP necessitam de teste real na hospedagem ou em CI com `ZipArchive`.
+
+## Uso no celular — versão 1.0.125
+
+Com JavaScript ativo, a lista abre sem checkboxes. Toque em **Selecionar** para exibi-los e revelar ações em lote. Toque em **Cancelar seleção** para desmarcar e recolher os comandos. Os botões exigem pelo menos um item selecionado e respeitam o limite de 20 itens por operação. A busca na pasta atual mostra a contagem de resultados e desmarca automaticamente itens que ficaram ocultos.
+
+Arquivos de código do projeto permanecem em somente leitura; operações de edição e gerenciamento continuam restritas à área gerenciada. A apresentação básica sem JavaScript continua mostrando as caixas de seleção e os comandos anteriores. Quando `ZipArchive` não existe no servidor, o JavaScript não pode reativar operações ZIP.
+
+Testes adicionais: `php tests/file_manager_225.php` e `node tests/file_manager_225.js`.

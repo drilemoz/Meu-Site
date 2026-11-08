@@ -83,6 +83,7 @@ if($selected!==''){
    <div class="files-browser-toolbar">
     <label for="files-filter" class="files-filter-label">Pesquisar nesta pasta</label>
     <input id="files-filter" type="search" placeholder="Buscar arquivos ou pastas..." autocomplete="off">
+    <span id="files-filter-count" class="files-filter-count" aria-live="polite"><?=h((string)count($items))?> itens nesta página</span>
    </div>
    <div class="files-status-card <?= $managed?'is-managed':'is-readonly' ?>">
     <div class="files-status-copy">
@@ -91,18 +92,26 @@ if($selected!==''){
     </div>
     <?php if(!$managed): ?><a class="btn outline small files-jump-link" href="<?=h($base.'&folder='.rawurlencode('public/uploads/arquivos'))?>">↑ Ir para uploads</a><?php endif; ?>
    </div>
+   <div class="files-quick-bar" aria-label="Ações rápidas">
+    <button class="btn outline small files-select-toggle" id="files-select-toggle" type="button" aria-controls="files-bulk" aria-expanded="false" aria-pressed="false">☑ Selecionar</button>
+    <?php if($managed): ?>
+     <span class="files-quick-note">Ações individuais no menu ⋮ de cada arquivo</span>
+    <?php else: ?>
+     <span class="files-quick-note">Toque numa pasta para abrir</span>
+    <?php endif; ?>
+   </div>
    <?php if(!$managed): ?>
-    <form id="files-bulk" method="post" action="<?=h(admin_link('files_save'))?>" class="files-readonly-tools files-operations">
+    <form id="files-bulk" method="post" action="<?=h(admin_link('files_save'))?>" class="files-readonly-tools files-operations files-selection-panel">
      <?=csrf_field()?><input type="hidden" name="folder" value="<?=h($folder)?>">
      <div class="files-selection-head"><label class="files-check-all"><input id="files-select-all" type="checkbox"> Selecionar até 20</label><span id="files-selected-count">0 selecionados</span></div>
      <div class="files-bulk-buttons files-bulk-buttons-compact">
-      <button class="btn outline small" type="submit" name="operation" value="export_zip" data-files-needs-selection <?=$zipReady?'':'disabled title="ZipArchive indisponível na hospedagem"'?>>↓ Baixar seleção em ZIP</button>
+      <button class="btn outline small" type="submit" name="operation" value="export_zip" data-files-needs-selection <?=$zipReady?'':'data-files-unavailable disabled title="ZipArchive indisponível na hospedagem"'?>>↓ Baixar seleção em ZIP</button>
      </div>
      <p class="files-operations-note">Áreas protegidas e arquivos privados serão omitidos da exportação. Para enviar ou editar arquivos públicos, use a pasta de uploads.</p>
     </form>
    <?php endif; ?>
    <?php if($managed): ?>
-    <div class="files-operations" aria-label="Ações de arquivos">
+    <div class="files-operations files-selection-panel" aria-label="Ações de arquivos">
      <div class="files-operations-head">
       <strong>Comandos desta pasta</strong>
       <small>Selecione até 20 itens por operação. ZIP, copiar, mover e permissões atuam apenas nesta área pública gerenciada.</small>
@@ -113,7 +122,7 @@ if($selected!==''){
       <div class="files-bulk-buttons files-bulk-buttons-grid">
        <button class="btn outline small" type="submit" name="operation" value="copy" data-files-needs-selection>⧉ Copiar</button>
        <button class="btn outline small" type="submit" name="operation" value="cut" data-files-needs-selection>✂ Recortar</button>
-       <button class="btn outline small" type="submit" name="operation" value="zip" data-files-needs-selection <?=$zipReady?'':'disabled title="ZipArchive indisponível na hospedagem"'?>>▣ Compactar ZIP</button>
+       <button class="btn outline small" type="submit" name="operation" value="zip" data-files-needs-selection <?=$zipReady?'':'data-files-unavailable disabled title="ZipArchive indisponível na hospedagem"'?>>▣ Compactar ZIP</button>
        <label class="files-inline-field">Nome do ZIP <input type="text" name="name" maxlength="100" value="arquivos.zip" aria-label="Nome do arquivo ZIP"></label>
       </div>
      </form>
@@ -164,7 +173,7 @@ if($selected!==''){
        <div class="files-main"><strong><?=h($item['name'])?></strong><small>Protegido · acesso bloqueado</small></div>
       <?php else: ?>
        <a class="files-main files-entry-link" href="<?=h($base.'&folder='.rawurlencode($isDir?$rel:$folder).($isDir?'':'&view='.rawurlencode($rel)))?>">
-        <strong><?=h($item['name'])?></strong><small><?=$isDir?'Pasta':h(number_format(((float)$item['size'])/1024,1,',','.').' KiB')?><?php if($item['modified']!==null): ?> · <?=h(date('d/m/Y H:i',(int)$item['modified']))?><?php endif; ?> · <?=h(igua_fm_permissions($rel))?></small>
+        <strong><?=h($item['name'])?></strong><small class="files-row-meta"><span><?=$isDir?'Pasta':h(number_format(((float)$item['size'])/1024,1,',','.').' KiB')?></span><?php if($item['modified']!==null): ?> <span class="files-row-extra"> · <?=h(date('d/m/Y H:i',(int)$item['modified']))?></span><?php endif; ?> <span class="files-row-extra"> · <?=h(igua_fm_permissions($rel))?></span></small>
        </a>
        <div class="files-row-actions">
         <?php if($isDir): ?><a class="btn outline small" href="<?=h($base.'&folder='.rawurlencode($rel))?>" aria-label="Abrir <?=h($item['name'])?>">Abrir</a>
@@ -206,6 +215,7 @@ if($selected!==''){
      </div>
     <?php endforeach; ?>
    </div>
+   <?php if($items): ?><p id="files-filter-empty" class="files-empty files-filter-empty" hidden>Nenhum arquivo ou pasta corresponde à pesquisa.</p><?php endif; ?>
    <?php if($pages>1): ?><nav class="files-pagination" aria-label="Páginas de arquivos">
     <?php if($page>1): ?><a class="btn outline small" href="<?=h($base.'&folder='.$encodedFolder.'&page='.($page-1))?>">← Anterior</a><?php endif; ?>
     <span>Página <?=h((string)$page)?> de <?=h((string)$pages)?> · <?=h((string)$total)?> itens</span>
