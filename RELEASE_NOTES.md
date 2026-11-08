@@ -1,3 +1,9 @@
+## IguatamaOnline 1.0.128
+
+**Backup de migração portátil** em Backups e Restauração. Um único ZIP leva os arquivos do portal, instalador PHP, dados MySQL e mídias permitidas para outra hospedagem. O instalador de destino pergunta se a instalação é limpa ou migração, encontra automaticamente o backup do pacote e restaura dados e mídias após testar o MySQL vazio e confirmar a conta administrativa antiga.
+
+**Importante:** o ZIP contém dados pessoais e hashes de senhas; não inclua ou divulgue credenciais de hospedagem. Não substitui DNS, certificados HTTPS, tarefas cron ou chaves privadas externas. O processo depende de ZipArchive em ambos os servidores, espaço disponível e teste real na nova hospedagem. Nenhuma migração SQL de esquema; backup lógico v12 e schema 37 preservados.
+
 ## IguatamaOnline 1.0.127
 
 **Mais informações do servidor:** uma nova área de compatibilidade mostra se este PHP oferece versão mínima, PDO MySQL, ZIP, GD, Fileinfo e upload de arquivos. Outra área resume diretivas de erros e preferências de cookies de sessão; a seção de limites também mostra quantos arquivos podem ser enviados e se o envio está habilitado.

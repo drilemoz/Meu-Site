@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.127** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.128** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.128 — Migração portátil de hospedagem
+
+- **Backups e restauração → Baixar pacote para migrar hospedagem** gera um ZIP único com código PHP em execução, instalador `public/setup.php`, backup do banco em JSON/GZIP e fotos/anexos, inclusive arquivos adicionais permitidos em `public/uploads/` e `storage/media/`.
+- O ZIP exclui arquivos de configuração privada, `storage/config.php`, logs, chaves de serviço, tokens fora do banco e qualquer arquivo executável enviado. O backup de banco permanece contendo configurações e contas, inclusive hashes de senha: o ZIP é CONFIDENCIAL.
+- Na nova hospedagem, extrair na raiz do projeto com document root apontando para `public/`, criar um MySQL vazio, abrir `/setup.php`, escolher **Migrar meu portal**, testar conexão, autenticar um administrador do portal antigo e restaurar o backup embutido. A instalação limpa mantém o fluxo anterior; o JSON/GZIP legado continua opcional.
+- Manifesto e SHA-256 validam integridade do backup e arquivos extras, sem provar autoria. Não há exclusão automática dos dados da hospedagem antiga; credenciais MySQL novas são configuradas na instalação de destino.
+- PHP ZipArchive é obrigatório na origem e no destino, e há limites de tamanho/quantidade. Testes isolados não equivalem a migração real entre hospedagens: fazer ensaio em subdomínio com banco vazio antes de alterar DNS.
 
 ## Versão 1.0.127 — Compatibilidade e parâmetros do PHP
 

@@ -54,3 +54,16 @@
 .setup-wizard .form-grid input[type=file]{padding:11px;background:#f8faff}
 @media(max-width:600px){.setup-route summary{padding:15px 13px;gap:9px}.setup-route summary strong{font-size:14px}.setup-route summary small{font-size:11px}.setup-route-symbol{width:37px;height:37px;font-size:19px}.route-detail{padding:3px 13px 17px}.route-detail .wizard-actions .btn{width:100%;flex:1}.route-detail .form-grid{gap:10px}.setup-trust{font-size:11px}}
 
+/* Instalação limpa ou migração de hospedagem (1.0.128). */
+.setup-install-choice{display:grid;gap:12px;margin:20px 0}
+.setup-install-choice h2{font-size:19px;margin:0 0 3px}
+.setup-choice-card{display:grid;gap:5px;padding:17px;border:1px solid #d4e3f4;border-radius:15px;background:#fff;text-decoration:none;color:#183552;box-shadow:0 4px 14px #172d4910;min-height:75px}
+.setup-choice-card strong{font-size:16px}
+.setup-choice-card span{color:#60748c;font-size:13px;line-height:1.5}
+.setup-choice-card:hover,.setup-choice-card:focus-visible{border-color:#2563ad;background:#f2f7ff}
+.setup-migration-card{padding:17px;border:1px solid #cbdff0;border-radius:15px;background:#f3f8ff;margin:16px 0}
+.setup-migration-card h2{font-size:18px;margin:0 0 9px}
+.setup-migration-card p{line-height:1.6;font-size:13px}
+.migration-panel{margin-bottom:16px}
+.migration-panel .panel-heading{display:flex;justify-content:space-between}
+.migration-panel .setup-diagnosis{margin:12px 0}

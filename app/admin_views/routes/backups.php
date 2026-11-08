@@ -1,3 +1,12 @@
+<?php ?>
+<div class="panel migration-panel">
+  <div class="panel-heading"><div><h2>🚚 Migrar para outra hospedagem</h2><p class="muted">Um ZIP portátil com código PHP, instalador, banco, imagens e anexos para reinstalar o IguatamaOnline em outra hospedagem.</p></div></div>
+  <div class="setup-diagnosis"><strong>O que fazer na hospedagem nova</strong><p>Extraia o ZIP na raiz do projeto, configure o domínio para a pasta <code>public/</code>, crie um banco MySQL vazio e abra <code>/setup.php</code>. Selecione <strong>Migrar meu portal</strong>, informe as novas credenciais MySQL e confirme a restauração automática.</p></div>
+  <p class="muted tiny">O ZIP não contém senhas do banco antigo, tokens de serviços ou configurações privadas. O pacote contém informações pessoais e hashes de senha: proteja-o. DNS, HTTPS, cron e integrações externas precisam ser reconfigurados.</p>
+  <?php if(class_exists('ZipArchive')): ?>
+   <form method="post" action="<?=h(admin_link('download_migration'))?>"><?=csrf_field()?><button class="btn primary" type="submit" data-confirm="Gerar e baixar o ZIP de migração completo? Pode exigir espaço e tempo de execução no servidor.">Baixar pacote para migrar hospedagem ↓</button></form>
+  <?php else: ?><div class="alert warning">A extensão PHP ZipArchive está desativada. Ative-a na hospedagem para criar o ZIP portátil.</div><?php endif; ?>
+</div>
 <?php  ?>
   <div class="panel news-bundle-panel"><h2>📦 Backup completo: banco + mídias</h2><details class="compact-help backup-help"><summary aria-label="Ajuda sobre pacote completo" title="Como funciona o pacote completo?">?</summary><div class="compact-help-content">O ZIP inclui o banco e somente imagens/anexos referenciados pelo banco; não inclui código, arquivos soltos, credenciais ou a hospedagem inteira. Requer a extensão PHP <code>zip</code>. Na restauração, o limite é 350 MiB de ZIP e 300 MiB de mídias. Os limites de upload configurados no servidor também se aplicam.</div></details>
   <?php if(class_exists('ZipArchive')): ?><form method="post" action="/admin.php?action=download_bundle"><?= csrf_field() ?><button class="btn primary" type="submit">Baixar pacote completo ZIP ↓</button></form>

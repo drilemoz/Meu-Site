@@ -43,3 +43,13 @@ O formato lógico **v12** acrescenta `legal_apps`, `legal_app_pages`, `legal_app
 ## Proteção complementar da versão 1.0.114
 
 Arquivos de backup representados por links simbólicos e pastas de backup redirecionadas por links simbólicos não são listados nem aceitos para download pelo painel. Os arquivos regulares com nome válido continuam disponíveis. Isso não muda o formato v12 nem recupera arquivos privados que o ZIP completo não inclua. Veja [a matriz de recuperação](SEGURANCA_RECUPERACAO_114.md).
+
+## Novo pacote portátil de hospedagem — 1.0.128
+
+**Backups e restauração → Baixar pacote para migrar hospedagem** gera o arquivo `iguatama-migracao-AAAAmmdd-...zip` sem alterar os conteúdos atuais. Ele contém o código PHP do portal, `public/setup.php`, `app/`, `bin/`, assets públicos, `VERSION` e um backup interno `storage/migration/backup.zip` com banco e mídias referenciadas. Outras mídias permitidas em `public/uploads/` e `storage/media/` são incluídas em `storage/migration/extras/` com SHA-256 no `manifest.json`.
+
+**Procedimento:** não extraia o ZIP dentro de `public/` nem sobre uma instalação existente. Extraia na raiz da nova instalação, configure docroot para a subpasta `public/`, crie um banco vazio e abra `https://seu-dominio/setup.php`. Escolha **Migrar meu portal** e informe host, porta, nome, usuário e senha do **novo** MySQL. Depois da conexão testada, o instalador detecta o backup interno, solicita a senha do administrador antigo para autorizar a transferência e o importa. O login administrativo antigo permanece. A opção **Instalação limpa** continua disponível. A importação manual `.json/.json.gz` é alternativa sem mídia.
+
+O ZIP é **confidencial** e deve ser guardado fora do alcance público. Ele não inclui `storage/config.php`, JSON de contas de serviço, segredos privados ou logs da instalação antiga, mas contém usuários e configurações guardados no banco. Credenciais privadas de integrações externas, PHP/Apache/Nginx, cron, domínio, DNS, certificado HTTPS e e-mail requerem reconfiguração manual.
+
+Limites: backup de mídia até 350 MiB, arquivos extras até 300 MiB, pacote final até 700 MiB. Requer PHP `ZipArchive`, `pdo_mysql`, espaço livre e permissões. Um arquivo PHP de código não é assinado apenas porque consta de manifesto SHA-256: transfira o ZIP por canal confiável. Faça teste isolado em nova hospedagem/banco vazio antes de alterar o DNS. Em interrupção de instalação, não repita sobre banco parcialmente preenchido; crie outro banco vazio e tente novamente.

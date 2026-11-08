@@ -1,3 +1,11 @@
+## [1.0.128] - 2026-11-08
+
+### Migração de hospedagem
+- Novo backup portátil com código do portal, instalador, backup do banco, fotos e anexos, acompanhado de manifesto SHA-256 e instruções de implantação.
+- Instalador permite escolher **Instalação limpa** ou **Migrar meu portal**, detecta backup extraído em `storage/migration/` e usa as credenciais do banco novo informado pelo administrador.
+- Proteções: banco novo vazio, CSRF, TLS, instalação bloqueada após conclusão, autenticação do administrador antigo com senha antes da migração (proteção contra instalação não autorizada), verificação de integridade, caminhos restritos, sem segredos de configuração privada no ZIP. Mantida importação anterior JSON/GZIP.
+- Extensões PHP ZipArchive e PDO MySQL necessárias; migração real depende de teste na nova hospedagem. Sem alterações ao schema 37 nem ao backup lógico v12.
+
 ## [1.0.127] - 2026-11-08
 
 ### Ferramentas > Informações do Servidor

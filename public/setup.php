@@ -4,6 +4,7 @@ require __DIR__.'/../app/bootstrap.php';
 require __DIR__.'/../app/requirements.php';
 require __DIR__.'/../app/schema.php';
 require __DIR__.'/../app/backup.php';
+require __DIR__.'/../app/migration_package.php';
 require __DIR__.'/../app/installer.php';
 require __DIR__.'/../app/setup_chunked_backup.php';
 require __DIR__.'/../app/content_maintenance.php';
@@ -17,6 +18,13 @@ $ready=igua_required_ready($requirements);
 $errors=[];
 $notices=[];
 $step=max(1,min(3,(int)($_GET['step']??1)));
+// O modo é escolhido antes das credenciais; nunca confundir com recuperação de config.
+if(!request_post() && $step===2 && in_array($_GET['mode']??'', ['fresh','migrate'],true)){
+    $_SESSION['igua_setup_install_mode']=(string)$_GET['mode'];
+    unset($_SESSION['iguanews_setup_db']);
+}
+$setupMode=in_array($_SESSION['igua_setup_install_mode']??'', ['fresh','migrate'],true)?$_SESSION['igua_setup_install_mode']:'fresh';
+$hasEmbeddedMigration=is_file(IGUA_STORAGE.'/migration/manifest.json') && is_file(IGUA_STORAGE.'/migration/backup.zip') && !is_link(IGUA_STORAGE.'/migration');
 $setupData=$_SESSION['iguanews_setup_db']??null;
 if (!is_array($setupData) || (time()-(int)($setupData['verified_at']??0))>1200) {
     unset($_SESSION['iguanews_setup_db']);
@@ -117,7 +125,7 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                 }
             }
         }
-    } elseif ($action==='install_fresh' || $action==='install_restore' || $action==='recover_config' || $action==='reset_existing') {
+    } elseif ($action==='install_fresh' || $action==='install_restore' || $action==='install_migration' || $action==='recover_config' || $action==='reset_existing') {
         $step=3;
         if (!$setupData) { $errors[]='A conexão expirou. Faça o teste novamente.'; $step=2; }
         else {
@@ -135,6 +143,20 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                     $email=trim((string)($_POST['recovery_email']??''));
                     $pass=(string)($_POST['recovery_password']??'');
                     if (($_SESSION['igua_recovery_errors']??0)>=5) throw new DomainException('Muitas tentativas de recuperação nesta sessão. Faça novo teste do banco mais tarde.');
+                } elseif ($action==='install_migration') {
+                    if($setupMode!=='migrate')throw new DomainException('Escolha Migrar portal no início do instalador.');
+                    if(!class_exists('ZipArchive'))throw new DomainException('É necessário habilitar a extensão PHP zip na nova hospedagem.');
+                    if(empty($_POST['confirm_migration']))throw new DomainException('Confirme a migração do backup do portal antigo.');
+                    if((int)($_SESSION['igua_migration_auth_failures']??0)>=5)throw new DomainException('Muitas tentativas de autenticação. Encerre a sessão e verifique o backup antes de tentar novamente.');
+                    $payload=igua_migration_payload();
+                    if($payload===null)throw new DomainException('Pacote de migração não encontrado. Extraia o ZIP completo na raiz do novo projeto.');
+                    $migrationEmail=trim((string)($_POST['migration_email']??''));
+                    $migrationPassword=(string)($_POST['migration_password']??'');
+                    if(!igua_migration_authorized($payload,$migrationEmail,$migrationPassword)){
+                        $_SESSION['igua_migration_auth_failures']=(int)($_SESSION['igua_migration_auth_failures']??0)+1;
+                        throw new DomainException('Não foi possível autenticar o administrador da instalação anterior.');
+                    }
+                    unset($_SESSION['igua_migration_auth_failures']);
                 } elseif ($action==='install_restore') {
                     $uploadToken=$_POST['upload_token']??'';
                     if (!is_string($uploadToken)) throw new DomainException('Identificador do backup inválido.');
@@ -188,9 +210,10 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                     $pendingConfig=igua_stage_config($setupData);
                     $phase='schema';
                     install_schema($db);
-                    if ($action==='install_restore') {
+                    if ($action==='install_restore' || $action==='install_migration') {
                         $phase='restore';
-                        restore_backup($db,$import);
+                        if($action==='install_migration')igua_migration_restore($db,$payload);
+                        else restore_backup($db,$import);
                     } else {
                         $phase='admin';
                         if ((int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn()!==0) throw new RuntimeException('O banco já possui usuários.');
@@ -208,13 +231,14 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                     $phase='config';
                     igua_activate_config($pendingConfig);
                     $pendingConfig=null;
+                    if($action==='install_migration')igua_migration_cleanup($payload);
                 }
                 $phase='complete';
                 igua_setup_clear_chunk();
                 unset($_SESSION['iguanews_setup_db'],$_SESSION['igua_recovery_errors']);
                 session_regenerate_id(true);
                 if (is_resource($lock)) { flock($lock,LOCK_UN); fclose($lock); $lock=null; }
-                redirect('/admin.php?action=login&'.($recovery?'recovered=1':($action==='install_restore'?'restored=1':'installed=1')));
+                redirect('/admin.php?action=login&'.($recovery?'recovered=1':(in_array($action,['install_restore','install_migration'],true)?'restored=1':'installed=1')));
             } catch (Throwable $e) {
                 if (isset($db) && $db instanceof PDO && $db->inTransaction()) $db->rollBack();
                 // Nunca registrar senha, SQL ou texto completo de exceções (podem conter segredos).
@@ -225,7 +249,7 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                     $errors[]=match($phase) {
                         'config_stage','config' => 'O banco pode conter dados da instalação, mas não foi possível salvar a configuração privada. Confira storage/, open_basedir e permissões e depois use Recuperar instalação (não reinstale sobre os dados).',
                         'schema' => 'Falha ao preparar as tabelas. Confira permissões CREATE/ALTER/INDEX do MySQL e o log PHP. Não apague tabelas antes de verificar o inventário.',
-                        'admin','restore' => 'Falha ao gravar conteúdo inicial. Confira logs e permissões no MySQL. Faça backup e verifique o estado do banco antes de tentar novamente.',
+                        'admin','restore' => 'Falha ao restaurar banco ou mídias. Confira logs, espaço em disco e permissões; NÃO tente instalar sobre um banco parcialmente preenchido. Use um banco novo e mantenha o ZIP original.',
                         default => 'Instalação não concluída. Consulte o log PHP pela etapa indicada, sem compartilhar senhas.'
                     };
                 }
@@ -255,9 +279,13 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
     <span class="requirement-icon" aria-hidden="true"><?= $req['ok']?'✓':($req['required']?'!':'i') ?></span><div><h2><?= h($req['title']) ?><?= !$req['required']?' <small>Opcional</small>':'' ?></h2><p><?= h($req['current']) ?></p>
     <?php if (!$req['ok']): ?><div class="requirement-fix"><strong>Como corrigir:</strong> <?= h($req['fix']) ?></div><?php endif; ?></div></section><?php endforeach; ?></div>
   <?php if (!$ready): ?><div class="alert error">Corrija os requisitos obrigatórios e verifique novamente.</div><?php else: ?><div class="alert setup-success">Ambiente aprovado! Escolha como preparar o banco de dados.</div><?php endif; ?>
-  <div class="wizard-actions"><a class="btn outline" href="/setup.php?step=1">↻ Verificar novamente</a><?php if ($ready): ?><a class="btn primary" href="/setup.php?step=2">Continuar →</a><?php endif; ?></div>
+  <div class="wizard-actions"><a class="btn outline" href="/setup.php?step=1">↻ Verificar novamente</a></div>
+  <?php if($ready): ?><div class="setup-install-choice"><h2>Como deseja instalar?</h2>
+   <a class="setup-choice-card" href="/setup.php?step=2&amp;mode=fresh"><strong>＋ Instalação limpa</strong><span>Instalar um portal novo. Continua com o procedimento atual.</span></a>
+   <a class="setup-choice-card" href="/setup.php?step=2&amp;mode=migrate"><strong>⇧ Migrar meu portal</strong><span>Restaurar banco, notícias, contas, imagens e anexos de um pacote portátil.</span></a>
+  </div><?php endif; ?>
 <?php elseif ($step===2): ?>
-  <h1>Prepare o banco de dados.</h1><p class="muted"><?= $autoAvailable ? 'Termux detectado: você pode criar uma base MariaDB local, ou usar credenciais existentes.' : 'Ambiente de hospedagem ou desenvolvimento: crie uma base vazia no painel/servidor MySQL e informe os dados de conexão. A criação privilegiada de usuários está desativada.' ?></p>
+  <h1><?= $setupMode==='migrate'?'Migração: novo banco de dados':'Prepare o banco de dados' ?>.</h1><p class="muted"><?= $autoAvailable ? 'Termux detectado: você pode criar uma base MariaDB local, ou usar credenciais existentes.' : 'Ambiente de hospedagem ou desenvolvimento: crie uma base vazia no painel/servidor MySQL e informe os dados de conexão. A criação privilegiada de usuários está desativada.' ?></p>
   <?php foreach ($errors as $err): ?><div class="alert error" role="alert"><?= h($err) ?></div><?php endforeach; ?>
   <?php foreach ($notices as $notice): ?><div class="setup-diagnosis"><strong>O que verificar</strong><ul><?php foreach($notice as $item): ?><li><?= h($item) ?></li><?php endforeach; ?></ul></div><?php endforeach; ?>
   <div class="setup-route-list">
@@ -308,13 +336,28 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
   </div></details>
   <div class="wizard-actions"><a href="/setup.php?step=2" class="btn outline">← Verificar outro banco</a></div>
 <?php else: ?>
-  <h1>Como deseja começar?</h1><p class="muted">O banco <strong><?= h($setupData['database']??'') ?></strong> está pronto. Instale o portal com um novo administrador ou importe uma instalação anterior.</p>
+  <h1><?= $setupMode==='migrate'?'Restaurar portal antigo':'Instalação limpa' ?></h1><p class="muted">O banco <strong><?= h($setupData['database']??'') ?></strong> está pronto. Instale o portal com um novo administrador ou importe uma instalação anterior.</p>
   <div class="alert setup-success">✓ Conexão testada. Seus dados existentes não serão sobrescritos.</div>
   <?php if ($runtime['kind']==='hosting' && !$runtime['https']): ?><div class="alert warning" role="alert">⚠ Esta requisição não foi identificada como HTTPS. Antes de enviar senhas administrativas, ative HTTPS no domínio e confira a configuração do proxy com o provedor. Cabeçalhos enviados pelo visitante não são aceitos como prova de TLS.</div><?php endif; ?>
   <?php foreach($errors as $err): ?><div class="alert error" role="alert"><?= h($err) ?></div><?php endforeach; ?>
   <?php foreach($notices as $notice): ?><div class="setup-diagnosis"><ul><?php foreach($notice as $item): ?><li><?= h($item) ?></li><?php endforeach; ?></ul></div><?php endforeach; ?>
+  <?php if($setupMode==='migrate'): ?>
+   <div class="setup-migration-card">
+    <h2>📦 Backup de migração</h2>
+    <?php if($hasEmbeddedMigration): ?>
+     <p>O instalador encontrou o backup incluído no pacote portátil. Clique para validar arquivos e restaurar os dados no <strong>banco novo vazio</strong>.</p>
+     <form method="post" class="setup-form"><?=csrf_field()?><input type="hidden" name="action" value="install_migration">
+      <p class="muted">Para impedir que terceiros importem seu backup antes da instalação, confirme o e-mail e a senha de um administrador do portal antigo.</p>
+      <div class="form-grid"><label>E-mail do administrador antigo<input name="migration_email" type="email" required autocomplete="username"></label>
+      <label>Senha do administrador antigo<input name="migration_password" type="password" required autocomplete="current-password"></label></div>
+      <label class="checkbox-line"><input type="checkbox" name="confirm_migration" value="1" required> Confirmo que o banco novo está vazio e quero restaurar o portal antigo.</label>
+      <div class="wizard-actions"><button class="btn primary" type="submit">Validar e migrar portal →</button></div>
+     </form>
+    <?php else: ?><div class="alert warning">Nenhum pacote de migração embutido foi encontrado em <code>storage/migration/</code>. Para transferir tudo, gere o ZIP portátil na instalação antiga e extraia-o inteiro na raiz do projeto novo. Você ainda pode importar somente o banco JSON/GZIP abaixo.</div><?php endif; ?>
+   </div>
+  <?php endif; ?>
   <div class="setup-route-list">
-    <details class="setup-route" open><summary><span class="setup-route-symbol">＋</span><span><strong>Começar um portal novo</strong><small>Personalize o portal e configure seu acesso</small></span><span class="route-chevron">⌄</span></summary>
+    <?php if($setupMode==='fresh'): ?><details class="setup-route" open><summary><span class="setup-route-symbol">＋</span><span><strong>Começar um portal novo</strong><small>Personalize o portal e configure seu acesso</small></span><span class="route-chevron">⌄</span></summary>
       <div class="route-detail"><form method="post" class="setup-form" data-setup-identity><?= csrf_field() ?><input type="hidden" name="action" value="install_fresh">
       <section class="ig-identity-editor" aria-label="Identidade do portal"><div class="ig-identity-heading"><span aria-hidden="true">✦</span><div><h2>Seu portal, sua identidade</h2><p>Escolha o nome que aparecerá nas páginas, no painel, no rodapé e nas prévias de compartilhamento.</p></div></div>
       <div class="form-grid"><label class="full">Nome do portal<input name="site_name" maxlength="80" minlength="2" required placeholder="Ex.: Tribuna ou Viajando por Aí" value="<?=h($_POST['site_name']??'Meu Site')?>"></label>
@@ -329,7 +372,7 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
       </div><label class="checkbox-line"><input type="checkbox" name="demo" value="1" <?= !empty($_POST['demo'])?'checked':'' ?>><span>Adicionar 100 notícias de <strong>demonstração</strong> para testar o layout (opcional; o portal é instalado vazio por padrão).</span></label>
       <div class="wizard-actions"><button class="btn primary" type="submit">Instalar novo portal →</button></div></form></div>
     </details>
-    <details class="setup-route"><summary><span class="setup-route-symbol route-secondary">⇧</span><span><strong>Importar portal anterior</strong><small>Migração entre Termux e hospedagem online</small></span><span class="route-chevron">⌄</span></summary>
+    <?php endif; ?><details class="setup-route"><summary><span class="setup-route-symbol route-secondary">⇧</span><span><strong>Importar somente banco (legado)</strong><small>Alternativa JSON/GZIP sem fotos</small></span><span class="route-chevron">⌄</span></summary>
       <div class="route-detail"><p class="muted">Escolha um backup <strong>.json ou .json.gz</strong> gerado na área de Backups da instalação anterior. Notícias, categorias, configurações e contas serão restauradas. O login seguirá sendo o da instalação anterior.</p>
       <?php if (!$importLimit['ok']): ?><div class="alert warning" role="status">Limite de upload direto: <?= h($importLimit['detail']) ?> <?php if (igua_setup_chunk_enabled()): ?>O instalador enviará automaticamente o backup em partes menores, sem precisar mudar o PHP. Mantenha esta página aberta durante a transferência.<?php else: ?>Envio segmentado indisponível: verifique file_uploads, upload_max_filesize e post_max_size.<?php endif; ?></div><?php endif; ?>
       <form method="post" enctype="multipart/form-data" class="setup-form"><?= csrf_field() ?><input type="hidden" name="action" value="install_restore">
@@ -340,7 +383,7 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
       </form></div>
     </details>
   </div>
-  <div class="wizard-actions"><a href="/setup.php?step=2" class="btn outline">← Banco de dados</a></div>
+  <div class="wizard-actions"><a href="/setup.php?step=2" class="btn outline">← Banco de dados</a> <a href="/setup.php?step=1" class="btn outline">Alterar modo de instalação</a></div>
 <?php endif; ?>
 <p class="setup-trust"><span>🔒</span> Senhas nunca aparecem na URL. Configurações são salvas fora da pasta pública. Após concluir, este assistente fica bloqueado.</p>
 <?php igua_developer_footer(); ?></main><script src="/assets/js/file-inputs.js" defer></script><script src="/assets/js/setup-identity.js" defer></script><script src="/assets/js/setup-backup-upload.js" defer></script></body></html>

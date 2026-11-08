@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.127)
+# Diretrizes de manutenção — Meu Site (v1.0.128)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -296,3 +296,10 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Para opções do PHP (`display_errors`, `log_errors`, `expose_php` e atributos de sessão), mostrar apenas estados categorizados. Qualquer string desconhecida deve permanecer como valor não identificado e não ser impressa diretamente.
 - Sem revelar caminhos, variáveis ambientais, nomes de host, credenciais ou dados de cookies. A aplicação pode definir cookies por conta própria e alterar os comportamentos da sessão independentemente de `ini_get`.
 - Executar `tests/server_info_226.php`, `tests/server_info_227.php` e a regressão geral com o CSS de 19 módulos. Schema 37 sem migrações.
+
+## Migração portátil — 1.0.128
+
+- O ZIP de migração de hospedagem reúne código instalável, dados e mídias em `storage/migration/` e não pode incluir credenciais privadas nem symlinks. Preservar a instalação limpa e o formato de backup v12.
+- Só restaurar com banco novo vazio e autenticação por senha do administrador existente no backup; não sobrescrever instalação existente. Validar SHA-256, caminhos e limites do pacote antes de criar tabelas no novo servidor. Credenciais MySQL novas nunca entram no ZIP.
+- Restaurar mídias e banco com as rotinas existentes; remover arquivos temporários de migração após sucesso, mas sem comprometer recuperação em falha. Document root deve apontar para `public/`.
+- A garantia só é válida após teste integrado real com MariaDB e ZipArchive. Executar `tests/migration_portable_228.php`, `tests/migration_auth_228.php`, `tests/migration_archive_228.php`, suite PHP/JS completa, audit, CSS/editor checks e lint antes de distribuir.
