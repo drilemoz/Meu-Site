@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.113)
+# Diretrizes de manutenção — Meu Site (v1.0.115)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -196,3 +196,17 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - `save.php` mantém transação, revisões, mídias, anexos e ZIP, remoção de uploads após rollback confirmado e conservação de arquivos quando o resultado do COMMIT é incerto. Não fragmentar a transação sem testes com MariaDB e falhas injetadas.
 - `tests/support/news_controller_source.php` recompõe os cinco fragmentos sem executá-los para regressões estáticas antigas; `tests/news_controller_refactor_213.php` confirma equivalência SHA-256 exata com 1.0.112 e rotas/ACL. Em futuras mudanças de negócio legítimas, atualizar conscientemente esse contrato.
 - Os oito módulos JS e os oito componentes de view do editor permanecem como antes; regenerar `news-editor.js` somente se suas fontes JS forem alteradas. Schema 37 e backup v12 inalterados.
+
+## Segurança de recuperação 1.0.114
+
+- `backup_path` e `list_backups` devem rejeitar tanto arquivos de backup quanto a pasta de backups quando forem links simbólicos; preservar nomes válidos e downloads de arquivos regulares.
+- Teste adversarial `tests/recovery_safety_214.php` é obrigatório junto à suíte existente; não conectar banco real, sobrescrever mídias nem executar atualização de código nesse teste offline.
+- O formato do backup permanece v12 e o banco schema 37. A suíte em `tests/integration/restore_mariadb_134.php` requer MariaDB isolado, vazio, ext-zip real e ativação explícita; a execução da suíte PHP local não prova recuperação de produção.
+- Consultar `docs/SEGURANCA_RECUPERACAO_114.md` para limites de testes e cenários ainda pendentes, em especial falha durante rollback do atualizador, falta de disco e timeout.
+
+## Atualizador e injeção de falhas — 1.0.115
+
+- `igua_updater_rollback_plan` precisa verificar **todos** os snapshots e o journal antes da primeira escrita no código; não remover o pré-check para acelerar rollback. Arquivos alterados depois de `complete` bloqueiam restauração automática.
+- Recuperação manual deve ativar a manutenção e gravar `recovery_needed` **antes** de modificar arquivos. O estado `rolled_back` só pode ser registrado após restaurar; falha para limpar marcador não é sucesso e deve permitir tentativa posterior.
+- `igua_updater_apply_code` mantém `VERSION` por último. Os callbacks opcionais de `igua_updater_apply_code` e `igua_updater_rollback` só servem à injeção de falhas em testes offline; **não os conectar à entrada HTTP, parâmetros POST ou configuração de produção**.
+- Executar `tests/updater_failure_215.php` com arquivos efêmeros, além da regressão completa. Testes locais não comprovam resistência a timeout do Plesk, falta de disco real nem restauração SQL. Consulte `docs/RECUPERACAO_FALHAS_115.md`.

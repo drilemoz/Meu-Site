@@ -39,3 +39,7 @@ A restauração do ZIP exige senha e confirmação; valida nomes/caminhos, dupli
 ## v1.0.96 — Backup de aplicativos e páginas
 
 O formato lógico **v12** acrescenta `legal_apps`, `legal_app_pages`, `legal_app_revisions` e `legal_app_slug_redirects`. Inclui dados dos apps, rascunhos, revisões publicadas, status e slugs antigos. A leitura aceita backups **v1–v11**, preenchendo as novas tabelas com listas vazias, sem executar scripts contidos nos backups. O backup completo de mídia inclui logotipos registrados na biblioteca; um backup apenas do banco **não contém os bytes das imagens**. Antes da migração 36→37, conserve o backup antigo também fora do servidor.
+
+## Proteção complementar da versão 1.0.114
+
+Arquivos de backup representados por links simbólicos e pastas de backup redirecionadas por links simbólicos não são listados nem aceitos para download pelo painel. Os arquivos regulares com nome válido continuam disponíveis. Isso não muda o formato v12 nem recupera arquivos privados que o ZIP completo não inclua. Veja [a matriz de recuperação](SEGURANCA_RECUPERACAO_114.md).

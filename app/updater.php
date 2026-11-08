@@ -303,31 +303,74 @@ function igua_updater_backup_code(array $m,string $dir): array {
     }
     return $entries;
 }
-function igua_updater_rollback(string $jobDir,array $journal): void {
-    // Não desfaz alterações manuais feitas depois de uma atualização concluída.
-    if(($journal['status']??'')==='complete'){
-        foreach($journal['files']??[] as $entry){
-            $path=igua_updater_checked_target($entry['path']);
-            if(!is_file($path)||!hash_equals((string)($entry['new_sha256']??''),hash_file('sha256',$path)))
+/**
+ * Restaura código usando somente snapshots previamente conferidos.
+ * Uma cópia ausente/adulterada deve bloquear a operação ANTES de qualquer escrita.
+ * Mesmo após a pré-validação, falhas de I/O podem exigir recuperação assistida.
+ */
+function igua_updater_rollback_plan(string $jobDir,array $journal): array {
+    $entries=$journal['files']??null;
+    if(!is_array($entries)||$entries===[])throw new RuntimeException('Registro de recuperação inválido.');
+    $planned=[];
+    foreach(array_reverse($entries) as $entry){
+        if(!is_array($entry)||!is_string($entry['path']??null)||!igua_updater_safe_path($entry['path'])||
+           !is_bool($entry['exists']??null))
+            throw new RuntimeException('Registro de recuperação inválido.');
+        $path=$entry['path'];
+        $dest=igua_updater_checked_target($path);
+        if(($journal['status']??'')==='complete'){
+            if(!is_file($dest)||!is_string($entry['new_sha256']??null)||
+               !hash_equals($entry['new_sha256'],hash_file('sha256',$dest)))
                 throw new RuntimeException('Arquivos foram modificados após a atualização. Não é seguro restaurar automaticamente.');
         }
-    }
-    foreach(array_reverse($journal['files']??[]) as $entry){
-        if(!is_array($entry)||!is_string($entry['path']??null)||!igua_updater_safe_path($entry['path']))
-            throw new RuntimeException('Registro de recuperação inválido.');
-        $dest=igua_updater_checked_target($entry['path']);
-        if($entry['exists']??false){
-            $old=$jobDir.'/old/'.$entry['path'];
-            if(!is_file($old)||!is_string($entry['sha256']??null)||!hash_equals($entry['sha256'],hash_file('sha256',$old)))
+        $old=null;
+        if($entry['exists']){
+            $old=$jobDir.'/old/'.$path;
+            if(is_link($old)||!is_file($old)||!is_string($entry['sha256']??null)||
+               !hash_equals($entry['sha256'],hash_file('sha256',$old)))
                 throw new RuntimeException('Arquivo de recuperação ausente ou adulterado.');
-            igua_updater_replace($old,$dest);
-            if(function_exists('opcache_invalidate') && str_ends_with($dest,'.php'))@opcache_invalidate($dest,true);
-        }else{
-            if(is_file($dest)&&!@unlink($dest))throw new RuntimeException('Falha ao retirar arquivo novo na recuperação.');
         }
+        $planned[]=['dest'=>$dest,'old'=>$old];
+    }
+    return $planned;
+}
+/** Callback opcional apenas para simular interrupções durante a restauração offline. */
+function igua_updater_rollback(string $jobDir,array $journal,?callable $afterRestore=null): void {
+    $planned=igua_updater_rollback_plan($jobDir,$journal);
+    foreach($planned as $item){
+        if($item['old']!==null){
+            igua_updater_replace($item['old'],$item['dest']);
+            if(function_exists('opcache_invalidate') && str_ends_with($item['dest'],'.php'))@opcache_invalidate($item['dest'],true);
+        }elseif(is_file($item['dest'])&&!@unlink($item['dest'])){
+            throw new RuntimeException('Falha ao retirar arquivo novo na recuperação.');
+        }
+        if($afterRestore!==null)$afterRestore($item['dest']);
     }
 }
+/**
+ * Aplica os arquivos com VERSION por último. O callback opcional é exclusivo
+ * dos testes offline para injetar falhas determinísticas entre substituições.
+ */
+function igua_updater_apply_code(array $entries,string $jobDir,?callable $afterReplace=null): void {
+    foreach($entries as $entry){
+        if($entry['path']==='VERSION')continue;
+        $path=$entry['path'];
+        igua_updater_replace($jobDir.'/new/'.$path,igua_updater_checked_target($path));
+        if(function_exists('opcache_invalidate') && str_ends_with($path,'.php'))@opcache_invalidate(IGUA_ROOT.'/'.$path,true);
+        if($afterReplace!==null)$afterReplace($path);
+    }
+    igua_updater_replace($jobDir.'/new/VERSION',igua_updater_checked_target('VERSION'));
+    if($afterReplace!==null)$afterReplace('VERSION');
+}
 function igua_updater_maintenance(): string {return IGUA_STORAGE.'/.update-maintenance';}
+/** Não reportar sucesso quando a hospedagem não consegue retirar a manutenção. */
+function igua_updater_clear_maintenance(): void {
+    $marker=igua_updater_maintenance();
+    if(is_link($marker))throw new RuntimeException('Marcador de manutenção inesperado. Recuperação assistida necessária.');
+    if(file_exists($marker)&&!@unlink($marker))
+        throw new RuntimeException('Falha ao remover modo de manutenção. Recuperação assistida necessária.');
+}
+
 function igua_updater_lock(){
     $fp=@fopen(igua_updater_folder().'/.lock','c+b');
     if(!$fp||!flock($fp,LOCK_EX|LOCK_NB))throw new RuntimeException('Outra atualização já está em execução.');
@@ -337,7 +380,7 @@ function igua_updater_last_job(): ?array {
     $index=igua_updater_read_json(igua_updater_folder().'/last.json');
     if(!$index||!is_string($index['id']??null)||!preg_match('/^[a-f0-9]{24}$/D',$index['id']))return null;
     $journal=igua_updater_read_json(IGUA_UPDATE_DIR.'/jobs/'.$index['id'].'/state.json');
-    return $journal?['dir'=>IGUA_UPDATE_DIR.'/jobs/'.$index['id'],'journal'=>$journal]:null;
+    return $journal && ($journal['id']??null)===$index['id'] ? ['dir'=>IGUA_UPDATE_DIR.'/jobs/'.$index['id'],'journal'=>$journal] : null;
 }
 /**
  * Analisa os caminhos de um manifesto validado sem alterar arquivos locais.
@@ -541,21 +584,16 @@ function igua_updater_install_zip(string $zipPath,PDO $db,?callable $onStage=nul
         @chmod(igua_updater_maintenance(),0600);$maintenance=true;
         $journal['status']='applying';igua_updater_write_json($jobDir.'/state.json',$journal);
         $onStage && $onStage('applying','Substituindo arquivos verificados do portal.');
-        foreach($entries as $entry){
-            if($entry['path']==='VERSION')continue;
-            $path=$entry['path'];igua_updater_replace($jobDir.'/new/'.$path,igua_updater_checked_target($path));
-            if(function_exists('opcache_invalidate') && str_ends_with($path,'.php'))@opcache_invalidate(IGUA_ROOT.'/'.$path,true);
-        }
-        igua_updater_replace($jobDir.'/new/VERSION',igua_updater_checked_target('VERSION'));
+        igua_updater_apply_code($entries,$jobDir);
         $journal['status']='complete';igua_updater_write_json($jobDir.'/state.json',$journal);
-        @unlink(igua_updater_maintenance());$maintenance=false;
+        igua_updater_clear_maintenance();$maintenance=false;
         igua_updater_delete_tree($jobDir.'/new');
         @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
         $onStage && $onStage('complete','Atualização instalada e registrada com sucesso.');
         return ['version'=>$m['version'],'backup'=>$backup,'id'=>$id];
     } catch(Throwable $e){
         if($jobDir!=='' && ($journal['status']??'')==='applying'){
-            try{igua_updater_rollback($jobDir,$journal);$journal['status']='rolled_back';igua_updater_write_json($jobDir.'/state.json',$journal);if($maintenance)@unlink(igua_updater_maintenance());}
+            try{igua_updater_rollback($jobDir,$journal);if($maintenance)igua_updater_clear_maintenance();$journal['status']='rolled_back';igua_updater_write_json($jobDir.'/state.json',$journal);}
             catch(Throwable $rollbackError){$journal['status']='recovery_needed';igua_updater_write_json($jobDir.'/state.json',$journal);throw new RuntimeException('Atualização interrompida e recuperação pendente. Reabra Atualizações no painel e restaure o código.');}
         }
         throw $e;
@@ -567,9 +605,30 @@ function igua_updater_manual_rollback(): void {
         $job=igua_updater_last_job();
         if(!$job || !in_array(($job['journal']['status']??''),['prepared','complete','recovery_needed','applying'],true))
             throw new RuntimeException('Nenhuma atualização aplicável para recuperar.');
+        // Verificar versões e TODOS os snapshots antes de iniciar a recuperação.
+        igua_updater_rollback_plan($job['dir'],$job['journal']);
+        $marker=igua_updater_maintenance();
+        if(is_link($marker)|| (is_file($marker) && trim((string)@file_get_contents($marker))!==$job['journal']['id']))
+            throw new RuntimeException('Marcador de atualização não corresponde a esta recuperação.');
+        if(!is_file($marker)){
+            $id=(string)$job['journal']['id'];
+            if(file_put_contents($marker,$id,LOCK_EX)!==strlen($id))
+                throw new RuntimeException('Falha ao ativar manutenção para recuperação.');
+            @chmod($marker,0600);
+        }
+        // Persistir estado recuperável ANTES de substituir qualquer arquivo.
+        // Se a restauração for interrompida, a próxima tentativa é idempotente.
+        $job['journal']['status']='recovery_needed';
+        igua_updater_write_json($job['dir'].'/state.json',$job['journal']);
         igua_updater_rollback($job['dir'],$job['journal']);
-        $job['journal']['status']='rolled_back';igua_updater_write_json($job['dir'].'/state.json',$job['journal']);
-        @unlink(igua_updater_maintenance());
+        $job['journal']['status']='rolled_back';
+        igua_updater_write_json($job['dir'].'/state.json',$job['journal']);
+        try{igua_updater_clear_maintenance();}
+        catch(Throwable $error){
+            $job['journal']['status']='recovery_needed';
+            igua_updater_write_json($job['dir'].'/state.json',$job['journal']);
+            throw $error;
+        }
     }finally{flock($lock,LOCK_UN);fclose($lock);}
 }
 /**

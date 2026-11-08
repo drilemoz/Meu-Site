@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.113** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.115** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,21 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.115 — Recuperação segura do atualizador
+
+- A restauração de código verifica **todas** as cópias de segurança antes de alterar o primeiro arquivo. Ausência, symlink ou adulteração bloqueiam a operação sem sobrescrever destinos.
+- O rollback manual ativa o modo de manutenção e grava `recovery_needed` antes das substituições; uma recuperação interrompida pode ser retomada. O marcador só é removido quando o processo termina e o journal é registrado como `rolled_back`.
+- `VERSION` segue como último arquivo da atualização. Falhas para remover o marcador de manutenção são relatadas; operações não são dadas como bem-sucedidas apenas porque os arquivos foram trocados.
+- Novo `tests/updater_failure_215.php` faz injeção de falhas e valida recuperação **em diretório temporário, sem MariaDB ou hospedagem real**. Consulte [Falhas do atualizador 1.0.115](docs/RECUPERACAO_FALHAS_115.md).
+- Schema 37, formato ZIP v2 e backup v12 inalterados. A instalação na hospedagem exige backup externo e validação após deploy.
+
+## Versão 1.0.114 — Segurança de backup e recuperação
+
+- `list_backups()` e `backup_path()` agora recusam links simbólicos em arquivos e na pasta de backups, mantendo acesso normal aos backups regulares com nome válido.
+- Nova suíte `tests/recovery_safety_214.php` verifica GZIP e estruturas inválidas, administradores ativos, limites do atualizador e tentativas de usar links simbólicos/caminhos indevidos.
+- Documento [Segurança de recuperação 1.0.114](docs/SEGURANCA_RECUPERACAO_114.md) distingue testes offline, CI com MariaDB real isolado e cenários que ainda exigem homologação.
+- **Sem alteração no formato de backup v12, no schema 37, nas credenciais, nos arquivos privados ou na restauração transacional.** A atualização é somente de código, não instala nem restaura nada automaticamente.
 
 ## Versão 1.0.113 — Refatoração do controlador do Wizard de Notícias
 

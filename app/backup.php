@@ -126,15 +126,19 @@ function cleanup_backup_temporaries(?int $now=null): int {
     return $removed;
 }
 function list_backups(): array {
-    $paths=glob(IGUA_STORAGE.'/backups/*.{json,json.gz}',GLOB_BRACE) ?: [];
-    $paths=array_values(array_filter($paths,static fn($p)=>is_file($p) && preg_match('/^(?:manual|daily|weekly)-\d{8}-\d{6}-[a-f0-9]{6}\.json(?:\.gz)?$/D',basename($p))));
+    $folder=IGUA_STORAGE.'/backups';
+    if(!is_dir($folder) || is_link($folder))return [];
+    $paths=glob($folder.'/*.{json,json.gz}',GLOB_BRACE) ?: [];
+    $paths=array_values(array_filter($paths,static fn($p)=>is_file($p) && !is_link($p) && preg_match('/^(?:manual|daily|weekly)-\d{8}-\d{6}-[a-f0-9]{6}\.json(?:\.gz)?$/D',basename($p))));
     usort($paths,static fn($a,$b) => ((int)@filemtime($b) <=> (int)@filemtime($a)) ?: strcmp($b,$a));
     return array_values(array_map(static fn($p)=>['name'=>basename($p),'size'=>(int)filesize($p),'date'=>date('d/m/Y H:i',(int)filemtime($p))],$paths));
 }
 function backup_path(string $filename): ?string {
     if (!preg_match('/^(?:manual|daily|weekly)-\d{8}-\d{6}-[a-f0-9]{6}\.json(?:\.gz)?$/D',$filename)) return null;
-    $p=IGUA_STORAGE.'/backups/'.$filename;
-    return is_file($p)?$p:null;
+    $folder=IGUA_STORAGE.'/backups';
+    if(!is_dir($folder)||is_link($folder))return null;
+    $p=$folder.'/'.$filename;
+    return is_file($p)&&!is_link($p)?$p:null;
 }
 function parse_backup(string $raw, string $filename): array {
     if (str_ends_with($filename,'.gz')) {

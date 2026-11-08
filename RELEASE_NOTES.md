@@ -1,3 +1,17 @@
+## IguatamaOnline 1.0.115
+
+- Atualizador revisado para validar todos os snapshots antes do rollback e evitar restauração parcial quando algum backup já está ausente/adulterado.
+- Recuperação manual usa manutenção e journal recuperável antes de modificar arquivos. Se o processo parar durante o rollback, é possível reexecutar a recuperação; a versão só é considerada restaurada depois de registrar `rolled_back` e encerrar a manutenção.
+- Adicionados testes offline de falhas injetadas após 1, 3 e 4 substituições e durante a restauração; teste adicional de edição posterior bloqueia o rollback de uma atualização concluída.
+- O atualizador avisa quando não consegue retirar a manutenção, em vez de declarar sucesso. Schema 37, backups v12 e arquivos de dados existentes permanecem intactos.
+- **Limite:** testes de arquivos temporários não substituem MariaDB, ZipArchive, falta de disco real nem interrupções de processo no Plesk. Faça backup externo antes de atualizar.
+
+## IguatamaOnline 1.0.114
+
+- Fortalecida a proteção no acesso administrativo aos backups: a lista e o download não seguem arquivos nem pasta de backup que sejam links simbólicos. Arquivos normais permanecem compatíveis.
+- Adicionada regressão de cenários adversos: GZIP danificado, estrutura de banco inválida, ausência de administrador ativo, nomes de backup inseguros e manifestos de atualização malformados ou sem assinatura obrigatória no formato legado.
+- Sem alteração dos dados, de rotinas de restauração, do schema 37 ou do backup v12. Os testes offline não comprovam restauração completa no Plesk; conferir backup e rollback em homologação antes de mudanças críticas.
+
 ## IguatamaOnline 1.0.113
 
 - Melhor organização interna do Wizard de Notícias: ações de categorias/fontes, Gemini, rascunhos/importação, salvamento e publicação separadas em arquivos pequenos, com mesma rota administrativa.

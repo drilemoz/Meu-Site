@@ -48,3 +48,10 @@ O botão **Visualizar** classifica os erros da consulta remota em códigos não 
 O botão **Diagnosticar ZIP antes de instalar** envia o arquivo apenas para validação de leitura (`operation=diagnose_zip`, POST + sessão de administrador + CSRF). Ele avalia o manifesto e, quando compatível, realiza preflight sem gravar no MySQL nem substituir código. A confirmação de instalação depende de senha e seleção posterior.
 
 **Bloqueio obrigatório:** a versão 1.0.96 introduziu schema 37. Pacotes que cruzam schema 36→37, inclusive a atualização 1.0.97 usada num portal ainda na 1.0.95/schema 36, precisam de **instalação assistida** com backup externo. Não force a aplicação via ZIP comum, mesmo que a release esteja disponível no GitHub.
+
+## Segurança de rollback na 1.0.115
+
+- Antes de restaurar, o atualizador verifica o journal e **cada snapshot**. Uma cópia faltante/adulterada bloqueia a operação antes da primeira troca de arquivo.
+- Na recuperação manual, um marcador coloca o portal em manutenção e o journal muda para `recovery_needed` antes de começar a restauração. Uma queda durante a restauração deixa o processo recuperável em nova tentativa autenticada; não reenvie uma instalação de resultado incerto.
+- O marcador de manutenção precisa ser realmente removido para informar êxito; em caso de erro ou estado inconsistente, faça recuperação assistida. Nunca apague `storage/updater/jobs` ou `.update-maintenance` sem examinar o journal, os snapshots e backups externos.
+- Testes com interrupções simuladas ocorreram **somente em arquivos temporários no CLI**. Ainda é necessário reproduzir em homologação com MariaDB e ZipArchive. Ver [RECUPERACAO_FALHAS_115.md](RECUPERACAO_FALHAS_115.md).

@@ -1,3 +1,25 @@
+## [1.0.115] - 2026-11-07
+
+### Atualizador: falhas e recuperação
+- Pré-validação de **todas** as cópias de arquivos e do journal antes de iniciar o rollback: cópia ausente, adulterada ou symlink bloqueia a restauração sem sobrescrever parte do código.
+- Recuperação manual registra `recovery_needed` e ativa o modo de manutenção **antes** de reverter arquivos. Interrupções durante rollback podem ser retomadas com os mesmos snapshots; sucesso exige journal `rolled_back` e remoção confirmada do marcador de manutenção.
+- `VERSION` continua sendo aplicado por último. A remoção do marcador de manutenção deve ser confirmada; o atualizador não anuncia sucesso quando ela falha.
+- `igua_updater_last_job` recusa journal com ID diferente do índice privado. Separação interna do loop de aplicação, com injeção opcional de falhas somente nos testes offline.
+- Novo `tests/updater_failure_215.php`: substituição interrompida após 1, 3 ou 4 arquivos, queda no meio do rollback, retomada manual, restauração de versão completa, cópia adulterada, edição posterior e marcador não removível. Apenas arquivos fictícios em diretório temporário.
+
+### Compatibilidade e pendências
+- Schema 37, backup v12 e formato ZIP de atualização v2 preservados. **Não houve migração nem execução no Plesk**. Continua pendente testar implantação real com MariaDB + ZipArchive, falta de disco, timeout/fatal e cópias externas em ambiente de homologação.
+
+## [1.0.114] - 2026-11-07
+
+### Segurança e recuperação
+- Backups regulares com nomes válidos continuam disponíveis, mas a listagem e o download agora rejeitam arquivos e diretórios de backup que sejam links simbólicos, evitando leitura de alvos externos.
+- Novo `tests/recovery_safety_214.php`: testes de rejeição de backups malformados/GZIP, falta de administrador, travessia de caminhos, links simbólicos, tamanho/caminho/duplicação em manifestos de atualização e assinatura obrigatória do formato legado.
+- Matriz de cobertura e limitações em `docs/SEGURANCA_RECUPERACAO_114.md`. Nenhuma tentativa de restauração ou instalação na hospedagem foi executada.
+
+### Compatibilidade
+- Schema 37, backup lógico v12 e ZIP completo v2 inalterados; backups existentes e mídias persistentes preservados. Integração MariaDB/ZipArchive do CI e homologação com falhas de disco/timeout ainda necessárias para afirmar restauração real.
+
 ## [1.0.113] - 2026-11-07
 
 ### Refatoração do Wizard de Notícias
