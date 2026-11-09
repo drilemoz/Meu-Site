@@ -1,6 +1,13 @@
-# Diretrizes de manutenção — Meu Site (v1.0.136)
+# Diretrizes de manutenção — Meu Site (v1.0.137)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Resiliência do painel (1.0.137)
+
+- `public/admin.php` precisa carregar `app/server_info.php` **antes** de renderizar Informações do Servidor; novos módulos de rota devem ter dependências importadas no controlador e cobertas por testes de inicialização, não apenas testes isolados de funções.
+- `admin-ui.js` deve permanecer com `defer` no `<head>` do layout para o menu continuar funcionando se uma rota abortar parcialmente a resposta. Nunca incluir o script duas vezes.
+- Diagnósticos opcionais (`server_info` e `dns_diagnostic`) devem falhar com mensagem genérica, status HTTP adequado e log privado, sem travar o restante do painel nem expor paths/credenciais; testar o fallback com `tests/admin_diagnostic_render_237.php`.
+- Manter schema 37, backup v12, autorização, DNS read-only e funcionamento sem extensões opcionais.
 
 ## Diagnóstico DNS automático (1.0.136)
 

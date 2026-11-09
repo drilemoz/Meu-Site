@@ -1,3 +1,14 @@
+## [1.0.137] - 2026-11-09
+
+### Corrigido
+- `public/admin.php` agora carrega `app/server_info.php` antes de renderizar a rota Informações do Servidor. Na 1.0.136 a dependência faltava, causando erro fatal, página vazia e ausência do script do menu.
+- JavaScript do menu administrativo carregado no `<head>` com `defer`; continua disponível mesmo se um diagnóstico falhar mais abaixo no HTML.
+- Renderização de Informações do Servidor e Diagnóstico de DNS protegida com captura de falhas, descarte do HTML incompleto, resposta HTTP 500, mensagem amigável e log privado, sem divulgar rastreamentos de erro ao navegador.
+- Consulta de espaço em disco resistente à indisponibilidade de funções de hospedagem compartilhada.
+
+### Testes
+- Novo `tests/admin_diagnostic_render_237.php`: 14 verificações da dependência, navegação inicial, renderização e fallback de erro. Regressão de PHP/JS, sintaxe, auditoria, CRC e SHA-256. Schema 37, backup v12, funções de DNS e conteúdo mantidos.
+
 ## [1.0.136] - 2026-11-09
 
 ### Adicionado

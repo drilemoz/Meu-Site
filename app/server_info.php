@@ -46,7 +46,11 @@ function igua_server_info_capabilities(array $extensions, bool $uploadEnabled, b
 function igua_server_info_snapshot(?PDO $db=null, ?string $diskRoot=null): array {
     $software=(string)($_SERVER['SERVER_SOFTWARE']??'');
     $diskRoot=$diskRoot??(defined('IGUA_ROOT')?IGUA_ROOT:__DIR__);
-    $free=@disk_free_space($diskRoot);$total=@disk_total_space($diskRoot);
+    $free=false;$total=false;
+    if(function_exists('disk_free_space') && function_exists('disk_total_space')){
+        try {$free=@disk_free_space($diskRoot);$total=@disk_total_space($diskRoot);}
+        catch(Throwable $e){$free=false;$total=false;}
+    }
     $disk=($free!==false && $total!==false && $total>0 && $free>=0 && $free<=$total)
         ? ['free'=>(int)$free,'total'=>(int)$total,'used'=>(int)($total-$free),'percent'=>min(100,max(0,(int)round(100*($total-$free)/$total)))] : null;
     $dbResult=['status'=>'Indisponível','version'=>null];

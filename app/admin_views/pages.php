@@ -2,8 +2,23 @@
 <?php elseif(in_array($action,['bus','bus_edit','bus_import'],true)): bus_admin_view($db,$action); ?>
 <?php elseif($action==='ads'): ad_admin_view($db); ?>
 <?php elseif($action==='files'): require __DIR__.'/routes/files.php'; ?>
-<?php elseif($action==='server_info'): require __DIR__.'/routes/server_info.php'; ?>
-<?php elseif($action==='dns_diagnostic'): require __DIR__.'/routes/dns_diagnostic.php'; ?>
+<?php elseif(in_array($action,['server_info','dns_diagnostic'],true)):
+    // Diagnósticos opcionais nunca devem interromper o menu e o restante do painel.
+    // Descartar qualquer HTML parcial quando uma função/extensão estiver indisponível.
+    $diagBufferLevel=ob_get_level();ob_start();
+    try {
+        require __DIR__.'/routes/'.($action==='server_info'?'server_info.php':'dns_diagnostic.php');
+        $diagHtml=ob_get_clean();
+        echo $diagHtml;
+    } catch (Throwable $e) {
+        while(ob_get_level()>$diagBufferLevel)ob_end_clean();
+        try { igua_health_log('ADMIN_DIAGNOSTIC_VIEW_FAILED',$e); } catch(Throwable $logError) { /* não mostrar detalhes privados */ }
+        http_response_code(500);
+        echo '<section class="panel" role="alert"><h2>Diagnóstico indisponível</h2>';
+        echo '<p>Não foi possível carregar esta ferramenta. Verifique a Central de Saúde e os registros privados do servidor.</p>';
+        echo '<p><a class="btn outline" href="/admin.php?action=health">Abrir Central de Saúde</a></p></section>';
+    }
+?>
 <?php elseif($action==='media'): ?><?php media_admin_modal(true); ?>
 <?php elseif($action==='health'): igua_health_admin_view($db); ?>
 <?php elseif($action==='security'): igua_security_admin_view(); ?>

@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.137
+
+**Correção urgente do painel de administração:** a página Informações do Servidor deixava o conteúdo em branco e o botão de menu sem resposta porque o módulo `app/server_info.php` não era carregado pelo controlador; a falha interrompia o HTML antes do JavaScript da navegação. A rota foi corrigida e o menu passou a carregar no início da página.
+
+**Resiliência:** Informações do Servidor e Diagnóstico de DNS agora mostram uma mensagem simples com acesso à Central de Saúde quando algum erro interno impedir o diagnóstico, registrando detalhes apenas nos logs privados. Funções de disco bloqueadas pelo provedor deixam os dados como indisponíveis, sem quebrar o painel.
+
+**Compatibilidade:** atualização de código, sem alteração do banco, dados, galeria, schema 37, backup v12 ou DNS. Depois de atualizar, recarregue a página no Chrome Android; a versão na URL dos scripts muda, evitando cache antigo. Testes locais não substituem inspeção no PHP da hospedagem.
+
 ## IguatamaOnline 1.0.136
 
 **Ferramentas → Diagnóstico de DNS:** consulta automaticamente o domínio oficial configurado em Geral e SEO. Exibe IPv4 (A), IPv6 (AAAA), alias (CNAME) e servidores de nomes (NS), comparando a resolução PHP da hospedagem com Google Public DNS e Cloudflare. Mostra resultados divergentes e diferencia "Sem registro" de "Consulta indisponível". A tela é compacta e tem botão Atualizar e ajuda `?`.

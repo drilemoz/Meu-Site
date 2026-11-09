@@ -16,6 +16,7 @@ require_once __DIR__.'/../app/schema_migrations.php';
 require_once __DIR__.'/../app/auth_remember.php';
 require_once __DIR__.'/../app/auth_throttle.php';
 require_once __DIR__.'/../app/settings_service.php';
+require_once __DIR__.'/../app/server_info.php';
 require_once __DIR__.'/../app/dns_diagnostic.php';
 require_once __DIR__.'/../app/apps_legal.php';
 require_once __DIR__.'/../app/bus_admin.php';
