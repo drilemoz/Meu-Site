@@ -1,67 +1,132 @@
-# VPS AWS EC2 Ubuntu 24.04 | Nginx | PHP 8.3 | MariaDB (v1.0.138)
+# IguatamaOnline 1.0.139 — Implantação AWS EC2 Ubuntu 24.04
 
-## Arquitetura, limites e migração
+**Ambiente-alvo:** `/var/www/projetos/iguatamaonline/`, Nginx (`root .../public`), PHP-FPM 8.3 como `www-data`, MariaDB e PHP CLI 8.3 com worker systemd `iguanews-deploy`. **Não alterar** `/var/www/iguatama-teste/`. O procedimento não contém migração de banco.
 
-O código-fonte permanece em `/var/www/projetos/iguatamaonline/`, com document root **somente** `public/`. A instalação de testes em `/var/www/iguatama-teste/` **não participa** deste procedimento e deve ficar intocada.
+## Princípio de segurança e limites
 
-`www-data` **NÃO** altera `VERSION`, `app/`, `public/*.php` ou outros scripts. O painel autenticado registra um pedido simples em `storage/updater/vps/request.json`. Um serviço `systemd` executa PHP CLI como **`iguanews-deploy`** (sem root), consulta exclusivamente a última release de `drilemoz/Meu-Site`, valida ZIP, manifesto/versão/schema, prepara backups do código e MySQL, e substitui arquivos. O modo tradicional permanece disponível em hospedagens sem `IGUA_DEPLOY_VPS=1`.
+A interface de Atualizações continua no painel e o processo web **não** modifica arquivos PHP/VERSION. O painel grava somente `request.json` na fila privada compartilhada, protegida por diretório sticky (`3770`); o worker não-root executa download fixado em `drilemoz/Meu-Site`, valida manifesto/hashes, cria backup MySQL e snapshots de código e aplica arquivos. O **diretório raiz do projeto** também deve pertencer à conta de deploy (modo `0755`): `rename()` sobre `VERSION` exige permissão de escrita no **diretório pai**, não apenas no arquivo. `www-data` não pode escrever nesse diretório.
 
-O ZIP v2 tem SHA-256 para integridade, mas não obriga assinatura criptográfica. A confiança de origem do modo VPS depende de TLS/HTTPS, do repositório **fixo** no GitHub e da segurança da conta/release. Para exigir assinatura independente, providencie chave de assinatura e rejeição de ZIPs não assinados em uma evolução futura. Não configure URL ou repositório arbitrário no serviço.
+Controles exclusivos `storage/updater/vps/private/` pertencem ao worker (diretório `2750`): `.code.lock` e `maintenance`. O PHP-FPM só pode consultar o marcador, não apagá-lo nem modificá-lo. `storage/updater/jobs/` contém snapshots e journals controlados pelo worker; o painel consulta apenas metadados necessários. A fila `storage/updater/vps/` é a única superfície compartilhada de pedidos e estados, e **não aceita comandos, caminhos ou URLs do navegador**.
 
-O worker executa uma operação por vez. Se morrer entre a troca de arquivos, a requisição fica marcada como `running.json` e a próxima execução é bloqueada; não há repetição automática de operações ambíguas. A restauração automática do código é tentada em erros de aplicação; restauração manual é via SSH. O backup lógico MySQL anterior à implantação é preservado em `storage/backups/`; **a restauração do banco é separada** e não deve ser automática se o site recebeu novos dados. O esquema continua na revisão 37; versões com alteração de schema não são instaladas por este atualizador.
+A autenticação da origem da release depende de GitHub/TLS e controle da conta GitHub. ZIP v2 sem assinatura tem integridade SHA-256 interna, mas **não assinatura de autoria**. Não anuncie isso como código assinado. Exigir assinaturas Ed25519 das futuras releases requer distribuição de releases assinadas e ativação obrigatória planejada, não é automática nesta versão.
 
-## 1. Preparação inicial, com acesso SSH e sudo
+## 1. Pré-condições e cópias de segurança
 
-Antes de qualquer alteração, faça um snapshot EBS e cópia externa do banco e de `storage/`/uploads; registre o proprietário e modo atuais. **Não execute estes comandos em uma instalação ainda não testada.** Os comandos seguintes pressupõem que o projeto já está instalado e funcional na pasta acima e que o usuário `www-data` é o PHP-FPM e Nginx.
+1. Pare quaisquer atualizações em andamento e **não habilite o timer** até completar a vistoria.
+2. Faça snapshot EBS, exportação externa do banco, de `storage/` e `public/uploads/`, e garanta procedimento de recuperação via SSH.
+3. Confirme se já existem `storage/.update-maintenance`, `storage/updater/vps/running.json`, `storage/updater/vps/request.json` e jobs antigos. Se houver atualização pendente, investigue e recupere ANTES de mudar owners. **Não apague estados/journals automaticamente.**
+4. Confira os caminhos e os usuários reais antes de executar qualquer `chown`:
+
+```bash
+SITE=/var/www/projetos/iguatamaonline
+sudo stat -c '%U:%G %a %n' "$SITE" "$SITE/VERSION" "$SITE/app" "$SITE/public" "$SITE/storage"
+sudo find "$SITE/app" "$SITE/public" -type l -print
+sudo ls -la "$SITE/storage/updater" "$SITE/storage/updater/vps" 2>/dev/null || true
+```
+
+O procedimento pressupõe que `www-data` é o usuário real do pool PHP-FPM. Se a configuração do pool utilizar outra conta/grupo, adapte nomes e comandos; não os execute literalmente.
+
+## 2. Instalação inicial do código via SSH
+
+A primeira implantação da 1.0.139 precisa ser executada via SSH/sudo porque a versão anterior pode ser de propriedade do `root`. Publique o **ZIP de fonte completo** numa pasta temporária privada, confira o conteúdo e atualize o código preservando integralmente `storage/`, `public/uploads/` e `public/ads.txt`. Não use o ZIP de atualização para instalar unidades systemd: ele não contém `deploy/aws/` nem `bin/`.
+
+Exemplo a partir de um ZIP previamente transferido via SSH e verificado, **somente depois de fazer snapshot EBS e backup externo**, e depois de confirmar que não há atualização em andamento:
+
+```bash
+SITE=/var/www/projetos/iguatamaonline
+STAGE=$(mktemp -d /tmp/igua139-stage-XXXXXXXX)
+unzip -q /caminho/seguro/Meu-Site-v1.0.139-fonte-completo.zip -d "$STAGE"
+test "$(cat "$STAGE/VERSION")" = '1.0.139' || exit 1
+# Sem --delete, sem alterar armazenamento privado e sem publicar configurações antigas.
+sudo rsync -a --no-owner --no-group --exclude '/storage/***' \
+  --exclude '/public/uploads/***' --exclude '/public/ads.txt' \
+  --exclude '/public/robots.txt' "$STAGE/" "$SITE/"
+# Confira antes de apagar a área temporária. Atribua os owners conforme abaixo.
+```
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y nginx php8.3-cli php8.3-fpm php8.3-mysql php8.3-zip php8.3-curl php8.3-mbstring php8.3-gd php8.3-xml php8.3-intl mariadb-client
 sudo adduser --system --group --home /nonexistent --no-create-home --disabled-login iguanews-deploy
 sudo usermod -aG www-data iguanews-deploy
-cd /var/www/projetos/iguatamaonline
-# CONFERIR: não deve haver symlinks inesperados antes de alterar ownership.
-find app public -type l -print
-# www-data continua sem escrita no código; esta conta dedicada passará a ser dona.
-sudo chown -R iguanews-deploy:iguanews-deploy app public bin VERSION
-sudo find app public bin -type d -exec chmod 755 {} +
-sudo find app public bin -type f -exec chmod 644 {} +
-# Restaurar somente o diretório persistente de uploads para www-data.
+SITE=/var/www/projetos/iguatamaonline
+cd "$SITE"
+
+# Raiz obrigatoriamente gravável PELA CONTA DE DEPLOY, nunca por www-data.
+sudo chown iguanews-deploy:iguanews-deploy "$SITE"
+sudo chmod 0755 "$SITE"
+sudo chown -R iguanews-deploy:iguanews-deploy app public bin
+sudo find app public bin -type d -exec chmod 0755 {} +
+sudo find app public bin -type f -exec chmod 0644 {} +
+sudo chown iguanews-deploy:iguanews-deploy VERSION
+sudo chmod 0644 VERSION
+
+# Arquivos persistentes: navegador/site continuam com acesso a uploads.
 sudo chown -R www-data:www-data public/uploads
-sudo find public/uploads -type d -exec chmod 750 {} +
-sudo find public/uploads -type f -exec chmod 640 {} +
-# Garante que storage seja privado e gravável por PHP, com leitura dos itens
-# explicitamente necessários pelo worker. NÃO publicar storage no Nginx.
+sudo find public/uploads -type d -exec chmod 0750 {} +
+sudo find public/uploads -type f -exec chmod 0640 {} +
+
+# storage/ permanece exclusivo do PHP; o worker entra pelo grupo suplementar.
 sudo chown www-data:www-data storage
-sudo chmod 750 storage
+sudo chmod 0750 storage
 sudo chown www-data:www-data storage/config.php
-sudo chmod 640 storage/config.php
-# Permite ao worker somente a leitura do config.php, por grupo suplementar www-data.
-# As pastas de backups e updater devem permitir criação por www-data e worker.
-sudo install -d -o www-data -g www-data -m 2770 storage/backups storage/updater
+sudo chmod 0640 storage/config.php
+
+# Fila e backups compartilhados por grupo, com sticky bit nos pais.
+sudo install -d -o www-data -g www-data -m 2770 storage/backups
+sudo install -d -o iguanews-deploy -g www-data -m 3770 storage/updater
 sudo install -d -o iguanews-deploy -g www-data -m 3770 storage/updater/vps
+# Diretórios do trabalhador: grupo somente lê/travessa (não escreve).
+sudo install -d -o iguanews-deploy -g www-data -m 2750 storage/updater/jobs
+sudo install -d -o iguanews-deploy -g www-data -m 2750 storage/updater/vps/private
 sudo touch storage/updater/vps/.dispatch.lock
 sudo chown iguanews-deploy:www-data storage/updater/vps/.dispatch.lock
-sudo chmod 660 storage/updater/vps/.dispatch.lock
-# Acesso ao storage pelos diretórios ancestrais: worker integra o grupo www-data.
+sudo chmod 0660 storage/updater/vps/.dispatch.lock
+sudo touch storage/updater/vps/private/.code.lock
+sudo chown iguanews-deploy:www-data storage/updater/vps/private/.code.lock
+sudo chmod 0600 storage/updater/vps/private/.code.lock
 ```
 
-Se o `storage/` e as pastas privadas existentes tiverem ACL, owners ou modos diferentes, **ajuste após inspeção**, sem `chmod -R 777`, sem alterar arquivos de outras aplicações, sem disponibilizar a configuração na web. Garanta que `storage/updater/` e `storage/backups/` sejam atravessáveis e graváveis por ambos (`www-data` e conta de deploy via grupo). Arquivos sensíveis de configurações devem continuar inacessíveis ao público.
-
-**Verifique na prática:**
+**Migrar permissões antigas sem apagar backups:** após examinar jobs e confirmar que não há atualização em execução, ajuste a propriedade dos registros já existentes para a conta do worker. Preserve os snapshots; não altere suas permissões para tornar dados privados públicos. Quando houver `last.json` antigo, o worker precisa conseguir ler o apontador:
 
 ```bash
-sudo -u www-data test ! -w /var/www/projetos/iguatamaonline/VERSION && echo 'www-data nao escreve VERSION'
-sudo -u iguanews-deploy test -w /var/www/projetos/iguatamaonline/VERSION && echo 'deploy escreve VERSION'
-sudo -u www-data test -w /var/www/projetos/iguatamaonline/storage/updater/vps && echo 'fila disponivel'
-sudo -u iguanews-deploy test -r /var/www/projetos/iguatamaonline/storage/config.php
+SITE=/var/www/projetos/iguatamaonline
+cd "$SITE"
+# Somente após INSPECIONAR os jobs antigos e confirmar ausência de atualização ativa:
+sudo chown -R iguanews-deploy:www-data storage/updater/jobs
+sudo find storage/updater/jobs -type d -exec chmod 2750 {} +
+if [ -f storage/updater/last.json ]; then
+  sudo chown iguanews-deploy:www-data storage/updater/last.json
+  sudo chmod 0640 storage/updater/last.json
+fi
+# O .lock LEGADO em storage/updater/.lock não é usado pelo worker novo;
+# não precisa apagá-lo. O worker usa vps/private/.code.lock.
 ```
 
-Se as verificações falharem, **não inicie o timer**. O código fonte precisa ser publicado **uma vez via SSH** antes de habilitar o modo VPS, pois o atualizador anterior não consegue substituir arquivos root-owned. Ao publicar, mantenha `storage/`, `public/uploads/` e `public/ads.txt` persistentes; não extraia ZIP-fonte diretamente sobre esses diretórios sem um procedimento de preservação.
+**Nunca** execute `chmod 777`, `chown -R www-data` no código nem `sudo` dentro do PHP-FPM. Serviços existentes podem manter arquivos específicos de domínio/SEO em `public/` que precisam ser avaliados separadamente. O IndexNow não exige escrita direta na raiz pública.
 
-## 2. Ativar PHP-FPM, worker e Nginx
+## 3. Verificações obrigatórias antes de ativar o serviço
 
-Adicione estas variáveis na configuração do pool PHP-FPM que atende ao portal (por exemplo `/etc/php/8.3/fpm/pool.d/www.conf`):
+```bash
+SITE=/var/www/projetos/iguatamaonline
+sudo -u www-data test ! -w "$SITE" && echo 'OK: web sem escrita na raiz'
+sudo -u www-data test ! -w "$SITE/VERSION" && echo 'OK: web sem escrita em VERSION'
+sudo -u www-data test ! -w "$SITE/app" && echo 'OK: web sem escrita em app'
+sudo -u www-data test ! -w "$SITE/public" && echo 'OK: web sem escrita em public'
+sudo -u www-data test ! -w "$SITE/storage/updater/vps/private" && echo 'OK: web sem escrita no controle'
+sudo -u www-data test -w "$SITE/storage/updater/vps" && echo 'OK: web grava pedidos na fila'
+sudo -u iguanews-deploy test -r "$SITE/storage/config.php" && echo 'OK: deploy lê configuração privada'
+# Comprova CRIAÇÃO + RENAME + EXCLUSÃO em root, app, public, jobs, backups, controle.
+sudo -u iguanews-deploy env IGUA_DEPLOY_VPS=1 /usr/bin/php8.3 "$SITE/bin/aws-deploy-check.php"
+```
+
+**Se qualquer linha reprovar, não habilite o timer.** A vistoria do painel apenas lê o último resultado publicado pelo worker e **não pode demonstrar permissões Unix sozinha**. O comando CLI acima testa operações reais sobre arquivos descartáveis, sem renomear o `VERSION` real.
+
+O diretório privado do worker precisa ter dono `iguanews-deploy`, modo `2750` (sem escrita pelo grupo). A fila compartilhada deve ter dono `iguanews-deploy` e modo `3770` com sticky bit; o sistema não permite que o `www-data` remova o status/lock criados pelo worker. Não considere o `www-data` uma conta confiável para proteção dos backups do MySQL: mantenha cópias externas com acesso independente.
+
+## 4. PHP-FPM, systemd e Nginx
+
+No pool específico de PHP-FPM 8.3 do portal (não no pool global de outros sites), configure:
 
 ```ini
 env[IGUA_DEPLOY_VPS] = 1
@@ -77,59 +142,58 @@ php_admin_value[opcache.revalidate_freq] = 0
 request_terminate_timeout = 90s
 ```
 
-**Nota:** `request_terminate_timeout` é parâmetro de pool, não diretiva `php_admin_value`. Se houver outros sites no mesmo pool, crie um pool PHP-FPM dedicado ao IguatamaOnline, com socket separado, em vez de mudar o comportamento de todos.
-
-Instale as unidades fornecidas em `deploy/aws/` (revisando previamente os paths e nomes):
+O worker usa CLI 8.3 com `memory_limit=512M`, `max_execution_time=0`, mas o `systemd` limita o tempo de cada execução a 360 s. O PHP-FPM não deve executar deploy demorado. Ajuste recursos apenas após medição.
 
 ```bash
-sudo install -m 644 deploy/aws/iguatama-deploy.service /etc/systemd/system/iguatama-deploy.service
-sudo install -m 644 deploy/aws/iguatama-deploy.timer /etc/systemd/system/iguatama-deploy.timer
+SITE=/var/www/projetos/iguatamaonline
+sudo install -m 0644 "$SITE/deploy/aws/iguatama-deploy.service" /etc/systemd/system/iguatama-deploy.service
+sudo install -m 0644 "$SITE/deploy/aws/iguatama-deploy.timer" /etc/systemd/system/iguatama-deploy.timer
+sudo systemd-analyze verify /etc/systemd/system/iguatama-deploy.service /etc/systemd/system/iguatama-deploy.timer
 sudo systemctl daemon-reload
-sudo systemctl enable --now iguatama-deploy.timer
 sudo systemctl restart php8.3-fpm
-sudo systemctl status iguatama-deploy.timer
-sudo journalctl -u iguatama-deploy.service -n 60 --no-pager
+# Execute o serviço uma vez, sem timer, e CONFIRA O STATUS NO PAINEL:
+sudo systemctl start iguatama-deploy.service
+sudo journalctl -u iguatama-deploy.service -n 80 --no-pager
+# Somente após a vistoria verde e revisão de serviços:
+sudo systemctl enable --now iguatama-deploy.timer
 ```
 
-O timer executa um PHP CLI curto quando não há fila, aproximadamente a cada 20 segundos; não mantém um daemon permanente, nem usa `sudo` no processo web. A conta de implantação precisa resolver e alcançar `api.github.com`/downloads oficiais pela rede. Não copie senhas MySQL para a unidade systemd: o backup lê `storage/config.php` com permissões restritas.
+### IndexNow em Nginx
 
-### IndexNow sem escrever em `public/`
-
-Dentro do bloco `server` HTTPS do Nginx que atende `iguatama.online`, insira **antes da regra genérica `location ~ \.php$`** o conteúdo de `deploy/aws/nginx-indexnow.conf`. Essa rota só serve um nome hexadecimal de 32 caracteres e só responde a uma chave que confere com a configuração privada de IndexNow. Ela executa `public/indexnow-key.php`, sem gerar arquivo de texto em `public/`.
-
-**Não substitua o server block inteiro**: mantenha TLS, `root`, rotas, redirecionamentos e as proteções já existentes. Em seguida:
+Inclua `deploy/aws/nginx-indexnow.conf` no `server` HTTPS, **antes** do regex geral `location ~ \\.php$`. O snippet mostra `fastcgi_pass unix:/run/php/php8.3-fpm.sock` como **exemplo padrão**. Se o site usa pool dedicado, troque-o pelo socket `listen` real desse pool; não copie cegamente. Verifique com:
 
 ```bash
+sudo grep -H -E '^\s*listen\s*=' /etc/php/8.3/fpm/pool.d/*.conf
+sudo nginx -T | grep -E 'fastcgi_pass|iguatamaonline/public' | head -n 40
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-Depois de configurar o IndexNow pelo painel, teste a URL gerada com HTTPS real e confirme conteúdo igual à chave e HTTP 200; um nome inválido deve retornar HTTP 404. Não suponha que o PHP detecte sozinho se o `location` Nginx foi aplicado corretamente.
+Confira a URL HTTPS `https://seudominio/<chave-indexnow>.txt` a partir de uma rede externa e garanta HTTP 200 com o texto exato da chave; chave diferente deve retornar 404. O serviço virtual de IndexNow mantém os arquivos da chave fora da raiz `public/`. O teste no painel não substitui a checagem no Nginx real.
 
-## 3. Testes de recuperação e deploy
+## 5. Atualização, falhas e recuperação
 
-1. Confirme acesso ao painel e à página **Atualizações → Vistoria**, que deve informar **Serviço de implantação separado**, fila privada e **Escrita do código: somente pela conta dedicada**. A falta de escrita de `www-data` em `VERSION`, `app/updater.php` e `public/admin.php` não é falha nesse modo.
-2. Selecione **Visualizar → Atualizar agora**. CSRF, senha de administrador e confirmação continuam exigidos. O pedido é registrado; o status chega por polling. Não reenvie se ficar incerto.
-3. O worker instala somente releases posteriores e compatíveis com schema 37. Antes de tocar no código, mantém backup lógico MySQL e cópia de arquivos afetados. Revise `journalctl` em falhas.
-4. Para recuperar código manualmente, desligue o timer, confira o journal e use somente após decidir restaurar:
+1. Gere backup externo e snapshot EBS antes da primeira atualização real; confirme que MariaDB está acessível.
+2. No painel, abra **Atualizações → Vistoria** e confira o heartbeat do worker e provas de criação/renomeação atômica. Em seguida use **Visualizar → Atualizar agora** para release posterior compatível com schema 37.
+3. O worker consulta release oficial, valida limites e hashes, realiza backup lógico do banco e do código e atualiza arquivos. Os dados persistentes e imagens não são substituídos.
+4. Em falha detectada durante aplicação, tenta rollback do código. Se `maintenance` ou `running.json` permanecerem, **não reenviar**: o processo pode ter sido interrompido após alterar arquivos.
+5. Para recuperação assistida por SSH, depois de examinar os journals e snapshots e desativar o timer:
 
 ```bash
 sudo systemctl stop iguatama-deploy.timer
-cd /var/www/projetos/iguatamaonline
+SITE=/var/www/projetos/iguatamaonline
+cd "$SITE"
 sudo -u iguanews-deploy env IGUA_DEPLOY_VPS=1 /usr/bin/php8.3 bin/aws-deploy-worker.php --rollback
-sudo systemctl start iguatama-deploy.timer
+# Inspecione VERSION, arquivos restaurados, integridade, backup e autenticação.
+# Se running.json permanecer, apure sua origem; não o remova automaticamente.
+# Só reative o timer depois de concluir a investigação.
 ```
 
-Se `running.json` permanecer após interrupção, **não apague automaticamente**. Investigue e faça recuperação assistida; confirme versão, código e backup antes de liberar outra solicitação. O rollback de código não reverte artigos novos, uploads, nem mudanças feitas no MySQL.
+Um marcador LEGADO `storage/.update-maintenance` de versões anteriores também bloqueia novas atualizações. Não migre nem exclua esse marcador sem verificar o último journal, pois pode significar falha real. O rollback de código **não** restaura automaticamente publicações, uploads nem mudanças no banco ocorridas após o backup.
 
-## 4. Limites, compatibilidade e segurança
+## 6. Compatibilidade e limitações
 
-- PHP-FPM com `memory_limit=256M` e `max_execution_time=60` atende ao painel; tarefas de instalação potencialmente demoradas são executadas pelo CLI (512M, sem limite PHP, mas `TimeoutStartSec=360`). Não aumente os limites do FPM para 5 ou 10 minutos para contornar implantação de código.
-- Os limites de ZIP do atualizador continuam 32 MiB compactados, 80 MiB extraídos e 800 entradas; backup lógico máximo 40 MiB descompactado. Antes de crescer o portal, avalie esses limites com medições reais.
-- Os backups ficam em `storage/backups/`, não são publicados. Mantenha também cópias externas, snapshot EBS e testes regulares de recuperação, especialmente se o banco não for transacional ou o host falhar durante o backup.
-- Em hospedagens compartilhadas, **não defina** `IGUA_DEPLOY_VPS`; o modo de atualização direta e o IndexNow físico continuam existentes, sujeitos às permissões do provedor.
-- O worker não roda como root, não recebe comandos, URL, shell ou caminhos do navegador. Na VPS, o upload manual de ZIP e a restauração de código pela página ficam desabilitados por segurança; a recuperação manual exige SSH.
-- O usuário `www-data` não deve ter acesso de escrita em código, `.github/`, `bin/` ou `VERSION`.
-- A conta de deploy possui permissão de alterar código e ler a configuração do banco para gerar backup. É uma conta privilegiada **no escopo do aplicativo**, mesmo sem ser root. Proteja o acesso SSH/arquivos, o repositório de releases e o serviço systemd.
-
-
-**Atenção sobre pacote:** use o **ZIP de código-fonte completo** para obter `deploy/aws/` e arquivos do workflow; o ZIP de atualização web não inclui `deploy/`, `.github/` ou documentação de infraestrutura. Antes de executar comandos que alteram ownership em produção, faça a implantação inicial numa cópia da VPS e simule um deploy e um rollback.
+- Sem `IGUA_DEPLOY_VPS=1`, o atualizador direto da hospedagem compartilhada continua operando conforme permissões do provedor; não exige conta dedicada nem nova estrutura privada.
+- O ZIP de atualização normal inclui `app/`, `public/` e `VERSION`, mas não inclui `deploy/`, `bin/`, `storage/` nem unidades systemd. A instalação inicial e futuras mudanças de infraestrutura exigem publicar o ZIP-fonte completo via SSH.
+- O diretório do projeto pertencente à conta `iguanews-deploy` **não significa que o site web seja executado como esse usuário**. PHP-FPM permanece `www-data` sem escrita no código.
+- O pacote de atualização v2 atual pode não ter assinatura digital. Para autenticidade independente do GitHub/TLS, ainda será necessário distribuir releases assinadas e exigir verificação. Não confunda hash interno com assinatura.
+- Testes locais não substituem EC2: conferir permissões Unix, socket real, serviço systemd, MariaDB, deploy completo e rollback numa cópia isolada antes de liberar produção.

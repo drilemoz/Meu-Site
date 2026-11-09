@@ -8,6 +8,7 @@ require __DIR__.'/updater.php';
 if(($argv[1]??'')==='--rollback'){
     if(!igua_updater_vps_mode()||(function_exists('posix_geteuid')&&posix_geteuid()===0))
         throw new RuntimeException('Recuperação requer conta dedicada não-root.');
+    igua_updater_vps_assert_worker();
     igua_updater_manual_rollback();
     echo "Código recuperado; banco MySQL preservado.\n";
 }elseif(count($argv)===1)igua_updater_vps_run();

@@ -1,6 +1,13 @@
-# Diretrizes de manutenção — Meu Site (v1.0.138)
+# Diretrizes de manutenção — Meu Site (v1.0.139)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Segurança de implantação VPS (1.0.139)
+
+- A conta não-root `iguanews-deploy` deve ser dona do diretório raiz do projeto (0755), app e public (0755), incluindo VERSION, para permitir `rename()` atômico. `www-data` não deve escrever em código nem raiz. `storage/` continua www-data 0750, com grupo de leitura para worker.
+- Controles `storage/updater/vps/private/maintenance` e `.code.lock`: owner deploy, diretório 2750, web só leitura/travessia; marcador legado `storage/.update-maintenance` ainda bloqueia novas instalações. Atualizações não devem ignorar manutenção no bootstrap.
+- Fila `vps/` sticky 3770, jobs de worker 2750, backups compartilhados em 2770. Heartbeat `worker.json` só informa ready=true após testes reais de escrita/rename no contexto do worker. Não confiar apenas na existência de heartbeat.
+- `bin/aws-deploy-check.php` e `docs/AWS_EC2_DEPLOY.md` são obrigatórios; revisão de permissões e rollback na EC2 antes de habilitar timer. Testes `vps_deploy_238.php`, `vps_deploy_239.php` obrigatórios. Não usar chmod 777, nem root web, nem transformar SHA-256 em prova de autoria.
 
 ## Deploy VPS EC2 (1.0.138)
 

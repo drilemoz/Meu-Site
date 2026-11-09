@@ -38,7 +38,7 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   <?php if($vpsDeploy): ?><div class="alert info">Modo VPS: o www-data não altera código. A atualização oficial é realizada pelo serviço systemd, com progresso nesta tela; ZIP manual fica desativado.</div><?php endif; ?>
   <?php if(!$ready): ?><div class="alert warning">Para instalar atualizações, o PHP precisa da extensão ZipArchive. Sodium é opcional para os pacotes antigos assinados.</div><?php endif; ?>
   <?php if($remoteError): ?><div class="alert warning"><?=h($remoteError)?></div><?php endif; ?>
-  <?php if(is_file(igua_updater_maintenance())): ?><div class="alert error">Atualização interrompida. Recupere o código antes de continuar.</div><?php endif; ?>
+  <?php if(igua_updater_maintenance_present()): ?><div class="alert error">Atualização interrompida. Recupere o código antes de continuar.</div><?php endif; ?>
 </section>
 <dialog id="updater-github-dialog" class="igua-modal igua-modal--narrow updater-dialog updater-upload-dialog updater-github-dialog" aria-labelledby="updater-github-title" aria-modal="true">
   <div class="updater-dialog-head">

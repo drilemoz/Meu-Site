@@ -1,8 +1,8 @@
-> **Versão atual: 1.0.138.** VPS AWS EC2: atualização GitHub por worker PHP CLI systemd, código sem escrita pelo PHP-FPM e IndexNow por rota Nginx. Veja [instruções AWS](docs/AWS_EC2_DEPLOY.md).
+> **Versão atual: 1.0.139.** Atualizador AWS EC2 com conta dedicada, controles privados, teste real de renomeação atômica e procedimento de permissões corrigido. Consulte [AWS EC2](docs/AWS_EC2_DEPLOY.md).
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.137** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.139** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 

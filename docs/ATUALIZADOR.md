@@ -65,3 +65,9 @@ O botão **Diagnosticar ZIP antes de instalar** envia o arquivo apenas para vali
 ## VPS AWS EC2 (1.0.138)
 
 O modo `IGUA_DEPLOY_VPS=1` desabilita a troca direta de código por PHP-FPM. O painel registra pedido ao worker systemd dedicado; o ZIP oficial do GitHub é validado, backups do código/MySQL ocorrem antes da aplicação e o progresso é consultado por usuário/token. Recuperação de código na VPS é por SSH. Confira [AWS EC2](AWS_EC2_DEPLOY.md).
+
+### EC2 1.0.139: estado e permissões da conta de implantação
+
+No modo `IGUA_DEPLOY_VPS=1`, o marcador de manutenção fica em `storage/updater/vps/private/maintenance` e o lock de código em `storage/updater/vps/private/.code.lock`. O diretório privado pertence ao usuário `iguanews-deploy`, com acesso de grupo apenas para leitura/travessia. O marcador legado `storage/.update-maintenance` também continua bloqueando novas atualizações até recuperação assistida. Não remova nenhum marcador nem journal sem apurar a causa.
+
+O teste de prontidão real executa `bin/aws-deploy-check.php` como usuário de implantação e verifica criação/renomeação/exclusão em root, app, public, backup, jobs e área privada. A vistoria web lê o resultado recente, mas não executa essas operações como `www-data`. Consulte [procedimento EC2](AWS_EC2_DEPLOY.md).

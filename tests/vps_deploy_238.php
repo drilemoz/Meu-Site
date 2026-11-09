@@ -10,6 +10,7 @@ function chk238(bool $v,string $message):void{if(!$v)throw new RuntimeException(
 $prev=getenv('IGUA_DEPLOY_VPS');$prevIndex=getenv('IGUA_INDEXNOW_VIRTUAL');
 $folder=IGUA_UPDATE_DIR.'/vps';$created=!is_dir($folder);
 $lock=IGUA_UPDATE_DIR.'/vps/.dispatch.lock';
+$private=$folder.'/private';$createdPrivate=!is_dir($private);
 try {
     putenv('IGUA_DEPLOY_VPS=1');putenv('IGUA_INDEXNOW_VIRTUAL=1');
     chk238(igua_updater_vps_mode(),'modo VPS detectado por configuração de ambiente');
@@ -20,8 +21,9 @@ try {
     }
     if(!is_dir(IGUA_UPDATE_DIR))mkdir(IGUA_UPDATE_DIR,0700,true);
     if($created)mkdir($folder,0770);
+    if($createdPrivate)mkdir($private,0750);
     if(!is_file($lock))touch($lock);
-    igua_updater_vps_write('worker.json',['at'=>time()]);
+    igua_updater_vps_write('worker.json',['at'=>time(),'ready'=>true,'checks'=>[]]);
     $token=bin2hex(random_bytes(16));
     igua_updater_vps_enqueue('install_remote',18,$token);
     $req=igua_updater_vps_read('request.json');
@@ -52,6 +54,7 @@ try {
     echo "OK: VPS 238 fila, isolamento, fonte fixa, controle de concorrência e IndexNow virtual\n";
 } finally {
     foreach(['request.json','running.json','status.json','worker.json','.dispatch.lock'] as $f){$path=$folder.'/'.$f;if(is_file($path))@unlink($path);}
+    if($createdPrivate)@rmdir($private);
     if($created)@rmdir($folder);
     if($prev===false)putenv('IGUA_DEPLOY_VPS');else putenv('IGUA_DEPLOY_VPS='.$prev);
     if($prevIndex===false)putenv('IGUA_INDEXNOW_VIRTUAL');else putenv('IGUA_INDEXNOW_VIRTUAL='.$prevIndex);

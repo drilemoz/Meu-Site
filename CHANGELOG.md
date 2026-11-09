@@ -1,3 +1,11 @@
+## 1.0.139 — VPS: permissões e controles de deploy corrigidos
+
+- `VERSION` usa rename atômico em diretório-raiz cujo owner agora é a conta dedicada (0755), nunca `www-data`; instruções de implantação EC2 corrigidas.
+- Controle de manutenção e lock de atualização transferidos para `storage/updater/vps/private/` (worker-only, grupo somente leitura). Bootstrap respeita o marcador protegido e o marcador legado.
+- Heartbeat da conta de deploy só sinaliza pronto após testar criação, rename e exclusão em diretórios da aplicação, além de config, fila, backups e extensões. Vistoria do painel exibe falhas reais; não aceita falso positivo baseado apenas em tempo do serviço.
+- Jobs/snapshots privados, migração de registros antigos, retenção de `running.json` após falha com manutenção e comando CLI `bin/aws-deploy-check.php`; documentação PHP-FPM, socket IndexNow, systemd e reversão via SSH atualizada.
+- Sem alteração de schema 37, backup v12, APIs, editor ou instalação compartilhada; testes de compatibilidade e isolamento ampliados.
+
 ## 1.0.138 — VPS AWS EC2 e implantação separada
 
 - Modo `IGUA_DEPLOY_VPS=1`: `www-data` somente solicita deploy e acompanha status; `iguanews-deploy` executa via systemd, fora do PHP-FPM.

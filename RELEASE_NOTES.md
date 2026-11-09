@@ -1,3 +1,11 @@
+## Versão 1.0.139
+
+**Corrigido:** bloqueios de permissão do worker na EC2. A raiz do projeto deve permitir rename atômico pela conta `iguanews-deploy`; os controles de atualização agora ficam protegidos contra escrita pelo processo web. O painel só reconhece o serviço como pronto após checagens reais de criação e rename pelo worker.
+
+**Instalação:** requer atualização inicial por SSH e execução da documentação `docs/AWS_EC2_DEPLOY.md`, incluindo `bin/aws-deploy-check.php`. O ZIP web não configura usuários, diretórios nem systemd. Preserve os dados da instalação. Não implemente diretamente em produção sem validar numa cópia.
+
+**Segurança:** não executar web como root, não usar chmod 777, não expor segredos; releases v2 sem assinatura continuam dependendo de origem GitHub/TLS. Compatibilidade com hospedagem compartilhada preservada. Schema 37 inalterado.
+
 ## Versão 1.0.138
 
 - Atualizador GitHub compatível com EC2 Ubuntu 24.04/Nginx/PHP-FPM/MariaDB, com worker separado não-root e permissões mínimas.

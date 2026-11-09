@@ -377,7 +377,39 @@ function igua_updater_apply_code(array $entries,string $jobDir,?callable $afterR
     igua_updater_replace($jobDir.'/new/VERSION',igua_updater_checked_target('VERSION'));
     if($afterReplace!==null)$afterReplace('VERSION');
 }
-function igua_updater_maintenance(): string {return IGUA_STORAGE.'/.update-maintenance';}
+function igua_updater_maintenance(): string {
+    // Consulta sem falha fatal caso a VPS ainda não tenha sido provisionada.
+    return igua_updater_vps_mode()?IGUA_UPDATE_DIR.'/vps/private/maintenance':IGUA_STORAGE.'/.update-maintenance';
+}
+/** Um marcador legado da implantação anterior exige investigação, nunca é removido automaticamente. */
+function igua_updater_maintenance_present(): bool {
+    if(igua_updater_vps_mode() && (is_file(IGUA_STORAGE.'/.update-maintenance')||is_link(IGUA_STORAGE.'/.update-maintenance')))return true;
+    $marker=igua_updater_maintenance();
+    return is_file($marker)||is_link($marker);
+}
+/** Em VPS, grava o marcador no diretório do worker, com leitura para o painel e sem escrita do www-data. */
+function igua_updater_set_maintenance(string $id): void {
+    if(!preg_match('/^[a-f0-9]{24}$/D',$id))throw new RuntimeException('Marcador inválido.');
+    $marker=igua_updater_maintenance();
+    if(is_link($marker)||file_exists($marker))throw new RuntimeException('Já existe manutenção pendente.');
+    if(igua_updater_vps_mode()){
+        if(PHP_SAPI!=='cli')throw new RuntimeException('Apenas o worker pode ativar manutenção.');
+        igua_updater_vps_assert_worker();
+        igua_updater_vps_private_dir();
+        $tmp=@tempnam(dirname($marker),'.maint-');
+        if($tmp===false)throw new RuntimeException('Controle privado do deploy indisponível.');
+        try {
+            if(file_put_contents($tmp,$id,LOCK_EX)!==strlen($id)||!@chmod($tmp,0640)||!@rename($tmp,$marker))
+                throw new RuntimeException('Falha ao ativar modo de manutenção.');
+        }finally{if(is_file($tmp))@unlink($tmp);}
+    }else{
+        if(file_put_contents($marker,$id,LOCK_EX)!==strlen($id)){
+            @unlink($marker);throw new RuntimeException('Falha ao ativar modo de manutenção.');
+        }
+        @chmod($marker,0600);
+    }
+}
+
 /** Não reportar sucesso quando a hospedagem não consegue retirar a manutenção. */
 function igua_updater_clear_maintenance(): void {
     $marker=igua_updater_maintenance();
@@ -387,7 +419,9 @@ function igua_updater_clear_maintenance(): void {
 }
 
 function igua_updater_lock(){
-    $fp=@fopen(igua_updater_folder().'/.lock','c+b');
+        $path=igua_updater_vps_mode()?igua_updater_vps_private_path('.code.lock'):igua_updater_folder().'/.lock';
+    if(is_link($path))throw new RuntimeException('Lock de atualização inseguro.');
+    $fp=@fopen($path,'c+b');
     if(!$fp||!flock($fp,LOCK_EX|LOCK_NB))throw new RuntimeException('Outra atualização já está em execução.');
     return $fp;
 }
@@ -512,7 +546,14 @@ function igua_updater_preflight(?PDO $db=null, ?array $manifest=null): array {
     $add('Layout de publicação',$supported?'ok':'falha',$supported?'Código público em public/':'O motor atual usa IGUA_ROOT/public; outro layout exige atualização assistida');
     $root=realpath(IGUA_ROOT);
     $add('Pasta do código',$root!==false&&!is_link(IGUA_ROOT)?'ok':'falha',$root!==false?'Diretório existente':'Raiz do projeto ausente ou por link simbólico');
-    foreach(['storage'=>IGUA_STORAGE,'backups'=>IGUA_STORAGE.'/backups','atualizador'=>IGUA_UPDATE_DIR] as $label=>$path){
+    $vps=igua_updater_vps_mode();
+    if($vps){
+        $canRead=is_dir(IGUA_STORAGE)&&!is_link(IGUA_STORAGE)&&is_readable(IGUA_STORAGE.'/config.php');
+        $add('Dados privados acessíveis ao worker',$canRead?'ok':'falha',
+            $canRead?'Configuração privada legível; storage não precisa ser gravável pelo deploy':'Worker sem leitura do arquivo de configuração');
+    }
+    foreach(($vps?['backups'=>IGUA_STORAGE.'/backups','atualizador'=>IGUA_UPDATE_DIR]:
+                ['storage'=>IGUA_STORAGE,'backups'=>IGUA_STORAGE.'/backups','atualizador'=>IGUA_UPDATE_DIR]) as $label=>$path){
         $valid=!is_link($path)&&(is_dir($path)?is_writable($path):(is_dir(dirname($path))&&!is_link(dirname($path))&&is_writable(dirname($path))));
         $add('Escrita em '.$label,$valid?'ok':'falha',$valid?'Permissão aparente adequada':'Pasta ausente sem possibilidade aparente de criação/escrita');
     }
@@ -520,19 +561,41 @@ function igua_updater_preflight(?PDO $db=null, ?array $manifest=null): array {
         try{$ok=$db->query('SELECT 1')->fetchColumn()!==false;$add('Leitura do MySQL',$ok?'ok':'falha',$ok?'SELECT 1 executado':'Consulta não retornou resultado');}
         catch(Throwable $e){$add('Leitura do MySQL','falha','Não foi possível consultar o banco; verifique a conexão no painel');}
     }else{$add('Leitura do MySQL','aviso','Banco não testado nesta vistoria');}
-    if(is_file(igua_updater_maintenance()))$add('Atualização pendente','falha','Modo de manutenção ativo: conclua a recuperação antes de instalar');
+    if(igua_updater_maintenance_present())$add('Atualização pendente','falha','Modo de manutenção ativo: conclua a recuperação antes de instalar');
     else $add('Atualização pendente','ok','Nenhuma manutenção ativa');
-    if(igua_updater_vps_mode() && PHP_SAPI!=='cli'){
-        try {
+    if($vps){
+        try{
             $queue=igua_updater_vps_dir();
-            $worker=igua_updater_vps_read('worker.json');
-            $recent=is_array($worker)&&is_int($worker['at']??null)&&$worker['at']>=time()-180;
-            $add('Serviço de implantação separado',$recent?'ok':'falha',
-                $recent?'Serviço externo ativo; o PHP-FPM não precisa escrever em VERSION, app/ ou public/.':'Serviço systemd não detectado. Confira o timer e o modo VPS.');
-            $add('Fila privada de atualizações',is_writable($queue)?'ok':'falha',is_writable($queue)?'Fila restrita disponível':'www-data sem permissão para solicitar deploy');
-            if(is_file(igua_updater_vps_path('running.json')))$add('Deploy em andamento','aviso','Existe solicitação sendo processada; se o serviço parou, investigar antes de liberar nova execução.');
-        }catch(Throwable){$add('Serviço de implantação separado','falha','Fila privada ou serviço de implantação não configurado');}
-        $add('Escrita do código','ok','Na VPS, somente a conta dedicada de implantação substitui o código. Sem escrita direta por PHP-FPM.');
+            if(PHP_SAPI==='cli'){
+                $health=igua_updater_vps_worker_probe();
+                $recent=true;
+            }else{
+                $worker=igua_updater_vps_read('worker.json');
+                $recent=is_array($worker)&&is_int($worker['at']??null)&&$worker['at']>=time()-180;
+                $health=$recent?$worker:[];
+            }
+            $ready=$recent&&($health['ready']??false)===true;
+            $add('Serviço de implantação separado',$ready?'ok':'falha',
+                $ready?'Vistoria real do worker aprovada; PHP-FPM não substitui código':'Worker ausente ou vistoria real não aprovada. Execute bin/aws-deploy-check.php como conta dedicada.');
+            $checks=$health['checks']??[];
+            $atomics=$ready&&is_array($checks)&&($checks['root_atomic']??false)===true&&
+                ($checks['app_atomic']??false)===true&&($checks['public_atomic']??false)===true&&
+                ($checks['control_atomic']??false)===true&&($checks['jobs_atomic']??false)===true;
+            $add('Renomeação atômica pela conta de deploy',$atomics?'ok':'falha',
+                $atomics?'Raiz, app/, public/ e controles testados com arquivos descartáveis':'O serviço não comprovou a troca atômica nos diretórios necessários.');
+            $control=$ready&&($checks['queue_secure']??false)===true&&($checks['queue_lock']??false)===true;
+            $add('Controles protegidos do worker',$control?'ok':'falha',
+                $control?'Marcadores exclusivos do deploy; www-data apenas solicita e consulta':'Controle privado, fila ou lock não verificados.');
+            $queueWritable=is_writable($queue);
+            $add('Fila privada de atualizações',$queueWritable?'ok':'falha',
+                $queueWritable?'PHP-FPM pode enviar pedidos sem acesso à implantação':'PHP-FPM não consegue enviar solicitações.');
+            if(is_file(igua_updater_vps_path('running.json')))$add('Deploy em andamento','aviso','Solicitação ativa ou interrompida; investigar antes de novo envio.');
+            $add('Escrita do código', $ready?'ok':'falha',
+                $ready?'Escrita validada pela conta dedicada; PHP-FPM não precisa escrever em VERSION':'Serviço não comprovou o acesso de escrita necessário.');
+        }catch(Throwable){
+            $add('Serviço de implantação separado','falha','Fila ou diretório privado do worker não configurados.');
+            $add('Escrita do código','falha','Permissões de implantação não confirmadas.');
+        }
     }else{
     $paths=$manifest['files']??[['path'=>'VERSION'],['path'=>'app/updater.php'],['path'=>'public/admin.php']];
     $bad=[];$examined=0;
@@ -590,7 +653,7 @@ function igua_updater_preview_zip(string $zipPath, ?PDO $db=null): array {
 function igua_updater_install_zip(string $zipPath,PDO $db,?callable $onStage=null): array {
     $lock=igua_updater_lock();$jobDir='';$journal=[];$maintenance=false;
     try{
-        if(is_file(igua_updater_maintenance()))throw new RuntimeException('Instalação anterior interrompida. Faça a recuperação antes de atualizar novamente.');
+        if(igua_updater_maintenance_present())throw new RuntimeException('Instalação anterior interrompida. Faça a recuperação antes de atualizar novamente.');
         $id=bin2hex(random_bytes(12));$jobDir=IGUA_UPDATE_DIR.'/jobs/'.$id;
         if(!@mkdir($jobDir,igua_updater_vps_mode()?0750:0700,true))throw new RuntimeException('Não foi possível preparar cópia privada.');
         $onStage && $onStage('validating','Validando manifesto, caminhos e integridade do ZIP.');
@@ -612,8 +675,7 @@ function igua_updater_install_zip(string $zipPath,PDO $db,?callable $onStage=nul
         $journal['status']='prepared';
         igua_updater_write_json($jobDir.'/state.json',$journal);
         igua_updater_write_json(IGUA_UPDATE_DIR.'/last.json',['id'=>$id]);
-        if(file_put_contents(igua_updater_maintenance(),$id,LOCK_EX)!==strlen($id)){@unlink(igua_updater_maintenance());throw new RuntimeException('Falha ao ativar modo de manutenção.');}
-        @chmod(igua_updater_maintenance(),0600);$maintenance=true;
+        igua_updater_set_maintenance($id);$maintenance=true;
         $journal['status']='applying';igua_updater_write_json($jobDir.'/state.json',$journal);
         $onStage && $onStage('applying','Substituindo arquivos verificados do portal.');
         igua_updater_apply_code($entries,$jobDir);
@@ -640,13 +702,13 @@ function igua_updater_manual_rollback(): void {
         // Verificar versões e TODOS os snapshots antes de iniciar a recuperação.
         igua_updater_rollback_plan($job['dir'],$job['journal']);
         $marker=igua_updater_maintenance();
+        if(igua_updater_vps_mode()&&(is_file(IGUA_STORAGE.'/.update-maintenance')||is_link(IGUA_STORAGE.'/.update-maintenance')))
+            throw new RuntimeException('Marcador legado pendente: realize inspeção manual antes da recuperação.');
         if(is_link($marker)|| (is_file($marker) && trim((string)@file_get_contents($marker))!==$job['journal']['id']))
             throw new RuntimeException('Marcador de atualização não corresponde a esta recuperação.');
         if(!is_file($marker)){
             $id=(string)$job['journal']['id'];
-            if(file_put_contents($marker,$id,LOCK_EX)!==strlen($id))
-                throw new RuntimeException('Falha ao ativar manutenção para recuperação.');
-            @chmod($marker,0600);
+            igua_updater_set_maintenance($id);
         }
         // Persistir estado recuperável ANTES de substituir qualquer arquivo.
         // Se a restauração for interrompida, a próxima tentativa é idempotente.

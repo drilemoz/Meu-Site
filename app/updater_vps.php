@@ -7,6 +7,70 @@ function igua_updater_vps_dir(): string {
     if(is_link($dir)||!is_dir($dir))throw new RuntimeException('Fila de deploy não configurada. Consulte docs/AWS_EC2_DEPLOY.md.');
     return $dir;
 }
+/** Controle do worker: www-data pode ler o marcador, mas nunca criá-lo/removê-lo. */
+function igua_updater_vps_private_dir(): string {
+    $dir=igua_updater_vps_dir().'/private';
+    if(is_link($dir)||!is_dir($dir))throw new RuntimeException('Controle privado do deploy não configurado.');
+    return $dir;
+}
+function igua_updater_vps_private_path(string $name): string {
+    if(!in_array($name,['maintenance','.code.lock'],true))throw new InvalidArgumentException('Controle privado não permitido.');
+    return igua_updater_vps_private_dir().'/'.$name;
+}
+/** A verificação explícita impede que um PHP CLI iniciado como www-data se faça passar pelo worker. */
+function igua_updater_vps_assert_worker(): void {
+    if(PHP_SAPI!=='cli'||!igua_updater_vps_mode()||!function_exists('posix_geteuid'))
+        throw new RuntimeException('Worker dedicado exige PHP CLI e POSIX.');
+    $uid=posix_geteuid();
+    if($uid===0||fileowner(igua_updater_vps_private_dir())!==$uid||fileowner(IGUA_ROOT)!==$uid)
+        throw new RuntimeException('Processo sem identidade da conta dedicada de implantação.');
+}
+/** Testa CRIAÇÃO, RENOMEAÇÃO ATÔMICA e REMOÇÃO em um diretório, sem alterar arquivos existentes. */
+function igua_updater_vps_probe_rename(string $dir): bool {
+    if(is_link($dir)||!is_dir($dir))return false;
+    try {$rand=bin2hex(random_bytes(10));}catch(Throwable){return false;}
+    $first=$dir.'/.igua-probe-'.$rand;$second=$dir.'/.igua-probe-'.$rand.'-renamed';
+    $ok=false;$f=@fopen($first,'x');
+    if(!$f)return false;
+    try {
+        $ok=fwrite($f,'ready')===5;
+    }finally{fclose($f);}
+    try {
+        if($ok && @rename($first,$second))$ok=is_file($second) && (string)@file_get_contents($second)==='ready';
+        else $ok=false;
+    }finally{
+        if(is_file($first))@unlink($first);
+        if(is_file($second) && !@unlink($second))$ok=false;
+    }
+    return $ok;
+}
+/** Diagnóstico real rodado somente na conta dedicada, publicado como sinalização de prontidão. */
+function igua_updater_vps_worker_probe(): array {
+    igua_updater_vps_assert_worker();
+    $root=IGUA_ROOT;$queue=igua_updater_vps_dir();$private=igua_updater_vps_private_dir();
+    $uid=function_exists('posix_geteuid')?posix_geteuid():null;
+    $owned=static function(string $dir,bool $allowGroupWrite=false)use($uid): bool {
+        if(is_link($dir)||!is_dir($dir))return false;
+        $mode=(int)fileperms($dir);
+        if(($mode&0002)!==0||(!$allowGroupWrite && ($mode&0020)!==0))return false;
+        return $uid===null||fileowner($dir)===$uid;
+    };
+    $checks=[
+        'root_atomic'=>$owned($root)&&igua_updater_vps_probe_rename($root),
+        'app_atomic'=>$owned($root.'/app')&&igua_updater_vps_probe_rename($root.'/app'),
+        'public_atomic'=>$owned($root.'/public')&&igua_updater_vps_probe_rename($root.'/public'),
+        'updater_atomic'=>$owned(IGUA_UPDATE_DIR,true)&&igua_updater_vps_probe_rename(IGUA_UPDATE_DIR),
+        'jobs_atomic'=>$owned(IGUA_UPDATE_DIR.'/jobs')&&igua_updater_vps_probe_rename(IGUA_UPDATE_DIR.'/jobs'),
+        'backups_atomic'=>igua_updater_vps_probe_rename(IGUA_STORAGE.'/backups'),
+        'control_atomic'=>$owned($private)&&igua_updater_vps_probe_rename($private),
+        'queue_secure'=>$owned($queue,true)&&(((int)fileperms($queue)&01000)!==0),
+        'queue_lock'=>is_file($queue.'/.dispatch.lock')&&!is_link($queue.'/.dispatch.lock')&&is_writable($queue.'/.dispatch.lock'),
+        'config_read'=>is_file(IGUA_STORAGE.'/config.php')&&!is_link(IGUA_STORAGE.'/config.php')&&is_readable(IGUA_STORAGE.'/config.php'),
+        'php_extensions'=>extension_loaded('zip')&&extension_loaded('pdo_mysql')&&extension_loaded('curl'),
+        'legacy_clear'=>!is_file(IGUA_STORAGE.'/.update-maintenance')&&!is_link(IGUA_STORAGE.'/.update-maintenance'),
+    ];
+    return ['ready'=>!in_array(false,$checks,true),'checks'=>$checks];
+}
 function igua_updater_vps_path(string $name): string {
     if(!in_array($name,['request.json','running.json','status.json','worker.json','.dispatch.lock'],true))throw new InvalidArgumentException('Arquivo de fila não permitido.');
     return igua_updater_vps_dir().'/'.$name;
@@ -42,10 +106,12 @@ function igua_updater_vps_enqueue(string $operation,int $userId,string $token): 
        ||$userId<1||!preg_match('/^[a-f0-9]{32}$/D',$token))throw new RuntimeException('Solicitação de deploy inválida.');
     $lock=igua_updater_vps_lock();
     try {
+        if(function_exists('igua_updater_maintenance_present') && igua_updater_maintenance_present())
+            throw new RuntimeException('Existe uma atualização interrompida. Recupere antes de solicitar outra.');
         if(is_file(igua_updater_vps_path('request.json'))||is_file(igua_updater_vps_path('running.json')))
             throw new RuntimeException('Já existe uma atualização pendente. Não reenvie a solicitação.');
         $worker=igua_updater_vps_read('worker.json');
-        if(!is_array($worker)||!is_int($worker['at']??null)||$worker['at']<time()-180)
+        if(!is_array($worker)||!is_int($worker['at']??null)||$worker['at']<time()-180||($worker['ready']??false)!==true)
             throw new RuntimeException('Serviço externo de implantação não respondeu recentemente. Verifique systemd.');
         igua_updater_vps_write('request.json',['operation'=>$operation,'user_id'=>$userId,'token'=>$token,'created'=>time()]);
     }finally{flock($lock,LOCK_UN);fclose($lock);}
@@ -82,9 +148,10 @@ function igua_updater_vps_take(): ?array {
 }
 /** Invocado somente por bin/aws-deploy-worker.php, como usuário de implantação. */
 function igua_updater_vps_run(): void {
-    if(PHP_SAPI!=='cli'||!igua_updater_vps_mode()||(function_exists('posix_geteuid')&&posix_geteuid()===0))
-        throw new RuntimeException('Deploy exige PHP CLI como conta não-root, fora do processo web.');
-    igua_updater_vps_write('worker.json',['at'=>time()]);
+    igua_updater_vps_assert_worker();
+    $health=igua_updater_vps_worker_probe();
+    igua_updater_vps_write('worker.json',['at'=>time()]+$health);
+    if(!$health['ready']){error_log('IGUA VPS DEPLOY: vistoria da conta dedicada falhou. Consulte bin/aws-deploy-check.php.');return;}
     $request=igua_updater_vps_take();if($request===null)return;
     $zip=null;
     try{
@@ -107,6 +174,8 @@ function igua_updater_vps_run(): void {
     }finally{
         if(is_string($zip)&&is_file($zip))@unlink($zip);
         // Se processo morreu abruptamente, running.json permanece e impede repetição.
-        @unlink(igua_updater_vps_path('running.json'));
+        // A morte após substituição de arquivos exige recuperação assistida.
+        if(!function_exists('igua_updater_maintenance_present')||!igua_updater_maintenance_present())
+            @unlink(igua_updater_vps_path('running.json'));
     }
 }
