@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.129** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.132** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,32 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.132 — Proteção e diagnóstico da instalação MySQL
+
+- Antes de aceitar qualquer senha ou operação de instalação, `/setup.php` exige a **chave privada de instalação** localizada em `storage/.setup-access.key`. Na instalação limpa, gerar uma chave via `php bin/setup-access.php` (terminal, na raiz do projeto) ou criar manualmente o arquivo privado com 48 caracteres hexadecimais aleatórios. Na migração, o ZIP portátil contém uma chave nova: consulte o arquivo dentro do pacote **na nova hospedagem**. Nunca publicar a chave no domínio.
+- No modo simples de criação de banco, diferenciar credenciais autorizadas a criar banco da conta do aplicativo. Se a mesma conta privilegiada for necessária, o instalador exige aceitação explícita da reutilização. A conta de criação **não** é salva caso uma conta separada seja informada.
+- O provisionamento dedicado registra imediatamente cada etapa bem-sucedida (`CREATE DATABASE`, `CREATE USER`, `GRANT`) e explica criação parcial sem executar DROP automático. Em banco completamente vazio, a instalação faz um teste reversível de `CREATE/INSERT/SELECT/UPDATE/DELETE/ALTER/INDEX/DROP` antes de criar tabelas definitivas.
+- Conexão remota pode usar TLS autenticado por certificado de CA privado `storage/mysql-ca.pem`, com verificação de certificado; sem TLS em host remoto, exige confirmação explícita de que a conexão ocorre em rede privada confiável. O portal preserva a configuração TLS nas conexões posteriores. O certificado CA não viaja no backup portátil e deve ser reconfigurado na nova hospedagem.
+- Teste de regressão `tests/installer_hardening_232.php` e teste MariaDB real ampliado no CI (pendente de execução nesse ambiente). Nenhuma migração do schema 37, formato do backup v12 ou mudança na hospedagem atual. Veja [Instalador seguro](docs/INSTALADOR_SEGURO_132.md).
+
+## Versão 1.0.131 — Criar o banco no instalador (hospedagem ou VPS)
+
+- A etapa 2 de `public/setup.php` oferece **Criar banco automaticamente** com usuário MySQL que já tenha `CREATE DATABASE`. Cria somente um banco **novo**, sem alterar ou remover bancos existentes; depois testa a conexão com a mesma conta.
+- Em VPS com MySQL local e conta administrativa autorizada, o modo avançado **Criar banco e usuário exclusivo** gera credenciais aleatórias da aplicação e concede permissões apenas à base nova. Não aceita servidor MySQL remoto nesse modo.
+- **Conectar a banco existente** e o fluxo Termux continuam disponíveis. Em hospedagem pública, as credenciais são recebidas somente via HTTPS; credenciais do administrador MySQL não são persistidas. A criação do banco pode ser bloqueada pelo provedor.
+- A migração portátil da 1.0.129 permanece com validação de banco vazio e autenticação do administrador antigo. Testes em `tests/installer_create_231.php` e um ensaio real de banco novo no CI MariaDB. Sem alteração do schema 37 ou do backup v12.
+- Detalhes e limitações: [Criação de banco no instalador](docs/CRIACAO_BANCO_INSTALADOR.md).
+
+## Versão 1.0.130 — Backups e recuperação em páginas separadas
+
+- **Configurações → Backups e migração** contém banco, ZIP completo e pacote portátil, além de indicador de quantidade/espaço, últimas 5 cópias, navegação completa e ajuda contextual (`?`) com textos longos recolhidos.
+- **Configurações → Restaurar dados** agora é uma página própria com formulários separados para JSON/GZIP ou ZIP, avisos de substituição e autenticação anterior preservados. Corrigido o marcador `?>` exibido fora dos cartões.
+- Retenção automática padrão reduzida de 7 diários/4 semanais para **3 diários/2 semanais**, configurável dentro de limites seguros (diários 1–14 e semanais 1–8). Backups **manuais e preventivos** não são apagados automaticamente; proteção por arquivo mantém itens fixados.
+- Exclusão individual ou limpeza explícita dos automáticos exige sessão com permissão de backup, CSRF, senha do usuário, confirmação `EXCLUIR` e arquivo válido fora de symlink. Nenhuma lixeira; mantenha cópia externa. Metadados privados corrompidos bloqueiam rotação, não liberam exclusões.
+- O JSON/GZIP intermediário gerado **apenas para compor ZIP completo/portátil** é removido ao terminar, evitando acumular cópias que não foram solicitadas. Backups preventivos de restauração recebem prefixo `safety-`.
+- Sem alteração de schema 37, formato lógico v12, mídia, artigos, contas ou instalador de migração; hospedagem pública não é modificada até instalar a atualização.
+- Teste `tests/backups_center_230.php`, regressão PHP/JavaScript completa, CSS e lint. Teste real de restauração/migração com MariaDB e ZipArchive permanece pendente.
 
 ## Versão 1.0.129 — Auditoria e correção de segurança da migração
 

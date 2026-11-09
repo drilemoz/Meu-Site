@@ -51,6 +51,6 @@ try{
  $backups=file_get_contents(__DIR__.'/../app/admin_views/routes/backups.php');
  check228(str_contains($setup,'Instalação limpa')&&str_contains($setup,'Migrar meu portal')&&str_contains($setup,"'install_migration'")&&str_contains($setup,'igua_migration_restore'),'instalação dupla e restauração integrada');
  check228(str_contains($admin,"'download_migration'=>'backup'")&&str_contains($downloads,'igua_make_migration_package'),'download autenticado registrado');
- check228(str_contains($backups,'Baixar pacote para migrar hospedagem')&&str_contains($backups,'csrf_field()'),'ação exibida com CSRF');
+ check228(str_contains($backups,'Baixar pacote de migração')&&str_contains($backups,'csrf_field()'),'ação exibida com CSRF');
  echo 'OK migration_portable_228: '.$tests." verificações.\n";
 }finally{purge228($root);}

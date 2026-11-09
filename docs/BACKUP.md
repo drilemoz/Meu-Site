@@ -1,4 +1,4 @@
-# Backup e restauração — Meu Site 1.0.79
+# Backup e restauração — Meu Site 1.0.130
 
 O portal possui **dois formatos distintos**; escolher o formato errado pode deixar imagens e anexos de fora.
 
@@ -19,7 +19,7 @@ O portal possui **dois formatos distintos**; escolher o formato errado pode deix
 - JSON descompactado: **até 40 MiB**; até **100.000 registros por tabela**.
 - ZIP completo: **até 350 MiB**, incluindo até **300 MiB de mídias** e **3.000 arquivos de mídia**. Requer extensão PHP `zip` (`ZipArchive`); a hospedagem também aplica seus limites de upload.
 - O formulário de restauração **lógica** aceita envio de até **15 MiB**, mesmo que a exportação JSON possa ter limite descompactado maior.
-- Os backups automáticos de banco guardam até **7 diários e 4 semanais**; backups manuais não são rotacionados automaticamente. O ZIP completo de download é temporário, mas o JSON/GZIP associado permanece em `storage/backups/`.
+- Os backups automáticos de banco guardam, por padrão, até **3 diários e 2 semanais**, com retenção ajustável. Backups manuais, preventivos (`safety-`) e protegidos não são rotacionados automaticamente. O ZIP completo de download é temporário, mas o JSON/GZIP associado permanece em `storage/backups/`.
 
 ## Proteções e procedimento recomendado
 
@@ -65,3 +65,16 @@ O instalador aceita um domínio HTTPS opcional para atualizar `seo_site_url`; de
 **Falhas e recuperação:** MySQL DDL não é transacional. Uma falha anterior à restauração poderá desfazer o esquema criado **somente se todas as tabelas estiverem vazias e pertencerem à lista conhecida**. Se dados já foram persistidos ou a configuração privada falhou, preserve o banco e faça recuperação controlada. O assistente aceita restaurar a configuração de uma instalação completa com múltiplos usuários, exigindo senha de um administrador ativo. Não repita a importação sobre um banco ocupado. A limpeza de `storage/migration` informa quando arquivos não puderem ser excluídos; remova-os pelo painel da hospedagem antes de expor o site.
 
 Testes PHP de regressão e segurança não substituem uma migração integral com MySQL/MariaDB e ZipArchive reais. Preserve a Boa Hospedagem até validar notícias, imagens, anexos, login, DNS/SSL e integridade do destino.
+
+## Central de backups e recuperação — 1.0.130
+
+Configurações agora possui duas páginas distintas:
+
+- **Backups e migração** (`admin.php?action=backups`): ações compactas para gerar JSON/GZIP, baixar ZIP completo, baixar pacote portátil; armazenamento com contagem/tamanho, cinco backups recentes e listagem paginada completa. Detalhes e orientações sob botões `?`.
+- **Restaurar dados** (`admin.php?action=backup_restore`): importação lógica JSON/GZIP ou ZIP banco+mídias; mantém senha administrativa, CSRF e confirmações; não oferece restauração automática do pacote portátil nesta página, que continua em `/setup.php` de hospedagem nova.
+
+Retenção automática padrão: **3 diários** e **2 semanais**, ajustável de 1 a 14 diários e de 1 a 8 semanais. A política fica em `storage/backups/.policy.json`. Backups manuais, preventivos `safety-` e arquivos explicitamente protegidos ficam fora da rotação. A lista de proteções fica em `storage/backups/.protected.json`; esses metadados privados não integram o ZIP portátil e devem ser reconfigurados após migração. Arquivos de política/proteção danificados ou insegurança do caminho bloqueiam a rotação em vez de supor ausência de proteção.
+
+É possível proteger/desproteger backups e excluir individualmente. Exclusão e aplicação imediata da limpeza exigem senha, confirmação `EXCLUIR` e autenticação/CSRF. **Exclusão permanente sem lixeira**: baixe uma cópia antes. Um backup criado apenas para montar o ZIP completo/portátil não permanece acumulado no armazenamento depois do download. Backups preventivos antes de restaurar usam prefixo `safety-`. Não apagar arquivos antigos do usuário na instalação da atualização; a retenção se aplica após geração futura ou solicitação explícita.
+
+A restauração de banco e arquivos ainda não é atômica. Teste `tests/backups_center_230.php` valida comportamento em sandbox; a recuperação real exige teste com MariaDB e ZipArchive.

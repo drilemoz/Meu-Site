@@ -1,8 +1,8 @@
-# Documentação atual do Meu Site (1.0.122)
+# Documentação atual do Meu Site (1.0.132)
 
 Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `RELATORIO_ARQUIVOS_LINHAS_*` e instruções de atualizadores antigos foram retirados do ZIP; seu histórico permanece nas versões anteriores do repositório, se disponíveis.
 
-- [Instalação e publicação](DEPLOY.md), [migração](MIGRACAO.md) e [Termux](INSTALACAO_TERMUX.md)
+- [Instalação e publicação](DEPLOY.md), [criação do banco pelo instalador](CRIACAO_BANCO_INSTALADOR.md), [migração](MIGRACAO.md) e [Termux](INSTALACAO_TERMUX.md)
 - [Gerenciador de Arquivos](GERENCIADOR_ARQUIVOS.md) — submenu Ferramentas, limites, privilégios e segurança
 - [Sitemap e Indexação](SITEMAP_INDEXACAO.md) — central, XML, robots.txt, ads.txt e verificações sob demanda
 - [Aplicativos e Páginas Legais](APLICATIVOS_LEGAIS.md) — rotas públicas, rascunhos, revisões, OAuth e instalação assistida
@@ -17,3 +17,5 @@ Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `REL
 As documentações funcionais remanescentes podem registrar as versões em que cada recurso nasceu; isso não significa que a versão do código atual seja aquela. Em caso de divergência, validar a implementação e os testes atuais.
 
 - Ferramentas: Informações do Servidor (v1.0.127). Dados consultados em `app/server_info.php`, visual em `app/admin_views/routes/server_info.php`; sem acesso a segredos.
+
+- [Instalador seguro 1.0.132](INSTALADOR_SEGURO_132.md) — chave inicial, TLS remoto e tratamento de falhas parciais.

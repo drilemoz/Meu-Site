@@ -4,6 +4,7 @@ declare(strict_types=1);
 const IGUA_ROOT = __DIR__ . '/..';
 const IGUA_STORAGE = IGUA_ROOT . '/storage';
 require_once __DIR__.'/environment.php';
+require_once __DIR__.'/db_transport.php';
 define('IGUA_PUBLIC', igua_public_directory(IGUA_ROOT));
 // Atualização incompleta: manter páginas públicas em manutenção, mas permitir
 // login e recuperação autenticada pelo atualizador. Nunca expõe diretórios privados.
@@ -35,6 +36,7 @@ function config(): array {
         'database' => getenv('IGUANEWS_DB_NAME') ?: null,
         'username' => getenv('IGUANEWS_DB_USER') ?: null,
         'password' => getenv('IGUANEWS_DB_PASSWORD') === false ? null : getenv('IGUANEWS_DB_PASSWORD'),
+        'tls' => getenv('IGUANEWS_DB_TLS') === false ? null : getenv('IGUANEWS_DB_TLS')==='1',
     ];
     return $config = array_replace($saved, array_filter($env, static fn($v) => $v !== null));
 }
@@ -52,7 +54,7 @@ function connection(array $c): PDO {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
         PDO::ATTR_TIMEOUT => 6,
-    ]);
+    ] + igua_mysql_tls_options(!empty($c['tls'])));
     $db->exec("SET time_zone = '-03:00'");
     return $db;
 }

@@ -1,3 +1,31 @@
+## [1.0.132] - 2026-11-08
+
+### Correções do instalador e banco de dados
+- `/setup.php` passou a exigir chave de instalação criada fora do navegador, com bloqueio de credenciais via HTTP público, CSRF, expiração de autorização e limite por sessão. Na migração, a chave é gerada dentro do ZIP portátil, sob `storage/.setup-access.key`.
+- Provisionamento MySQL dedicado informa etapas concluídas antes de falhas em CREATE USER/GRANT, sem remoção automática de bancos e usuários.
+- Modo de criação simples separa usuário de criação e usuário permanente da aplicação, exigindo confirmação explícita para reutilizar conta privilegiada. Banco vazio recebe verificação limitada de permissões DDL/DML, com limpeza de tabela de diagnóstico.
+- Conexões MySQL remotas podem exigir TLS autenticado por CA privada (`storage/mysql-ca.pem`), com configuração persistente; conexões remotas sem TLS precisam de declaração explícita de rede privada confiável.
+- Teste `tests/installer_hardening_232.php` (chave, falhas parciais e TLS), extensão de teste MariaDB isolado em CI. Nenhuma alteração em schema 37 ou backup v12. Códigos de autenticação não são adicionados ao ZIP normal de atualização.
+
+## [1.0.131] - 2026-11-08
+
+### Banco de dados no instalador
+- Adicionadas opções na etapa 2: criar banco novo usando login MySQL com `CREATE DATABASE`, ou criar banco + usuário dedicado para MySQL local de VPS. O modo antigo de conectar a banco existente e o provisionamento Termux foram preservados.
+- A criação simples não usa `IF NOT EXISTS`, `DROP`, `TRUNCATE` nem modifica bancos existentes. A criação dedicada gera usuário e senha aleatórios e concede acesso somente ao banco novo, sem contas `%`.
+- Proteção para senhas via HTTPS em hospedagem, CSRF, validação estrita de identificadores/host/porta, tratamento de falhas parciais e ausência de persistência das credenciais administrativas.
+- Adicionado teste de contrato `tests/installer_create_231.php` e teste MariaDB isolado `tests/integration/installer_create_mariadb_231.php` no CI. Os testes remotos ainda dependem de execução bem-sucedida no GitHub Actions.
+- Nenhuma migração de esquema; permanecem schema 37, backup v12, instalador limpo e migração portátil existentes.
+
+## [1.0.130] - 2026-11-08
+
+### Backups e migração
+- Divididos **Backups e migração** e **Restaurar dados** em rotas próprias no submenu Configurações. Listagem responsiva compacta, últimas cinco cópias e opção Ver todos; ajuda longa sob `?`; nomes extensos e comandos extras recolhidos.
+- Corrigido fechamento PHP indevido que mostrava `?>` na interface.
+- Retenção automática padrão reduzida a **3 diários e 2 semanais**, com controle configurável. Backups manuais, preventivos e protegidos não entram na limpeza automática.
+- Gerenciamento privado com proteção/desproteção e exclusão individual, e limpeza com pré-visualização de quantidade, senha administrativa, token CSRF e confirmação explícita. Metadados de proteção inválidos bloqueiam limpeza.
+- Backup JSON temporário gerado para compor ZIP completo/portátil não permanece em armazenamento após a operação. Backups de segurança antes de restaurar são `safety-`.
+- Sem mudanças de banco, schema 37, backup lógico v12, funcionamento das rotas POST legadas, instalador ou segredos. Teste `tests/backups_center_230.php`, regressão e verificação de pacotes; confirmar funcionamento real na hospedagem.
+
 ## [1.0.129] - 2026-11-08
 
 ### Backup e migração: correções de auditoria

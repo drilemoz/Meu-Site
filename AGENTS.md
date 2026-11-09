@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.129)
+# Diretrizes de manutenção — Meu Site (v1.0.132)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -311,3 +311,29 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Evitar mídias duplicadas já cobertas no ZIP interno. Não prometer rollback completo de MySQL DDL: apenas estrutura conhecida que permaneceu vazia pode ser revertida. Nunca apagar tabelas populadas, estrangeiras ou código/arquivos existentes.
 - Permitir domínio HTTPS opcional para `seo_site_url`, validado sem credenciais/fragmentos. Confirmar limpeza dos dados portáteis temporários e avisar explicitamente quando parcial, mesmo depois de ativar a configuração do banco.
 - Executar `tests/migration_hardening_229.php`, testes 228, suíte PHP/JS inteira, lint, auditoria, validação de ZIP. Homologação em MariaDB e ZipArchive reais continua necessária; não afirmar que foi executada sem evidência.
+
+## Central compacta de backups — 1.0.130
+
+- Manter as duas rotas GET sob permissão `backup`: `backups` para criar, baixar, configurar retenção e listar arquivos; `backup_restore` para recuperar JSON/GZIP e ZIP. Os controladores POST originais `restore_backup` e `restore_bundle` não mudam de ação nem formato.
+- Os avisos irreversíveis devem permanecer visíveis antes da restauração; textos explicativos gerais sob botão `?`. Rótulos, IDs e formulários continuam acessíveis no celular. Nenhum `?>` solto após as tags HTML.
+- `igua_backup_policy()` usa valores padrão de 3 diários/2 semanais; arquivos de política e proteção privados em `storage/backups/.policy.json` e `.protected.json`, com escrita atômica. Metadados malformados, links simbólicos ou erro de leitura não podem transformar backups protegidos em alvos de limpeza: interrompa a operação.
+- Rotação automática nunca remove manual (`manual-`) ou preventivo (`safety-`), nem arquivos protegidos. Exclusão ou limpeza explícita exigem `backup`, POST/CSRF, senha administrativa e `EXCLUIR`; não criar endpoints GET destrutivos. Limpeza só considera backups automáticos elegíveis.
+- `make_media_bundle` apaga o JSON temporário criado apenas para compor o pacote ZIP após terminar, sem mexer nos backups criados por outros fluxos. Não apagar arquivos existentes do usuário em atualização.
+- Testes `tests/backups_center_230.php`, rotas legadas, PHP/JS completos, lint, CSS/editor, auditoria e ZIPs. Sem schema novo e sem alterar a migração portátil da 1.0.129.
+
+## Criação de banco na instalação — 1.0.131
+
+- Na etapa Banco, preservar Termux exclusivo de loopback e o formulário de banco existente. Hospedagem pode tentar `create_db` usando credenciais MySQL fornecidas, mas o código só executa `CREATE DATABASE` novo e nunca `IF NOT EXISTS`, `DROP DATABASE` ou manipulação de base já existente. A conta deve possuir `CREATE DATABASE` e privilégios para as tabelas da aplicação; falhas por concessões do provedor são esperadas.
+- O modo `provision_db` só é permitido para MySQL local (`localhost` ou `127.0.0.1`) de VPS com administrador autorizado, sem contas SQL curinga. A senha administrativa nunca é guardada em sessão/config, cookies, logs ou ZIP. Public hosting exige HTTPS e todo POST exige CSRF. Validar nomes/hosts/portas antes de conectar.
+- DDL não é transacional. Não prometer rollback automático; se o banco foi criado, mas a etapa seguinte falhou, manter o banco e orientar conexão existente depois de corrigir permissões. Banco existente nunca pode ser substituído.
+- Migração portátil exige banco completamente vazio e autenticação do administrador antigo. Nunca contornar essas validações ao criar banco no passo 2. Não alterar formatos de backup/schema nem o procedimento de restauração.
+- Testes: `tests/installer_create_231.php`, `tests/installer.php`, `tests/runtime_147.php`, CI isolado MariaDB (`tests/integration/installer_create_mariadb_231.php`) e regressão completa. O teste real só vale quando executado e aprovado no CI.
+
+## Segurança do instalador e provisionamento — 1.0.132
+
+- Toda operação POST do `/setup.php`, inclusive teste MySQL, upload segmentado e instalação, depende da chave privada `storage/.setup-access.key`, criada somente por acesso ao servidor (CLI/painel); nunca gerar/revelar chave via GET público. Expirar autorização em 30 minutos e não aceitar chave por HTTP em hospedagem pública.
+- O ZIP portátil cria uma chave NOVA fora da raiz pública. O código-fonte normal não deve levar uma chave fixa. Não registrar credenciais, chaves de instalação ou o conteúdo privado da CA em logs ou ZIP de atualização.
+- Provisionamento dedicado registra imediatamente criação de banco, conta e GRANT por callback; não apagar automaticamente objetos parciais. Modo simples permite usuário app diferente ou exige confirmação explícita de reutilização privilegiada.
+- Teste de permissões do schema só em banco completamente vazio; nunca modificar banco com dados, recuperar ou reusar tabela do portal. O probe deve excluir a própria tabela e parar em caso de falha de DROP.
+- TLS MySQL remoto é ativado somente mediante certificado CA confiável em `storage/mysql-ca.pem`, com verificação de certificado de servidor, e deve persistir nas conexões do portal. Host remoto sem TLS exige confirmação de rede privada confiável.
+- Executar `tests/installer_hardening_232.php`, `tests/installer_create_231.php`, suíte geral PHP/JS, lint, auditoria e os testes MariaDB no CI isolado. A execução local sem PDO MySQL não prova provisionamento real.

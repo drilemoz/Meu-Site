@@ -37,3 +37,12 @@ As notícias de exemplo são fictícias. O front exibe aviso e etiqueta de exemp
 O modo **Criar automaticamente** só funciona no MariaDB **local**, quando o instalador é aberto via `127.0.0.1` e há uma credencial com privilégios administrativos. **Não espere que o site crie contas MySQL em cPanel**: crie uma base vazia e usuário pelo painel e escolha **Usar banco existente** no setup.
 
 Na etapa **Conteúdo**, para migrar um portal IguaNews anterior, escolha **Importar portal anterior** e envie backup `.json/.json.gz` da instalação antiga. Isso restaura usuários (mesmo login), categorias, matérias e configurações. Transfira também `public/uploads/` para recuperar fotos e confira tudo antes de apontar o domínio. Verifique limites de upload PHP e veja `docs/MIGRACAO.md`.
+
+## Criar banco de dados pelo próprio instalador (1.0.131)
+
+Na etapa Banco do `/setup.php`, escolha **Criar banco automaticamente** para conectar com a conta MySQL fornecida pelo provedor e executar `CREATE DATABASE` para um **nome novo**. A conta precisa ter `CREATE DATABASE` e permissões suficientes para o portal. O instalador não cria nem modifica bancos existentes nesse modo. Em VPS com MySQL local e conta com `CREATE USER`/`GRANT`, existe opção avançada para gerar também um usuário exclusivo do portal. Para cPanel e hospedagens compartilhadas sem esses privilégios, continue pelo modo **Conectar a banco existente**. As credenciais devem ser enviadas com HTTPS. Consulte [Criação de banco no instalador](CRIACAO_BANCO_INSTALADOR.md).
+
+
+## Autorização inicial 1.0.132
+
+Antes de abrir o instalador, gere `storage/.setup-access.key` via `php bin/setup-access.php` no servidor e guarde a chave mostrada. Em migração portátil, o pacote já inclui uma chave nova. Nunca coloque a chave em `public/` nem divulgue o ZIP de dados. Veja [Instalador seguro](INSTALADOR_SEGURO_132.md).

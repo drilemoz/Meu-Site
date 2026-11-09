@@ -35,7 +35,7 @@ function backup_write_chunk($stream, string $chunk, bool $compressed, int &$tota
 }
 /** Exporta as linhas diretamente no arquivo privado, sem montar a árvore completa em RAM. */
 function make_backup(PDO $db, string $prefix='manual'): string {
-    if (!in_array($prefix,['manual','daily','weekly'],true)) throw new RuntimeException('Prefixo inválido.');
+    if (!in_array($prefix,['manual','daily','weekly','safety'],true)) throw new RuntimeException('Prefixo inválido.');
     $folder=IGUA_STORAGE.'/backups';
     if(is_link($folder) || (!is_dir($folder) && !@mkdir($folder,0700,true) && !is_dir($folder)) || !is_writable($folder))
         throw new RuntimeException('Pasta privada de backups indisponível ou insegura.');
@@ -129,12 +129,12 @@ function list_backups(): array {
     $folder=IGUA_STORAGE.'/backups';
     if(!is_dir($folder) || is_link($folder))return [];
     $paths=glob($folder.'/*.{json,json.gz}',GLOB_BRACE) ?: [];
-    $paths=array_values(array_filter($paths,static fn($p)=>is_file($p) && !is_link($p) && preg_match('/^(?:manual|daily|weekly)-\d{8}-\d{6}-[a-f0-9]{6}\.json(?:\.gz)?$/D',basename($p))));
+    $paths=array_values(array_filter($paths,static fn($p)=>is_file($p) && !is_link($p) && preg_match('/^(?:manual|daily|weekly|safety)-\d{8}-\d{6}-[a-f0-9]{6}\.json(?:\.gz)?$/D',basename($p))));
     usort($paths,static fn($a,$b) => ((int)@filemtime($b) <=> (int)@filemtime($a)) ?: strcmp($b,$a));
     return array_values(array_map(static fn($p)=>['name'=>basename($p),'size'=>(int)filesize($p),'date'=>date('d/m/Y H:i',(int)filemtime($p))],$paths));
 }
 function backup_path(string $filename): ?string {
-    if (!preg_match('/^(?:manual|daily|weekly)-\d{8}-\d{6}-[a-f0-9]{6}\.json(?:\.gz)?$/D',$filename)) return null;
+    if (!preg_match('/^(?:manual|daily|weekly|safety)-\d{8}-\d{6}-[a-f0-9]{6}\.json(?:\.gz)?$/D',$filename)) return null;
     $folder=IGUA_STORAGE.'/backups';
     if(!is_dir($folder)||is_link($folder))return null;
     $p=$folder.'/'.$filename;
@@ -194,11 +194,89 @@ function restore_backup(PDO $db, array $data): void {
         $db->commit();
     } catch(Throwable $e) { if($db->inTransaction()) $db->rollBack();throw $e; }
 }
+/** Regras de retenção locais, privadas e reversíveis. Nenhuma limpeza automática de backups manuais. */
+function igua_backup_policy(): array {
+    $defaults=['daily'=>3,'weekly'=>2];
+    $path=IGUA_STORAGE.'/backups/.policy.json';
+    if(is_link(IGUA_STORAGE.'/backups') || is_link($path))throw new RuntimeException('Política de backups não é um arquivo seguro.');
+    if(!file_exists($path))return $defaults;
+    if(!is_file($path))throw new RuntimeException('Política de backups inválida.');
+    $bytes=@file_get_contents($path);
+    if(!is_string($bytes)||strlen($bytes)>4096)throw new RuntimeException('Não foi possível ler a política privada de backups.');
+    $value=json_decode($bytes,true);
+    if(!is_array($value))throw new RuntimeException('Política de backups corrompida.');
+    foreach(['daily'=>[1,14],'weekly'=>[1,8]] as $kind=>$range){
+        if(!is_int($value[$kind]??null)||$value[$kind]<$range[0]||$value[$kind]>$range[1])throw new RuntimeException('Limites de retenção inválidos.');
+    }
+    return ['daily'=>$value['daily'],'weekly'=>$value['weekly']];
+}
+/** Metadados de proteção: nunca contêm as cópias nem credenciais. */
+function igua_backup_pins(): array {
+    $path=IGUA_STORAGE.'/backups/.protected.json';
+    if(is_link(IGUA_STORAGE.'/backups')||is_link($path))throw new RuntimeException('Proteção de backups inválida.');
+    if(!file_exists($path))return [];
+    if(!is_file($path))throw new RuntimeException('Proteção de backups inválida.');
+    $bytes=@file_get_contents($path);
+    if(!is_string($bytes)||strlen($bytes)>16384)throw new RuntimeException('Proteção de backups ilegível.');
+    $names=json_decode($bytes,true);
+    if(!is_array($names)||!array_is_list($names)||count($names)>200)throw new RuntimeException('Lista de backups protegidos corrompida.');
+    foreach($names as $name){
+        if(!is_string($name)||!preg_match('/\A(?:manual|daily|weekly|safety)-\d{8}-\d{6}-[a-f0-9]{6}\.json(?:\.gz)?\z/D',$name))throw new RuntimeException('Identificador de backup protegido inválido.');
+    }
+    return array_values(array_unique($names));
+}
+function igua_backup_write_meta(string $basename,array $value): void {
+    if(!in_array($basename,['.policy.json','.protected.json'],true))throw new InvalidArgumentException('Metadado inválido.');
+    $folder=IGUA_STORAGE.'/backups';$path=$folder.'/'.$basename;
+    if(!is_dir($folder)||is_link($folder)||!is_writable($folder)||is_link($path))throw new RuntimeException('Pasta privada de backups indisponível.');
+    $tmp=@tempnam($folder,'.backup-');
+    if($tmp===false)throw new RuntimeException('Não foi possível preparar a configuração de backup.');
+    try{
+        @chmod($tmp,0600);
+        $bytes=json_encode($value,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);
+        if(@file_put_contents($tmp,$bytes,LOCK_EX)!==strlen($bytes)||!@rename($tmp,$path))throw new RuntimeException('Falha ao salvar configuração de backups.');
+        @chmod($path,0600);
+    }finally{if(is_file($tmp))@unlink($tmp);}
+}
+function igua_backup_policy_save(int $daily,int $weekly):void {
+    if($daily<1||$daily>14||$weekly<1||$weekly>8)throw new InvalidArgumentException('Retenção permitida: diários 1–14, semanais 1–8.');
+    igua_backup_write_meta('.policy.json',['daily'=>$daily,'weekly'=>$weekly]);
+}
+function igua_backup_pin(string $filename,bool $protected):void {
+    if(!backup_path($filename))throw new InvalidArgumentException('Backup indisponível.');
+    $pins=igua_backup_pins();
+    if($protected)$pins[]=$filename;
+    else $pins=array_values(array_diff($pins,[$filename]));
+    $pins=array_values(array_unique($pins));
+    if(count($pins)>200)throw new RuntimeException('Há backups protegidos demais.');
+    igua_backup_write_meta('.protected.json',$pins);
+}
+/** Retorna apenas candidatos elegíveis, deixando manuais, preventivos e fixados intactos. */
+function igua_backup_prune_plan(?array $list=null,?array $policy=null,?array $pins=null):array {
+    $list??=list_backups();$policy??=igua_backup_policy();$pins??=igua_backup_pins();
+    $remove=[];
+    foreach(['daily','weekly'] as $kind){
+        $count=0;
+        foreach($list as $item){
+            $name=$item['name']??'';
+            if(!is_string($name)||!str_starts_with($name,$kind.'-'))continue;
+            if(in_array($name,$pins,true))continue;
+            if(++$count>(int)$policy[$kind])$remove[]=$name;
+        }
+    }
+    return $remove;
+}
+function igua_backup_delete(string $filename):void {
+    $path=backup_path($filename);
+    if($path===null)throw new InvalidArgumentException('Backup não encontrado.');
+    if(in_array($filename,igua_backup_pins(),true))throw new RuntimeException('Desproteja o backup antes de excluir.');
+    if(!@unlink($path))throw new RuntimeException('Não foi possível excluir o backup. Verifique permissões.');
+}
 function rotate_backups(): void {
     cleanup_backup_temporaries();
-    foreach (['daily'=>7,'weekly'=>4] as $kind=>$keep) {
-        $filtered=array_values(array_filter(list_backups(),static fn($b)=>str_starts_with($b['name'],$kind.'-')));
-        foreach (array_slice($filtered,$keep) as $old) @unlink(IGUA_STORAGE.'/backups/'.$old['name']);
+    foreach(igua_backup_prune_plan() as $name){
+        // Nova checagem contra links/sobrescrita; não tocar em backups manuais.
+        igua_backup_delete($name);
     }
 }
 
@@ -269,6 +347,12 @@ function make_media_bundle(PDO $db): string {
     }finally{
         if($opened)$zip->close();
         if(is_file($temporary))@unlink($temporary);
+        // O JSON usado somente para compor ZIP não deve virar um novo backup manual acumulado.
+        $dbPart=$folder.'/'.$backup;
+        if(backup_path($backup)===$dbPart && @unlink($dbPart)){
+            try{$db->prepare('DELETE FROM backup_logs WHERE filename=?')->execute([$backup]);}
+            catch(Throwable $ignored){/* Somente log temporário; nunca desfaça o ZIP pronto. */}
+        }
     }
 }
 
@@ -407,7 +491,7 @@ function restore_media_bundle(PDO $db,string $path,bool $skipPreventiveBackup=fa
             if($temp!==null)$staged[$target]=$temp;
         }
         // Antes de tocar no banco, confirme que todas as mídias cabem no disco.
-        if(!$skipPreventiveBackup)make_backup($db); // Migração usa banco novo vazio; não grava log preventivo desnecessário.
+        if(!$skipPreventiveBackup)make_backup($db,'safety'); // Migração usa banco novo vazio; não grava log preventivo desnecessário.
         try{
             foreach($staged as $target=>$temp){
                 if(file_exists($target)||is_link($target))throw new RuntimeException('Destino mudou durante restauração: '.basename($target));

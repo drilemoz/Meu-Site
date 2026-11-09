@@ -21,5 +21,6 @@
 <?php elseif ($action==='integrations'): igua_integrations_admin_view($db); ?>
 <?php elseif ($action==='maintenance'): require __DIR__.'/routes/maintenance.php'; ?>
 <?php elseif ($action==='backups'): require __DIR__.'/routes/backups.php'; ?>
+<?php elseif ($action==='backup_restore'): require __DIR__.'/routes/backup_restore.php'; ?>
 <?php elseif ($action==='updates'): require __DIR__.'/routes/updates.php'; ?>
 <?php else: ?><div class="panel"><p>Seção não encontrada. <a href="/admin.php">Voltar ao painel.</a></p></div><?php endif; ?>

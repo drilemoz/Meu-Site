@@ -6,10 +6,38 @@ require __DIR__.'/../app/schema.php';
 require __DIR__.'/../app/backup.php';
 require __DIR__.'/../app/migration_package.php';
 require __DIR__.'/../app/installer.php';
+require __DIR__.'/../app/setup_access.php';
 require __DIR__.'/../app/setup_chunked_backup.php';
 require __DIR__.'/../app/content_maintenance.php';
 if (installed()) redirect('/admin.php?action=login');
 $runtime=igua_runtime_profile();
+// Nenhuma operação de configuração, conexão ou upload antes de comprovar acesso ao servidor.
+$setupSecret=igua_setup_access_read();
+if(!igua_setup_access_valid($setupSecret,$_SESSION,time())){
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    $unlockError='';
+    if($runtime['kind']==='hosting' && !$runtime['https'])$unlockError='Ative HTTPS antes de digitar a chave de instalação. Não aceite conexões HTTP públicas.';
+    if(request_post() && $unlockError===''){
+        check_csrf();
+        if((string)($_POST['action']??'')==='unlock_setup'
+            && (int)($_SESSION['igua_setup_access_failures']??0)<5
+            && igua_setup_access_unlock((string)($_POST['setup_access_key']??''),$setupSecret,$_SESSION,time())){
+            session_regenerate_id(true);
+            redirect('/setup.php?step=1');
+        }
+        $unlockError='Chave incorreta ou indisponível. Confira o arquivo privado no servidor.';
+        if((int)($_SESSION['igua_setup_access_failures']??0)>=5)$unlockError='Muitas tentativas nesta sessão. Inicie uma sessão nova após verificar a chave.';
+    }
+    ?>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Desbloquear instalação | IguatamaOnline</title><link rel="stylesheet" href="/assets/css/style.css"></head><body class="setup-body"><main class="setup-shell setup-wizard">
+<h1>🔒 Autorizar instalação</h1><p>Antes de configurar o MySQL, confirme que você controla os arquivos desta hospedagem.</p>
+<?php if($unlockError!==''): ?><div class="alert error" role="alert"><?=h($unlockError)?></div><?php endif; ?>
+<?php if($setupSecret===null): ?><div class="alert warning">Chave privada ausente. No terminal da hospedagem, execute <code>php bin/setup-access.php</code> na raiz do projeto. Alternativamente, crie <code>storage/.setup-access.key</code> contendo uma chave aleatória de 48 caracteres hexadecimais. O arquivo deve permanecer fora da raiz pública. Na migração portátil, essa chave é incluída no ZIP e pode ser consultada pelo gerenciador de arquivos do servidor.</div><?php endif; ?>
+<form class="setup-form" method="post"><?=csrf_field()?><input type="hidden" name="action" value="unlock_setup"><label>Chave de instalação<input name="setup_access_key" type="password" required minlength="48" maxlength="48" autocomplete="off" spellcheck="false"></label><button type="submit" class="btn primary">Desbloquear instalador</button></form></main></body></html>
+<?php exit;
+}
 $autoAvailable=igua_auto_install_allowed($runtime);
 $databaseDefault=$runtime['db_name'];
 $hostDefault=$runtime['db_host'];
@@ -67,7 +95,7 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
     if (!$ready) {
         $errors[]='Existem requisitos obrigatórios pendentes. Corrija-os antes de prosseguir.';
         $step=1;
-    } elseif ($action==='test_db' || $action==='auto_db') {
+    } elseif (in_array($action,['test_db','auto_db','create_db','provision_db'],true)) {
         $step=2;
         // Resultado anterior só pode ser usado depois de um teste bem-sucedido.
         unset($_SESSION['iguanews_setup_db']);
@@ -75,23 +103,64 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
         $port=(int)($_POST['port']??3306);
         $database=trim((string)($_POST['database']??$databaseDefault));
         $host=trim((string)($_POST['host']??$hostDefault));
+        $databaseCreated=false;
+        $provisionEvents=[];
+        $provisionProgress=static function(string $event,string $value)use(&$databaseCreated,&$provisionEvents):void {
+            if($event==='database_created')$databaseCreated=true;
+            // Jamais armazenar senhas de provisionamento ou credenciais administrativas.
+            if(in_array($event,['database_created','database_reused','user_created','grant_applied'],true))
+                $provisionEvents[]=['event'=>$event,'value'=>$value];
+        };
+        $tlsEnabled=!empty($_POST['mysql_tls']);
         if ($port<1 || $port>65535) $errors[]='Escolha uma porta válida (1 a 65535).';
         else {
             try {
-                if ($action==='auto_db') {
-                    if (!$autoAvailable) throw new InvalidArgumentException('A criação automática está disponível somente para Termux identificado pelo PHP e acesso local do próprio aparelho. Na hospedagem use banco existente.');
-                    $adminHost=trim((string)($_POST['admin_host']??'localhost'));
-                    $adminUser=trim((string)($_POST['admin_username']??'root'));
+                // Numa hospedagem exposta, nunca receber senhas MySQL sem TLS confirmado
+                // pelo próprio PHP. Não confiar em X-Forwarded-Proto enviado pelo visitante.
+                if ($runtime['kind']==='hosting' && !$runtime['https'])
+                    throw new DomainException('Ative HTTPS antes de enviar credenciais MySQL ao instalador.');
+                if(in_array($action,['test_db','create_db'],true)
+                   && !igua_auto_local_host($host) && !$tlsEnabled && empty($_POST['mysql_tls_private_ack']))
+                    throw new DomainException('Para MySQL remoto, ative TLS com CA confiável ou confirme explicitamente que a conexão ocorre em rede privada confiável.');
+                if ($action==='auto_db' || $action==='provision_db') {
+                    if ($action==='auto_db' && !$autoAvailable)
+                        throw new InvalidArgumentException('A criação Termux exige PHP local e acesso via loopback.');
+                    $adminHost=$action==='auto_db'
+                        ? trim((string)($_POST['admin_host']??'localhost')) : $host;
+                    $adminUser=trim((string)($_POST['admin_username']??''));
                     $adminPassword=(string)($_POST['admin_password_db']??'');
                     igua_sql_identifier($database);
+                    if ($action==='provision_db' && !in_array($adminHost,['localhost','127.0.0.1'],true))
+                        throw new InvalidArgumentException('Para criar usuário exclusivo, use MySQL local (localhost ou 127.0.0.1).');
                     $admin=igua_admin_connection($adminHost,$port,$adminUser,$adminPassword);
-                    // A senha administrativa não é guardada em arquivo nem sessão.
-                    $candidate=igua_provision_database($admin,$database,'127.0.0.1',$port,!empty($_POST['reuse_empty']));
+                    // Credenciais administrativas não entram na sessão ou no arquivo privado.
+                    $candidate=$action==='auto_db'
+                        ? igua_provision_database($admin,$database,'127.0.0.1',$port,!empty($_POST['reuse_empty']),$provisionProgress)
+                        : igua_provision_hosting_local($admin,$database,$host,$port,$provisionProgress);
+                    $databaseCreated=true;
+                    unset($admin,$adminPassword);
+                } elseif ($action==='create_db') {
+                    $username=trim((string)($_POST['username']??''));
+                    $password=(string)($_POST['password']??'');
+                    igua_sql_identifier($database);
+                    $appUser=trim((string)($_POST['app_username']??''));
+                    $appPassword=(string)($_POST['app_password']??'');
+                    $reusePrivileged=!empty($_POST['reuse_privileged_mysql']);
+                    if(!$reusePrivileged && ($appUser==='' || $appUser===$username))
+                        throw new DomainException('Informe um usuário MySQL de aplicação diferente do administrador, já autorizado no novo banco, ou confirme explicitamente a reutilização da conta com privilégios amplos.');
+                    $admin=igua_schema_creation_connection($host,$port,$username,$password,$tlsEnabled);
+                    // Nunca sobrescreve um banco já existente nem cria uma conta remota.
+                    igua_create_database_with_login($admin,$database);
+                    $databaseCreated=true;
+                    $candidate=['host'=>$host,'port'=>$port,'database'=>$database,
+                        'username'=>$reusePrivileged?$username:$appUser,
+                        'password'=>$reusePrivileged?$password:$appPassword,'tls'=>$tlsEnabled];
+                    unset($admin,$password);
                 } else {
                     $username=trim((string)($_POST['username']??''));
                     $password=(string)($_POST['password']??'');
                     if (!$host || !$database || !$username) throw new InvalidArgumentException('Preencha servidor, banco e usuário.');
-                    $candidate=['host'=>$host,'port'=>$port,'database'=>$database,'username'=>$username,'password'=>$password];
+                    $candidate=['host'=>$host,'port'=>$port,'database'=>$database,'username'=>$username,'password'=>$password,'tls'=>$tlsEnabled];
                 }
                 $db=connection($candidate);
                 $inventory=igua_setup_database_inventory($db);
@@ -101,6 +170,8 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                 } elseif (!in_array($inventory['status'],['empty','partial_empty'],true)) {
                     throw new DomainException($inventory['detail']);
                 }
+                if($inventory['status']==='empty' && $mode==='fresh')
+                    igua_setup_probe_schema_permissions($db);
                 if($setupMode==='migrate' && $hasEmbeddedMigration && $inventory['status']!=='empty')
                     throw new DomainException('Migração exige um banco completamente vazio. Crie outro banco no novo provedor.');
                 if (!igua_setup_config_write_probe()) {
@@ -109,14 +180,26 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                 $_SESSION['iguanews_setup_db']=$candidate+['verified_at'=>time(),'mode'=>$mode];
                 redirect('/setup.php?step=3');
             } catch (Throwable $e) {
-                if ($action==='auto_db') {
-                    $errors[]=($e instanceof InvalidArgumentException || ($e instanceof RuntimeException && !($e instanceof PDOException))) ? $e->getMessage() : 'Não foi possível preparar o banco automaticamente.';
-                    $notices[]=[
-                        'Confira se o MariaDB está iniciado, se o usuário administrativo conecta e possui CREATE DATABASE, CREATE USER e GRANT.',
-                        $runtime['kind']==='termux' ? 'No Termux, experimente: mariadb -u root e confirme se o acesso local funciona.' : 'Na hospedagem, cadastre o banco e usuário no painel da conta.',
-                        'Se o banco já existe, marque a opção de reaproveitar um banco vazio. Bancos com dados nunca são sobrescritos.',
-                        'A criação automática requer acesso ao site pelo próprio celular (127.0.0.1) e MariaDB local. Hospedagens normalmente exigem criar banco e usuário pelo painel.'
-                    ];
+                if (in_array($action,['auto_db','create_db','provision_db'],true)) {
+                    $sqlCode=$e instanceof PDOException ? (int)($e->errorInfo[1]??0) : 0;
+                    $errors[]=$sqlCode===1007
+                        ? 'Já existe um banco com esse nome. Para proteger os dados, este modo não o modifica; escolha Conectar a banco existente ou informe outro nome.'
+                        : (($e instanceof InvalidArgumentException || ($e instanceof DomainException && !($e instanceof PDOException)))
+                            ? $e->getMessage() : 'Não foi possível preparar o banco com as credenciais informadas.');
+                    if ($databaseCreated || $provisionEvents!==[]) {
+                        $createdAccounts=array_column(array_filter($provisionEvents,static fn($x)=>$x['event']==='user_created'),'value');
+                        $notices[]=['O provisionamento foi interrompido DEPOIS de criar objetos no MySQL. Nenhum banco ou usuário será apagado automaticamente.',
+                            'Banco informado: '.$database.'. Contas criadas antes da falha: '.($createdAccounts?implode(', ',$createdAccounts):'nenhuma confirmada').'.',
+                            'Não clique novamente em Criar com o mesmo nome. Confira os privilégios e usuários no MySQL; para um banco já criado, use conexão existente ou outro nome.'];
+                    } else {
+                        $notices[]=$action==='create_db'
+                            ? ['A conta MySQL precisa ter CREATE DATABASE e, para instalar o portal, privilégios no banco novo.',
+                                'Hospedagens compartilhadas podem bloquear CREATE DATABASE: nesse caso, crie o banco no painel e conecte pelo modo existente.',
+                                'O instalador não exclui nem altera bancos preexistentes.']
+                            : ['O usuário administrativo precisa de CREATE DATABASE, CREATE USER e GRANT.',
+                                'A criação de usuário exclusivo é limitada ao MySQL local de VPS/Termux. Para banco remoto, use outro modo.',
+                                'Se ocorrer falha após criação parcial, confira no MySQL o banco e as contas criadas antes de tentar novamente.'];
+                    }
                 } elseif ($e instanceof InvalidArgumentException || $e instanceof DomainException) {
                     $errors[]=$e->getMessage();
                 } elseif ($e instanceof RuntimeException && str_contains($e->getMessage(),'banco contém')) {
@@ -257,6 +340,9 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                 }
                 $phase='complete';
                 igua_setup_clear_chunk();
+                // Depois da instalação, a chave de bootstrap não é mais necessária.
+                if(is_file(igua_setup_access_file()) && !is_link(igua_setup_access_file()) && !@unlink(igua_setup_access_file()))
+                    error_log('[Meu Site setup] cleanup_setup_access_failed=1');
                 unset($_SESSION['iguanews_setup_db'],$_SESSION['igua_recovery_errors']);
                 session_regenerate_id(true);
                 if (is_resource($lock)) { flock($lock,LOCK_UN); fclose($lock); $lock=null; }
@@ -311,7 +397,7 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
    <a class="setup-choice-card" href="/setup.php?step=2&amp;mode=migrate"><strong>⇧ Migrar meu portal</strong><span>Restaurar banco, notícias, contas, imagens e anexos de um pacote portátil.</span></a>
   </div><?php endif; ?>
 <?php elseif ($step===2): ?>
-  <h1><?= $setupMode==='migrate'?'Migração: novo banco de dados':'Prepare o banco de dados' ?>.</h1><p class="muted"><?= $autoAvailable ? 'Termux detectado: você pode criar uma base MariaDB local, ou usar credenciais existentes.' : 'Ambiente de hospedagem ou desenvolvimento: crie uma base vazia no painel/servidor MySQL e informe os dados de conexão. A criação privilegiada de usuários está desativada.' ?></p>
+  <h1><?= $setupMode==='migrate'?'Migração: novo banco de dados':'Prepare o banco de dados' ?>.</h1><p class="muted"><?= $autoAvailable ? 'Termux detectado: você pode criar uma base MariaDB local, ou usar credenciais existentes.' : 'Você pode tentar criar um banco novo com um usuário MySQL autorizado, ou conectar a um banco existente. Alguns provedores exigem criação no painel.' ?></p>
   <?php foreach ($errors as $err): ?><div class="alert error" role="alert"><?= h($err) ?></div><?php endforeach; ?>
   <?php foreach ($notices as $notice): ?><div class="setup-diagnosis"><strong>O que verificar</strong><ul><?php foreach($notice as $item): ?><li><?= h($item) ?></li><?php endforeach; ?></ul></div><?php endforeach; ?>
   <div class="setup-route-list">
@@ -328,15 +414,50 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
       <p class="muted tiny">Se o root usa autenticação por socket ou não tem permissão, utilize a conexão manual. O MariaDB precisa estar iniciado; o instalador não inicia serviços do Android.</p></div>
     </details>
     <?php endif; ?>
-    <details class="setup-route" <?= !$autoAvailable ? 'open' : '' ?>><summary><span class="setup-route-symbol route-secondary">⇄</span><span><strong>Usar banco existente</strong><small><?= $autoAvailable ? 'Para banco já preparado no Termux' : 'Recomendado na hospedagem e cPanel' ?></small></span><span class="route-chevron">⌄</span></summary>
-      <div class="route-detail"><p class="muted">Informe um banco vazio com usuário que tenha permissões para criar tabelas. Este modo apenas testa a conexão, sem alterar dados.</p>
+    <?php if (!$autoAvailable): ?>
+    <details class="setup-route" open><summary><span class="setup-route-symbol">✦</span><span><strong>Criar banco automaticamente</strong><small>Se sua conta MySQL tiver permissão CREATE DATABASE</small></span><span class="route-chevron">⌄</span></summary>
+      <div class="route-detail">
+       <p class="muted">Cria <strong>somente um banco novo</strong>. Informe uma conta administrativa apenas para criá-lo e, preferencialmente, uma conta de aplicativo separada, já autorizada a usar o novo banco. Se o provedor impedir a concessão de privilégios, use o modo de banco existente.</p>
+       <form class="setup-form" method="post"><?=csrf_field()?><input type="hidden" name="action" value="create_db"><div class="form-grid">
+        <label>Servidor MySQL<input name="host" required maxlength="253" value="<?=h($_POST['host']??$hostDefault)?>" autocomplete="off"></label>
+        <label>Porta<input name="port" type="number" min="1" max="65535" required value="<?=h($_POST['port']??3306)?>"></label>
+        <label>Nome do banco novo<input name="database" required maxlength="64" pattern="[A-Za-z][A-Za-z0-9_]*" placeholder="iguatamaonline" value="<?=h($_POST['database']??$databaseDefault)?>"></label>
+        <label>Usuário autorizado a criar bancos<input name="username" required maxlength="128" autocomplete="off" value="<?=h($_POST['username']??'')?>"></label>
+        <label class="full">Senha da conta de criação<input name="password" type="password" autocomplete="off"></label>
+        <label>Usuário do portal (recomendado: diferente)<input name="app_username" maxlength="128" autocomplete="off" placeholder="Conta já autorizada no banco"></label>
+        <label>Senha da conta do portal<input name="app_password" type="password" autocomplete="off"></label>
+       </div><label class="checkbox-line"><input name="reuse_privileged_mysql" type="checkbox" value="1"> <span>Usar a mesma conta de criação no portal (não recomendado: pode conservar privilégios amplos).</span></label>
+       <label class="checkbox-line"><input name="mysql_tls" type="checkbox" value="1"> Conexão TLS com CA confiável (carregue <code>storage/mysql-ca.pem</code> fora da pasta pública).</label>
+       <label class="checkbox-line"><input name="mysql_tls_private_ack" type="checkbox" value="1"> Sem TLS, confirmo que este banco remoto está em rede privada confiável.</label>
+       <div class="wizard-actions"><button class="btn primary" type="submit">Criar banco e testar →</button></div></form>
+       <p class="muted tiny">A opção simples não executa GRANT: para uma conta diferente, o provedor precisa autorizá-la no banco. Se isso não for possível, utilize criação de banco e usuário exclusivo em VPS local, ou prepare o banco pelo painel. A conta administrativa não é salva quando usada separadamente.</p>
+      </div>
+    </details>
+    <details class="setup-route"><summary><span class="setup-route-symbol route-secondary">⚙</span><span><strong>Criar banco e usuário exclusivo</strong><small>Avançado · VPS com MySQL local e privilégios de administração</small></span><span class="route-chevron">⌄</span></summary>
+      <div class="route-detail">
+       <p class="muted">Para servidor próprio com MySQL <strong>no mesmo servidor</strong>. Cria banco novo, conta aleatória e senha forte; salva somente as credenciais geradas para o portal. Exige CREATE DATABASE, CREATE USER e GRANT.</p>
+       <form class="setup-form" method="post"><?=csrf_field()?><input type="hidden" name="action" value="provision_db"><div class="form-grid">
+        <label>Servidor MySQL local<input name="host" required maxlength="15" pattern="localhost|127\.0\.0\.1" value="<?=h(igua_auto_local_host((string)($_POST['host']??$hostDefault))?($_POST['host']??$hostDefault):'localhost')?>"></label>
+        <label>Porta<input name="port" type="number" min="1" max="65535" required value="<?=h($_POST['port']??3306)?>"></label>
+        <label>Nome do banco novo<input name="database" required maxlength="64" pattern="[A-Za-z][A-Za-z0-9_]*" value="<?=h($_POST['database']??$databaseDefault)?>"></label>
+        <label>Administrador MySQL<input name="admin_username" required maxlength="128" placeholder="Conta com CREATE USER / GRANT" autocomplete="off"></label>
+        <label class="full">Senha administrativa MySQL<input name="admin_password_db" type="password" autocomplete="off"></label>
+       </div><div class="wizard-actions"><button class="btn outline" type="submit">Criar banco e usuário →</button></div></form>
+       <p class="muted tiny">Não funciona se o MySQL usar somente autenticação por socket ou se o provedor impedir CREATE USER. As credenciais administrativas não são persistidas.</p>
+      </div>
+    </details>
+    <?php endif; ?>
+    <details class="setup-route" <?= !$autoAvailable ? 'open' : '' ?>><summary><span class="setup-route-symbol route-secondary">⇄</span><span><strong>Conectar a banco existente</strong><small><?= $autoAvailable ? 'Para banco já preparado no Termux' : 'Recomendado na hospedagem e cPanel' ?></small></span><span class="route-chevron">⌄</span></summary>
+      <div class="route-detail"><p class="muted">Informe um banco vazio com usuário que tenha permissões para criar tabelas. Este modo verifica a conexão e, em banco totalmente vazio, realiza um teste reversível de permissões usando uma tabela temporária de diagnóstico.</p>
       <form method="post" class="setup-form"><?= csrf_field() ?><input type="hidden" name="action" value="test_db"><div class="form-grid">
         <label>Servidor<input name="host" required value="<?= h($_POST['host']??$hostDefault) ?>" autocomplete="off"></label>
         <label>Porta<input name="port" type="number" min="1" max="65535" required value="<?= h($_POST['port']??3306) ?>"></label>
         <label>Nome do banco<input name="database" required value="<?= h($_POST['database']??$databaseDefault) ?>" maxlength="64"></label>
         <label>Usuário MySQL<input name="username" required value="<?= h($_POST['username']??($autoAvailable ? 'meu_site' : '')) ?>" autocomplete="off"></label>
         <label class="full">Senha MySQL<input name="password" type="password" autocomplete="off" placeholder="Senha do usuário do banco"></label>
-      </div><div class="wizard-actions"><button class="btn primary" type="submit">Testar conexão →</button></div></form></div>
+      </div><label class="checkbox-line"><input name="mysql_tls" type="checkbox" value="1"> MySQL com TLS autenticado por <code>storage/mysql-ca.pem</code></label>
+      <label class="checkbox-line"><input name="mysql_tls_private_ack" type="checkbox" value="1"> Sem TLS, confirmo que a conexão remota ocorre em rede privada confiável.</label>
+      <div class="wizard-actions"><button class="btn primary" type="submit">Testar conexão →</button></div></form></div>
     </details>
   </div>
   <div class="wizard-actions"><a href="/setup.php?step=1" class="btn outline">← Requisitos</a></div>

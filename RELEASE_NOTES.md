@@ -1,3 +1,29 @@
+## IguatamaOnline 1.0.132
+
+**Instalador protegido:** antes de digitar credenciais MySQL na instalação limpa, crie uma chave com `php bin/setup-access.php` ou coloque uma chave privada aleatória de 48 caracteres hexadecimais em `storage/.setup-access.key`. O instalador exige essa chave para prosseguir. Em migrações novas, o próprio ZIP portátil traz uma chave aleatória na pasta privada; não use um ZIP antigo da 1.0.131 para o novo fluxo sem gerar outro backup.
+
+**Criação parcial detectada:** se MariaDB/MySQL criar banco ou conta, mas falhar em GRANT, a tela informa quais etapas foram concluídas e recomenda recuperação manual, sem executar exclusão automática. A instalação no banco vazio agora testa operações essenciais de tabelas antes de criar a estrutura real.
+
+**Credenciais separadas e TLS opcional para MySQL remoto:** permite fornecer usuário do portal diferente da conta que cria o banco, com aceitação explícita caso precise reutilizar privilégios amplos. TLS autenticado por CA privada pode ser ativado para banco remoto; sem TLS remoto, exige confirmação de rede privada confiável. A comunicação navegador → instalador continua exigindo HTTPS em hospedagem pública.
+
+**Limites:** testes locais sem pdo_mysql nem ZipArchive não comprovam o fluxo integral. Realizar ensaio em servidor de testes antes de migrar DNS ou encerrar a hospedagem antiga.
+
+## IguatamaOnline 1.0.131
+
+**Criar banco sem abrir o painel da hospedagem:** na etapa Banco do instalador, agora é possível tentar criar um MySQL novo fornecendo servidor, porta, nome do banco, usuário e senha com privilégio `CREATE DATABASE`. Hospedagens que bloqueiam esse privilégio continuarão exigindo criar o banco no painel.
+
+**Para VPS com MySQL local:** opção avançada para criar banco e usuário exclusivo de forma automática com senha aleatória, quando o administrador MySQL tem `CREATE USER` e `GRANT`. O usuário administrativo não é guardado no portal. Instalação limpa e migração portátil continuam com seus requisitos de segurança, e o modo de banco existente foi mantido.
+
+**Atenção:** não há exclusão automática de um banco criado caso etapas posteriores falhem. O teste integrado de conexão/criação e privilégios reais depende do CI com MariaDB; teste em uma instalação nova antes de mudar a hospedagem de produção.
+
+## IguatamaOnline 1.0.130
+
+**Backups com tela compacta:** agora há duas opções em Configurações: **Backups e migração**, para criar, baixar e organizar; e **Restaurar dados**, exclusiva para recuperar JSON/GZIP ou ZIP. Textos longos foram movidos para as ajudas `?`, a listagem exibe os cinco mais recentes por padrão e o `?>` perdido no HTML foi corrigido.
+
+**Menos armazenamento ocupado:** padrão de retenção automática de três diários e dois semanais, ajustável. Backups manuais e preventivos não são excluídos automaticamente. É possível proteger backups individuais ou excluir arquivos mediante senha e confirmação; não há lixeira. ZIPs completos e portáteis não deixam o JSON temporário acumulado depois da montagem.
+
+**Segurança e compatibilidade:** nenhum dado é apagado por instalar esta atualização; a rotação age após futuros backups ou confirmação manual. O backup lógico continua v12, schema 37, e o fluxo de migração 1.0.129 permanece. Restauração completa entre provedores ainda exige teste isolado real com MySQL/MariaDB e ZipArchive.
+
 ## IguatamaOnline 1.0.129
 
 **Migração portátil revisada:** o ZIP leva as configurações `.htaccess`/`.user.ini` necessárias, evita duplicar mídias referenciadas, inclui manifesto v2 com checksums por arquivo PHP/CSS/JS e valida banco e mídias antes de criar tabelas no destino. O instalador não permite contornar a autenticação administrativa escolhendo instalação limpa quando encontra um pacote portátil.

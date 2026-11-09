@@ -1,6 +1,6 @@
 <?php
 $newsActions=['articles','new','edit','seo','categories','authors','sources'];
-$configActions=['settings','sitemap','integrations','backups','updates','maintenance'];
+$configActions=['settings','sitemap','integrations','backups','backup_restore','updates','maintenance'];
 $toolsActions=['files','server_info'];
 ?>
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><script src="/assets/js/admin-dialogs.js?v=<?=h(igua_updater_version())?>" defer></script><title>Painel <?= h(igua_brand_name()) ?></title><link rel="stylesheet" href="/assets/css/style.css?v=<?=h(igua_updater_version())?>"></head><body class="admin-body <?= in_array($action,['new','edit'],true)?'news-wizard-page':'' ?>">
@@ -40,7 +40,8 @@ $toolsActions=['files','server_info'];
           <a class="<?= $action==='settings'?'current':'' ?>" href="<?=h(admin_link('settings'))?>">Geral e SEO</a>
           <a class="<?= $action==='sitemap'?'current':'' ?>" href="<?=h(admin_link('sitemap'))?>">⌕ Sitemap e Indexação</a>
           <a class="<?= $action==='integrations'?'current':'' ?>" href="<?=h(admin_link('integrations'))?>">◈ Integrações e APIs</a>
-          <a class="<?= $action==='backups'?'current':'' ?>" href="<?=h(admin_link('backups'))?>">Backups e restauração</a>
+          <a class="<?= $action==='backups'?'current':'' ?>" href="<?=h(admin_link('backups'))?>">▣ Backups e migração</a>
+          <a class="<?= $action==='backup_restore'?'current':'' ?>" href="<?=h(admin_link('backup_restore'))?>">↺ Restaurar dados</a>
           <a class="<?= $action==='updates'?'current':'' ?>" href="<?=h(admin_link('updates'))?>">Atualizações</a>
           <?php if(($me['role']??'')==='admin'): ?><a class="<?= $action==='maintenance'?'current':'' ?>" href="<?=h(admin_link('maintenance'))?>">Manutenção</a><?php endif; ?>
         </div></details>
@@ -50,7 +51,7 @@ $toolsActions=['files','server_info'];
     <div class="admin-nav-footer"><strong><?=h($me['name'])?></strong><span><?=h(role_label($me['role']))?></span><a href="/index.php" target="_blank" rel="noopener">↗ Ver portal</a><form method="post" action="<?=h(admin_link('logout'))?>"><?=csrf_field()?><button type="submit" class="btn outline">Sair da conta</button></form></div>
   </dialog>
   <main class="admin-main">
-    <div class="admin-top"><div><small><?=h(igua_brand_name())?> / ADMINISTRAÇÃO</small><h1><?=h(['legal_apps'=>'Aplicativos e Páginas Legais','legal_app_edit'=>'Páginas do aplicativo','legal_app_info'=>'Informações do aplicativo','legal_page_edit'=>'Editar página legal','dashboard'=>'Visão geral','seo'=>'Central de SEO','sitemap'=>'Sitemap e Indexação','articles'=>'Notícias','new'=>'Nova notícia','edit'=>'Editar notícia','categories'=>'Categorias','authors'=>'Autores','sources'=>'Fontes','bus'=>'Horários de ônibus','bus_edit'=>'Assistente de horários','bus_import'=>'Importar dados oficiais','elections'=>'Resultados Eleitorais','ads'=>'Publicidade','analytics'=>'Métricas e audiência','health'=>'Saúde do sistema','security'=>'Central de Segurança','updates'=>'Atualizações do sistema','maintenance'=>'Manutenção de conteúdo','files'=>'Gerenciador de Arquivos','server_info'=>'Informações do Servidor','media'=>'Biblioteca de mídias','users'=>'Usuários','backups'=>'Backups e restauração','settings'=>'Configurações e SEO','integrations'=>'Integrações e serviços'][$action]??'Painel')?></h1></div><div class="admin-top-actions"><a class="admin-icon-btn" href="/index.php" target="_blank" rel="noopener" aria-label="Ver portal" title="Ver portal">↗</a></div></div>
+    <div class="admin-top"><div><small><?=h(igua_brand_name())?> / ADMINISTRAÇÃO</small><h1><?=h(['legal_apps'=>'Aplicativos e Páginas Legais','legal_app_edit'=>'Páginas do aplicativo','legal_app_info'=>'Informações do aplicativo','legal_page_edit'=>'Editar página legal','dashboard'=>'Visão geral','seo'=>'Central de SEO','sitemap'=>'Sitemap e Indexação','articles'=>'Notícias','new'=>'Nova notícia','edit'=>'Editar notícia','categories'=>'Categorias','authors'=>'Autores','sources'=>'Fontes','bus'=>'Horários de ônibus','bus_edit'=>'Assistente de horários','bus_import'=>'Importar dados oficiais','elections'=>'Resultados Eleitorais','ads'=>'Publicidade','analytics'=>'Métricas e audiência','health'=>'Saúde do sistema','security'=>'Central de Segurança','updates'=>'Atualizações do sistema','maintenance'=>'Manutenção de conteúdo','files'=>'Gerenciador de Arquivos','server_info'=>'Informações do Servidor','media'=>'Biblioteca de mídias','users'=>'Usuários','backups'=>'Backups e migração','backup_restore'=>'Restaurar dados','settings'=>'Configurações e SEO','integrations'=>'Integrações e serviços'][$action]??'Painel')?></h1></div><div class="admin-top-actions"><a class="admin-icon-btn" href="/index.php" target="_blank" rel="noopener" aria-label="Ver portal" title="Ver portal">↗</a></div></div>
     <?php if($flash): ?><div class="alert <?=h($flash['type'])?>"><?=h($flash['message'])?></div><?php endif; ?>
     <?php foreach($errors as $err): ?><div class="alert error"><?=h($err)?></div><?php endforeach; ?>
     <?php require __DIR__.'/pages.php'; ?>

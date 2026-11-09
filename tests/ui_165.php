@@ -10,7 +10,7 @@ ui165(str_contains($read('app/media_library.php'), "['missing']=media_path"), 'b
 ui165(str_contains($read('public/assets/js/main.js'), "addEventListener('error'"), 'fallback do navegador monitora imagens dinâmicas');
 ui165(str_contains($read('public/assets/js/media-library.js'), 'data-media-source='), 'thumbnail com fallback para original');
 ui165(str_contains($read('public/assets/js/media-library.js'), 'item.missing){notify('), 'arquivo ausente não pode ser escolhido como capa ou galeria');
-ui165(str_contains($read('app/admin_views/routes/backups.php'), 'backup-responsive-table'), 'tabela móvel de backups');
+ui165(str_contains($read('app/admin_views/routes/backups.php'), 'backup-file-list'), 'tabela móvel de backups');
 ui165(str_contains($read('app/admin_views/routes/sources.php'), 'source-link-help'), 'URLs de fontes sob ajuda contextual');
 ui165(str_contains($read('app/admin_views/security.php'), 'security-metric-help'), 'explicação dos indicadores sob interrogação');
 ui165(str_contains($read('public/assets/css/modules/15-archive.css'), 'position:sticky;top:-20px'), 'fechamento do modal permanece na área rolável');

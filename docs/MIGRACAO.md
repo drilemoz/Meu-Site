@@ -62,3 +62,12 @@ A revisão 36 acrescenta dois índices de ordenação na tabela `articles` (`idx
 7. Se houver falha na migração, registre o erro e **restaure código e banco do mesmo snapshot anterior**. Não faça rollback apenas do PHP se o banco já estiver no schema 37, pois o código antigo pode recusar a revisão maior.
 
 A migração **não apaga notícias nem usuários**. DDL no MariaDB não é transacional em todos os cenários; novas tabelas são criadas com `IF NOT EXISTS` para permitir retomada após falha parcial. A primeira instalação também registra o aplicativo Uai Cortes **sem textos legais publicados**. Após a migração, versões posteriores com schema 37 podem voltar a utilizar o atualizador normal, desde que todos os critérios de segurança sejam atendidos. Veja [APLICATIVOS_LEGAIS.md](APLICATIVOS_LEGAIS.md).
+
+## Banco novo criado pelo instalador na migração (1.0.131)
+
+Ao reinstalar um pacote portátil, o modo **Migrar meu portal** também aceita criar o banco MySQL novo na etapa 2, **quando** a credencial informada tem `CREATE DATABASE`. A etapa 3 continua exigindo banco totalmente vazio e autenticação do administrador antigo para importar banco, mídias e usuários. Em VPS com MySQL local, é possível gerar uma conta exclusiva para o portal. Não apague a hospedagem antiga até verificar a nova instalação. Para detalhes e limites consulte [Criação de banco no instalador](CRIACAO_BANCO_INSTALADOR.md).
+
+
+## Desbloqueio obrigatório a partir de 1.0.132
+
+O ZIP portátil gerado pelo código novo contém uma chave privada aleatória em `storage/.setup-access.key`. Extraia o pacote, leia essa chave através do gerenciador/terminal da **nova** hospedagem e desbloqueie `/setup.php` por HTTPS antes da etapa Banco. Pacotes antigos devem ser regenerados para conter a chave.

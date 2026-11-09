@@ -28,6 +28,7 @@ jobs:
         image: mariadb:11.4
         env:
           MARIADB_ROOT_PASSWORD: temporary-ci-root-only
+          MARIADB_ROOT_HOST: '%'
           MARIADB_DATABASE: igua_ci_backup134
           MARIADB_USER: igua_ci_runner
           MARIADB_PASSWORD: temporary-ci-database-only
@@ -81,6 +82,15 @@ jobs:
           php tests/integration/news_indexes_mariadb_146.php
           php tests/integration/legal_apps_mariadb_196.php
           php tests/integration/teixeira_mariadb_206.php
+      - name: Provisionamento MySQL local em banco isolado
+        env:
+          CI: 'true'
+          IGUA_TEST_ALLOW_WRITE: YES_ISOLATED_DB
+          IGUA_TEST_ADMIN_HOST: 127.0.0.1
+          IGUA_TEST_ADMIN_USER: root
+          IGUA_TEST_ADMIN_PASSWORD: temporary-ci-root-only
+        run: |
+          php tests/integration/installer_create_mariadb_231.php
       - name: Ciclo integrado do atualizador ZIP com MariaDB isolado
         env:
           IGUA_TEST_ALLOW_WRITE: YES_ISOLATED_DB
