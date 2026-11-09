@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.134** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.135** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,10 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.135 — Correção do CI de provisionamento MySQL local
+
+O workflow 47 falhou apenas no teste de provisionamento: ao conectar pelo runner GitHub Actions à porta publicada de um MariaDB Docker, o serviço viu o IP do gateway `172.18.0.1`, não o `localhost` permitido ao usuário exclusivo. Agora **somente esse teste** executa no namespace de rede do serviço MariaDB com `nsenter`, para usar realmente `127.0.0.1`; o teste também valida `SELECT USER()` para impedir falsas aprovações. Não se alteram privilégios, autenticação ou banco de produção. O teste do atualizador continua após o provisionamento e a Release segue condicionada a todos os testes passarem. Ver [Correção CI MariaDB 1.0.135](docs/CI_MARIADB_LOCAL_135.md).
 
 ## Versão 1.0.134 — Galeria de fotos mais prática nas notícias
 

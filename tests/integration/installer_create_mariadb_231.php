@@ -11,6 +11,14 @@ if (getenv('CI')!=='true' || getenv('IGUA_TEST_ALLOW_WRITE')!=='YES_ISOLATED_DB'
 require_once __DIR__.'/../../app/installer.php';
 if (!extension_loaded('pdo_mysql')) throw new RuntimeException('CI precisa de pdo_mysql.');
 $admin=igua_schema_creation_connection('127.0.0.1',3306,'root','temporary-ci-root-only');
+// O endereço informado no DSN do runner não é necessariamente o endereço
+// visto pelo MariaDB quando a porta é publicada via bridge Docker.
+$mysqlIdentity=(string)$admin->query('SELECT USER()')->fetchColumn();
+$pos=strrpos($mysqlIdentity,'@');
+$clientHost=$pos===false?'':substr($mysqlIdentity,$pos+1);
+if (!in_array($clientHost,['localhost','127.0.0.1','::1'],true)) {
+    throw new RuntimeException('Teste de usuário MySQL LOCAL iniciado fora do loopback do MariaDB (cliente identificado como '.$clientHost.'). No CI use o namespace de rede do contêiner, sem criar contas % ou autorizar IPs do Docker.');
+}
 $prefix='igua_ci_provision231_';
 $database=$prefix.bin2hex(random_bytes(3));
 $dedicated=$prefix.bin2hex(random_bytes(3));

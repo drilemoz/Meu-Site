@@ -66,3 +66,7 @@ O GitHub Actions falhou antes dos testes com MariaDB real, em `tests/news_wizard
 - Testes offline: `tests/legal_apps_196.php`, PHP/JS legado, CSS/editor e auditoria estrutural. O novo teste MariaDB real está em `tests/integration/legal_apps_mariadb_196.php` e no workflow CI, mas sua execução não é comprovada pelo ambiente sem PDO MySQL.
 - **Pendente antes de produção:** testar migração real a partir de schema 36 com cópia do banco; login/ACL/CSRF; gravação/recuperação de revisões e backup/restore; renderização móvel e reescrita Apache/HTTPS com status HTTP 200/404; validação de logotipo; revisão jurídica do conteúdo e requisitos OAuth atuais.
 - **Não instalar via atualizador normal com schema divergente**; siga `docs/MIGRACAO.md`. Sem migração na hospedagem, as páginas novas não ficam disponíveis.
+
+## Nota de integração CI (v1.0.135)
+
+O workflow 47 falhou em `installer_create_mariadb_231.php` por entrada pela ponte Docker (`172.18.0.1`), não por permissão insuficiente da conta local criada. O teste passou a executar no namespace de rede do MariaDB com validação da origem MySQL, sem abrir privilégios remotos. A reexecução em runner GitHub com `sudo nsenter` e a etapa posterior do atualizador ainda não foram comprovadas. Veja `docs/CI_MARIADB_LOCAL_135.md`.

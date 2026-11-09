@@ -1,3 +1,9 @@
+## IguatamaOnline 1.0.135
+
+**Correção do GitHub Actions, workflow de integração MariaDB:** o teste de criação de banco e usuário local da 1.0.134 falhou porque a conexão do runner para o MariaDB Docker era identificada como `172.18.0.1`. Agora o ensaio entra somente no namespace de rede do serviço MariaDB e usa `127.0.0.1` de verdade. O teste aborta se não conseguir identificar o contêiner ou se o próprio MySQL identificar o cliente como remoto. Não são concedidos privilégios a IPs externos ou usuários `%`.
+
+**Sem mudanças funcionais no portal:** galeria, conteúdo, schema 37, backup lógico v12 e instalador preservados. Os testes que dependem do MariaDB real ainda precisam ser reexecutados no GitHub Actions com o código-fonte 1.0.135. Para corrigir o workflow no GitHub, envie o **código-fonte completo**; o ZIP de atualização da hospedagem só leva `app/`, `public/` e `VERSION`, não `.github/workflows/`.
+
 ## IguatamaOnline 1.0.134
 
 **Galeria de fotos renovada nas matérias:** miniaturas ajustadas para celular e computador, contador, legendas e créditos. Ao tocar numa foto, abre um visualizador sobre a notícia, com navegação por setas, deslizar no celular, teclado e botão Fechar. A imagem original só é carregada quando selecionada; links permanecem funcionais com JavaScript desativado e há botão para abrir o arquivo original.

@@ -1,4 +1,4 @@
-# Documentação atual do Meu Site (1.0.134)
+# Documentação atual do Meu Site (1.0.135)
 
 Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `RELATORIO_ARQUIVOS_LINHAS_*` e instruções de atualizadores antigos foram retirados do ZIP; seu histórico permanece nas versões anteriores do repositório, se disponíveis.
 
@@ -22,3 +22,5 @@ As documentações funcionais remanescentes podem registrar as versões em que c
 
 - [Galeria pública de fotos 1.0.134](GALERIA_PUBLICA_134.md) — visualização das fotos nas matérias, teclado, deslizar e acessibilidade.
 - [Instalador passo a passo 1.0.133](INSTALADOR_WIZARD_133.md) — requisitos, modo, banco, confirmação e senhas.
+
+- [Correção CI MariaDB local 1.0.135](CI_MARIADB_LOCAL_135.md) — falha de origem Docker, namespace de rede, validação e limitações.

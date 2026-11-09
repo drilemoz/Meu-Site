@@ -1,6 +1,12 @@
-# Diretrizes de manutenção — Meu Site (v1.0.134)
+# Diretrizes de manutenção — Meu Site (v1.0.135)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## CI MariaDB local (1.0.135)
+
+- O provisionamento dedicado permite somente `localhost`/`127.0.0.1`; **não** adicionar contas `user@%` nem acesso da bridge Docker para fazer o teste passar.
+- No workflow, somente `tests/integration/installer_create_mariadb_231.php` executa com `nsenter --net` no namespace do contêiner MariaDB, usando ID do serviço obtido do contexto GitHub Actions e PID validado do Docker. O teste valida `SELECT USER()` e aborta sem origem loopback.
+- Preservar a execução posterior de `tests/integration/updater_mariadb_217.php`, o isolamento de bancos efêmeros e a publicação da Release apenas quando a integração inteira passar. O ajuste do GitHub requer publicar os arquivos de fonte completos, já que a atualização do site não distribui `.github/workflows`.
 
 ## Regras de projeto e versão
 

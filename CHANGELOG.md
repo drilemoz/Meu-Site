@@ -1,3 +1,11 @@
+## [1.0.135] - 2026-11-09
+
+### Correção de integração MariaDB no GitHub Actions
+- Corrigida a origem real da conexão no ensaio de criação de usuário exclusivo. O runner Linux acessava o contêiner MariaDB pela bridge (`172.18.0.1`) e o usuário local era recusado; agora o teste usa `nsenter --net` no namespace do serviço, sem liberar `user@'%'` nem ampliar `GRANT`.
+- A etapa valida ID e PID do contêiner e termina com erro se não conseguir executar o ensaio na rede correta. O teste MariaDB verifica também `SELECT USER()` para confirmar que o endereço visto pelo servidor é loopback.
+- Novo contrato offline `tests/ci_mysql_local_235.php`; preservados testes de backup/restore, atualizador e publicação da Release dependente de integração bem-sucedida.
+- Sem alteração no schema 37, backup v12, galeria pública, instalador de produção ou credenciais. A execução real corrigida depende do próximo workflow no GitHub Actions.
+
 ## [1.0.134] - 2026-11-08
 
 ### Galeria pública de notícias

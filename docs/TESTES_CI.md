@@ -102,3 +102,7 @@ Executar `php tests/integrations_refactor_212.php` além da suíte completa. Os 
 O CI agora executa `tests/integration/updater_mariadb_217.php` com as extensões reais `pdo_mysql` e `ZipArchive`, depois de preparar o banco isolado com `restore_mariadb_134.php`. O ensaio instala e restaura **somente código fictício na pasta temporária**, gera backup SQL lógico no armazenamento temporário e recusa um ZIP adulterado, sem restauração ou exclusão de banco. O teste de contrato `tests/updater_ci_contract_217.php` funciona offline e verifica o isolamento e a ordem de execução.
 
 Os testes locais não conseguem executar esse cenário quando as extensões MariaDB e ZIP não estão instaladas. Consulte [Integração do atualizador 1.0.117](INTEGRACAO_ATUALIZADOR_117.md) para a matriz de verificação e as limitações de homologação.
+
+## Correção do teste de usuário MySQL local (v1.0.135)
+
+O workflow 47 concluiu os testes de backup/restore, mas falhou no provisionamento dedicado (`1045`): o runner atravessou a ponte Docker e o MariaDB enxergou `172.18.0.1`, fora dos hosts locais permitidos. O passo de provisionamento agora usa somente o namespace **de rede** do contêiner MariaDB (`job.services.mariadb.id` / `docker inspect` / `sudo nsenter --net`), valida `SELECT USER()` como loopback e não altera `GRANT`. O teste do atualizador permanece na etapa seguinte. Teste estático `tests/ci_mysql_local_235.php`; nova execução MariaDB real ainda pendente. Consulte [CI_MARIADB_LOCAL_135.md](CI_MARIADB_LOCAL_135.md).

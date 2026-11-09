@@ -83,14 +83,34 @@ jobs:
           php tests/integration/legal_apps_mariadb_196.php
           php tests/integration/teixeira_mariadb_206.php
       - name: Provisionamento MySQL local em banco isolado
+        # GitHub Actions publica a porta Docker no runner, mas a conexão vinda do
+        # runner aparece no MariaDB como IP do gateway (ex.: 172.18.0.1).
+        # A conta criada pelo portal é LOCAL e não aceita esse IP, por projeto.
+        # Executar SOMENTE este ensaio no namespace de rede do serviço MariaDB:
+        # 127.0.0.1 passa a ser realmente o loopback do banco, sem GRANT para '%'.
+        shell: bash
         env:
           CI: 'true'
           IGUA_TEST_ALLOW_WRITE: YES_ISOLATED_DB
           IGUA_TEST_ADMIN_HOST: 127.0.0.1
           IGUA_TEST_ADMIN_USER: root
           IGUA_TEST_ADMIN_PASSWORD: temporary-ci-root-only
+          IGUA_TEST_MARIADB_CONTAINER: ${{ job.services.mariadb.id }}
         run: |
-          php tests/integration/installer_create_mariadb_231.php
+          set -euo pipefail
+          if [[ ! "$IGUA_TEST_MARIADB_CONTAINER" =~ ^[a-f0-9]{12,64}$ ]]; then
+            echo 'ID do contêiner MariaDB inválido/indisponível; ensaio interrompido.' >&2
+            exit 1
+          fi
+          service_pid="$(docker inspect --format '{{.State.Pid}}' "$IGUA_TEST_MARIADB_CONTAINER")"
+          if [[ ! "$service_pid" =~ ^[1-9][0-9]*$ ]]; then
+            echo 'Processo do MariaDB não está ativo; ensaio interrompido.' >&2
+            exit 1
+          fi
+          # nsenter troca APENAS a rede. PHP, código, filesystem e extensão
+          # pdo_mysql continuam os mesmos do runner ubuntu-24.04.
+          sudo --preserve-env=CI,IGUA_TEST_ALLOW_WRITE,IGUA_TEST_ADMIN_HOST,IGUA_TEST_ADMIN_USER,IGUA_TEST_ADMIN_PASSWORD \
+            nsenter --target "$service_pid" --net -- php tests/integration/installer_create_mariadb_231.php
       - name: Ciclo integrado do atualizador ZIP com MariaDB isolado
         env:
           IGUA_TEST_ALLOW_WRITE: YES_ISOLATED_DB
