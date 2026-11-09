@@ -1,6 +1,15 @@
-# Diretrizes de manutenção — Meu Site (v1.0.140)
+# Diretrizes de manutenção — Meu Site (v1.0.141)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Editor, mídias e diagnóstico de erros (1.0.141)
+
+- `Ferramentas → Diagnóstico de erros` mostra somente verificações/ocorrências privadas e sanitizadas. Falhas JS reportadas ao servidor usam códigos fixos, sem IP, URL, conteúdo de notícia, chaves, cookies ou stack; limite por sessão e CSRF são obrigatórios. Nginx/PHP-FPM/MariaDB fora do PHP permanecem sob SSH.
+- A etapa de fotos tem um seletor de biblioteca, com capa e galeria no mesmo modal, preservando os campos `library_cover`, `library_gallery[]`, `image`, `gallery_files[]`, `photo_zip` e a seleção por celular.
+- Listagem da biblioteca não pode carregar infinitamente: deadline, erros visíveis e botão para tentar novamente. Não reenviar uploads automaticamente após timeout, pois podem ter sido recebidos.
+- SEO possui um único ID para o botão do diagnóstico. Diferenciar geração **local** de descrição de sugestão por **Gemini IA**. Gemini nunca publica nem aplica sem consentimento e deve ter deadline e cancelamento.
+- A escolha de publicação fica antes da revisão e os valores `draft`, `now`, `scheduled` são preservados. JS editoriais devem usar `?v=` para invalidar cache após a atualização.
+- Regressão obrigatória: `tests/editor_diagnostics_241.php` e `.js`, além das demais suítes e `docs/DIAGNOSTICO_ERROS_141.md`. Schema 37/backup v12 imutáveis.
 
 ## Métricas do portal (1.0.140)
 

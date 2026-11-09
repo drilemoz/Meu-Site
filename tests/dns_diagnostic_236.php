@@ -44,9 +44,9 @@ ok236($snap['comparison']['CNAME']==='unknown','erros não tratados como não h�
 ok236(igua_dns_snapshot('',$localFake,$publicFake)['ok']===false,'domínio ausente não consulta rede');
 $root=dirname(__DIR__);
 $admin=file_get_contents($root.'/public/admin.php');
-ok236(str_contains($admin,"'dns_diagnostic'=>'manage_settings'") && str_contains($admin,"'server_info','dns_diagnostic','files'"),'rota protegida e permitida');
+ok236(str_contains($admin,"'dns_diagnostic'=>'manage_settings'") && str_contains($admin,"'server_info','dns_diagnostic','error_diagnostics','admin_error_event','files'"),'rota protegida e permitida');
 $layout=file_get_contents($root.'/app/admin_views/layout.php');
-ok236(str_contains($layout,'Diagnóstico de DNS') && str_contains($layout,"$"."toolsActions=['files','server_info','dns_diagnostic']"),'menu Ferramentas');
+ok236(str_contains($layout,'Diagnóstico de DNS') && str_contains($layout,"$"."toolsActions=['files','server_info','dns_diagnostic','error_diagnostics']"),'menu Ferramentas');
 function h(mixed $val):string{return htmlspecialchars((string)$val,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');}
 function admin_link(string $action):string{return '/admin.php?action='.$action;}
 function setting(string $key,string $default=''):string{return 'https://iguatama.online';}

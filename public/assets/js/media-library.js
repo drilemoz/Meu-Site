@@ -14,7 +14,22 @@
  function mobileMedia(){return window.matchMedia('(max-width: 720px)').matches;}
  function refreshSearchBox(force=false){if(!searchBox||!searchToggle)return;const opened=force||query!==''||document.activeElement===search;searchBox.classList.toggle('is-open', !mobileMedia() || opened);searchToggle.setAttribute('aria-expanded', String(searchBox.classList.contains('is-open')));}
  function updateUploadName(files){if(!uploadName)return;const chosen=[...(files||[])];uploadName.textContent=chosen.length?chosen.map(file=>file.name).join(', '):'Nenhum arquivo';}
- const safeFetch=async(url,options)=>{const r=await fetch(url,{credentials:'same-origin',...options});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Falha ao comunicar com o servidor.');return data;};
+ const safeFetch=async(url,options={})=>{
+   const controller=new AbortController(),upstream=options.signal;
+   const abort=()=>controller.abort();upstream?.addEventListener('abort',abort,{once:true});
+   const timeoutMs=options.method==='POST'?(url.includes('media_upload')?90000:30000):18000;
+   const timeout=setTimeout(()=>controller.abort(),timeoutMs);
+   try {
+     const r=await fetch(url,{credentials:'same-origin',...options,signal:controller.signal,headers:{Accept:'application/json',...(options.headers||{})}});
+     if(r.redirected||r.status===401||r.status===403)throw Error('Sessão encerrada ou acesso negado. Entre novamente no painel.');
+     const data=await r.json().catch(()=>{throw Error('O servidor não devolveu JSON válido. Consulte Ferramentas > Diagnóstico de erros.');});
+     if(!r.ok||!data?.ok)throw Error(data?.error||'Falha HTTP '+r.status+' ao consultar a biblioteca.');
+     return data;
+   } catch(err) {
+     if(err.name==='AbortError'&&!upstream?.aborted){window.IguaAdminErrors?.report?.('MEDIA_TIMEOUT');throw Error('Tempo esgotado após '+Math.round(timeoutMs/1000)+' s. Verifique o servidor e tente novamente.');}
+     throw err;
+   } finally {clearTimeout(timeout);upstream?.removeEventListener('abort',abort);}
+ };
  async function load(){
   const ticket=requests.next();
   notify('Carregando…');
@@ -27,16 +42,16 @@
    let html='';
    if(!query&&!trash&&level===0){const years=[...new Set(data.folders.map(x=>x.folder_year))];html=years.map(y=>`<button type="button" class="media-folder" data-year="${Number(y)}">📁 ${Number(y)}</button>`).join('');}
    else if(!query&&!trash&&level===1){html=data.folders.filter(x=>String(x.folder_year)===String(year)).map(x=>`<button type="button" class="media-folder" data-month="${Number(x.folder_month)}">📁 ${months[Number(x.folder_month)]} <small>(${Number(x.total)})</small></button>`).join('');}
-   if(level===2||query||trash){html+=data.items.map(item=>`<article class="media-tile" data-id="${Number(item.id)}"><button type="button" data-${mode==='standalone'?'details':'select'}="${Number(item.id)}" title="${mode==='standalone'?'Ver detalhes':'Selecionar foto'}"><img loading="lazy" src="${esc(item.missing?'/assets/img/cidade.jpg':item.thumb)}" data-media-source="${esc(item.url)}" data-image-fallback="/assets/img/cidade.jpg" alt="${esc(item.alt_text||item.title)}"></button><small>${esc(item.title||item.original_name)}</small>${item.missing?'<span class="media-missing" role="status">Arquivo ausente</span>':''}<div class="media-tile-actions"><button type="button" data-details="${Number(item.id)}">Detalhes</button><button type="button" data-download="${Number(item.id)}">↓</button></div></article>`).join('');}
+   if(level===2||query||trash){html+=data.items.map(item=>`<article class="media-tile" data-id="${Number(item.id)}"><button type="button" data-${mode==='standalone'?'details':mode==='choose'?'select-cover':'select'}="${Number(item.id)}" title="${mode==='standalone'?'Ver detalhes':mode==='choose'?'Usar como capa':'Selecionar foto'}"><img loading="lazy" src="${esc(item.missing?'/assets/img/cidade.jpg':item.thumb)}" data-media-source="${esc(item.url)}" data-image-fallback="/assets/img/cidade.jpg" alt="${esc(item.alt_text||item.title)}"></button><small>${esc(item.title||item.original_name)}</small>${item.missing?'<span class="media-missing" role="status">Arquivo ausente</span>':''}<div class="media-tile-actions">${mode==='choose'?`<button type="button" data-select-gallery="${Number(item.id)}">+ Na matéria</button>`:''}<button type="button" data-details="${Number(item.id)}">Detalhes</button><button type="button" data-download="${Number(item.id)}">↓</button></div></article>`).join('');}
    grid.innerHTML=html||'<p class="muted">Nenhuma imagem nesta pasta.</p>';
    modal._items=data.items;
    $('.media-paging').hidden=!(level===2||query||trash);
    $('.media-pages').textContent=`${data.page} de ${data.pages} · ${data.total} imagens`;
    $('[data-media-prev]').disabled=data.page<=1;$('[data-media-next]').disabled=data.page>=data.pages;
    notify('');
-  }catch(err){if(requests.isCurrent(ticket) && !modal.hidden && err.name!=='AbortError')notify(err.message);}
+  }catch(err){if(requests.isCurrent(ticket) && !modal.hidden && err.name!=='AbortError'){grid.innerHTML='<div class="media-load-error" role="alert"><p>Não foi possível carregar a biblioteca.</p><button type="button" class="btn outline" data-media-retry>Tentar novamente</button></div>';$('.media-paging').hidden=true;notify(err.message||'Falha de conexão.');if(!String(err.message).includes('Tempo esgotado'))window.IguaAdminErrors?.report?.('MEDIA_HTTP');}}
  }
- function open(which){if(embedded)return;clearTimeout(search._t);mode=which;modal.hidden=false;document.body.classList.add('media-modal-open');level=0;year='';month='';page=1;trash=false;query='';search.value='';refreshSearchBox(false);load();$('.media-close')?.focus();}
+ function open(which){if(embedded)return;clearTimeout(search._t);mode=which;modal.hidden=false;document.body.classList.add('media-modal-open');level=0;year='';month='';page=1;trash=false;query='';search.value='';refreshSearchBox(false);const hint=$('.media-choice-hint');if(hint)hint.hidden=which!=='choose';load();$('.media-close')?.focus();}
  function close(){if(embedded)return;clearTimeout(search._t);requests.invalidate();modal.hidden=true;document.body.classList.remove('media-modal-open');}
  document.querySelectorAll('[data-media-pick]').forEach(b=>b.addEventListener('click',()=>open(b.dataset.mediaPick)));
  // Ações de seleção são criadas nas próprias telas, sem botões duplicados.
@@ -50,18 +65,20 @@
  grid.addEventListener('click',async e=>{
   const y=e.target.closest('[data-year]'),m=e.target.closest('[data-month]');
   if(y){year=y.dataset.year;level=1;load();return;}if(m){month=m.dataset.month;level=2;load();return;}
-  const btn=e.target.closest('[data-select],[data-download],[data-details]');if(!btn)return;
-  const id=Number(btn.dataset.select||btn.dataset.download||btn.dataset.details);
+  if(e.target.closest('[data-media-retry]')){load();return;}
+  const btn=e.target.closest('[data-select],[data-select-cover],[data-select-gallery],[data-download],[data-details]');if(!btn)return;
+  const id=Number(btn.dataset.select||btn.dataset.selectCover||btn.dataset.selectGallery||btn.dataset.download||btn.dataset.details);
   const item=modal._items?.find(x=>Number(x.id)===id);if(!item)return;
-  if(btn.dataset.select&&trash){notify('Restaure a imagem antes de selecioná-la.');return;}
-  if(btn.dataset.select&&item.missing){notify('Arquivo ausente no servidor. Envie a imagem novamente antes de selecioná-la.');return;}
+  if((btn.hasAttribute('data-select')||btn.hasAttribute('data-select-cover')||btn.hasAttribute('data-select-gallery'))&&trash){notify('Restaure a imagem antes de selecioná-la.');return;}
+  if((btn.hasAttribute('data-select')||btn.hasAttribute('data-select-cover')||btn.hasAttribute('data-select-gallery'))&&item.missing){notify('Arquivo ausente no servidor. Envie a imagem novamente antes de selecioná-la.');return;}
   if(btn.dataset.download){window.location.href='/admin.php?action=media_download&id='+id;return;}
   if(btn.dataset.details){showDetails(item);return;}
-  if(mode==='cover'){
+  const chosenMode=btn.hasAttribute('data-select-cover')?'cover':btn.hasAttribute('data-select-gallery')?'gallery':mode;
+  if(chosenMode==='cover'){
    const target=document.querySelector('[name=library_cover]');if(target){target.value=item.filename;
     const cap=document.querySelector('[name=image_caption]'),credit=document.querySelector('[name=image_credit]');if(cap&&!cap.value)cap.value=item.caption;if(credit&&!credit.value)credit.value=item.credit;
     const status=document.querySelector('#news-library-selected');if(status)status.textContent='Capa escolhida: '+(item.title||item.filename);}
-  }else if(mode==='gallery'){
+  }else if(chosenMode==='gallery'){
    const form=document.querySelector('#news-form'),list=document.querySelector('#media-gallery-selected');if(form){
     if(form.querySelectorAll('input[name="library_gallery[]"]').length>=10){notify('Máximo de 10 fotos na galeria.');return;}
     if(![...form.querySelectorAll('input[name="library_gallery[]"]')].some(x=>x.value===item.filename)){
@@ -71,6 +88,7 @@
    }
   }else if(mode==='campaign'){const target=document.querySelector('#library-campaign');if(target)target.value=item.filename;const status=document.querySelector('#campaign-image-selected');if(status)status.textContent='Selecionado: '+item.title;}
   else if(mode==='social'||mode==='favicon'){const input=document.querySelector(`[name=${mode==='social'?'seo_social_image':'seo_favicon_image'}]`);if(input){input.value=item.url;input.dispatchEvent(new Event('input',{bubbles:true}));}}
+  if(chosenMode==='gallery'&&mode==='choose'){notify('Foto adicionada à matéria. Selecione outras ou feche a biblioteca.');return;}
   close();
  });
  function showDetails(item){const box=$('.media-details');box.hidden=false;box.querySelector('[name=id]').value=item.id;

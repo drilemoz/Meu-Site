@@ -14,8 +14,8 @@ check119(str_contains($view,'id="news-visual-editor"'),'editor visual segue disp
 check119(str_contains($js,'function changeTab(index'),'navegação de etapas mantém alternância de visibilidade');
 check119(str_contains($view,'id="news-visual-editor"') && str_contains($js,'function markdownFromVisual()'),'editor visual mantém texto seguro em campo original');
 check119(str_contains($js,"e.clipboardData.getData('text/plain')"),'colagem não injeta HTML em notícia');
-check119(substr_count($view,'data-media-pick="cover"')===1,'apenas um atalho de capa');
-check119(substr_count($view,'data-media-pick="gallery"')===1,'apenas um atalho de galeria');
+check119(substr_count($view,'data-media-pick="choose"')===1,'uma entrada na biblioteca para escolher capa ou fotos');
+check119(!str_contains($view,'data-media-pick="gallery"')&&!str_contains($view,'data-media-pick="cover"'),'sem atalhos duplicados da biblioteca');
 check119(!str_contains($manager,"button.textContent='🖼️ Abrir gerenciador de imagens'"),'sem botão extra duplicado via JavaScript');
 check119(str_contains($view,'news-cover-preview') && str_contains($css,'max-height:166px'),'capa atual compacta');
 check119(str_contains($view,'news-direct-upload') && str_contains($view,'data-upload-input="attachment"'),'upload direto e documentos preservados');

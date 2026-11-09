@@ -12,7 +12,8 @@ for(const [task,view] of [['title',header],['summary',header],['body',blocks],['
   assert.match(view,new RegExp('data-news-gemini="'+task+'"'));
   const button=view.match(new RegExp('<button[^>]*data-news-gemini="'+task+'"[^>]*>([\\s\\S]*?)<\\/button>'));
   assert.ok(button,'Atalho Gemini presente: '+task);
-  assert.ok(!/\bIA\b|Gemini/.test(button[1]),'Apenas símbolo no botão: '+task);
+  if(task==='seo')assert.match(button[1],/Gemini IA/,'Ação de IA deve ser clara no celular');
+  else assert.ok(!/Gemini IA/.test(button[1]),'Atalho compacto fora da barra SEO: '+task);
 }
 assert.match(editor,/fetch\(endpoint,\{method:'POST',credentials:'same-origin'/);
 assert.match(editor,/if\(!selected\|\|!target\)return/);

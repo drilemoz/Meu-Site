@@ -19,6 +19,7 @@
         echo '<p><a class="btn outline" href="/admin.php?action=health">Abrir Central de Saúde</a></p></section>';
     }
 ?>
+<?php elseif($action==='error_diagnostics'): require __DIR__.'/routes/error_diagnostics.php'; ?>
 <?php elseif($action==='media'): ?><?php media_admin_modal(true); ?>
 <?php elseif($action==='health'): igua_health_admin_view($db); ?>
 <?php elseif($action==='security'): igua_security_admin_view(); ?>

@@ -13,10 +13,13 @@
  let current=null;
  let pending=false;
  let originButton=null;
+ let controller=null;
+ let timer=null;
+ const report=code=>window.IguaAdminErrors?.report?.(code);
  const names={title:'Manchete',summary:'Descrição',body:'Matéria',seo:'Descrição SEO'};
- const close=()=>{if(dialog.open)dialog.close();};
+ const close=()=>{if(controller)controller.abort();if(dialog.open)dialog.close();};
  dialog.querySelectorAll('[data-news-gemini-close]').forEach(btn=>btn.addEventListener('click',close));
- dialog.addEventListener('close',()=>{if(originButton?.isConnected)originButton.focus({preventScroll:true});originButton=null;});
+ dialog.addEventListener('close',()=>{if(controller)controller.abort();current=null;apply.disabled=true;if(originButton?.isConnected)originButton.focus({preventScroll:true});originButton=null;});
  suggestion.addEventListener('input',()=>{apply.disabled=pending||!suggestion.value.trim()||!current;});
  const modalOpen=button=>{
    if(dialog.open)return;
@@ -27,6 +30,9 @@
    const task=button.dataset.newsGemini;
    if(!Object.hasOwn(names,task))return;
    originButton=button;current=null;apply.disabled=true;pending=true;
+   controller=new AbortController();
+   const thisController=controller;let timedOut=false;
+   timer=setTimeout(()=>{timedOut=true;thisController.abort();},38000);
    title.textContent='Gemini · '+names[task];
    suggestion.value='';feedback.textContent='Consultando o Gemini…';
    modalOpen(button);
@@ -35,19 +41,22 @@
    const body=new URLSearchParams({csrf:csrf.value,id:field('id').value,task,
      title:field('title').value,summary:field('summary').value,body:field('body').value});
    try{
-     const response=await fetch(endpoint,{method:'POST',credentials:'same-origin',headers:{'Accept':'application/json'},body});
+     const response=await fetch(endpoint,{method:'POST',credentials:'same-origin',headers:{'Accept':'application/json'},body,signal:thisController.signal});
      const data=await response.json().catch(()=>null);
      if(!response.ok || data?.ok!==true || typeof data?.suggestion!=='string'){
        throw Error(typeof data?.message==='string'&&data.message.length<350?data.message:
          'Não foi possível consultar o Gemini (HTTP '+response.status+').');
      }
-     if(!['title','summary','body','seo_description'].includes(data.field))throw Error('Resposta inesperada.');
+     const expected={title:'title',summary:'summary',body:'body',seo:'seo_description'}[task];
+     if(data.field!==expected)throw Error('Resposta inesperada.');
      current=data.field;
      suggestion.value=data.suggestion;
      feedback.textContent='Sugestão recebida. Confira os fatos antes de aplicar.';
    }catch(error){
-     feedback.textContent=error.message||'Erro ao consultar a API.';
-   }finally{pending=false;apply.disabled=!current||!suggestion.value.trim();}
+     if(timedOut){feedback.textContent='Tempo esgotado (38 s). Confira a conexão e o teste da API em Integrações.';report('GEMINI_TIMEOUT');}
+     else if(error.name==='AbortError')feedback.textContent='Consulta cancelada.';
+     else {feedback.textContent=error.message||'Erro ao consultar a API. Verifique Integrações.';report('GEMINI_HTTP');}
+   }finally{clearTimeout(timer);timer=null;controller=null;pending=false;apply.disabled=!current||!suggestion.value.trim();}
  }
  form.querySelectorAll('[data-news-gemini]').forEach(button=>button.addEventListener('click',()=>request(button)));
  function applyTextToVisual(value){

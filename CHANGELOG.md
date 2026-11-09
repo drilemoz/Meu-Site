@@ -1,3 +1,13 @@
+## 1.0.141 — Editor, mídias e diagnóstico de erros (2026-11-09)
+
+- Eliminada seleção duplicada de biblioteca no passo de fotos: escolher capa ou adicionar diversas fotos dentro de um único seletor; upload local preservado.
+- Listagem de mídias com prazo de 18 segundos, mensagens de erro, tratamento de sessão/JSON inválido e botão Tentar novamente; prazos de POST maiores para uploads.
+- Corrigida duplicidade de ID dos controles SEO que impedia o atalho de diagnóstico de funcionar. Identificação do botão Gemini IA, com distinção da sugestão local.
+- Gemini com limite de espera de 38 s, cancelamento ao fechar e falhas expostas no modal; registro privado da falha técnica, sem chave ou corpo de requisição.
+- Publicação (rascunho, agora, agendar) movida para o topo do resumo, em controles compactos, sem mudar regras de servidor.
+- Novo Ferramentas → Diagnóstico de erros: estado de PHP, biblioteca, extensões e configuração Gemini, eventos técnicos e códigos fixos de falhas do navegador, rate limiting e CSRF; log Nginx permanece privado sob SSH.
+- Scripts editoriais com versão na URL; suite `editor_diagnostics_241` e documentação. Schema 37 e backup v12 preservados.
+
 ## 1.0.140 — Métricas segmentadas por tipo de tráfego (2026-11-09)
 
 - Painel de audiência com KPIs, participações percentuais e gráfico horário/diário para **público provável**, **robôs declarados** e **tráfego suspeito**.

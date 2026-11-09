@@ -24,6 +24,15 @@ function igua_health_log(string $code, ?Throwable $error=null): void {
 }
 function igua_health_init(): void {
     if (PHP_SAPI==='cli') return;
+    // Apenas categoria, nome-base e linha. Nunca capturar mensagens com credenciais ou dados.
+    set_error_handler(static function(int $severity, string $message, string $file, int $line): bool {
+        static $reported=0;
+        if(!(error_reporting() & $severity) || $reported>=4)return false;
+        if(!in_array($severity,[E_WARNING,E_USER_WARNING,E_RECOVERABLE_ERROR],true))return false;
+        $reported++;
+        igua_health_log('PHP_WARNING',new ErrorException('Erro técnico',0,$severity,$file,$line));
+        return false; // Mantém o handler padrão; não mascara nem converte warnings em sucesso.
+    });
     register_shutdown_function(static function(): void {
         $last=error_get_last();
         if(!is_array($last) || !in_array((int)$last['type'],[E_ERROR,E_PARSE,E_CORE_ERROR,E_COMPILE_ERROR,E_USER_ERROR],true)) return;

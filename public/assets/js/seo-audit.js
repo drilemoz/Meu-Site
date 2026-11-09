@@ -94,7 +94,7 @@
    document.querySelector('#news-seo-summary').textContent=audit.score===100?'Itens editoriais conferidos.':`${audit.checks.filter(c=>!c.ok).length} ponto(s) para revisar · avaliação local`;
    const ul=document.querySelector('#news-seo-checklist');ul.replaceChildren(...audit.checks.map(createFix));
  }
- function openDiagnostic(){const data=snapshot();diagTitle.value=data.title;diagDescription.value=data.description;diagSlug.value=data.slug;document.querySelector('#news-diagnostic-edit').open=false;refresh();modalOpen(diagnostic,document.querySelector('#news-seo-dialog-open'));}
+ function openDiagnostic(){const data=snapshot();diagTitle.value=data.title;diagDescription.value=data.description;diagSlug.value=data.slug;document.querySelector('#news-diagnostic-edit').open=false;refresh();modalOpen(diagnostic,document.activeElement);}
  document.querySelector('#news-seo-dialog-open').addEventListener('click',openDiagnostic);
  document.querySelector('#news-seo-diag-save').addEventListener('click',()=>{
    const slug=diagSlug.value.trim();if(slug&&!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)){diagSlug.setCustomValidity('Endereço inválido. Use letras minúsculas, números e hífens.');diagSlug.reportValidity();return;}

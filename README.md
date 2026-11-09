@@ -1,8 +1,8 @@
-> **Versão atual: 1.0.140.** Métricas locais reformuladas: público provável, robôs declarados e tráfego suspeito, com relatórios separados e relógio do portal consistente. A arquitetura AWS EC2 segue a versão 1.0.139.
+> **Versão atual: 1.0.141.** Editor de notícias com biblioteca de fotos unificada, SEO/Gemini mais claro e área privada de diagnóstico de erros.
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.140** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.141** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -17,6 +17,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.141 — Fotos, SEO e diagnóstico de falhas
+
+- Ferramentas → Diagnóstico de erros (sem segredos), PHP, mídia, Gemini, logs sanitizados e código de falhas JS.
+- Biblioteca única para escolher capa e várias imagens; carregamento com timeout, erros visíveis e reenvio sob controle.
+- Gemini IA com botão identificado, timeout/cancelamento e testes de configuração acessíveis em Integrações; diagnóstico SEO funcional.
+- Rascunho, Publicar e Agendar no início da revisão em uma linha.
+- Leia [a documentação técnica](docs/DIAGNOSTICO_ERROS_141.md) para comportamento, limites e testes pendentes.
 
 ## Versão 1.0.140 — Métricas de audiência mais confiáveis
 

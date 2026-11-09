@@ -1,3 +1,9 @@
+## Versão 1.0.141
+
+**Correções no editor e central de diagnósticos.** A biblioteca de fotos apresenta capa/galeria no mesmo seletor, carrega com timeout e recuperação, e continua permitindo envio do celular. Diagnóstico SEO corrigido; botões Automático e Gemini IA agora são distinguíveis. Gemini não fica indefinidamente em carregamento, possui timeout/cancelamento e mostra erros. Na revisão final, Rascunho/Publicar/Agendar aparecem em uma linha no topo. Em Ferramentas há uma nova área de diagnóstico de erros técnicos do portal, de forma restrita e sem capturar dados privados.
+
+**Não altera o banco**, schema 37/backup v12, permissões, rotas públicas ou procedimento de deploy AWS. Testes completos e validação dos ZIPs obrigatórios; comportamento em Chrome Android, MariaDB e chamadas Gemini reais deve ser validado no servidor.
+
 ## Versão 1.0.140
 
 **Métricas locais reformuladas:** o painel apresenta público provavelmente humano (sem indícios detectados), robôs que se identificam no User-Agent e tráfego suspeito, com gráfico e porcentagens dos três grupos. É possível filtrar as tabelas por grupo e consultar páginas, origens, países/regiões, campanhas, agentes e cliques registrados. Novos agentes de rastreamento e automação passam a ser reconhecidos. Nenhum grupo representa comprovação de identidade, pois o User-Agent é falsificável.

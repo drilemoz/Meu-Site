@@ -21,19 +21,19 @@
     </section>
     <section class="news-editor-step" data-step="seo" hidden>
       <p class="news-question-tag">PASSO 8 · BUSCADORES</p>
-      <h3>Como a notícia poderá aparecer no Google?</h3><p class="muted">Prévia ilustrativa: o Google pode exibir outro título, trecho ou comprimento. Nenhuma IA externa é chamada nesta versão.</p>
+      <h3>Como a notícia poderá aparecer no Google?</h3><p class="muted">Prévia ilustrativa: o Google pode exibir outro título, trecho ou comprimento. A análise desta etapa é local. O Gemini IA só é consultado ao tocar no botão específico.</p>
       
-      <section id="news-seo-audit" class="seo-editor-audit news-seo-compact" aria-label="Análise SEO da notícia"><div class="seo-audit-heading"><strong>Otimização editorial</strong><span id="news-seo-score" aria-live="polite">0/100</span></div><progress id="news-seo-progress" max="100" value="0" aria-label="Pontuação da revisão editorial"></progress><div class="news-seo-audit-actions"><small id="news-seo-summary">Avaliação local, não é nota do Google.</small><button type="button" class="btn outline small" id="news-seo-dialog-open">Ver diagnóstico</button></div></section>
+      <section id="news-seo-audit" class="seo-editor-audit news-seo-compact" aria-label="Análise SEO da notícia"><div class="seo-audit-heading"><strong>Otimização editorial</strong><span id="news-seo-score" aria-live="polite">0/100</span></div><progress id="news-seo-progress" max="100" value="0" aria-label="Pontuação da revisão editorial"></progress><div class="news-seo-audit-actions"><small id="news-seo-summary">Avaliação local, não é nota do Google.</small></div></section>
       <!-- Campos persistidos continuam no formulário original; os pop-ups editam cópias temporárias. -->
       <input id="news-url-slug" type="hidden" name="url_slug" value="<?= h($row['slug']??'') ?>">
       <input type="hidden" name="seo_title" value="<?= h($row['seo_title']??'') ?>">
       <input type="hidden" name="seo_description" value="<?= h($row['seo_description']??'') ?>">
       <div class="news-seo-iconbar" role="group" aria-label="Ferramentas de SEO">
         <button type="button" class="news-seo-iconbtn" data-news-seo-tool="slug" title="Editar endereço" aria-label="Editar endereço da notícia"><span aria-hidden="true">🔗</span><small>Endereço</small></button>
-        <button type="button" class="news-seo-iconbtn" data-news-seo-tool="generate" title="Gerar descrição" aria-label="Gerar sugestão de descrição SEO"><span aria-hidden="true">✧</span><small>Gerar</small></button>
-        <button type="button" class="news-seo-iconbtn news-gemini-icon igua-gemini-mark" data-news-gemini="seo" title="Sugerir descrição SEO com Gemini" aria-label="Sugerir descrição SEO com Gemini"><span aria-hidden="true">✦</span></button>
+        <button type="button" class="news-seo-iconbtn" data-news-seo-tool="generate" title="Gerar descrição" aria-label="Gerar sugestão de descrição SEO"><span aria-hidden="true">✧</span><small>Automático</small></button>
+        <button type="button" class="news-seo-iconbtn news-gemini-icon igua-gemini-mark" data-news-gemini="seo" title="Sugerir descrição SEO com Gemini" aria-label="Sugerir descrição SEO com Gemini"><span aria-hidden="true">✦</span><small>Gemini IA</small></button>
         <button type="button" class="news-seo-iconbtn" data-news-seo-tool="edit" title="Editar SEO" aria-label="Editar título e descrição SEO"><span aria-hidden="true">⚙</span><small>Editar</small></button>
-        <button type="button" class="news-seo-iconbtn" id="news-seo-dialog-open" title="Ver diagnóstico" aria-label="Ver diagnóstico editorial"><span aria-hidden="true">☑</span><small>Diagnóstico</small></button>
+        <button type="button" class="news-seo-iconbtn" id="news-seo-dialog-open" title="Ver diagnóstico" aria-label="Ver diagnóstico editorial"><span aria-hidden="true">☑</span><small>Análise</small></button>
       </div>
       <dialog id="news-seo-tool-dialog" class="igua-modal igua-modal--medium news-seo-dialog" aria-labelledby="news-seo-tool-title">
         <div class="news-seo-dialog-head"><h4 id="news-seo-tool-title">Editar SEO</h4><button type="button" class="btn outline small" id="news-seo-tool-x" aria-label="Fechar sem salvar">✕</button></div>

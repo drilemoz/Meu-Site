@@ -4,7 +4,7 @@ function media_admin_modal(bool $embedded=false): void { ?>
 <<?php echo $embedded ? 'section' : 'div'; ?> class="media-modal<?= $embedded ? ' media-inline' : '' ?>" id="media-manager" <?= $embedded ? '' : 'hidden role="dialog" aria-modal="true"' ?> data-csrf="<?= h(csrf_token()) ?>" aria-label="Gerenciador de mídias">
  <div class="media-window">
   <header class="media-header"><div><h2>🖼️ Gerenciador de Mídias</h2><small>Biblioteca e envios organizados por ano e mês</small></div><?php if(!$embedded): ?><button type="button" class="media-close" aria-label="Fechar">×</button><?php endif; ?></header>
-  <div class="media-manager-body"><section class="media-main">
+  <div class="media-manager-body"><section class="media-main"><p class="media-choice-hint" hidden>Toque em uma foto para defini-la como capa ou em <strong>+ Na matéria</strong> para adicionar à galeria.</p>
    <div class="media-tools"><button type="button" data-media-back>← Voltar</button><span class="media-path">Biblioteca</span><button type="button" class="media-search-toggle" data-media-search-toggle aria-label="Pesquisar imagens" title="Pesquisar">🔎</button><label class="media-search-box" data-media-search-box><input type="search" data-media-search placeholder="Pesquisar título, nome e crédito" aria-label="Pesquisar imagens"></label><button type="button" data-media-trash>🗑 Lixeira</button></div>
    <div class="media-grid" aria-live="polite"></div>
    <div class="media-paging"><button type="button" data-media-prev>←</button><span class="media-pages"></span><button type="button" data-media-next>→</button></div>

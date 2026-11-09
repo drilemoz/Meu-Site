@@ -1,10 +1,9 @@
     <section class="news-editor-step" data-step="photos" hidden>
       <p class="news-question-tag">PASSO 4 · FOTOGRAFIAS</p>
-      <h3>Quer adicionar fotografias?</h3><p class="muted">Escolha da biblioteca ou envie várias imagens do celular. A primeira foto poderá ser usada como capa automaticamente.</p>
+      <h3>Quer adicionar fotografias?</h3><p class="muted">Escolha imagens da biblioteca ou envie fotos do celular. Defina a capa ou adicione fotos à matéria.</p>
       <div class="news-media-actions" aria-label="Escolher imagens da biblioteca">
-        <button type="button" class="btn outline" data-media-pick="cover">🖼️ Capa</button>
-        <button type="button" class="btn outline" data-media-pick="gallery">▦ Biblioteca</button>
-        <button type="button" class="btn outline" id="news-library-clear">✕ Limpar</button>
+        <button type="button" class="btn outline" data-media-pick="choose">▦ Escolher da biblioteca</button>
+        <button type="button" class="btn outline" id="news-library-clear" title="Remover seleção de capa da biblioteca">✕ Remover capa</button>
       </div>
       <input type="hidden" name="library_cover" id="news-library-cover" value=""><input type="hidden" name="remove_cover" id="news-remove-cover" value="0">
       <p id="news-library-selected" class="news-media-feedback" role="status" aria-live="polite">Capa: <?= !empty($row['image'])?'imagem atual':'nenhuma imagem selecionada' ?>.</p>
@@ -12,10 +11,10 @@
       <div id="news-local-photo-preview" class="news-local-photo-preview" aria-live="polite"></div>
       <?php if($row['image']): ?><figure class="image-preview news-cover-preview"><img class="edit-thumb" data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($row['image'])) ?>" alt="Capa atual"><figcaption>Capa atual</figcaption></figure><?php endif; ?>
       <div class="news-direct-upload news-upload-wizard">
-        <p class="news-file-heading">Enviar do dispositivo</p>
+        <p class="news-file-heading">Enviar novas fotos do celular</p>
         <div class="news-upload-actions" aria-label="Selecionar arquivos do celular">
-          <label class="news-upload-tile"><span>⬆ Capa</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Selecionar foto de capa"></label>
-          <label class="news-upload-tile"><span>▣ Fotos</span><input name="gallery_files[]" multiple type="file" accept="image/jpeg,image/png,image/webp" data-upload-input="gallery" aria-label="Selecionar várias fotos"></label>
+          <label class="news-upload-tile"><span>⬆ Foto de capa</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Selecionar foto de capa"></label>
+          <label class="news-upload-tile"><span>▣ Várias fotos</span><input name="gallery_files[]" multiple type="file" accept="image/jpeg,image/png,image/webp" data-upload-input="gallery" aria-label="Selecionar várias fotos"></label>
           <label class="news-upload-tile"><span>▤ ZIP</span><input name="photo_zip" type="file" accept=".zip,application/zip,application/x-zip-compressed" aria-label="Selecionar ZIP de fotos"></label>
         </div>
         <div class="news-upload-feedback"><small id="news-image-upload-feedback" role="status" aria-live="polite"></small><small id="news-gallery-upload-feedback" role="status" aria-live="polite"></small><small id="news-photo-zip-feedback" role="status" aria-live="polite"></small></div>

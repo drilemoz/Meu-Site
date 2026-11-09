@@ -1,4 +1,4 @@
-# Documentação atual do Meu Site (1.0.140)
+# Documentação atual do Meu Site (1.0.141)
 
 Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `RELATORIO_ARQUIVOS_LINHAS_*` e instruções de atualizadores antigos foram retirados do ZIP; seu histórico permanece nas versões anteriores do repositório, se disponíveis.
 
@@ -28,3 +28,5 @@ As documentações funcionais remanescentes podem registrar as versões em que c
 - [Correção do painel administrativo 1.0.137](CORRECAO_PAINEL_137.md) — falha de inclusão, menu e fallback seguro em diagnósticos.
 
 - [Deploy seguro AWS EC2 1.0.138](AWS_EC2_DEPLOY.md) — conta dedicada, timer systemd, Nginx, PHP-FPM, rollback e IndexNow.
+
+- [Diagnóstico de erros e melhorias editoriais 1.0.141](DIAGNOSTICO_ERROS_141.md) — mídias, Gemini, SEO, publicação, privacidade e testes.

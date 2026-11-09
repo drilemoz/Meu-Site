@@ -17,6 +17,6 @@ $css=file_get_contents($root.'/public/assets/css/style.css');
 check161(str_contains($pages,'media_admin_modal(true)') && !str_contains($pages,"dataset.mediaPage='true'") && str_contains($layout,"if(\$action!=='media')media_admin_modal()"),'rota mantém a página do painel, com uma única instância da biblioteca');
 check161(!str_contains($public,'<strong>Projetos</strong>') && str_contains($public,'<strong>Explorar</strong>') && str_contains($public,'<strong>Sobre</strong>')===false && str_contains($public,'p=sobre'),'rodapé sem Projetos, links institucionais preservados');
 check161(str_contains($public,'igua_brand_version()') && str_contains($css,'.site-footer .ig-footer-credit') && str_contains($css,'.admin-nav-drawer{width:min(270px,calc(100vw - 72px))}'),'cache do CSS e ajustes móveis presentes');
-check161(str_contains($mediajs,'if(embedded){mode=\'standalone\'') && str_contains($mediajs,"mode==='standalone'?'details':'select'") && str_contains($css,'.media-modal.media-inline{position:static'),'JS abre biblioteca embutida e seleção segue modal');
+check161(str_contains($mediajs,'if(embedded){mode=\'standalone\'') && str_contains($mediajs,"mode==='standalone'?'details':mode==='choose'?'select-cover':'select'") && str_contains($css,'.media-modal.media-inline{position:static'),'JS abre biblioteca embutida e seleção segue modal');
 check161(version_compare(trim(file_get_contents($root.'/VERSION')),'1.0.61','>='),'versão do portal atualizada');
 echo "Validação estática e renderização PHP aprovadas. Testes em dispositivo e MariaDB pendentes.\n";
