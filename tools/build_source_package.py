@@ -36,6 +36,7 @@ def allowed(p:Path)->bool:
         if parts[1]=='uploads':return rel in {'public/uploads/.htaccess','public/uploads/.gitkeep'}
         return rel!='public/ads.txt'
     if parts[0]=='storage':return p.name=='.gitkeep'
+    if parts[0]=='deploy':return len(parts)==3 and parts[1]=='aws' and p.name in {'iguatama-deploy.service','iguatama-deploy.timer','nginx-indexnow.conf'}
     if parts[0]=='tools':return len(parts)==2 and p.name in TOOLS
     if parts[0] in {'bin','tests'}:return True
     if parts[0]=='docs':

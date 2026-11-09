@@ -46,6 +46,10 @@ if($operation==='preview'){
     redirect('/admin.php?action=updates');
 }
 if(in_array($operation,['upload','install_remote','rollback'],true)){
+    if(igua_updater_vps_mode() && ($me['role']??'')!=='admin')
+        throw new RuntimeException('Deploy na VPS é restrito ao administrador.');
+    if(igua_updater_vps_mode() && $operation==='upload')
+        throw new RuntimeException('A VPS só aceita instalação da release oficial pelo serviço externo. Envio manual desativado.');
     if($operation==='rollback'){
         // Restauração continua exigindo nova autenticação porque pode substituir
         // código funcional por uma versão anterior.
@@ -54,6 +58,8 @@ if(in_array($operation,['upload','install_remote','rollback'],true)){
         $st->execute([(int)$me['id']]);
         $hash=$st->fetchColumn();
         if(!is_string($hash)||!password_verify($pwd,$hash))throw new RuntimeException('Confirme sua senha administrativa para restaurar o código.');
+        if(igua_updater_vps_mode())
+            throw new RuntimeException('Na VPS, a restauração manual do código requer acesso SSH à conta de implantação. Confira docs/AWS_EC2_DEPLOY.md.');
         igua_updater_manual_rollback();
         flash('Arquivos restaurados. O banco de dados não foi alterado pelo atualizador.');
         redirect('/admin.php?action=updates');
@@ -74,6 +80,13 @@ if(in_array($operation,['upload','install_remote','rollback'],true)){
         throw new RuntimeException('Informe sua senha administrativa para autorizar a atualização.');
     }
     unset($_SESSION['igua_update_auth_failures']);
+    if(igua_updater_vps_mode()){
+        if($operation!=='install_remote')throw new RuntimeException('Operação não aceita pela implantação da VPS.');
+        $token=(string)($_POST['update_token']??'');
+        igua_updater_vps_enqueue('install_remote',(int)$me['id'],$token);
+        flash('Solicitação de implantação registrada. Aguarde o serviço externo; acompanhe o progresso na janela de atualizações.');
+        redirect('/admin.php?action=updates');
+    }
     $token=(string)($_POST['update_token']??'');
     $userId=(int)$me['id'];
     $sessionReleased=false;

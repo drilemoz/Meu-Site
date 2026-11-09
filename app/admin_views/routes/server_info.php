@@ -88,6 +88,8 @@ $phpSettings=$serverInfo['php_settings'];
     <div><dt>Cache OPcache</dt><dd><?= $serverInfo['opcache']?'Ativo nesta execução':'Não confirmado' ?></dd></div>
     <div><dt>Armazenamento privado</dt><dd><?= $serverInfo['write_storage']?'Gravável':'Não gravável ou ausente' ?></dd></div>
     <div><dt>Pasta de uploads</dt><dd><?= $serverInfo['write_uploads']?'Gravável':'Não gravável ou ausente' ?></dd></div>
+    <div><dt>Modo de implantação</dt><dd><?= $serverInfo['vps_deploy_mode']?'Serviço separado (VPS)':'Atualizador direto (hospedagem)' ?></dd></div>
+    <div><dt>Escrita do código pelo PHP</dt><dd><?= $serverInfo['web_code_write']?'Permitida':'Bloqueada (esperado na VPS)' ?></dd></div>
    </dl>
    <p class="server-info-subnote">CPU, RAM física, uptime e uso total da hospedagem não são medidos aqui. Para problemas de configuração, utilize a Central de Saúde.</p>
   </section>

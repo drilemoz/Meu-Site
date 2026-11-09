@@ -109,5 +109,7 @@ function igua_server_info_snapshot(?PDO $db=null, ?string $diskRoot=null): array
         'extensions'=>$extensions,
         'write_storage'=>defined('IGUA_STORAGE') && is_dir(IGUA_STORAGE) && is_writable(IGUA_STORAGE),
         'write_uploads'=>defined('IGUA_PUBLIC') && is_dir(IGUA_PUBLIC.'/uploads') && is_writable(IGUA_PUBLIC.'/uploads'),
+        'vps_deploy_mode'=>function_exists('igua_updater_vps_mode') && igua_updater_vps_mode(),
+        'web_code_write'=>defined('IGUA_ROOT') && is_writable(IGUA_ROOT.'/VERSION'),
     ];
 }

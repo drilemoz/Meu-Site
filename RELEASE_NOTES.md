@@ -1,3 +1,10 @@
+## Versão 1.0.138
+
+- Atualizador GitHub compatível com EC2 Ubuntu 24.04/Nginx/PHP-FPM/MariaDB, com worker separado não-root e permissões mínimas.
+- Vistoria de permissões adaptada, backup antes do deploy e recuperação pelo terminal.
+- IndexNow com rota Nginx sem escrita em raiz pública, além do comportamento original em hospedagens compartilhadas.
+- A VPS exige implantação inicial e configuração de systemd por SSH; a mera atualização ZIP não altera ownership ou configurações do sistema.
+
 ## IguatamaOnline 1.0.137
 
 **Correção urgente do painel de administração:** a página Informações do Servidor deixava o conteúdo em branco e o botão de menu sem resposta porque o módulo `app/server_info.php` não era carregado pelo controlador; a falha interrompia o HTML antes do JavaScript da navegação. A rota foi corrigida e o menu passou a carregar no início da página.

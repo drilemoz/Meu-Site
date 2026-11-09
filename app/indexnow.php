@@ -24,6 +24,10 @@ function igua_indexnow_key_url(array $cfg): string {
     return $cfg['site'].'/'.rawurlencode($cfg['key']).'.txt';
 }
 function igua_indexnow_file_ready(array $cfg,string $public): bool {
+    // Na VPS o Nginx serve a chave por um endpoint PHP específico. Não requer
+    // escrita em public/. A resposta HTTPS real ainda precisa ser testada.
+    if(getenv('IGUA_INDEXNOW_VIRTUAL')==='1')
+        return igua_indexnow_key_valid((string)($cfg['key']??''))&&is_string($cfg['site']??null);
     $path=igua_indexnow_key_path($public,$cfg['key']);
     return is_file($path)&&!is_link($path)&&is_string($value=@file_get_contents($path))&&trim($value)===$cfg['key'];
 }
@@ -37,7 +41,8 @@ function igua_indexnow_setup(string $configuredSite,string $public,string $stora
         if(!igua_indexnow_file_ready($existing,$public))throw new RuntimeException('O arquivo de verificação não existe ou está incorreto. Confira permissões de escrita na raiz pública.');
         return $existing;
     }
-    if(!is_dir($public)||!is_writable($public))throw new RuntimeException('A raiz pública não permite criar o arquivo de verificação IndexNow. Confira as permissões da hospedagem.');
+    $virtual=getenv('IGUA_INDEXNOW_VIRTUAL')==='1';
+    if(!$virtual && (!is_dir($public)||!is_writable($public)))throw new RuntimeException('A raiz pública não permite criar o arquivo de verificação IndexNow. Confira as permissões da hospedagem.');
     $folder=rtrim($storage,'/').'/integrations';
     if(!is_dir($folder)&&!@mkdir($folder,0700,true)&&!is_dir($folder))throw new RuntimeException('Não foi possível criar a pasta privada de integrações.');
     if(is_link($folder)||!is_writable($folder))throw new RuntimeException('Pasta privada de integrações sem escrita segura.');
@@ -48,18 +53,20 @@ function igua_indexnow_setup(string $configuredSite,string $public,string $stora
     $private=igua_indexnow_file($storage);
     if(file_exists($private)||is_link($private))throw new RuntimeException('Uma configuração IndexNow já existe. Confira-a antes de ativar novamente.');
     // Exclusivo evita sobrepor arquivos de usuário ou de outras instalações.
-    $handle=@fopen($pubPath,'x');
-    if(!$handle)throw new RuntimeException('Não foi possível gerar o arquivo público IndexNow.');
-    try {
-        if(fwrite($handle,$key)!==strlen($key))throw new RuntimeException('Falha ao escrever verificação IndexNow.');
-    } catch(Throwable $e){fclose($handle);@unlink($pubPath);throw $e;}
-    fclose($handle);@chmod($pubPath,0644);
+    $handle=$virtual?null:@fopen($pubPath,'x');
+    if(!$virtual){
+        if(!$handle)throw new RuntimeException('Não foi possível gerar o arquivo público IndexNow.');
+        try {
+            if(fwrite($handle,$key)!==strlen($key))throw new RuntimeException('Falha ao escrever verificação IndexNow.');
+        } catch(Throwable $e){fclose($handle);@unlink($pubPath);throw $e;}
+        fclose($handle);@chmod($pubPath,0644);
+    }
     $tmp=$private.'.'.bin2hex(random_bytes(6)).'.tmp';
     try {
         if(@file_put_contents($tmp,$data,LOCK_EX)!==strlen($data))throw new RuntimeException('Não foi possível salvar IndexNow em storage privado.');
         @chmod($tmp,0600);
         if(!@rename($tmp,$private))throw new RuntimeException('Não foi possível finalizar a configuração IndexNow.');
-    }catch(Throwable $e){@unlink($tmp);@unlink($pubPath);throw $e;}
+    }catch(Throwable $e){@unlink($tmp);if(!$virtual)@unlink($pubPath);throw $e;}
     return ['site'=>$site,'key'=>$key];
 }
 /** Seleciona apenas URLs emitidas pela fonte única do sitemap; não aceita URL arbitrária. */

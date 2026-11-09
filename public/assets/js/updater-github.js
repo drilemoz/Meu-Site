@@ -45,6 +45,7 @@
   let generation = 0;
   let pollTimer = null;
   let previousStage = '';
+  let queuedVps = false;
   const messages = {
     connecting: 'Conectando ao GitHub',
     download: 'Baixando atualização',
@@ -141,6 +142,14 @@
       if (!response.ok || !busy) return;
       const data = await response.json();
       if (!busy || !data.ok || !data.progress || !Object.hasOwn(messages, data.progress.stage)) return;
+      if (queuedVps && data.progress.stage === 'complete') {
+        showFinal(true, 'Atualização concluída!', data.progress.message || 'Deploy confirmado pelo serviço externo.');
+        return;
+      }
+      if (queuedVps && data.progress.stage === 'failed') {
+        showFinal(false, 'Atualização não concluída', data.progress.message || 'Confira o journal do serviço e o histórico.');
+        return;
+      }
       if (data.progress.stage === previousStage) return;
       previousStage = data.progress.stage;
       stage.textContent = messages[previousStage];
@@ -175,6 +184,7 @@
       return;
     }
     busy = true;
+    queuedVps = false;
     dialog.dataset.updaterBusy = '1';
     dialog.setAttribute('aria-busy','true');
     status.hidden = true;
@@ -194,7 +204,11 @@
       const error = doc.querySelector('.admin-main > .alert.error');
       const success = doc.querySelector('.admin-main > .alert.success, .admin-main > .alert.ok');
       const text = success?.textContent?.trim() || '';
-      if (xhr.status >= 200 && xhr.status < 300 && !error && text.includes('Portal atualizado para ' + targetVersion + '.')) {
+      if (xhr.status >= 200 && xhr.status < 300 && !error && text.includes('Solicitação de implantação registrada.')) {
+        queuedVps = true;
+        stage.textContent = 'Aguardando serviço externo';
+        detail.textContent = 'Solicitação confirmada. O deploy continua fora do PHP-FPM; aguarde a conclusão e não reenvie.';
+      } else if (xhr.status >= 200 && xhr.status < 300 && !error && text.includes('Portal atualizado para ' + targetVersion + '.')) {
         showFinal(true, 'Atualização concluída!', 'Portal atualizado para ' + targetVersion + '. O servidor confirmou a instalação e o backup.');
       } else if (error) {
         showFinal(false, 'Atualização não concluída', error.textContent.trim());

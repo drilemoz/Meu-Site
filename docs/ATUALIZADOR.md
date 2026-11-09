@@ -61,3 +61,7 @@ O botão **Diagnosticar ZIP antes de instalar** envia o arquivo apenas para vali
 - Jobs interrompidos (`prepared`, `applying`, `recovery_needed`) só podem restaurar quando **todos os destinos** ainda estão no estado antigo ou novo registrado. Arquivo inesperadamente alterado/ausente bloqueia o processo, sem sobrescrever mudanças do proprietário.
 - A verificação ocorre antes de modificar qualquer arquivo de destino; a retomada legítima de rollback parcial continua permitida.
 - Ver [ROLLBACK_EXTERNO_116.md](ROLLBACK_EXTERNO_116.md) e executar `tests/updater_foreign_changes_216.php`. Os testes são offline, sem MariaDB/ZipArchive reais no ambiente local.
+
+## VPS AWS EC2 (1.0.138)
+
+O modo `IGUA_DEPLOY_VPS=1` desabilita a troca direta de código por PHP-FPM. O painel registra pedido ao worker systemd dedicado; o ZIP oficial do GitHub é validado, backups do código/MySQL ocorrem antes da aplicação e o progresso é consultado por usuário/token. Recuperação de código na VPS é por SSH. Confira [AWS EC2](AWS_EC2_DEPLOY.md).

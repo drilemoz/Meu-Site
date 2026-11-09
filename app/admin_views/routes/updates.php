@@ -10,6 +10,7 @@ $last=igua_updater_last_job();$journal=$last['journal']??null;
 $recentUpdates=igua_updater_history(6);
 $installedIntegrity=igua_updater_installed_integrity($journal);
 $ready=class_exists('ZipArchive');
+$vpsDeploy=igua_updater_vps_mode();
 $preflight=igua_updater_preflight($db);
 $preview=$_SESSION['igua_update_preview']??null;
 unset($_SESSION['igua_update_preview']);
@@ -32,8 +33,9 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   </div>
   <div class="updater-actions updater-actions-simple">
     <button type="button" class="btn outline" id="updater-github-trigger" data-updater-open="updater-github-dialog" aria-haspopup="dialog" aria-controls="updater-github-dialog">◉ Visualizar</button>
-    <button type="button" class="btn primary updater-upload-trigger" data-updater-open="updater-upload-dialog" aria-haspopup="dialog" aria-controls="updater-upload-dialog" <?=!$ready?'disabled title="PHP ZipArchive indisponível"':''?>>Enviar ZIP</button>
+    <button type="button" class="btn primary updater-upload-trigger" data-updater-open="updater-upload-dialog" aria-haspopup="dialog" aria-controls="updater-upload-dialog" <?=($vpsDeploy||!$ready)?'disabled title="Upload direto indisponível neste ambiente"':''?>>Enviar ZIP</button>
   </div>
+  <?php if($vpsDeploy): ?><div class="alert info">Modo VPS: o www-data não altera código. A atualização oficial é realizada pelo serviço systemd, com progresso nesta tela; ZIP manual fica desativado.</div><?php endif; ?>
   <?php if(!$ready): ?><div class="alert warning">Para instalar atualizações, o PHP precisa da extensão ZipArchive. Sodium é opcional para os pacotes antigos assinados.</div><?php endif; ?>
   <?php if($remoteError): ?><div class="alert warning"><?=h($remoteError)?></div><?php endif; ?>
   <?php if(is_file(igua_updater_maintenance())): ?><div class="alert error">Atualização interrompida. Recupere o código antes de continuar.</div><?php endif; ?>
@@ -127,13 +129,13 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   </div>
   <?php if(!$hasSource): ?><p class="updater-hint">O repositório ainda não foi identificado. Configure uma vez para receber versões pelo GitHub.</p><?php endif; ?>
   <p class="updater-hint">A origem oficial é usada apenas para procurar releases. Pacotes v2 podem vir sem assinatura; a origem não é comprovada por SHA-256. Repositórios GitHub devem ser verificados antes de instalar.</p>
-    <form method="post" class="updater-source-form" action="<?=h(admin_link('updates'))?>">
+    <?php if(!$vpsDeploy): ?><form method="post" class="updater-source-form" action="<?=h(admin_link('updates'))?>">
       <?=csrf_field()?><input type="hidden" name="operation" value="source">
       <label>Proprietário<input name="owner" type="text" maxlength="39" required value="<?=h($source['owner']??'')?>" autocapitalize="off" autocomplete="off"></label>
       <label>Repositório<input name="repo" type="text" maxlength="100" required value="<?=h($source['repo']??'')?>" autocapitalize="off" autocomplete="off"></label>
       <button class="btn outline" type="submit">Salvar origem</button>
-    </form>
-  <?php if(($source['origin']??'')==='manual'): ?>
+    </form><?php else: ?><p class="updater-hint">Origem fixa na VPS: drilemoz/Meu-Site. Só o administrador do sistema pode mudar a política de implantação.</p><?php endif; ?>
+  <?php if(!$vpsDeploy && ($source['origin']??'')==='manual'): ?>
   <form method="post" action="<?=h(admin_link('updates'))?>" class="updater-reset-form">
     <?=csrf_field()?><input type="hidden" name="operation" value="source_reset">
     <button class="btn outline" type="submit">Restaurar origem do projeto</button>
@@ -206,10 +208,11 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   <?php if($journal): ?>
     <div class="updater-source-line"><strong><?=h($journal['from']??'?')?> → <?=h($journal['to']??'?')?></strong><span class="updater-tag"><?=h($journal['status']??'?')?></span></div>
     <p class="updater-hint">Registrado em <?=h($journal['at']??'?')?>.</p>
-    <?php if(in_array(($journal['status']??''),['prepared','complete','recovery_needed','applying'],true)): ?>
+    <?php if($vpsDeploy): ?><p class="updater-hint">Recuperação manual na VPS requer acesso SSH e a conta dedicada de implantação; nenhum comando de restauração é executado pelo PHP-FPM.</p><?php endif; ?>
+    <?php if(!$vpsDeploy && in_array(($journal['status']??''),['prepared','complete','recovery_needed','applying'],true)): ?>
       <details class="updater-details"><summary>Restaurar arquivos da versão anterior</summary>
         <form method="post" action="<?=h(admin_link('updates'))?>" class="updater-install-form">
-          <?=csrf_field()?><input type="hidden" name="operation" value="rollback">
+          <?=csrf_field()?><input type="hidden" name="operation" value="rollback"><?php if($vpsDeploy): ?><input type="hidden" name="update_token" value="<?=bin2hex(random_bytes(16))?>"><?php endif; ?>
           <label>Senha administrativa (apenas para restauração)<input type="password" name="confirm_password" required autocomplete="current-password"></label>
           <button class="btn outline" type="submit">Confirmar restauração</button>
         </form>

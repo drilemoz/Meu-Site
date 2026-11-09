@@ -14,6 +14,7 @@ const IGUA_UPDATE_MAX_ZIP = 32 * 1024 * 1024;
 const IGUA_UPDATE_MAX_TOTAL = 80 * 1024 * 1024;
 const IGUA_UPDATE_MAX_FILES = 800;
 const IGUA_UPDATE_DIR = IGUA_STORAGE . '/updater';
+require_once __DIR__.'/updater_vps.php';
 
 /** Diagnósticos públicos controlados: nunca retornar resposta bruta, token ou caminhos do servidor. */
 function igua_updater_diagnostic(Throwable $error): array {
@@ -120,7 +121,7 @@ function igua_updater_write_json(string $path,array $data): void {
     $tmp=@tempnam(dirname($path),'.up-');
     if($tmp===false)throw new RuntimeException('Sem espaço para registrar atualização.');
     try{
-        @chmod($tmp,0600);
+        @chmod($tmp,(igua_updater_vps_mode() && PHP_SAPI==='cli')?0640:0600);
         $encoded=json_encode($data,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
         if(file_put_contents($tmp,$encoded,LOCK_EX)!==strlen($encoded)||!@rename($tmp,$path))throw new RuntimeException('Falha ao registrar atualização.');
     }finally{if(is_file($tmp))@unlink($tmp);}
@@ -143,6 +144,7 @@ function igua_updater_progress_write(int $userId,string $token,string $stage,str
     }catch(Throwable $ignored){ /* Falha no indicador nunca deve comprometer a instalação. */ }
 }
 function igua_updater_progress_read(int $userId,string $token): ?array {
+    if(igua_updater_vps_mode())return igua_updater_vps_status($userId,$token);
     $path=igua_updater_progress_file($userId,$token);
     if($path===null)return null;
     $data=igua_updater_read_json($path);
@@ -520,6 +522,18 @@ function igua_updater_preflight(?PDO $db=null, ?array $manifest=null): array {
     }else{$add('Leitura do MySQL','aviso','Banco não testado nesta vistoria');}
     if(is_file(igua_updater_maintenance()))$add('Atualização pendente','falha','Modo de manutenção ativo: conclua a recuperação antes de instalar');
     else $add('Atualização pendente','ok','Nenhuma manutenção ativa');
+    if(igua_updater_vps_mode() && PHP_SAPI!=='cli'){
+        try {
+            $queue=igua_updater_vps_dir();
+            $worker=igua_updater_vps_read('worker.json');
+            $recent=is_array($worker)&&is_int($worker['at']??null)&&$worker['at']>=time()-180;
+            $add('Serviço de implantação separado',$recent?'ok':'falha',
+                $recent?'Serviço externo ativo; o PHP-FPM não precisa escrever em VERSION, app/ ou public/.':'Serviço systemd não detectado. Confira o timer e o modo VPS.');
+            $add('Fila privada de atualizações',is_writable($queue)?'ok':'falha',is_writable($queue)?'Fila restrita disponível':'www-data sem permissão para solicitar deploy');
+            if(is_file(igua_updater_vps_path('running.json')))$add('Deploy em andamento','aviso','Existe solicitação sendo processada; se o serviço parou, investigar antes de liberar nova execução.');
+        }catch(Throwable){$add('Serviço de implantação separado','falha','Fila privada ou serviço de implantação não configurado');}
+        $add('Escrita do código','ok','Na VPS, somente a conta dedicada de implantação substitui o código. Sem escrita direta por PHP-FPM.');
+    }else{
     $paths=$manifest['files']??[['path'=>'VERSION'],['path'=>'app/updater.php'],['path'=>'public/admin.php']];
     $bad=[];$examined=0;
     foreach($paths as $entry){
@@ -542,6 +556,7 @@ function igua_updater_preflight(?PDO $db=null, ?array $manifest=null): array {
         }
     }
     $add('Escrita do código',$bad?'falha':'ok',$bad?'Sem permissão ou caminho inseguro: '.implode(', ',$bad):'Permissões aparentes para '.$examined.' arquivo(s)');
+    }
     $disk=@disk_free_space(IGUA_STORAGE);
     if($disk===false)$add('Espaço disponível','aviso','Não foi possível consultar o espaço; a cota contratual deve ser verificada no Plesk');
     else {
@@ -577,7 +592,7 @@ function igua_updater_install_zip(string $zipPath,PDO $db,?callable $onStage=nul
     try{
         if(is_file(igua_updater_maintenance()))throw new RuntimeException('Instalação anterior interrompida. Faça a recuperação antes de atualizar novamente.');
         $id=bin2hex(random_bytes(12));$jobDir=IGUA_UPDATE_DIR.'/jobs/'.$id;
-        if(!@mkdir($jobDir,0700,true))throw new RuntimeException('Não foi possível preparar cópia privada.');
+        if(!@mkdir($jobDir,igua_updater_vps_mode()?0750:0700,true))throw new RuntimeException('Não foi possível preparar cópia privada.');
         $onStage && $onStage('validating','Validando manifesto, caminhos e integridade do ZIP.');
         $m=igua_updater_unzip_verified($zipPath,$jobDir.'/new');
         $onStage && $onStage('preflight','Conferindo compatibilidade e permissões do servidor.');
@@ -589,6 +604,10 @@ function igua_updater_install_zip(string $zipPath,PDO $db,?callable $onStage=nul
         $journal['files']=$entries;
         // Banco é copiado antes de qualquer alteração do código.
         $backup=make_backup($db,'manual');
+        if(igua_updater_vps_mode() && PHP_SAPI==='cli'){
+            $saved=backup_path($backup);
+            if($saved===null||!@chmod($saved,0640))throw new RuntimeException('Não foi possível disponibilizar o backup privado para recuperação pela interface.');
+        }
         $journal['db_backup']=$backup;
         $journal['status']='prepared';
         igua_updater_write_json($jobDir.'/state.json',$journal);
@@ -661,6 +680,8 @@ function igua_updater_parse_repository(string $value): ?array {
     return ['owner'=>$m[1],'repo'=>$m[2]];
 }
 function igua_updater_source(): array {
+    // Na VPS, pin imutável. Não confiar em source.json gravável pelo processo web.
+    if(igua_updater_vps_mode()) return ['owner'=>'drilemoz','repo'=>'Meu-Site','origin'=>'vps-fixed'];
     $stored=igua_updater_read_json(IGUA_UPDATE_DIR.'/source.json');
     if(is_array($stored)){
         $source=igua_updater_parse_repository((string)($stored['owner']??'').'/'.(string)($stored['repo']??''));
@@ -684,11 +705,13 @@ function igua_updater_release_asset_name(string $name,string $version): bool {
     return $name==='Atualizacao-v'.$version.'.zip' || $name==='Meu-Site-update-v'.$version.'.zip';
 }
 function igua_updater_set_source(string $owner,string $repo): void {
+    if(igua_updater_vps_mode())throw new RuntimeException('Origem GitHub bloqueada no modo VPS.');
     foreach([$owner,$repo] as $part){if(!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$/D',$part)||str_contains($part,'..'))throw new RuntimeException('Nome de conta ou repositório inválido.');}
     igua_updater_write_json(igua_updater_folder().'/source.json',['owner'=>$owner,'repo'=>$repo]);
     @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
 }
 function igua_updater_reset_source(): void {
+    if(igua_updater_vps_mode())throw new RuntimeException('Origem imutável no modo VPS.');
     $metadata=igua_updater_read_json(__DIR__.'/update-origin.json');
     if(!is_array($metadata)||igua_updater_parse_repository((string)($metadata['repository']??''))===null)
         throw new RuntimeException('Sem origem oficial válida no pacote para restaurar.');

@@ -1,3 +1,10 @@
+## 1.0.138 — VPS AWS EC2 e implantação separada
+
+- Modo `IGUA_DEPLOY_VPS=1`: `www-data` somente solicita deploy e acompanha status; `iguanews-deploy` executa via systemd, fora do PHP-FPM.
+- Origem GitHub fixa na VPS, ZIP remoto verificado, backup lógico MariaDB e snapshots de código, bloqueio de jobs simultâneos e recuperação manual via SSH. Hospedagens compartilhadas preservadas.
+- Vistoria do atualizador reconhece serviço externo; Informações do Servidor distingue modo e escrita do código; IndexNow virtual via Nginx não exige escrita em `public/`.
+- Documentação AWS, exemplo de unidades systemd/Nginx, ajustes PHP 8.3 e testes da fila/IndexNow. Sem migração do schema 37.
+
 ## [1.0.137] - 2026-11-09
 
 ### Corrigido

@@ -11,6 +11,7 @@ on:
       - 'tools/**'
       - 'tests/**'
       - 'docs/**'
+      - 'deploy/**'
       - 'README.md'
       - 'CHANGELOG.md'
       - 'RELEASE_NOTES.md'

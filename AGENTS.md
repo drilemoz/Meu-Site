@@ -1,6 +1,14 @@
-# Diretrizes de manutenção — Meu Site (v1.0.137)
+# Diretrizes de manutenção — Meu Site (v1.0.138)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Deploy VPS EC2 (1.0.138)
+
+- `IGUA_DEPLOY_VPS=1` no PHP-FPM e systemd ativa fila isolada. Nunca dar escrita em app/public/VERSION ao `www-data` nem executar o processo web como root.
+- Worker de deploy `app/vps_deploy_worker.php` (entrypoint atualizado pelo ZIP) usa conta dedicada `iguanews-deploy`, fila setgid+sticky, origem fixa `drilemoz/Meu-Site`, backup do MySQL e do código antes da aplicação. Sem shell/URL arbitrária na fila; restauração manual apenas via CLI/SSH.
+- A vistoria distingue escrita pelo serviço externo e pelo PHP-FPM. Serviço indisponível deve bloquear a solicitação; status é leitura privada por admin/token. No host compartilhado, caminho direto anterior permanece.
+- `IGUA_INDEXNOW_VIRTUAL=1` atende chave pública por rota Nginx e `public/indexnow-key.php`; sem escrita em `public/`. Verificar a URL HTTPS de verdade; configuração virtual não comprova rota Nginx.
+- Documentação detalhada em `docs/AWS_EC2_DEPLOY.md`. Manter testes `tests/vps_deploy_238.php`, sem schema, dados reais ou portas expostas.
 
 ## Resiliência do painel (1.0.137)
 

@@ -1,4 +1,4 @@
-# Documentação atual do Meu Site (1.0.137)
+# Documentação atual do Meu Site (1.0.138)
 
 Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `RELATORIO_ARQUIVOS_LINHAS_*` e instruções de atualizadores antigos foram retirados do ZIP; seu histórico permanece nas versões anteriores do repositório, se disponíveis.
 
@@ -26,3 +26,5 @@ As documentações funcionais remanescentes podem registrar as versões em que c
 - [Correção CI MariaDB local 1.0.135](CI_MARIADB_LOCAL_135.md) — falha de origem Docker, namespace de rede, validação e limitações.
 
 - [Correção do painel administrativo 1.0.137](CORRECAO_PAINEL_137.md) — falha de inclusão, menu e fallback seguro em diagnósticos.
+
+- [Deploy seguro AWS EC2 1.0.138](AWS_EC2_DEPLOY.md) — conta dedicada, timer systemd, Nginx, PHP-FPM, rollback e IndexNow.
