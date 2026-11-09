@@ -1,3 +1,11 @@
+## IguatamaOnline 1.0.136
+
+**Ferramentas → Diagnóstico de DNS:** consulta automaticamente o domínio oficial configurado em Geral e SEO. Exibe IPv4 (A), IPv6 (AAAA), alias (CNAME) e servidores de nomes (NS), comparando a resolução PHP da hospedagem com Google Public DNS e Cloudflare. Mostra resultados divergentes e diferencia "Sem registro" de "Consulta indisponível". A tela é compacta e tem botão Atualizar e ajuda `?`.
+
+**Segurança:** o domínio não é fornecido pelo visitante; URLs externas fixas HTTPS, sem redirecionamento, verificação TLS, tempo e tamanho de resposta limitados, resultados escapados, acesso `manage_settings`. A página não altera registros DNS nem consulta servidores de origem de proxy/CDN. Se cURL ou acesso externo estiver bloqueado, as consultas públicas aparecerão como indisponíveis; DNS local pode continuar funcionando. Não há monitoramento em segundo plano.
+
+**Validação:** verificação estática e unitária sem dependência de rede; consultar em hospedagem real para conferir as respostas e a interface no celular. Schema e backup preservados.
+
 ## IguatamaOnline 1.0.135
 
 **Correção do GitHub Actions, workflow de integração MariaDB:** o teste de criação de banco e usuário local da 1.0.134 falhou porque a conexão do runner para o MariaDB Docker era identificada como `172.18.0.1`. Agora o ensaio entra somente no namespace de rede do serviço MariaDB e usa `127.0.0.1` de verdade. O teste aborta se não conseguir identificar o contêiner ou se o próprio MySQL identificar o cliente como remoto. Não são concedidos privilégios a IPs externos ou usuários `%`.

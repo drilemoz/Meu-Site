@@ -26,8 +26,8 @@ check226(str_contains($html,'Informações do servidor') && str_contains($html,'
 check226(!str_contains($html,'example-secret-host') && !str_contains($html,__DIR__),'sem informações sensíveis');
 $admin=file_get_contents(__DIR__.'/../public/admin.php');
 check226(str_contains($admin,"'server_info'=>'manage_settings'"),'autorização administrativa');
-check226(str_contains($admin,"'maintenance_reset','server_info','files'"),'rota permitida explicitamente');
+check226(str_contains($admin,"'maintenance_reset','server_info','dns_diagnostic','files'"),'rota permitida explicitamente');
 $layout=file_get_contents(__DIR__.'/../app/admin_views/layout.php');
-check226(str_contains($layout,"$".'toolsActions=[\'files\',\'server_info\']') && str_contains($layout,'Informações do Servidor'),'submenu Ferramentas');
+check226(str_contains($layout,"$".'toolsActions=[\'files\',\'server_info\',\'dns_diagnostic\']') && str_contains($layout,'Informações do Servidor'),'submenu Ferramentas');
 check226(!str_contains(file_get_contents(__DIR__.'/../app/server_info.php'),'shell_exec('),'não executa shell');
 echo "OK server_info_226: {$count} verificações.\n";

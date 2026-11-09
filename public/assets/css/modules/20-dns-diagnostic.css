@@ -1,0 +1,24 @@
+/* Ferramentas > Diagnóstico de DNS: compacto e responsivo. */
+.dns-diag{max-width:1100px;margin:0 auto;display:grid;gap:15px;color:#183753;min-width:0}
+.dns-diag-hero{border-radius:18px;background:linear-gradient(120deg,#0d2d4d,#155984);color:#fff;padding:23px;display:flex;justify-content:space-between;align-items:center;gap:16px;min-width:0}
+.dns-diag-hero>div:first-child{min-width:0}.dns-diag-kicker{font-size:10px;font-weight:800;letter-spacing:.11em;color:#b9d8f1}
+.dns-diag-hero h2{margin:7px 0 6px;color:#fff;font-size:clamp(21px,3vw,28px)}.dns-diag-hero p{margin:0;font-size:13px;color:#dfecf6}
+.dns-diag-actions{display:flex;gap:9px;align-items:center;flex:none}.dns-diag-actions>.btn{color:#fff;border-color:#80aaca;min-height:41px}
+.dns-diag-help{position:relative;z-index:2}.dns-diag-help>summary{cursor:pointer;list-style:none;border:1px solid #a4c3d9;border-radius:50%;width:40px;height:40px;display:grid;place-items:center;font-weight:800;font-size:18px;color:#fff}
+.dns-diag-help>summary::-webkit-details-marker{display:none}.dns-diag-help[open] p{position:absolute;right:0;top:40px;min-width:min(300px,85vw);max-width:340px;border:1px solid #d2e0ed;box-shadow:0 9px 28px #061a3559;border-radius:12px;padding:14px;background:white;color:#334960;font-size:12px;line-height:1.6}
+.dns-diag-overview,.dns-diag-panel{background:#fff;border:1px solid #dbe6f0;border-radius:16px;padding:18px;min-width:0}
+.dns-diag-overview{display:flex;justify-content:space-between;align-items:center;gap:12px}.dns-diag-overview>div{display:grid;gap:5px;min-width:0}
+.dns-diag-overview small{font-size:12px;color:#6b8094}.dns-diag-overview strong{font-size:20px;overflow-wrap:anywhere}.dns-diag-overview span:not(.dns-diag-tag){color:#657e94;font-size:12px}
+.dns-diag-tag{font-weight:700;font-size:11px;border-radius:24px;background:#e9f7ee;color:#11714b;padding:7px 10px}
+.dns-diag-panel-heading h3{font-size:18px;color:#1a3958;margin:0 0 4px}.dns-diag-panel-heading p{font-size:12px;color:#718399;margin:0 0 14px}
+.dns-diag-records{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.dns-diag-record{background:#f7fafd;border:1px solid #e2ebf4;border-radius:12px;padding:13px;min-width:0}
+.dns-diag-record-head{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:12px}.dns-diag-record-head>div{display:grid;gap:2px}.dns-diag-record-head strong{font-size:16px}.dns-diag-record-head span{font-size:11px;color:#708399}
+.dns-diag-state{font-size:10px!important;font-weight:700;border-radius:14px;background:#eef1f6;color:#5d6e82!important;padding:5px 7px;white-space:nowrap}
+.dns-diag-state.same{background:#e1f5ea;color:#137a51!important}.dns-diag-state.different{background:#fff0df;color:#9b5711!important}
+.dns-diag-record dl{display:grid;gap:8px;margin:0}.dns-diag-record dl>div{display:grid;grid-template-columns:90px minmax(0,1fr);gap:8px;border-top:1px solid #e4eaf2;padding-top:8px}
+.dns-diag-record dt{font-size:12px;color:#617991}.dns-diag-record dd{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;margin:0;overflow-wrap:anywhere;line-height:1.5}.dns-diag-record dd.is-unavailable{font-family:inherit;color:#a25b37}
+.dns-diag-secondary{margin:0;display:grid;gap:10px}.dns-diag-secondary>div{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px}.dns-diag-secondary dt{color:#627a90;font-size:12px}.dns-diag-secondary dd{margin:0;font-size:13px;overflow-wrap:anywhere}
+.dns-diag-notice{background:#fff6e8;border:1px solid #f2dab2;padding:12px;border-radius:12px;font-size:12px;color:#89580d;margin:0}
+.dns-diag-footnote{color:#637c91;font-size:12px;line-height:1.6;margin:0}
+@media(max-width:740px){.dns-diag-records{grid-template-columns:1fr}.dns-diag-hero{padding:18px;align-items:start;flex-wrap:wrap}.dns-diag-actions{width:100%;justify-content:space-between}.dns-diag-panel,.dns-diag-overview{padding:14px}.dns-diag-overview strong{font-size:17px}}
+@media(max-width:390px){.dns-diag-record dl>div{grid-template-columns:78px minmax(0,1fr)}.dns-diag-state{font-size:9px!important}}

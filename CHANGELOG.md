@@ -1,3 +1,15 @@
+## [1.0.136] - 2026-11-09
+
+### Adicionado
+- Nova página Ferramentas → Diagnóstico de DNS, identificando domínio por `seo_site_url` e consultando automaticamente ao abrir.
+- Registros A, AAAA, CNAME e NS via resolvedor local e comparação de DNS público Google/Cloudflare com DoH HTTPS em paralelo e tempo limitado.
+- Diagnóstico responsivo com informações por resolvedor, divergências, indisponibilidade explícita, ajuda contextual e botão Atualizar.
+- Verificações de domínio seguro, resposta DNS e permissões; testes específicos sem rede real.
+
+### Preservado
+- Sem alterações no esquema 37, backup v12, DNS real, credenciais, permissões existentes ou arquivos de produção.
+- O histórico e o monitoramento periódico não são ativados automaticamente.
+
 ## [1.0.135] - 2026-11-09
 
 ### Correção de integração MariaDB no GitHub Actions

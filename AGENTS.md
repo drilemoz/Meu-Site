@@ -1,6 +1,12 @@
-# Diretrizes de manutenção — Meu Site (v1.0.135)
+# Diretrizes de manutenção — Meu Site (v1.0.136)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Diagnóstico DNS automático (1.0.136)
+
+- Em `Ferramentas → Diagnóstico de DNS`, usar SOMENTE `seo_site_url` para identificar domínio público; nunca usar `$_GET` ou `Host` para consultas arbitrárias. Rejeitar URL com credenciais, portas não padrão ou caminhos e domínios privados/teste.
+- `app/dns_diagnostic.php` faz leitura local de A, AAAA, CNAME e NS, com resultados externos opcionais Google/Cloudflare por DoH HTTPS fixo; verificar TLS, não seguir redirects, limitar tamanho/tempo e diferenciar erro de consulta de registro ausente. Sem chaves, shell, varredura, mudanças em DNS, cron ou dados persistentes.
+- Página `manage_settings` apenas; todas as respostas devem ser escapadas. Testar com `tests/dns_diagnostic_236.php`; schema 37 e backup v12 não mudam.
 
 ## CI MariaDB local (1.0.135)
 

@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.135** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.136** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,10 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.136 — Diagnóstico automático de DNS
+
+**Ferramentas → Diagnóstico de DNS:** identifica o domínio configurado em Geral e SEO, consulta A, AAAA, CNAME e NS pelo DNS do PHP e compara com Google DNS e Cloudflare por DNS-over-HTTPS quando houver cURL/TLS e saída HTTPS disponíveis. Mostra `www` e domínio raiz, resultados divergentes, ausência real versus erro de consulta, e permite atualizar a página. Consulta sob demanda ao abrir, sem cron, histórico ou alertas em segundo plano. Não mede o IP de origem quando há proxy/CDN. Sem chaves de API, tabelas novas ou edição de DNS. Veja [Guia de DNS](docs/DNS_DIAGNOSTICO_136.md).
 
 ## Versão 1.0.135 — Correção do CI de provisionamento MySQL local
 
