@@ -35,7 +35,7 @@ if(!igua_setup_access_valid($setupSecret,$_SESSION,time())){
 <h1>🔒 Autorizar instalação</h1><p>Antes de configurar o MySQL, confirme que você controla os arquivos desta hospedagem.</p>
 <?php if($unlockError!==''): ?><div class="alert error" role="alert"><?=h($unlockError)?></div><?php endif; ?>
 <?php if($setupSecret===null): ?><div class="alert warning">Chave privada ausente. No terminal da hospedagem, execute <code>php bin/setup-access.php</code> na raiz do projeto. Alternativamente, crie <code>storage/.setup-access.key</code> contendo uma chave aleatória de 48 caracteres hexadecimais. O arquivo deve permanecer fora da raiz pública. Na migração portátil, essa chave é incluída no ZIP e pode ser consultada pelo gerenciador de arquivos do servidor.</div><?php endif; ?>
-<form class="setup-form" method="post"><?=csrf_field()?><input type="hidden" name="action" value="unlock_setup"><label>Chave de instalação<input name="setup_access_key" type="password" required minlength="48" maxlength="48" autocomplete="off" spellcheck="false"></label><button type="submit" class="btn primary">Desbloquear instalador</button></form></main></body></html>
+<form class="setup-form" method="post"><?=csrf_field()?><input type="hidden" name="action" value="unlock_setup"><label>Chave de instalação<input name="setup_access_key" type="password" required minlength="48" maxlength="48" autocomplete="off" spellcheck="false"></label><button type="submit" class="btn primary">Desbloquear instalador</button></form></main><script src="/assets/js/setup-wizard.js" defer></script></body></html>
 <?php exit;
 }
 $autoAvailable=igua_auto_install_allowed($runtime);
@@ -45,9 +45,9 @@ $requirements=igua_requirements();
 $ready=igua_required_ready($requirements);
 $errors=[];
 $notices=[];
-$step=max(1,min(3,(int)($_GET['step']??1)));
+$step=max(1,min(4,(int)($_GET['step']??1)));
 // O modo é escolhido antes das credenciais; nunca confundir com recuperação de config.
-if(!request_post() && $step===2 && in_array($_GET['mode']??'', ['fresh','migrate'],true)){
+if(!request_post() && $step===3 && in_array($_GET['mode']??'', ['fresh','migrate'],true)){
     $_SESSION['igua_setup_install_mode']=(string)$_GET['mode'];
     unset($_SESSION['iguanews_setup_db']);
 }
@@ -60,10 +60,11 @@ if (!is_array($setupData) || (time()-(int)($setupData['verified_at']??0))>1200) 
     $setupData=null;
 }
 if (!$ready) $step=1;
-if ($step===3 && !$setupData) $step=2;
+if ($step===4 && !$setupData) $step=3;
+if ($step===3 && !request_post() && empty($_SESSION['igua_setup_install_mode'])) $step=2;
 if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
     $errors[]='O arquivo enviado ultrapassou post_max_size do PHP. O servidor descartou o formulário antes da validação. Reduza o backup ou aumente o limite de envio e tente novamente.';
-    $step=$setupData ? 3 : 2;
+    $step=$setupData ? 4 : 3;
 } elseif (request_post()) {
     check_csrf();
     $action=(string)($_POST['action']??'');
@@ -96,7 +97,7 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
         $errors[]='Existem requisitos obrigatórios pendentes. Corrija-os antes de prosseguir.';
         $step=1;
     } elseif (in_array($action,['test_db','auto_db','create_db','provision_db'],true)) {
-        $step=2;
+        $step=3;
         // Resultado anterior só pode ser usado depois de um teste bem-sucedido.
         unset($_SESSION['iguanews_setup_db']);
         $setupData=null;
@@ -178,7 +179,7 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                     throw new DomainException('O PHP conecta ao banco, mas não consegue criar e renomear arquivos privados em storage/. Ajuste as permissões da hospedagem antes de instalar.');
                 }
                 $_SESSION['iguanews_setup_db']=$candidate+['verified_at'=>time(),'mode'=>$mode];
-                redirect('/setup.php?step=3');
+                redirect('/setup.php?step=4');
             } catch (Throwable $e) {
                 if (in_array($action,['auto_db','create_db','provision_db'],true)) {
                     $sqlCode=$e instanceof PDOException ? (int)($e->errorInfo[1]??0) : 0;
@@ -212,8 +213,8 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
             }
         }
     } elseif ($action==='install_fresh' || $action==='install_restore' || $action==='install_migration' || $action==='recover_config' || $action==='reset_existing') {
-        $step=3;
-        if (!$setupData) { $errors[]='A conexão expirou. Faça o teste novamente.'; $step=2; }
+        $step=4;
+        if (!$setupData) { $errors[]='A conexão expirou. Faça o teste novamente.'; $step=3; }
         else {
             $mode=(string)($setupData['mode']??'fresh');
             $resetting=$action==='reset_existing';
@@ -263,9 +264,11 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                     $name=trim((string)($_POST['name']??''));
                     $email=trim((string)($_POST['email']??''));
                     $pass=(string)($_POST['portal_password']??'');
-                    if (ulen($name)<2 || !filter_var($email,FILTER_VALIDATE_EMAIL) || strlen($pass)<10) {
+                    if (ulen($name)<2 || !filter_var($email,FILTER_VALIDATE_EMAIL) || ulen($pass)<10) {
                         throw new InvalidArgumentException('Informe nome, e-mail válido e senha com pelo menos 10 caracteres.');
                     }
+                    if (!hash_equals($pass,(string)($_POST['portal_password_confirm']??'')))
+                        throw new DomainException('As senhas do administrador não conferem. Digite novamente e confirme antes de instalar.');
                 }
                 $phase='lock';
                 $lock=@fopen(IGUA_STORAGE.'/.setup.lock','c');
@@ -291,7 +294,7 @@ if (request_post() && empty($_POST) && igua_post_exceeds_limit()) {
                         unset($_SESSION['iguanews_setup_db'],$_SESSION['igua_recovery_errors']);
                         session_regenerate_id(true);
                         if (is_resource($lock)) { flock($lock,LOCK_UN); fclose($lock); $lock=null; }
-                        redirect('/setup.php?step=2');
+                        redirect('/setup.php?step=3');
                     }
                     // Recuperação comum nunca modifica uma tabela.
                     $phase='config';
@@ -382,21 +385,28 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
 ?>
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f7fc"><title>Instalação | Meu Site</title><link rel="stylesheet" href="/assets/css/style.css"></head>
 <body class="setup-body"><main class="setup-shell setup-wizard"><div class="setup-brand"><span class="brand-mark">◒</span><span><strong>Meu Site</strong><small>Assistente de instalação · versão <?=h(igua_brand_version())?></small></span></div>
-<nav class="wizard-steps" aria-label="Etapas de instalação"><span class="<?= $step===1?'current':($step>1?'complete':'') ?>"><b>1</b> Requisitos</span><span class="<?= $step===2?'current':($step>2?'complete':'') ?>"><b>2</b> Banco</span><span class="<?= $step===3?'current':'' ?>"><b>3</b> Conteúdo</span></nav>
+<nav class="wizard-steps" aria-label="Etapas de instalação"><span class="<?= $step===1?'current':($step>1?'complete':'') ?>"><b>1</b> Requisitos</span><span class="<?= $step===2?'current':($step>2?'complete':'') ?>"><b>2</b> Tipo</span><span class="<?= $step===3?'current':($step>3?'complete':'') ?>"><b>3</b> Banco</span><span class="<?= $step===4?'current':'' ?>"><b>4</b> Concluir</span></nav>
 <?php if ($step===1): ?>
   <h1>Vamos verificar o ambiente.</h1><p class="muted">Antes de instalar, o sistema examina o PHP, as extensões, a raiz web e as permissões. Os itens obrigatórios precisam estar aprovados.</p>
-  <div class="setup-diagnosis"><strong>Ambiente identificado: <?= h($runtime['label']) ?></strong><p class="muted">O perfil usa o PHP do servidor, não o nome do navegador. <?= $runtime['kind']==='termux' ? 'Modo local: MariaDB do aparelho e servidor limitado a 127.0.0.1.' : 'Use um banco MySQL/MariaDB autorizado e mantenha app/ e storage/ fora do alcance público.' ?></p></div>
+  <div class="setup-top-actions"><a class="btn primary <?= $ready?'':'is-disabled' ?>" href="<?= $ready?'/setup.php?step=2':'#requisitos' ?>" <?= $ready?'':'aria-disabled="true" tabindex="-1"' ?>>Avançar →</a><a class="btn outline" href="/setup.php?step=1">↻ Verificar</a></div>
+  <div id="requisitos" class="setup-diagnosis"><strong>Ambiente identificado: <?= h($runtime['label']) ?></strong><p class="muted">O perfil usa o PHP do servidor, não o nome do navegador. <?= $runtime['kind']==='termux' ? 'Modo local: MariaDB do aparelho e servidor limitado a 127.0.0.1.' : 'Use um banco MySQL/MariaDB autorizado e mantenha app/ e storage/ fora do alcance público.' ?></p></div>
   <div class="requirements-summary"><strong><?= $passedCount ?>/<?= $requiredCount ?> requisitos obrigatórios aprovados</strong><span><?= $optionalWarnings?'Há '.$optionalWarnings.' melhoria(s) opcional(is)':'Todos os recursos opcionais disponíveis' ?></span></div>
   <div class="requirements-list"><?php foreach ($requirements as $req): ?><section class="requirement-item <?= $req['ok']?'passed':($req['required']?'failed':'optional') ?>">
     <span class="requirement-icon" aria-hidden="true"><?= $req['ok']?'✓':($req['required']?'!':'i') ?></span><div><h2><?= h($req['title']) ?><?= !$req['required']?' <small>Opcional</small>':'' ?></h2><p><?= h($req['current']) ?></p>
     <?php if (!$req['ok']): ?><div class="requirement-fix"><strong>Como corrigir:</strong> <?= h($req['fix']) ?></div><?php endif; ?></div></section><?php endforeach; ?></div>
-  <?php if (!$ready): ?><div class="alert error">Corrija os requisitos obrigatórios e verifique novamente.</div><?php else: ?><div class="alert setup-success">Ambiente aprovado! Escolha como preparar o banco de dados.</div><?php endif; ?>
+  <?php if (!$ready): ?><div class="alert error">Corrija os requisitos obrigatórios e verifique novamente.</div><?php else: ?><div class="alert setup-success">Ambiente aprovado. Você pode avançar para escolher o tipo de instalação.</div><?php endif; ?>
   <div class="wizard-actions"><a class="btn outline" href="/setup.php?step=1">↻ Verificar novamente</a></div>
-  <?php if($ready): ?><div class="setup-install-choice"><h2>Como deseja instalar?</h2>
-   <a class="setup-choice-card" href="/setup.php?step=2&amp;mode=fresh"><strong>＋ Instalação limpa</strong><span>Instalar um portal novo. Continua com o procedimento atual.</span></a>
-   <a class="setup-choice-card" href="/setup.php?step=2&amp;mode=migrate"><strong>⇧ Migrar meu portal</strong><span>Restaurar banco, notícias, contas, imagens e anexos de um pacote portátil.</span></a>
-  </div><?php endif; ?>
+  <?php if($ready): ?><div class="wizard-actions setup-requirements-bottom"><a class="btn primary" href="/setup.php?step=2">Avançar →</a></div><?php endif; ?>
 <?php elseif ($step===2): ?>
+  <header class="setup-center-heading"><h1>Como deseja instalar?</h1><p class="muted">Escolha uma opção para continuar. A configuração do banco será feita nas próximas etapas.</p></header>
+  <form class="setup-install-choice" aria-label="Tipo de instalação" action="/setup.php" method="get">
+    <input type="hidden" name="step" value="3">
+    <label class="setup-choice-card"><input type="radio" name="mode" value="fresh" required><span class="setup-choice-copy"><strong>＋ Instalação limpa</strong><span>Preparar um portal novo, com seu próprio administrador.</span></span></label>
+    <label class="setup-choice-card"><input type="radio" name="mode" value="migrate" required><span class="setup-choice-copy"><strong>⇧ Migrar meu portal</strong><span>Importar banco, contas, notícias, imagens e anexos do backup portátil.</span></span></label>
+    <?php if($hasEmbeddedMigration): ?><div class="alert warning">Pacote portátil detectado. Para protegê-lo, a instalação limpa ficará bloqueada enquanto o backup estiver presente.</div><?php endif; ?>
+    <div class="wizard-actions"><a href="/setup.php?step=1" class="btn outline">← Voltar</a><button class="btn primary" type="submit">Avançar →</button></div>
+  </form>
+<?php elseif ($step===3): ?>
   <h1><?= $setupMode==='migrate'?'Migração: novo banco de dados':'Prepare o banco de dados' ?>.</h1><p class="muted"><?= $autoAvailable ? 'Termux detectado: você pode criar uma base MariaDB local, ou usar credenciais existentes.' : 'Você pode tentar criar um banco novo com um usuário MySQL autorizado, ou conectar a um banco existente. Alguns provedores exigem criação no painel.' ?></p>
   <?php foreach ($errors as $err): ?><div class="alert error" role="alert"><?= h($err) ?></div><?php endforeach; ?>
   <?php foreach ($notices as $notice): ?><div class="setup-diagnosis"><strong>O que verificar</strong><ul><?php foreach($notice as $item): ?><li><?= h($item) ?></li><?php endforeach; ?></ul></div><?php endforeach; ?>
@@ -460,8 +470,8 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
       <div class="wizard-actions"><button class="btn primary" type="submit">Testar conexão →</button></div></form></div>
     </details>
   </div>
-  <div class="wizard-actions"><a href="/setup.php?step=1" class="btn outline">← Requisitos</a></div>
-<?php elseif (($setupData['mode']??'fresh')==='recover'): ?>
+  <div class="wizard-actions"><a href="/setup.php?step=2" class="btn outline">← Tipo de instalação</a></div>
+<?php elseif ($step===4 && ($setupData['mode']??'fresh')==='recover'): ?>
   <h1>Recuperar instalação anterior</h1>
   <div class="alert warning" role="status">O banco já possui tabelas e dados deste portal. A recuperação não criará nem duplicará tabelas, não apagará notícias e não redefinirá a senha do administrador. Ela somente recria a configuração privada ausente.</div>
   <?php foreach ($errors as $err): ?><div class="alert error" role="alert"><?= h($err) ?></div><?php endforeach; ?>
@@ -481,8 +491,8 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
       <button class="btn outline" type="submit">Fazer backup e reiniciar o banco →</button>
     </form>
   </div></details>
-  <div class="wizard-actions"><a href="/setup.php?step=2" class="btn outline">← Verificar outro banco</a></div>
-<?php else: ?>
+  <div class="wizard-actions"><a href="/setup.php?step=3" class="btn outline">← Verificar outro banco</a></div>
+<?php elseif ($step===4): ?>
   <h1><?= $setupMode==='migrate'?'Restaurar portal antigo':'Instalação limpa' ?></h1><p class="muted">O banco <strong><?= h($setupData['database']??'') ?></strong> está pronto. Instale o portal com um novo administrador ou importe uma instalação anterior.</p>
   <div class="alert setup-success">✓ Conexão testada. Seus dados existentes não serão sobrescritos.</div>
   <?php if ($runtime['kind']==='hosting' && !$runtime['https']): ?><div class="alert warning" role="alert">⚠ Esta requisição não foi identificada como HTTPS. Antes de enviar senhas administrativas, ative HTTPS no domínio e confira a configuração do proxy com o provedor. Cabeçalhos enviados pelo visitante não são aceitos como prova de TLS.</div><?php endif; ?>
@@ -517,6 +527,7 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
         <label>Seu nome<input name="name" minlength="2" required value="<?= h($_POST['name']??'') ?>" autocomplete="name"></label>
         <label>E-mail<input name="email" type="email" required value="<?= h($_POST['email']??'') ?>" autocomplete="email"></label>
         <label class="full">Senha do painel (mínimo 10 caracteres)<input name="portal_password" type="password" minlength="10" required autocomplete="new-password"></label>
+        <label class="full">Confirme a senha do painel<input name="portal_password_confirm" type="password" minlength="10" required autocomplete="new-password"></label>
       </div><label class="checkbox-line"><input type="checkbox" name="demo" value="1" <?= !empty($_POST['demo'])?'checked':'' ?>><span>Adicionar 100 notícias de <strong>demonstração</strong> para testar o layout (opcional; o portal é instalado vazio por padrão).</span></label>
       <div class="wizard-actions"><button class="btn primary" type="submit">Instalar novo portal →</button></div></form></div>
     </details>
@@ -531,7 +542,7 @@ $importLimit=igua_upload_limits_diagnosis((string)ini_get('upload_max_filesize')
       </form></div>
     </details>
   </div>
-  <div class="wizard-actions"><a href="/setup.php?step=2" class="btn outline">← Banco de dados</a> <a href="/setup.php?step=1" class="btn outline">Alterar modo de instalação</a></div>
+  <div class="wizard-actions"><a href="/setup.php?step=3" class="btn outline">← Banco de dados</a> <a href="/setup.php?step=2" class="btn outline">Alterar modo de instalação</a></div>
 <?php endif; ?>
 <p class="setup-trust"><span>🔒</span> Senhas nunca aparecem na URL. Configurações são salvas fora da pasta pública. Após concluir, este assistente fica bloqueado.</p>
-<?php igua_developer_footer(); ?></main><script src="/assets/js/file-inputs.js" defer></script><script src="/assets/js/setup-identity.js" defer></script><script src="/assets/js/setup-backup-upload.js" defer></script></body></html>
+<?php igua_developer_footer(); ?></main><script src="/assets/js/file-inputs.js" defer></script><script src="/assets/js/setup-identity.js" defer></script><script src="/assets/js/setup-backup-upload.js" defer></script><script src="/assets/js/setup-wizard.js" defer></script></body></html>

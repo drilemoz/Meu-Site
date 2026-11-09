@@ -7,7 +7,50 @@
   <figure class="article-figure"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($article['image'])) ?>" alt="<?= h(($article['cover_alt']??'') ?: (($article['image_caption']??'') ?: 'Imagem de apoio da notícia')) ?>"><figcaption><?= h(($article['image_caption'] ?? '') ?: 'Imagem de apoio editorial.') ?><?php if(!empty($article['image_credit'])): ?> <span>· <?= h($article['image_credit']) ?></span><?php endif; ?></figcaption></figure>
   <div class="article-body"><?php $structured=article_blocks($db,(int)$article['id']); if($structured){news_render_blocks($structured);ad_display_slot($db,'p04');}else ad_article_body($db,$article['body']); ?></div>
   <?php $gallery=article_media($db,(int)$article['id']); $photos=array_values(array_filter($gallery,static fn($m)=>$m['kind']==='image'));$docs=array_values(array_filter($gallery,static fn($m)=>$m['kind']==='attachment')); ?>
-  <?php if($photos): ?><section class="news-gallery"><h2>Galeria de fotos</h2><div class="news-gallery-grid"><?php foreach($photos as $photo): ?><figure><a href="<?= h(media_url($photo['filename'])) ?>" target="_blank" rel="noopener"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(news_media_thumbnail($photo['filename'])) ?>" loading="lazy" alt="<?= h($photo['caption']?:'Foto complementar da matéria') ?>"></a><figcaption><?= h($photo['caption']?:'Imagem da reportagem') ?><?= $photo['credit']!==''?' · '.h($photo['credit']):'' ?></figcaption></figure><?php endforeach; ?></div></section><?php endif; ?>
+  <?php if($photos): ?>
+  <section class="news-gallery" aria-labelledby="news-gallery-title">
+    <div class="news-gallery-heading">
+      <h2 id="news-gallery-title">Galeria de fotos</h2>
+      <span class="news-gallery-total"><?= count($photos) ?> <?= count($photos)===1?'foto':'fotos' ?></span>
+    </div>
+    <div class="news-gallery-grid">
+      <?php foreach($photos as $photoIndex=>$photo):
+        $photoCaption=trim((string)($photo['caption']??''));
+        $photoCredit=trim((string)($photo['credit']??''));
+        $photoLabel=$photoCaption!==''?$photoCaption:'Foto '.($photoIndex+1).' da reportagem';
+      ?>
+      <figure class="news-gallery-item">
+        <a class="news-gallery-open" href="<?= h(media_url($photo['filename'])) ?>" target="_blank" rel="noopener noreferrer" data-gallery-photo data-gallery-caption="<?= h($photoLabel) ?>" data-gallery-credit="<?= h($photoCredit) ?>" aria-label="Ampliar foto <?= $photoIndex+1 ?> de <?= count($photos) ?>: <?= h($photoLabel) ?>">
+          <img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(news_media_thumbnail($photo['filename'])) ?>" loading="lazy" decoding="async" alt="<?= h($photoLabel) ?>">
+          <span class="news-gallery-zoom" aria-hidden="true">⤢</span>
+        </a>
+        <figcaption>
+          <span class="news-gallery-caption"><?= h($photoLabel) ?></span>
+          <?php if($photoCredit!==''): ?><span class="news-gallery-credit">Foto: <?= h($photoCredit) ?></span><?php endif; ?>
+        </figcaption>
+      </figure>
+      <?php endforeach; ?>
+    </div>
+  </section>
+  <dialog class="news-gallery-lightbox" data-news-gallery-dialog aria-label="Visualizador da galeria de fotos">
+    <div class="news-gallery-lightbox-inner">
+      <div class="news-gallery-lightbox-top">
+        <span data-gallery-counter aria-live="polite"></span>
+        <button type="button" data-gallery-close aria-label="Fechar galeria" class="news-gallery-close">✕</button>
+      </div>
+      <div class="news-gallery-stage">
+        <button type="button" data-gallery-prev class="news-gallery-nav news-gallery-prev" aria-label="Foto anterior">‹</button>
+        <img data-gallery-large alt="" decoding="async">
+        <span class="news-gallery-image-status" data-gallery-image-status role="status" aria-live="polite"></span>
+        <button type="button" data-gallery-next class="news-gallery-nav news-gallery-next" aria-label="Próxima foto">›</button>
+      </div>
+      <div class="news-gallery-lightbox-info">
+        <div class="news-gallery-lightbox-description"><p data-gallery-caption></p><small data-gallery-credit></small></div>
+        <a data-gallery-original href="#" target="_blank" rel="noopener noreferrer" aria-label="Abrir imagem original em outra aba">Abrir original ↗</a>
+      </div>
+    </div>
+  </dialog>
+  <?php endif; ?>
   <?php if($docs): ?><section class="news-attachments"><h2>Documentos e anexos</h2><?php foreach($docs as $file): ?><a href="/download.php?id=<?= (int)$file['id'] ?>">📎 <?= h($file['caption']?:$file['original_name']) ?> <small><?= number_format((int)$file['bytes']/1024,1,',','.') ?> KB</small></a><?php endforeach; ?></section><?php endif; ?>
   <?php if(!empty($article['source_url']) && filter_var($article['source_url'],FILTER_VALIDATE_URL) && str_starts_with($article['source_url'],'https://')): ?><div class="article-source"><strong>Fonte de referência:</strong> <a href="<?= h($article['source_url']) ?>" target="_blank" rel="noopener noreferrer nofollow"><?= h($article['source_name'] ?: 'Consultar a fonte') ?> ↗</a><small class="caption-hint">A fonte pode apontar para uma editoria ou matéria específica. Consulte o original para dados detalhados e atualizações.</small></div><?php endif; ?>
   <a class="back-link" href="/index.php">← Voltar à página inicial</a></article>

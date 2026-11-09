@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+const src=fs.readFileSync(__dirname+'/../public/assets/js/setup-wizard.js','utf8');
+assert.match(src,/dataset\.visibilityReady === '1'/,'senha mascarada independente da visibilidade do campo');
+assert.match(src,/submit\.textContent/,'confirmação de ação final');
+assert.match(src,/renderReview\(\)/,'revisão antes de submeter');
+assert.match(src,/form\.addEventListener\('submit',e =>/,'valida formulários em submissão');
+assert.match(src,/confirm\.setCustomValidity/,'mismatch de senha validado');
+assert.match(src,/missing === 1 \? 'caractere'/,'contagem singular/plural');
+assert.match(src,/input\.type = visible \? 'text' : 'password'/,'mostrar/ocultar senha');
+assert.doesNotMatch(src,/dd\.textContent\s*=\s*input\.value/,'sem senha direta no resumo');
+console.log('OK: wizard visual, validação e proteção de senhas (contrato estático).');

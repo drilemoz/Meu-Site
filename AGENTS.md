@@ -1,4 +1,4 @@
-# Diretrizes de manutenção — Meu Site (v1.0.132)
+# Diretrizes de manutenção — Meu Site (v1.0.134)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
@@ -337,3 +337,20 @@ Na Central de Sitemap e Indexação, o administrador pode gerar uma chave de dom
 - Teste de permissões do schema só em banco completamente vazio; nunca modificar banco com dados, recuperar ou reusar tabela do portal. O probe deve excluir a própria tabela e parar em caso de falha de DROP.
 - TLS MySQL remoto é ativado somente mediante certificado CA confiável em `storage/mysql-ca.pem`, com verificação de certificado de servidor, e deve persistir nas conexões do portal. Host remoto sem TLS exige confirmação de rede privada confiável.
 - Executar `tests/installer_hardening_232.php`, `tests/installer_create_231.php`, suíte geral PHP/JS, lint, auditoria e os testes MariaDB no CI isolado. A execução local sem PDO MySQL não prova provisionamento real.
+
+## Instalador progressivo — 1.0.133
+
+- O instalador usa quatro etapas PHP: 1 requisitos, 2 escolha de modo, 3 banco, 4 conteúdo/recuperação; atualizar URLs de upload em partes caso a rota final mude novamente.
+- A escolha do modo requer ação explícita, mantendo proteção de backup portátil embutido. Avançar só fica disponível depois dos requisitos obrigatórios; o PHP também bloqueia requisições sem os requisitos.
+- `public/assets/js/setup-wizard.js` transforma os formulários em perguntas progressivas com Voltar/Avançar, revisão final que NUNCA mostra credenciais (incluindo campos cujo tipo passou de password para text), validação de cada campo e fallback sem JavaScript. Segredos não entram em histórico nem URLs.
+- Campos de senha do portal têm confirmação obrigatória no PHP (hash_equals), mínimo de 10 caracteres, contador e força informativa. Credenciais MySQL existentes e senha do administrador antigo não exigem confirmação artificial.
+- Preservar chave de bootstrap, CSRF, HTTPS, conexão TLS MySQL, banco vazio, autenticação da migração, importação segmentada e limitações de rollback. `setup-backup-upload.js` usa step=4.
+- Testar `tests/setup_wizard_233.php` e `.js`, upload 150, regressão PHP/JS, auditoria, lint, CSS 19 módulos, ZIPs. Não afirmar teste visual Chrome Android/MariaDB sem execução comprovada.
+
+## Galeria pública das matérias — 1.0.134
+
+- `app/public_views/routes/article.php` preserva o vínculo existente `article_media` (sem novo schema) e entrega âncoras reais para a imagem original, mesmo com JavaScript indisponível. Legendas e créditos fornecidos pelo banco devem sempre passar por `h()` antes de entrar em atributos/HTML.
+- `public/assets/js/article-gallery.js` é carregado exclusivamente em matéria publicada pelo layout e controla um `<dialog>` nativo: anterior/próxima, contagem, swipe horizontal, tecla Escape nativa, setas do teclado e retorno do foco ao link que abriu. Não usar `innerHTML` com dados de notícias.
+- Miniaturas permanecem `news_media_thumbnail()` com loading lazy; somente após abrir o modal carregar a imagem original via `media_url()`. Em erro de imagem, informar indisponibilidade, sem usar a miniatura como evidência da original.
+- CSS fonte em `07-editor-structured.css`; executar `tools/build_css.py` para sincronizar `style.css`. Sem bibliotecas externas, novos endpoints, modificações SQL, uploads ou alterações no formato de backup.
+- Executar `tests/gallery_public_234.php`, `tests/gallery_public_234.js`, a regressão completa, lint, audit e verificação dos ZIPs. O teste real no Chrome Android continua necessário após instalar.

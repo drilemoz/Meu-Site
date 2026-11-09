@@ -1,6 +1,6 @@
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.132** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.134** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -15,6 +15,14 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.134 — Galeria de fotos mais prática nas notícias
+
+Nas matérias com imagens vinculadas, a galeria pública ganhou miniaturas responsivas, contador, legendas e crédito dos autores. Toque em uma imagem para abrir a versão integral em um visualizador dentro do site, com setas, gesto de deslizar, teclado, botão Fechar e acesso à imagem original. Os links continuam funcionais sem JavaScript; imagens grandes só são solicitadas na abertura da visualização. Não altera o banco nem o cadastro de imagens. Ver [Galeria pública](docs/GALERIA_PUBLICA_134.md).
+
+## Versão 1.0.133 — Instalador guiado e acessível no celular
+
+O instalador agora separa **Requisitos → Tipo de instalação → Banco de dados → Concluir**. O botão Avançar dos requisitos aparece no topo e no rodapé somente quando os critérios obrigatórios passam. Formulários MySQL, criação de portal e migração recebem campos progressivos e revisão final, preservando formulários sem JavaScript e validação no servidor. Todas as senhas podem ser mostradas/ocultadas; a senha nova do administrador tem confirmação, indicação de caracteres restantes e força estimada. Consulte [o guia do wizard](docs/INSTALADOR_WIZARD_133.md).
 
 ## Versão 1.0.132 — Proteção e diagnóstico da instalação MySQL
 

@@ -45,7 +45,7 @@
         part.append('upload_offset', String(offset));
         part.append('upload_token', token);
         part.append('chunk', file.slice(offset, end), 'parte.bin');
-        const response = await fetch('/setup.php?step=3', {method:'POST', body:part, credentials:'same-origin', cache:'no-store'});
+        const response = await fetch('/setup.php?step=4', {method:'POST', body:part, credentials:'same-origin', cache:'no-store'});
         const body = await response.json().catch(() => null);
         if (!response.ok || !body?.ok || typeof body.upload_token !== 'string' || body.next_offset !== end) {
           throw new Error(body?.error || 'Servidor rejeitou uma das partes do backup.');

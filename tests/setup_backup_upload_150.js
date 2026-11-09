@@ -38,7 +38,7 @@ async function verify() {
     createElement(){return {};}
   };
   const fetch=async (url,options)=>{
-    assert.equal(url,'/setup.php?step=3');
+    assert.equal(url,'/setup.php?step=4');
     assert.equal(options.credentials,'same-origin');
     const d=options.body.data;
     assert.equal(d.csrf,'valid-token');

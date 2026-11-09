@@ -1,3 +1,21 @@
+## [1.0.134] - 2026-11-08
+
+### Galeria pública de notícias
+- Layout responsivo em três colunas no desktop e duas no celular (uma em telas muito estreitas), com miniaturas leves, contador de fotos e legendas/créditos claros.
+- Visualizador nativo dentro da página usando `<dialog>`; permite anterior/próxima, setas de teclado, swipe horizontal, Escape, fechamento e retorno do foco, sem bibliotecas externas.
+- Imagem original carregada somente ao ampliar; status de carregamento e erro, acesso para abrir original em nova aba e fallback de links quando não houver suporte JS/dialog.
+- Escaping de legenda e crédito preservado, sem HTML dinâmico com dados editoriais. Script carregado somente nas matérias; sem alteração de schema 37, backup v12, mídia armazenada ou permissões.
+- Novos testes `gallery_public_234.php` e `.js`; requer conferir visual em Chrome Android após instalar.
+
+## [1.0.133] - 2026-11-08
+
+### Instalador e migração em etapas
+- Separados os requisitos, escolha do modo, configuração de banco e finalização em quatro telas reais do servidor; o botão Avançar no topo e no rodapé depende dos requisitos obrigatórios.
+- Instalador limpo e migração usam formulários progressivos responsivos, com uma pergunta por etapa, botões Voltar/Avançar, dicas recolhidas e resumo antes do POST, sem revelar senhas. Fallback sem JavaScript preservado.
+- Botão mostrar/ocultar em todos os campos `password`. Senha nova do portal: confirmação obrigatória também no PHP, contador de caracteres (mínimo 10) e medidor informativo de força.
+- Envio segmentado do backup atualizado para a nova etapa 4; segurança de chave inicial, CSRF, permissões do MySQL, autenticação da migração e banco vazio preservadas.
+- Testes `setup_wizard_233.php/.js` e `setup_backup_upload_150.js`, regressão PHP/JS e validações de pacote. Schema 37 e backup v12 sem mudanças; testes reais de UI Chrome Android e MariaDB/ZipArchive ainda pendentes.
+
 ## [1.0.132] - 2026-11-08
 
 ### Correções do instalador e banco de dados

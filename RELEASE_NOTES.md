@@ -1,3 +1,17 @@
+## IguatamaOnline 1.0.134
+
+**Galeria de fotos renovada nas matérias:** miniaturas ajustadas para celular e computador, contador, legendas e créditos. Ao tocar numa foto, abre um visualizador sobre a notícia, com navegação por setas, deslizar no celular, teclado e botão Fechar. A imagem original só é carregada quando selecionada; links permanecem funcionais com JavaScript desativado e há botão para abrir o arquivo original.
+
+**Segurança e compatibilidade:** nenhuma alteração de banco de dados, links das fotos, permissões ou backups. Legendas e créditos são escapados no PHP e inseridos como texto no visualizador. Testes de estrutura e interação locais não substituem validação visual real no navegador móvel.
+
+## IguatamaOnline 1.0.133
+
+**Instalador renovado:** primeiro verifique os requisitos; quando os obrigatórios estiverem aprovados, use **Avançar** no topo ou fim da tela. Em seguida, escolha entre **Instalação limpa** e **Migrar meu portal** numa tela independente. A configuração MySQL e os dados finais são solicitados campo a campo, com Voltar/Avançar, ajuda contextual `?` e revisão antes de enviar.
+
+**Senhas:** todos os campos de senha possuem Mostrar/Ocultar. Ao criar o administrador do portal, o instalador exige digitar a senha duas vezes; informa quantos caracteres faltam para atingir os 10 mínimos e mostra a força estimada. A confirmação é revalidada no PHP e nenhuma senha aparece no resumo do wizard.
+
+**Compatibilidade:** sem JavaScript, formulários completos continuam disponíveis. Permanecem a chave privada exigida desde 1.0.132, CSRF, HTTPS, restrições de migração e schema 37/backup v12. A etapa visual não é progresso percentual real da restauração; valide o resultado em hospedagem de testes antes de migrar definitivamente.
+
 ## IguatamaOnline 1.0.132
 
 **Instalador protegido:** antes de digitar credenciais MySQL na instalação limpa, crie uma chave com `php bin/setup-access.php` ou coloque uma chave privada aleatória de 48 caracteres hexadecimais em `storage/.setup-access.key`. O instalador exige essa chave para prosseguir. Em migrações novas, o próprio ZIP portátil traz uma chave aleatória na pasta privada; não use um ZIP antigo da 1.0.131 para o novo fluxo sem gerar outro backup.
