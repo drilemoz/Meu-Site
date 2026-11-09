@@ -1,3 +1,11 @@
+## 1.0.143 — Editor mobile: Gemini legível, publicação e fotos (2026-11-09)
+
+- Corrigidos os atalhos Gemini aparentemente vazios: `-webkit-text-fill-color: transparent` deixa de afetar botões inteiros, passando a atuar só no símbolo ✦. Título e resumo mostram "Gemini IA"; a barra SEO mantém identificação acessível.
+- Barra SEO responsiva em até três colunas e botões da biblioteca dimensionados sem corte de nomes; sem perder funcionalidade de galeria/capa.
+- Etapa final possui seletor nativo estilizado (Publicar agora, Rascunho, Agendar) junto do botão de concluir. Publicar agora é padrão para quem tem ACL publish; agendamentos preexistentes permanecem agendados, redatores continuam apenas com rascunho.
+- Mantidos a submissão explícita, CSRF, ACL, modo de autosalvamento privado, `publication_choice` e data de agendamento do servidor. JS/CSS reconstruídos, testes PHP e JS de UI adicionados, sem SQL/schema.
+- Guia de alterações e limitações em `docs/EDITOR_UI_143.md`.
+
 ## 1.0.142 — Instalação automatizada e reaproveitável de VPS (2026-11-09)
 
 - Adicionado `deploy/aws/install.sh`: preflight somente leitura, confirmação de backup, criação da conta dedicada, permissões mínimas, fila de deploy/locks, pool PHP-FPM próprio e configuração do único upstream Nginx seguro.

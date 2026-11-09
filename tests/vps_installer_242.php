@@ -21,5 +21,5 @@ $assert(!str_contains($install,'rm -rf')&&!str_contains($install,'chmod 0777'),'
 $assert(str_contains($build,"'install.sh','nginx_upstream.py'"),'scripts incluídos somente no código-fonte completo');
 $assert(!str_contains($update,'deploy/aws/install.sh'),'instalador não incluído no pacote de atualização');
 $assert(str_contains($docs,'não é um migrador completo')||str_contains($docs,'**Não é um migrador completo:**'),'documentação diferencia migração de VPS e de dados');
-$assert(trim((string)file_get_contents($root.'/VERSION'))==='1.0.142','versionamento correto');
+$assert(version_compare(trim((string)file_get_contents($root.'/VERSION')),'1.0.142','>='),'versionamento correto');
 echo "OK: VPS 242 distribuição, integridade, preflight, dados e documentação\n";

@@ -2,7 +2,7 @@
       <p class="news-question-tag">PASSO 4 · FOTOGRAFIAS</p>
       <h3>Quer adicionar fotografias?</h3><p class="muted">Escolha imagens da biblioteca ou envie fotos do celular. Defina a capa ou adicione fotos à matéria.</p>
       <div class="news-media-actions" aria-label="Escolher imagens da biblioteca">
-        <button type="button" class="btn outline" data-media-pick="choose">▦ Escolher da biblioteca</button>
+        <button type="button" class="btn outline" data-media-pick="choose"><span aria-hidden="true">▦</span> <span>Escolher da biblioteca</span></button>
         <button type="button" class="btn outline" id="news-library-clear" title="Remover seleção de capa da biblioteca">✕ Remover capa</button>
       </div>
       <input type="hidden" name="library_cover" id="news-library-cover" value=""><input type="hidden" name="remove_cover" id="news-remove-cover" value="0">

@@ -22,5 +22,6 @@ assert(details.includes('id="news-seo-dialog"')&&details.includes('id="news-seo-
 assert(seo.includes('dialog.showModal()')&&seo.includes('dialog.close()'),'diálogo centralizado funcional');
 assert(details.includes('data-news-taxonomy="category"')&&details.includes('data-news-taxonomy="source"'),'cadastros em modal no wizard');
 assert(js.includes("'news_create_category'")&&js.includes("'news_create_source'"),'criação integrada por AJAX');
-assert(css.includes('.news-wizard-page .news-media-actions{grid-template-columns:repeat(3'));
+assert(css.includes('.news-wizard-page .news-media-actions{display:grid;grid-template-columns:minmax(0,1.4fr)'));
+assert(css.includes('@media(max-width:420px){.news-wizard-page .news-media-actions{grid-template-columns:1fr}'));
 console.log('OK: UX wizard 1.0.91, rascunho, fotos, fontes/categorias e SEO');

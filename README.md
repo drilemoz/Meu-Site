@@ -1,8 +1,8 @@
-> **Versão atual: 1.0.142.** Instalador assistido de VPS com conta dedicada, PHP-FPM exclusivo, Nginx e worker GitHub.
+> **Versão atual: 1.0.143.** Editor com Gemini identificável, controles responsivos e seletor de publicação junto ao botão de finalizar.
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.142** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.143** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -17,6 +17,13 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.143 — Editor e publicação claros no celular
+
+- Identificados os botões Gemini que apareciam vazios: o gradiente foi restringido ao símbolo, deixando os rótulos visíveis no título, resumo e SEO. As cinco ações SEO são distribuídas em três colunas para evitar cortes.
+- "Escolher da biblioteca" deixa de ser espremido em um terço da largura; o passo Fotos organiza os dois botões responsivamente.
+- A etapa Revisão usa lista estilizada **Publicar agora / Rascunho / Agendar** e o botão de conclusão ao lado. "Publicar agora" é o padrão apenas para quem possui permissão; agendamentos existentes e ACL são preservados. Autossalvamento não publica.
+- Leia [Editor 1.0.143](docs/EDITOR_UI_143.md) para regras, testes e limitações. Nenhuma migração SQL.
 
 ## Versão 1.0.142 — Instalação automatizada de VPS
 

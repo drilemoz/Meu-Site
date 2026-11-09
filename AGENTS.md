@@ -1,6 +1,14 @@
-# Diretrizes de manutenção — Meu Site (v1.0.142)
+# Diretrizes de manutenção — Meu Site (v1.0.143)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Editor mobile e publicação (1.0.143)
+
+- Aplicar `igua-gemini-mark` somente ao `span` com o glifo ✦, não ao `<button>`: `-webkit-text-fill-color: transparent` oculta botões/rótulos no Chrome. Título/resumo exibem "Gemini IA" e a barra SEO não pode comprimir cinco rótulos em cinco colunas mobile.
+- Manter o seletor `#news-publication-choice` com valores POST `draft`, `now`, `scheduled`, ao lado do `#news-submit`. Com permissão `publish`, novas notícias/rascunhos iniciam em `now`; agendadas existentes permanecem `scheduled`; contas sem `publish` só veem `draft`.
+- Escolher a opção, mudar etapas e autosalvar jamais publicam: envio explícito do formulário continua necessário; backend preserva CSRF, ACL, data futura e validações.
+- Biblioteca de mídias não pode cortar "Escolher da biblioteca" em telas estreitas. Alterações CSS devem passar por `tools/build_css.py`, JS por `tools/build_news_editor.py`, fingerprint por concatenação dos templates e testes PHP/JS `editor_ui_243` + regressão.
+- Detalhes em `docs/EDITOR_UI_143.md`. Preservar schema 37, backup v12, integrações e deploy VPS.
 
 ## Preparação automática de VPS (1.0.142)
 

@@ -1,3 +1,11 @@
+## Versão 1.0.143
+
+**Melhorias solicitadas após teste no celular:** os atalhos Gemini do título, resumo e SEO deixam de parecer botões vazios e passam a ser claramente identificados. As ferramentas SEO e os botões da biblioteca quebram/reorganizam o layout sem cortar palavras.
+
+**Publicação no passo 9:** um único seletor estilizado com Publicar agora (padrão para quem pode publicar), Rascunho e Agendar fica ao lado do botão Publicar notícia/Salvar rascunho/Agendar notícia. Agendamentos anteriores permanecem agendados e redatores sem autorização não recebem opções indevidas. Nenhuma notícia é publicada sem tocar no botão final; rascunhos automáticos continuam privados.
+
+**Compatibilidade:** nenhuma migração SQL (schema 37, backup v12), configuração de servidor ou alteração na API Gemini. Testes locais automatizados; validação no Chrome Android e na EC2 ainda necessária. Detalhes em `docs/EDITOR_UI_143.md`.
+
 ## Versão 1.0.142
 
 **Instalador automático de VPS (com controle por SSH):** novo `deploy/aws/install.sh` no código-fonte completo reduz a configuração inicial do atualizador GitHub a um comando após a publicação do portal e confirmação de backup externo. Cria/prepara `iguanews-deploy`, diretórios seguros e locks, pool PHP-FPM 8.3 exclusivo, vhost Nginx e serviço/timer systemd. Só ativa o timer após testar permissões e heartbeat. Recusa vhosts compartilhados, configurações ambíguas e deploy interrompido; preserva `storage/`, imagens, MariaDB e site de testes.

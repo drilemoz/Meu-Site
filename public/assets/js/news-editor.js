@@ -53,7 +53,7 @@
    updatePublication();
  }
  function updatePublication(){
-   const choice=form.querySelector('[name="publication_choice"]:checked')?.value||'draft';
+   const choice=form.querySelector('#news-publication-choice')?.value||'draft';
    const schedule=document.querySelector('#news-schedule-control');
    schedule.hidden=choice!=='scheduled';
    form.querySelector('[name="status"]').value=choice==='draft'?'draft':'published';
@@ -88,7 +88,7 @@
    return true;
  }
  function navigateTo(index){if(index>active){for(let i=active;i<index;i++)if(!canLeave(i))return;}changeTab(index,{scroll:true});}
- for(const radio of form.querySelectorAll('[name="publication_choice"]'))radio.addEventListener('change',updatePublication);
+ form.querySelector('#news-publication-choice')?.addEventListener('change',updatePublication);
  const titleCount=document.querySelector('#news-title-counter'),summaryCount=document.querySelector('#news-summary-counter');
  const titleField=form.querySelector('[name=title]'),summaryField=form.querySelector('[name=summary]');
  function updateCounters(){
@@ -353,7 +353,7 @@
  form.addEventListener('submit',e=>{
    updateSource();syncInputs();
    for(const i of [0,1,2,6])if(!canLeave(i)){e.preventDefault();return;}
-   const choice=form.querySelector('[name="publication_choice"]:checked')?.value;
+   const choice=form.querySelector('#news-publication-choice')?.value;
    if(!choice){changeTab(8,{scroll:true});status.textContent='Escolha como salvar ou publicar.';e.preventDefault();return;}
    if(choice==='scheduled'){
      const field=form.querySelector('[name=publish_at]');

@@ -10,7 +10,7 @@ assert.equal((header.match(/data-tab="/g)||[]).length,9);
 assert.equal((header.match(/data-step="/g)||[]).length,2);
 assert.equal((source.match(/function changeTab\(/g)||[]).length,1);
 assert.match(source,/if\(active===steps.length-1\)updateReview\(\)/);
-assert.match(source,/form\.querySelector\('\[name="publication_choice"\]:checked'\)/);
+assert.match(source,/form\.querySelector\('#news-publication-choice'\)/);
 assert.match(footer,/name="publication_choice"/);
 assert.match(footer,/id="news-review-title"/);
 assert.match(source,/function updateCounters\(\)/);

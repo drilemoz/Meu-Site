@@ -295,3 +295,28 @@
 .error-diag-log{max-height:360px;overflow:auto;overflow-wrap:anywhere}
 
 .media-choice-hint{margin:8px 0 12px;padding:10px 12px;border-radius:10px;background:#eef5fe;color:#305177;font-size:13px}
+
+/* 1.0.143 — ações Gemini sempre legíveis; controles responsivos sem corte. */
+.news-wizard-page .news-gemini-icon{color:#664398;-webkit-text-fill-color:initial;background:#f9f7ff}
+.news-wizard-page .news-gemini-icon .igua-gemini-mark{display:inline-block;font-size:23px;line-height:1.1;flex:none}
+.news-wizard-page .news-gemini-labeled{display:inline-flex;gap:8px;align-items:center;justify-content:center;min-height:44px;width:auto;max-width:100%;padding:8px 12px;font-size:13px;font-weight:800;line-height:1.2;white-space:normal}
+.news-wizard-page .news-format-tools .news-gemini-icon{display:grid;place-items:center}
+.news-wizard-page .news-seo-iconbar{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.news-wizard-page .news-seo-iconbtn{min-height:70px;min-width:0;padding:9px 5px;overflow:visible}
+.news-wizard-page .news-seo-iconbtn small{font-size:12px;line-height:1.25;overflow-wrap:normal;word-break:normal;white-space:normal}
+.news-wizard-page .news-seo-iconbar .news-gemini-icon{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 5px;min-height:70px}
+.news-wizard-page .news-seo-iconbar .news-gemini-icon small{color:#664398;-webkit-text-fill-color:initial}
+.news-wizard-page .news-media-actions{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px}
+.news-wizard-page .news-media-actions .btn{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:46px;padding:10px 8px;font-size:12px;white-space:normal;text-align:center;line-height:1.3;overflow-wrap:normal;word-break:normal}
+@media(max-width:420px){.news-wizard-page .news-media-actions{grid-template-columns:1fr}.news-wizard-page .news-media-actions .btn{width:100%;font-size:13px}}
+.news-wizard-page .news-publish-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:9px;align-items:end;margin:13px 0 12px}
+.news-wizard-page .news-publish-choice{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;min-width:0;margin:0;padding:0;border:0;background:transparent}
+.news-wizard-page .news-publish-label{font-size:13px;font-weight:800;color:#193652}
+.news-wizard-page .news-publish-select-wrap{display:block;position:relative;min-width:0}
+.news-wizard-page .news-publish-select-wrap::after{content:'⌄';pointer-events:none;position:absolute;right:11px;top:50%;transform:translateY(-57%);font-size:20px;color:#265c94;font-weight:800}
+.news-wizard-page .news-publish-choice select{box-sizing:border-box;appearance:none;-webkit-appearance:none;width:100%;min-width:0;height:48px;padding:9px 30px 9px 10px;border:1px solid #b8cee6;border-radius:12px;color:#183f69;background:#f3f8ff;font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+.news-wizard-page .news-publish-choice select:focus-visible{outline:3px solid #9fc6fa;outline-offset:2px}
+.news-wizard-page .news-publish-row #news-submit{box-sizing:border-box;min-width:0;width:100%;min-height:48px;padding:10px 7px;font-size:13px;font-weight:800;line-height:1.3;white-space:normal;text-align:center;overflow-wrap:normal}
+.news-wizard-page .news-publish-row #news-submit[hidden]{display:none!important}
+.news-wizard-page .news-publish-help{margin:0 0 12px;font-size:11px;line-height:1.4}
+@media(max-width:360px){.news-wizard-page .news-publish-row{gap:6px}.news-wizard-page .news-publish-choice select,.news-wizard-page .news-publish-row #news-submit{font-size:12px}}
