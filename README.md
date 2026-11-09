@@ -1,8 +1,8 @@
-> **Versão atual: 1.0.141.** Editor de notícias com biblioteca de fotos unificada, SEO/Gemini mais claro e área privada de diagnóstico de erros.
+> **Versão atual: 1.0.142.** Instalador assistido de VPS com conta dedicada, PHP-FPM exclusivo, Nginx e worker GitHub.
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.141** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.142** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -17,6 +17,12 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.142 — Instalação automatizada de VPS
+
+- O ZIP **de código-fonte completo** incorpora `deploy/aws/install.sh` e `deploy/aws/nginx_upstream.py`. Depois de instalar/restaurar o portal e realizar backups, executar `sudo bash deploy/aws/install.sh` por SSH para configurar conta de deploy, diretórios seguros, pool PHP-FPM exclusivo, vhost Nginx e timer systemd.
+- `--check` inspeciona sem alterar. O instalador recusa vhost compartilhado, recursos ausentes e atualização pendente; só habilita o timer depois do diagnóstico do worker e verificação de permissões. Não altera SQL, mídias, DNS ou HTTPS, nem toca no site de testes.
+- Não há migração de esquema. A instalação normal pela interface/GitHub **não inclui arquivos de infraestrutura**. Manual e limitações em [Instalador VPS 1.0.142](docs/INSTALADOR_VPS_142.md).
 
 ## Versão 1.0.141 — Fotos, SEO e diagnóstico de falhas
 

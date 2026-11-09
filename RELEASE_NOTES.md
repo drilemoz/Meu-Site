@@ -1,3 +1,9 @@
+## Versão 1.0.142
+
+**Instalador automático de VPS (com controle por SSH):** novo `deploy/aws/install.sh` no código-fonte completo reduz a configuração inicial do atualizador GitHub a um comando após a publicação do portal e confirmação de backup externo. Cria/prepara `iguanews-deploy`, diretórios seguros e locks, pool PHP-FPM 8.3 exclusivo, vhost Nginx e serviço/timer systemd. Só ativa o timer após testar permissões e heartbeat. Recusa vhosts compartilhados, configurações ambíguas e deploy interrompido; preserva `storage/`, imagens, MariaDB e site de testes.
+
+**Escopo:** não é instalador de dependências nem migrador de dados; primeiro é preciso instalar o código e restaurar banco/mídias. Hospedagem compartilhada inalterada, schema 37 e backup v12 mantidos. O ZIP de atualização online não inclui `deploy/` nem `bin/`: use o ZIP de fonte completo para receber esse recurso. Os testes de script/Nginx são isolados; a execução end-to-end na EC2 ainda exige homologação. Consulte `docs/INSTALADOR_VPS_142.md`.
+
 ## Versão 1.0.141
 
 **Correções no editor e central de diagnósticos.** A biblioteca de fotos apresenta capa/galeria no mesmo seletor, carrega com timeout e recuperação, e continua permitindo envio do celular. Diagnóstico SEO corrigido; botões Automático e Gemini IA agora são distinguíveis. Gemini não fica indefinidamente em carregamento, possui timeout/cancelamento e mostra erros. Na revisão final, Rascunho/Publicar/Agendar aparecem em uma linha no topo. Em Ferramentas há uma nova área de diagnóstico de erros técnicos do portal, de forma restrita e sem capturar dados privados.

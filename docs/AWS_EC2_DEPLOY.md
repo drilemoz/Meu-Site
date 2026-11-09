@@ -1,3 +1,5 @@
+> **Atualização 1.0.142:** o código-fonte completo agora inclui `deploy/aws/install.sh`, que automatiza os preparativos detalhados abaixo. Consulte primeiro [Instalador VPS 1.0.142](INSTALADOR_VPS_142.md). As instruções manuais a seguir permanecem para auditoria e casos em que o instalador recuse a configuração por segurança. O script não migra dados ou instala pacotes ausentes.
+
 # IguatamaOnline 1.0.139 — Implantação AWS EC2 Ubuntu 24.04
 
 **Ambiente-alvo:** `/var/www/projetos/iguatamaonline/`, Nginx (`root .../public`), PHP-FPM 8.3 como `www-data`, MariaDB e PHP CLI 8.3 com worker systemd `iguanews-deploy`. **Não alterar** `/var/www/iguatama-teste/`. O procedimento não contém migração de banco.

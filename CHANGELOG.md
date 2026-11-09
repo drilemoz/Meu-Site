@@ -1,3 +1,10 @@
+## 1.0.142 — Instalação automatizada e reaproveitável de VPS (2026-11-09)
+
+- Adicionado `deploy/aws/install.sh`: preflight somente leitura, confirmação de backup, criação da conta dedicada, permissões mínimas, fila de deploy/locks, pool PHP-FPM próprio e configuração do único upstream Nginx seguro.
+- Integração de units systemd e timer condicionada a vistorias reais de escrita/rename, acesso web limitado e heartbeat válido. Proteção de estados interrompidos; rollback de configuração Nginx/FPM em falhas, sem exclusão de dados.
+- Testes de vhosts isolados verificam rejeição de configurações compartilhadas, preservação de comentários, idempotência, sintaxe Bash e modo sem mutações.
+- O instalador fica **somente no fonte completo**, não no pacote de atualização online. Schema 37, backup v12, conteúdo, banco e site de testes mantidos; instalação real em VPS ainda pendente.
+
 ## 1.0.141 — Editor, mídias e diagnóstico de erros (2026-11-09)
 
 - Eliminada seleção duplicada de biblioteca no passo de fotos: escolher capa ou adicionar diversas fotos dentro de um único seletor; upload local preservado.

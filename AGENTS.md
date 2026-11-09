@@ -1,6 +1,14 @@
-# Diretrizes de manutenção — Meu Site (v1.0.141)
+# Diretrizes de manutenção — Meu Site (v1.0.142)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Preparação automática de VPS (1.0.142)
+
+- `deploy/aws/install.sh` deve fazer preflight sem mutação (`--check`), pedir confirmação de backup e abortar se existe atualização em andamento ou configuração ambígua. Usa conta dedicada, pool exclusivo PHP-FPM 8.3, vhost próprio, `systemd` e vistoria antes do timer.
+- Preserve integralmente `storage/`, `public/uploads/`, o site de teste e SQL de produção. Não usar root/www-data para atualizar código, `chmod 777`, remoção de marcadores ou migração implícita de banco.
+- `deploy/aws/nginx_upstream.py` valida **todos** os roots/upstreams não comentados e só troca o único socket autorizado. Vhost compartilhado ou inclusão complexa deve falhar fechado; não configurar `IGUA_INDEXNOW_VIRTUAL=1` sem rota verificada.
+- O instalador pertence exclusivamente ao ZIP de fonte completo; o ZIP de atualização continua só com app/public/VERSION/manifesto. `tests/vps_installer_242.py` cobre validação isolada do Nginx, idempotência e sintaxe Bash.
+- Procedimento e limites em `docs/INSTALADOR_VPS_142.md`. Integração real em Ubuntu/Nginx/PHP-FPM/systemd permanece pendente; nunca declarar VPS configurada apenas por teste local.
 
 ## Editor, mídias e diagnóstico de erros (1.0.141)
 
