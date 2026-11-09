@@ -1,3 +1,9 @@
+## Versão 1.0.140
+
+**Métricas locais reformuladas:** o painel apresenta público provavelmente humano (sem indícios detectados), robôs que se identificam no User-Agent e tráfego suspeito, com gráfico e porcentagens dos três grupos. É possível filtrar as tabelas por grupo e consultar páginas, origens, países/regiões, campanhas, agentes e cliques registrados. Novos agentes de rastreamento e automação passam a ser reconhecidos. Nenhum grupo representa comprovação de identidade, pois o User-Agent é falsificável.
+
+**Mais precisão de horário na EC2:** novos eventos usam explicitamente data e hora do PHP em America/Sao_Paulo, sem depender do fuso da sessão SQL; eventos antigos permanecem intactos. A coleta segue first-party, com respeito a preferências de privacidade, sem IP bruto no banco. Não exige extensão nova, DDL nem alterações em schema 37/backup v12. A confirmação de contagens reais na VPS/MariaDB e a interface no Chrome Android permanecem testes de implantação.
+
 ## Versão 1.0.139
 
 **Corrigido:** bloqueios de permissão do worker na EC2. A raiz do projeto deve permitir rename atômico pela conta `iguanews-deploy`; os controles de atualização agora ficam protegidos contra escrita pelo processo web. O painel só reconhece o serviço como pronto após checagens reais de criação e rename pelo worker.

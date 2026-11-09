@@ -22,7 +22,7 @@
 <?php elseif($action==='media'): ?><?php media_admin_modal(true); ?>
 <?php elseif($action==='health'): igua_health_admin_view($db); ?>
 <?php elseif($action==='security'): igua_security_admin_view(); ?>
-<?php elseif($action==='analytics'): analytics_admin_view($db,analytics_period($_GET)); ?>
+<?php elseif($action==='analytics'): analytics_admin_view($db,analytics_period($_GET),analytics_audience($_GET)); ?>
 <?php elseif($action==='elections'): meu_elections_admin_view($db); ?>
 <?php elseif($action==='seo'): igua_seo_admin_view($db,$me); ?>
 <?php elseif($action==='sitemap'): require __DIR__.'/routes/sitemap.php'; ?>

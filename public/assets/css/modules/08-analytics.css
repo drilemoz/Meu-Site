@@ -50,3 +50,27 @@
 @media(max-width:800px){.analytics-panel .panel-heading{gap:8px}.analytics-periods{width:100%;justify-content:space-between}.analytics-periods a{flex:1;padding:7px 4px}.analytics-kpis{gap:7px}.analytics-kpi{padding:10px}}
 
 .analytics-bars i.is-zero{min-height:0}
+
+/* 1.0.140: audiência por três níveis, gráficos comparativos e filtros adaptáveis. */
+.analytics-kpis-audience{grid-template-columns:repeat(4,minmax(0,1fr))}
+.analytics-kpi small{font-size:11px;color:#5f7391;line-height:1.35}
+.analytics-kpi-human{border-color:#bed7fc}.analytics-kpi-bot{border-color:#d7dde7}.analytics-kpi-suspect{border-color:#eed3a0;background:#fff9ed}
+.analytics-kpi-suspect strong{color:#955313}
+.analytics-share{margin:4px 0 15px}
+.analytics-share-track{display:flex;height:14px;background:#eef1f6;border-radius:99px;overflow:hidden}
+.analytics-share-track span{height:100%;display:block}
+.analytics-share-track .human{background:#246bdb}.analytics-share-track .robot{background:#95a5c1}.analytics-share-track .suspect{background:#e6a442}
+.analytics-share .analytics-legend{flex-wrap:wrap;margin:8px 0 0}
+.analytics-dot.suspect{background:#e6a442}
+.analytics-bars .suspects{background:#e6a442}
+.analytics-bars i{width:30%}
+.analytics-interactions{display:flex;gap:10px;flex-wrap:wrap;margin:13px 0 7px}
+.analytics-interactions div{background:#f6f8fc;border:1px solid #e1e8f3;padding:10px 13px;border-radius:12px;flex:1;min-width:150px}
+.analytics-interactions strong{color:#1f4e87;font-size:20px}.analytics-interactions span{color:#53657f;font-size:12px}
+.analytics-audience-panel{min-width:0}
+.analytics-audience-panel .panel-heading{margin-bottom:12px}
+.analytics-audience-tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.analytics-audience-tabs a{display:inline-flex;align-items:center;justify-content:center;padding:10px 12px;min-height:44px;border:1px solid #d8e3f4;border-radius:10px;text-decoration:none;color:#25547f;font-size:13px;font-weight:700}
+.analytics-audience-tabs a.current{background:#1765d5;border-color:#1765d5;color:#fff}
+@media(max-width:900px){.analytics-kpis-audience{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.analytics-audience-tabs a{flex:1 1 100%;min-height:42px}.analytics-kpis-audience .analytics-kpi strong{font-size:24px}.analytics-interactions div{min-width:0;flex:1 1 100%}}

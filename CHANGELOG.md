@@ -1,3 +1,11 @@
+## 1.0.140 — Métricas segmentadas por tipo de tráfego (2026-11-09)
+
+- Painel de audiência com KPIs, participações percentuais e gráfico horário/diário para **público provável**, **robôs declarados** e **tráfego suspeito**.
+- Filtros exclusivos para cada grupo nas páginas mais vistas, origens, referências, localização aproximada e identificação de agentes; campanhas e interações para o público provável.
+- Cobertura de novos crawlers declarados de busca, IA e redes sociais, sem alegar autenticidade da origem ou identidade do visitante; histórico de scanners e rajadas lido como suspeito, sem atualização de registros anteriores.
+- Novos eventos e limites por minuto usam o horário PHP America/Sao_Paulo, evitando divergência com o fuso da instância MariaDB. Eventos anteriores não são reescritos.
+- Respeita GPC, DNT, opt-out, HMAC diário e retenção de 90 dias; backup v12 e schema 37 não mudam. Testes de classificação, SQL parametrizado, interface e integridade incluídos.
+
 ## 1.0.139 — VPS: permissões e controles de deploy corrigidos
 
 - `VERSION` usa rename atômico em diretório-raiz cujo owner agora é a conta dedicada (0755), nunca `www-data`; instruções de implantação EC2 corrigidas.

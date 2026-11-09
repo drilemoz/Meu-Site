@@ -1,8 +1,8 @@
-> **Versão atual: 1.0.139.** Atualizador AWS EC2 com conta dedicada, controles privados, teste real de renomeação atômica e procedimento de permissões corrigido. Consulte [AWS EC2](docs/AWS_EC2_DEPLOY.md).
+> **Versão atual: 1.0.140.** Métricas locais reformuladas: público provável, robôs declarados e tráfego suspeito, com relatórios separados e relógio do portal consistente. A arquitetura AWS EC2 segue a versão 1.0.139.
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.139** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.140** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 
@@ -17,6 +17,10 @@ Portal de notícias locais com editor, categorias, autores/fontes, mídias, hor�
 - `.github/workflows/integration-mariadb.yml`: integração com MariaDB e PHP zip no CI.
 
 **Identidade do projeto:** exclusivamente web/PHP, repositório `drilemoz/Meu-Site`; não incluir arquivos Android, Uai Cortes, Kotlin, Gradle ou APK. `github-manager.json` e `app_identity.json` acompanham `VERSION`.
+
+## Versão 1.0.140 — Métricas de audiência mais confiáveis
+
+O painel **Métricas** agora separa visualizações em **público provável**, **robôs declarados por User-Agent** e **acessos suspeitos** (ferramentas HTTP, navegadores automatizados e rajadas). Traz comparação horária/diária, proporção de tráfego, filtros dos relatórios por grupo, origens, páginas, campanhas, agentes e indicadores de interação por cliques. Nenhuma categoria prova identidade humana ou legitimidade do crawler. Novos eventos recebem horário do PHP em Brasília para evitar divergências entre PHP-FPM e MariaDB na EC2; dados antigos permanecem intactos. Não há DDL nem alteração de backup: schema 37 e backup lógico v12 são preservados. Ver [Métricas](docs/METRICAS.md).
 
 ## Versão 1.0.137 — Correção do painel em branco e menu administrativo
 

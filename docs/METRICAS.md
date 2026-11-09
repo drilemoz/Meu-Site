@@ -1,3 +1,29 @@
+# Métricas locais · comportamento na versão 1.0.140
+
+## As três categorias (não comprovam identidade)
+
+- **Público provável:** pageviews públicos de User-Agents sem indícios conhecidos de automação. Inclui potenciais bots que disfarçam a identidade. Não equivale a pessoas únicas.
+- **Robôs declarados:** agentes que se identificam como Googlebot, Bingbot, GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot, PerplexityBot, redes sociais etc. O nome é uma **declaração não verificada**; qualquer cliente pode imitá-lo. O portal não realiza DNS reverso ou consultas de IP por requisição.
+- **Suspeitos:** sem User-Agent, headless, scripts, curl/wget, scanners e excesso conservador de pageviews por identificador em um minuto. Falsos positivos possíveis. Registros históricos com `Volume suspeito` são exibidos nesse grupo sem modificar a tabela.
+
+O gráfico compara as três categorias para Hoje, 24 horas, 7, 30 ou 90 dias. As abas filtram as tabelas de páginas e origens por tipo de tráfego, sem mudar o gráfico global. Os cliques em links dependem de JavaScript e não comprovam interação humana. Identificadores distintos por dia são hashes HMAC de IP, User-Agent e dia; somá-los ao longo dos dias **não** produz pessoas únicas mensais.
+
+## Horário e armazenamento
+
+A partir de 1.0.140, os **novos eventos** recebem `occurred_at` e `event_day` do mesmo instante no PHP (`America/Sao_Paulo`), independentemente do fuso do MariaDB na VPS. Os limites de requisições por minuto usam o mesmo relógio. Eventos antigos não são corrigidos ou reprocessados: se o MariaDB tinha fuso diferente, gráficos históricos podem apresentar deslocamento.
+
+Não há migração SQL: a versão mantém **schema 37**, `analytics_events` e **backup lógico v12**. A classificação suspeita é inferida de `is_bot` e `bot_name` (até 60 caracteres). As métricas são coletadas apenas em páginas públicas; cache CDN e bloqueadores podem impedir registros. Nenhum IP ou User-Agent completo é armazenado na tabela. HMAC diário em `storage/analytics.key`, arquivo privado e persistente. Retenção de eventos detalhados: 90 dias, com rotina `bin/analytics_prune.php` e limpeza oportunística.
+
+## Privacidade
+
+A coleta respeita GPC, DNT, `igua_analytics_optout` e exclusão de sessões administrativas. A geolocalização opcional usa a base offline MaxMind GeoLite2; a ausência dela é exibida como desconhecido, não é estimada artificialmente. O GA4 permanece independente, condicionado ao consentimento. Revise a política de privacidade conforme LGPD e legislação aplicável.
+
+## Testes
+
+`php tests/analytics.php`, `php tests/analytics_168.php` e `php tests/analytics_audience_240.php` cobrem compatibilidade, classificações, entradas malformadas, horário e consultas SQL. Em uma cópia de teste, use MariaDB e verifique os totais, a navegação no celular, as preferências de privacidade e o impacto de cache externo. **Não** altere o banco de produção para simular tráfego.
+
+---
+
 > **GA4 desde 1.0.120:** nenhum aviso fixo aparece durante a leitura. O visitante encontra a autorização opcional em **Política de Privacidade → Preferências do Google Analytics**, pelo link do rodapé. Sem consentimento, não há coleta pelo GA4. As métricas locais PHP continuam independentes.
 
 > **Estado atual (v1.0.79):** filtros Hoje/24h/7d/30d/90d, gráfico por hora em Hoje/24h; GA4 opcional centralizado em Configurações → Integrações. Ver [INTEGRACOES.md](INTEGRACOES.md). O texto abaixo descreve a implementação original de métricas.

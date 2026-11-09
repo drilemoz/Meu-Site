@@ -10,7 +10,7 @@ t(analytics_period([])===30,'métricas sem days usa 30 sem warning');
 t(analytics_period(['days'=>'7'])===7 && analytics_period(['days'=>'30'])===30 && analytics_period(['days'=>'90'])===90,'métricas aceita períodos 7/30/90');
 t(analytics_period(['days'=>''])===30 && analytics_period(['days'=>'0'])===30 && analytics_period(['days'=>'900'])===30 && analytics_period(['days'=>'30teste'])===30,'métricas rejeita valores inválidos');
 t(analytics_period(['days'=>['30']])===30 && analytics_period(['days'=>new stdClass()])===30,'métricas trata entrada não escalar sem aviso');
-t(str_contains(igua_refactor_page_source('public/admin.php'),'analytics_admin_view($db,analytics_period($_GET))'),'página administrativa utiliza parser protegido');
+t(str_contains(igua_refactor_page_source('public/admin.php'),'analytics_admin_view($db,analytics_period($_GET),analytics_audience($_GET))'),'página administrativa utiliza parser protegido');
 t(analytics_bot('Mozilla/5.0 (compatible; Googlebot/2.1)')==='Googlebot','Googlebot identificado');
 t(analytics_bot('Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit')==='','visitante não vira robô');
 t(analytics_device('Mozilla/5.0 (iPhone; Mobile Safari)')==='celular','classifica celular');

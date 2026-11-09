@@ -33,13 +33,14 @@ function analytics_log(PDO $db,string $type,string $page,string $target='',array
     $bot=analytics_bot($ua);
     if($type==='click'&&$bot!=='')return false;
     $ip=analytics_client_ip($server);
-    $day=date('Y-m-d');
+    $occurredAt=date('Y-m-d H:i:s');
+    $day=substr($occurredAt,0,10);
     $key=analytics_secret();
     $hash=analytics_visitor_hash($ip,$ua,$day,$key);
     // Detector conservador de rajadas; a identidade não é verificada, e pode haver NAT.
     if($type==='pageview' && $bot==='' && $ip!=='' && $ua!==''){
-        $rate=$db->prepare("SELECT COUNT(*) FROM analytics_events WHERE visitor_day_hash=? AND event_day=? AND event_type='pageview' AND occurred_at >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)");
-        $rate->execute([$hash,$day]);
+        $rate=$db->prepare("SELECT COUNT(*) FROM analytics_events WHERE visitor_day_hash=? AND event_day=? AND event_type='pageview' AND occurred_at >= ?");
+        $rate->execute([$hash,$day,date('Y-m-d H:i:s',time()-60)]);
         if((int)$rate->fetchColumn()>=29)$bot='Volume suspeito';
     }
     $route=analytics_page($page,$query);
@@ -55,8 +56,8 @@ function analytics_log(PDO $db,string $type,string $page,string $target='',array
         }
     }
     [$countryCode,$country,$region]=analytics_geo($ip);
-    $q=$db->prepare('INSERT INTO analytics_events (event_day,event_type,page_path,target,visitor_day_hash,source,referrer_host,campaign,country_code,country_name,region,device,is_bot,bot_name) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-    $q->execute([$day,$type,$route,$dest,$hash,$source,$refHost,$campaign,$countryCode,$country,$region,analytics_device($ua),(int)($bot!==''),$bot]);
+    $q=$db->prepare('INSERT INTO analytics_events (occurred_at,event_day,event_type,page_path,target,visitor_day_hash,source,referrer_host,campaign,country_code,country_name,region,device,is_bot,bot_name) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+    $q->execute([$occurredAt,$day,$type,$route,$dest,$hash,$source,$refHost,$campaign,$countryCode,$country,$region,analytics_device($ua),(int)($bot!==''),$bot]);
     // limpeza oportunística leve; cron separado também disponível
     if(random_int(1,400)===1)analytics_prune($db,90);
     return true;
@@ -81,43 +82,75 @@ function analytics_time_range(int|string $period,?DateTimeImmutable $clock=null)
       'where'=>'event_day >= ? AND event_day <= ? AND occurred_at >= ? AND occurred_at <= ?',
     ];
 }
-/** Preenche intervalos vazios com zero. Um período móvel de 24h pode abranger 25 horas de relógio parciais. */
+/** Preenche intervalos vazios: público provável, robôs declarados e suspeitos. */
 function analytics_complete_series(array $raw,array $range): array {
     $map=[];
-    foreach($raw as $r)$map[(string)$r['bucket']]=['views'=>(int)$r['views'],'bots'=>(int)$r['bots'],'clicks'=>(int)$r['clicks']];
+    foreach($raw as $r){
+        $map[(string)$r['bucket']]=[
+            'views'=>(int)($r['views']??0),'bots'=>(int)($r['bots']??0),
+            'suspect'=>(int)($r['suspect']??0),'clicks'=>(int)($r['clicks']??0)
+        ];
+    }
     $hourly=(bool)$range['hourly'];
     $cursor=$hourly?$range['start']->setTime((int)$range['start']->format('H'),0,0):$range['start']->setTime(0,0,0);
     $end=$range['end'];$series=[];
     for($i=0;$cursor<=$end&&$i<100;$i++,$cursor=$cursor->modify($hourly?'+1 hour':'+1 day')){
         $key=$cursor->format($hourly?'Y-m-d H:00:00':'Y-m-d');
-        $totals=$map[$key]??['views'=>0,'bots'=>0,'clicks'=>0];
+        $totals=$map[$key]??['views'=>0,'bots'=>0,'suspect'=>0,'clicks'=>0];
         $series[]=['day'=>$key,'label'=>$cursor->format($hourly?($range['period']==='today'?'H\h':'d/m H\h'):'d/m'),
-          'title'=>$cursor->format($hourly?'d/m/Y H:00':'d/m/Y'),'views'=>$totals['views'],'bots'=>$totals['bots'],'clicks'=>$totals['clicks']];
+          'title'=>$cursor->format($hourly?'d/m/Y H:00':'d/m/Y'),...$totals];
     }
     return $series;
 }
-function analytics_admin_data(PDO $db,int|string $period=30,?DateTimeImmutable $clock=null): array {
+function analytics_group(string $group): string {
+    return in_array($group,['human','bot','suspect'],true)?$group:'human';
+}
+/** Grupos sem DDL: is_bot e bot_name já existem no schema 37 e backup v12. */
+function analytics_admin_data(PDO $db,int|string $period=30,?DateTimeImmutable $clock=null,string $group='human'): array {
+    $group=analytics_group($group);
     $range=analytics_time_range($period,$clock);
     $where=$range['where'];$params=$range['params'];
-    $summary=$db->prepare("SELECT COUNT(*) AS events, COALESCE(SUM(event_type='pageview' AND is_bot=0),0) AS views,COUNT(DISTINCT CASE WHEN event_type='pageview' AND is_bot=0 THEN visitor_day_hash END) AS visitors_day, COALESCE(SUM(event_type='pageview' AND is_bot=1),0) AS bots, COALESCE(SUM(event_type='click'),0) AS clicks FROM analytics_events WHERE $where");
+    $suspect=analytics_suspect_sql();
+    $human="is_bot=0";
+    $declared="is_bot=1 AND NOT $suspect";
+    $uncertain="is_bot=1 AND $suspect";
+    $filters=['human'=>$human,'bot'=>$declared,'suspect'=>$uncertain];
+    $summary=$db->prepare("SELECT COUNT(*) AS events,
+      COALESCE(SUM(event_type='pageview' AND $human),0) AS views,
+      COUNT(DISTINCT CASE WHEN event_type='pageview' AND $human THEN visitor_day_hash END) AS visitors_day,
+      COALESCE(SUM(event_type='pageview' AND is_bot=1),0) AS automation_total,
+      COALESCE(SUM(event_type='pageview' AND $declared),0) AS bots,
+      COALESCE(SUM(event_type='pageview' AND $uncertain),0) AS suspect,
+      COALESCE(SUM(event_type='click' AND $human),0) AS clicks,
+      COUNT(DISTINCT CASE WHEN event_type='click' AND $human THEN visitor_day_hash END) AS engaged_ids
+      FROM analytics_events WHERE $where");
     $summary->execute($params);
     $bucket=$range['hourly']?"DATE_FORMAT(occurred_at,'%Y-%m-%d %H:00:00')":"event_day";
-    $series=$db->prepare("SELECT $bucket AS bucket, SUM(event_type='pageview' AND is_bot=0) AS views,SUM(event_type='pageview' AND is_bot=1) AS bots,SUM(event_type='click') AS clicks FROM analytics_events WHERE $where GROUP BY bucket ORDER BY bucket");
+    $series=$db->prepare("SELECT $bucket AS bucket,
+      COALESCE(SUM(event_type='pageview' AND $human),0) AS views,
+      COALESCE(SUM(event_type='pageview' AND $declared),0) AS bots,
+      COALESCE(SUM(event_type='pageview' AND $uncertain),0) AS suspect,
+      COALESCE(SUM(event_type='click' AND $human),0) AS clicks
+      FROM analytics_events WHERE $where GROUP BY bucket ORDER BY bucket");
     $series->execute($params);
-    $query=function(string $column,string $whereExtra='',int $max=8)use($db,$where,$params):array{
-        $allowed=['page_path','target','source','referrer_host','country_name','region','bot_name','device'];
+    $pageFilter="event_type='pageview' AND (".$filters[$group].")";
+    $query=function(string $column,string $kind='pages',int $max=8)use($db,$where,$params,$pageFilter):array{
+        $allowed=['page_path','target','source','referrer_host','country_name','region','bot_name','device','campaign'];
         if(!in_array($column,$allowed,true))throw new InvalidArgumentException('Dimensão inválida');
-        $extra=['pages'=>"event_type='pageview' AND is_bot=0",'clicks'=>"event_type='click'",'bots'=>'is_bot=1'];
-        $filter=$extra[$whereExtra]??"event_type='pageview' AND is_bot=0";
+        $filter=$kind==='clicks'?"event_type='click' AND is_bot=0":$pageFilter;
+        if($column==='campaign')$filter.=" AND campaign<>''";
         $s=$db->prepare("SELECT `$column` AS label, COUNT(*) AS total FROM analytics_events WHERE $where AND $filter GROUP BY `$column` ORDER BY total DESC LIMIT ".(int)$max);
         $s->execute($params);return $s->fetchAll();
     };
+    $s=$summary->fetch()?:[];
+    $pages=(int)($s['views']??0)+(int)($s['bots']??0)+(int)($s['suspect']??0);
     return ['period'=>$range['period'],'days'=>$range['days'],'label'=>$range['label'],'hourly'=>$range['hourly'],
-      'summary'=>$summary->fetch()?:[],'series'=>analytics_complete_series($series->fetchAll(),$range),
-      'pages'=>$query('page_path','pages'),'clicks'=>$query('target','clicks'),
+      'group'=>$group,'pageviews_total'=>$pages,'summary'=>$s,
+      'series'=>analytics_complete_series($series->fetchAll(),$range),
+      'pages'=>$query('page_path'),'clicks'=>$query('target','clicks'),
       'sources'=>$query('source'),'referrers'=>$query('referrer_host'),
       'countries'=>$query('country_name'),'regions'=>$query('region'),
-      'devices'=>$query('device'),'robots'=>$query('bot_name','bots')];
+      'devices'=>$query('device'),'robots'=>$query('bot_name'),'campaigns'=>$query('campaign')];
 }
 /** Somente IDs de medição GA4; não aceita tags HTML, GTM ou código JavaScript arbitrário. */
 function analytics_ga4_measurement_id(string $id): string {

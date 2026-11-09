@@ -29,18 +29,42 @@ function analytics_secret(): string {
 function analytics_visitor_hash(string $ip,string $ua,string $day,string $secret): string {
     return hash_hmac('sha256',$day."\0".$ip."\0".$ua,$secret);
 }
+/** Declaração de agente de rede; NÃO confirma identidade por DNS/IP do provedor. */
 function analytics_bot(string $ua): string {
-    if($ua==='')return 'Automação não identificada';
+    if(trim($ua)==='')return 'Automação não identificada';
     foreach([
-      'Googlebot'=>'googlebot','Bingbot'=>'bingbot','DuckDuckBot'=>'duckduckbot','Baiduspider'=>'baiduspider',
-      'YandexBot'=>'yandexbot','Applebot'=>'applebot','GPTBot'=>'gptbot','ChatGPT-User'=>'chatgpt-user',
-      'Facebook'=>'facebookexternalhit','WhatsApp'=>'whatsapp','Telegram'=>'telegrambot',
-      'Headless'=>'(headlesschrome|phantomjs|puppeteer|playwright|selenium|webdriver)','curl'=>'curl/','wget'=>'wget/','Python'=>'(python-requests|python-urllib|aiohttp)',
+      'Googlebot'=>'googlebot','Google Outros'=>'(googleother|google-inspectiontool|adsbot-google|mediapartners-google)',
+      'Bingbot'=>'bingbot','DuckDuckBot'=>'duckduckbot','Baiduspider'=>'baiduspider',
+      'YandexBot'=>'yandexbot','Applebot'=>'applebot','GPTBot'=>'gptbot',
+      'OAI-SearchBot'=>'oai-searchbot','ChatGPT-User'=>'chatgpt-user',
+      'ClaudeBot'=>'(claudebot|claude-searchbot|claude-user)',
+      'PerplexityBot'=>'perplexitybot','Amazonbot'=>'amazonbot',
+      'CCBot'=>'ccbot','Bytespider'=>'bytespider','PetalBot'=>'petalbot',
+      'Facebook'=>'(facebookexternalhit|meta-externalagent|meta-externalfetcher)',
+      'WhatsApp'=>'whatsapp','Telegram'=>'telegrambot',
+      'Redes sociais'=>'(discordbot|slackbot|linkedinbot|twitterbot)',
+      'Headless'=>'(headlesschrome|phantomjs|puppeteer|playwright|selenium|webdriver)',
+      'curl'=>'curl/','wget'=>'wget/',
+      'Python'=>'(python-requests|python-urllib|aiohttp|python-httpx)',
       'Cliente HTTP'=>'(go-http-client|libwww-perl|node-fetch|httpx/|axios/|scrapy/|okhttp/|java/)',
-      'Monitoramento'=>'(uptimerobot|statuscake|pingdom|site24x7|datadog|bytespider|petalbot|ccbot|semrushbot)',
+      'Monitoramento'=>'(uptimerobot|statuscake|pingdom|site24x7|datadog)',
       'Scanner'=>'(scrapy|spider|crawler|bot/|\bbot\b|uptime|scanner|httpclient|ahrefs|semrush)'
-    ] as $name=>$pattern){if($pattern[0]==='(' ? preg_match('~'.$pattern.'~i',$ua) : stripos($ua,$pattern)!==false)return $name;}
+    ] as $name=>$pattern){
+        if(str_starts_with($pattern,'(') ? preg_match('~'.$pattern.'~i',$ua) : stripos($ua,$pattern)!==false)return $name;
+    }
     return '';
+}
+/** Classificação heurística, sem prometer comprovação de pessoa ou crawler. */
+function analytics_traffic_class(string $botName): string {
+    if($botName==='')return 'human';
+    return in_array($botName,[
+       'Automação não identificada','Volume suspeito','Automação suspeita',
+       'Headless','curl','wget','Python','Cliente HTTP','Scanner'
+    ],true) || str_starts_with($botName,'Suspeito:') ? 'suspect' : 'bot';
+}
+/** Expressão constante para manter a leitura do histórico compatível com a classificação PHP. */
+function analytics_suspect_sql(): string {
+    return "(bot_name IN ('Automação não identificada','Volume suspeito','Automação suspeita','Headless','curl','wget','Python','Cliente HTTP','Scanner') OR bot_name LIKE 'Suspeito:%')";
 }
 function analytics_device(string $ua): string {
     if(analytics_bot($ua)!=='')return 'robô';

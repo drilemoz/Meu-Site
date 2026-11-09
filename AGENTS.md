@@ -1,6 +1,14 @@
-# Diretrizes de manutenção — Meu Site (v1.0.139)
+# Diretrizes de manutenção — Meu Site (v1.0.140)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Métricas do portal (1.0.140)
+
+- Sem nova tabela nem DDL no atualizador: preservar schema 37/backup v12. A segmentação é derivada de `analytics_events.is_bot` e `bot_name` histórico, não reclassifica registros permanentemente.
+- Nunca chamar evento de "humano comprovado": a categoria é apenas "público provável". Bots são declarados pelo User-Agent (não validados por DNS/IP); suspeitos incluem automação genérica e rajadas; falsos positivos/negativos são possíveis.
+- Manter GPC, DNT, opt-out, HMAC diário, IP bruto fora do banco, retenção de 90 dias e inclusão de métricas somente das rotas públicas existentes.
+- `app/analytics_helpers.php` e `app/analytics.php` precisam classificar de forma consistente. As consultas de relatórios devem usar filtros fixos, parâmetros SQL para o período e dimensões em allowlist. A data/hora do registro e do limite por minuto dependem de PHP em America/Sao_Paulo, não de `NOW()` do banco.
+- Atualizar `tests/analytics_audience_240.php` e a suíte de regressão. Não inserir eventos artificiais no banco de produção, não confundir métricas locais com GA4.
 
 ## Segurança de implantação VPS (1.0.139)
 

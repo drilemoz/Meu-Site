@@ -42,7 +42,7 @@ class FakeAnalyticsStatement168 extends PDOStatement {
 }
 $db=new FakeAnalyticsPDO168();
 $out=analytics_admin_data($db,'24h',$now);
-check168(count($db->queries)===10,'resumo, gráfico e oito dimensões executados');
+check168(count($db->queries)===11,'resumo, gráfico e nove dimensões executados');
 check168(str_contains($db->queries[1],'DATE_FORMAT(occurred_at') && str_contains($db->queries[1],'GROUP BY bucket'),'consulta horária usa data e hora');
 check168(str_contains($db->queries[0],'occurred_at >= ?')&&str_contains($db->queries[0],'occurred_at <= ?')&&str_contains($db->queries[0],'event_day >= ?'),'filtro exato com índice existente de dia');
 check168($out['period']==='24h'&&$out['hourly']===true,'formato de dados retorna granularidade');

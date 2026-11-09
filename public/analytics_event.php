@@ -26,8 +26,8 @@ try{
     $db=db();
     // limite por visitante/dia em pequena janela para reduzir spam de cliques
     $hash=analytics_visitor_hash(analytics_client_ip($_SERVER),substr((string)($_SERVER['HTTP_USER_AGENT']??''),0,240),date('Y-m-d'),analytics_secret());
-    $st=$db->prepare("SELECT COUNT(*) FROM analytics_events WHERE visitor_day_hash=? AND event_type='click' AND occurred_at >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)");
-    $st->execute([$hash]);
+    $st=$db->prepare("SELECT COUNT(*) FROM analytics_events WHERE visitor_day_hash=? AND event_type='click' AND occurred_at >= ?");
+    $st->execute([$hash,date('Y-m-d H:i:s',time()-60)]);
     if((int)$st->fetchColumn()<30)analytics_log($db,'click',$data['page'],$data['target'],$_SERVER,$_COOKIE);
 }catch(Throwable){/* Métricas não devem derrubar a navegação. */}
 http_response_code(204);
