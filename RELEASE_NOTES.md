@@ -1,3 +1,11 @@
+## Versão 1.0.147
+
+A busca automática do cabeçalho ganhou painel compacto com ícones por tipo de resultado, títulos de até duas linhas, destaque seguro da correspondência, identificação discreta de Notícia/Editoria/Ônibus e link inferior para mais notícias. Menos espaços vazios e rolagem interna.
+
+A área de sugestões adapta a altura ao espaço livre informado pelo `visualViewport` no Android, incluindo a abertura e o fechamento do teclado. Foram preservados o limite de seis sugestões, o atraso de 300 ms, cancelamento, navegação com setas/Enter/Esc, fallback sem JavaScript e URLs locais. Mensagens de busca sem resultado ou indisponível são exibidas sem bloquear o envio GET.
+
+Não altera schema 37, backup v12, credenciais, rota de ônibus ou infraestrutura da EC2. Testes locais não representam validação no Chrome Android ou na AWS.
+
 ## Versão 1.0.146
 
 O quadro de ônibus da página inicial foi reduzido: um único card “Próximo ônibus” exibe apenas a primeira saída programada, com horário, dia, destino e contagem até a partida. Foram removidos “TRANSPORTE REGIONAL”, “Saídas programadas”, empresa/ponto, partidas adicionais e o aviso extenso do rodapé. “Ver horários” continua abrindo a página completa.

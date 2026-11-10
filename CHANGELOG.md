@@ -1,3 +1,9 @@
+## 1.0.147 — Sugestões de pesquisa compactas e responsivas (2026-11-10)
+
+- Redesenhado o menu de sugestões de busca: linhas horizontais com ícones de notícia/editoria/ônibus, tipo discreto, títulos em até duas linhas, destaque da parte procurada e setas de navegação. Mantidas acessibilidade de teclado e links gerados pela API.
+- O painel possui cabeçalho curto, rolagem própria, rodapé para o acervo de notícias, estados sem resultado/erro e altura adaptável ao teclado móvel via `visualViewport` com fallback.
+- Sem alterações de backend, schema 37, backup v12 ou integração AWS. Validar na EC2 após instalar o pacote.
+
 ## 1.0.146 — Próximo ônibus compacto (2026-11-10)
 
 - A home agora mostra apenas a partida cronologicamente mais próxima saindo da cidade configurada. Reduzido o espaço vertical e removidas as informações de empresa, ponto e o texto de advertência deste card.

@@ -1,6 +1,13 @@
-# Diretrizes de manutenção — Meu Site (v1.0.146)
+# Diretrizes de manutenção — Meu Site (v1.0.147)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Sugestões compactas de busca (1.0.147)
+
+- Manter endpoint `api_search.php` e a busca sem JavaScript; renderizar notícias, editorias e trajetos em linhas curtas com ícone, duas linhas de título e tipo discreto.
+- Não usar `innerHTML` com resultados da API: construir ícones e destaques com elementos e `textContent`; manter limites, debounce, cancelamento, teclado e escaping.
+- No Android, limitar altura pelo espaço do `visualViewport`, rolagem apenas dentro da lista, e manter o link para o acervo de **notícias** (a página de busca não pesquisa ônibus).
+- Não alterar schema 37, backup v12, home de ônibus, serviços EC2 ou páginas de editorias. Validar CSS compilado e `tests/search_suggestions_ui_247.py`.
 
 ## Home e busca (1.0.146)
 

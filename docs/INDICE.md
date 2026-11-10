@@ -1,5 +1,6 @@
-# Documentação atual do Meu Site (1.0.146)
+# Documentação atual do Meu Site (1.0.147)
 
+- [Busca compacta 1.0.147](BUSCA_UI_147.md) — sugestões adaptadas ao teclado móvel, ícones por tipo e rolagem interna.
 - [Home: ônibus compacto 1.0.146](HOME_ONIBUS_COMPACTO_146.md) — um horário, interface enxuta, preservando o quadro completo.
 - [Home: busca e ônibus 1.0.145](HOME_BUSCA_ONIBUS_145.md) — troca dos filtros da página inicial por saídas programadas e sugestões automáticas.
 - [Editor mobile 1.0.143](EDITOR_UI_143.md) — botões Gemini visíveis, seleção de imagens e publicação compacta.
