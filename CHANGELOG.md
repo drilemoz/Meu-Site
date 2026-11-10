@@ -1,3 +1,17 @@
+## 1.0.145 — Busca automática e ônibus no lugar dos filtros (2026-11-10)
+
+- Removida da home a faixa horizontal "Todas / Geral / Cidade / Política / Eventos", sem eliminar a navegação inferior ou as editorias.
+- Card "Próximos ônibus" ocupa exatamente esse espaço: mostra até três saídas programadas saindo da cidade configurada, com destino, dia, hora, empresa, ponto e contagem regressiva. Sem dados cadastrados ou quando a consulta falha, exibe mensagem honesta.
+- Pesquisa do topo oferece sugestões de notícias publicadas, editorias e trechos de linhas ativas enquanto se digita; há atraso de 300 ms, cancelamento, teclado, limites de consulta e fallback sem JS.
+- Não adiciona horários fictícios, GPS, esquema SQL, segredos ou alteração de infraestrutura. Schema 37 e backup v12 preservados. Testes locais; verificar UX e MariaDB reais no Android/EC2 antes da liberação pública. Guia: `docs/HOME_BUSCA_ONIBUS_145.md`.
+
+## 1.0.144 — Vistoria de permissões de atualização (2026-11-10)
+
+- Corrigido o falso bloqueio de arquivos `VERSION`, `app/updater.php` e `public/admin.php` marcados como somente leitura quando **o diretório pai é gravável pela conta de deploy**. A instalação já usa `tempnam()` e `rename()`, sem exigir escrita no inode anterior.
+- Vistoria verifica leitura do arquivo original para backup, permissão de escrita/travessia da pasta que recebe a troca e bloqueia links simbólicos/caminhos proibidos. Reporta a razão objetiva por caminho; não tenta `chmod`, `chown` nem suprime falhas reais.
+- VPS `IGUA_DEPLOY_VPS=1` continua exigindo conta dedicada e worker com heartbeat válido; não concede escrita de PHP-FPM ao código. Nenhuma mudança no banco: schema 37, backup v12, autenticação, CSRF e rollback preservados.
+- Adicionado teste isolado de destinos somente leitura e diretórios protegidos. Com `app/`, `public/` ou raiz sem escrita, corrigir permissões no servidor com SSH/gerenciador da hospedagem; um ZIP não consegue elevar privilégios.
+
 ## 1.0.143 — Editor mobile: Gemini legível, publicação e fotos (2026-11-09)
 
 - Corrigidos os atalhos Gemini aparentemente vazios: `-webkit-text-fill-color: transparent` deixa de afetar botões inteiros, passando a atuar só no símbolo ✦. Título e resumo mostram "Gemini IA"; a barra SEO mantém identificação acessível.

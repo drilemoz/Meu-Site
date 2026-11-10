@@ -1,5 +1,6 @@
-# Documentação atual do Meu Site (1.0.143)
+# Documentação atual do Meu Site (1.0.145)
 
+- [Home: busca e ônibus 1.0.145](HOME_BUSCA_ONIBUS_145.md) — troca dos filtros da página inicial por saídas programadas e sugestões automáticas.
 - [Editor mobile 1.0.143](EDITOR_UI_143.md) — botões Gemini visíveis, seleção de imagens e publicação compacta.
 
 Use os arquivos abaixo como guias principais. Os relatórios `VALIDACAO_*`, `RELATORIO_ARQUIVOS_LINHAS_*` e instruções de atualizadores antigos foram retirados do ZIP; seu histórico permanece nas versões anteriores do repositório, se disponíveis.

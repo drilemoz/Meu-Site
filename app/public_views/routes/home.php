@@ -9,7 +9,34 @@
     <aside class="popular-box"><div class="box-heading"><h2><span>🔥</span> Mais lidas</h2><a href="<?= h(url(['p'=>'buscar'])) ?>">Ver todas →</a></div><?php foreach ($popular as $i=>$p): ?><a class="popular-item" href="<?= h(news_link($p)) ?>"><span class="rank"><?= $i+1 ?></span><span><strong><?= h($p['title']) ?></strong><small>◷ <?= h(readable_date($p['published_at'])) ?></small></span></a><?php endforeach; ?><?php if (!$popular): ?><p class="muted">Sem notícias publicadas.</p><?php endif; ?><?php ad_display_slot($db,'p05'); ?></aside>
   </div>
   <?php ad_display_slot($db,'p01'); ?>
-  <div class="categories-strip"><a class="chip selected" href="/index.php">Todas</a><?php foreach ($categories as $c): ?><a class="chip" href="<?= h(cat_link($c)) ?>"><span style="color:<?= h($c['color']) ?>"><?= h($c['icon']) ?></span><?= h($c['name']) ?></a><?php endforeach; ?></div>
+  <?php
+    require_once __DIR__.'/../../bus_home.php';
+    $homeBuses=bus_home_summary($db,setting('city','Iguatama - MG'),3);
+    $busNow=new DateTimeImmutable('now',new DateTimeZone('America/Sao_Paulo'));
+  ?>
+  <section class="home-bus" aria-labelledby="home-bus-heading">
+    <div class="home-bus-heading"><div><span class="home-bus-eyebrow">TRANSPORTE REGIONAL</span><h2 id="home-bus-heading">🚌 Próximos ônibus</h2><p>Saídas programadas de <?=h($homeBuses['origin'])?></p></div><a class="home-bus-all" href="/index.php?p=onibus">Ver horários <span aria-hidden="true">→</span></a></div>
+    <?php if ($homeBuses['status']==='ok'): ?>
+      <div class="home-bus-list">
+        <?php foreach ($homeBuses['trips'] as $trip): ?>
+          <a class="home-bus-trip" href="<?=h(url(['p'=>'onibus','origem'=>$homeBuses['origin'],'destino'=>$trip['destination_city']]))?>">
+            <span class="home-bus-clock"><strong><?=h($trip['departs_at']->format('H:i'))?></strong><small><?=h(bus_calendar_label($trip['departs_at'],$busNow))?></small></span>
+            <span class="home-bus-route"><strong><?=h($trip['destination_city'])?></strong><small><?=h($trip['company']?:$trip['route_name'])?> · <?=h($trip['origin_label']?:'Ponto a confirmar')?></small></span>
+            <span class="home-bus-remaining" data-bus-time="<?=h($trip['departs_at']->format('c'))?>"><?=h(bus_relative_departure($trip['departs_at'],$busNow))?></span>
+          </a>
+        <?php endforeach; ?>
+      </div>
+    <?php else: ?>
+      <p class="home-bus-empty"><?php
+        echo h(match ($homeBuses['status']) {
+          'unavailable'=>'Consulta de horários indisponível no momento.',
+          'no_departures'=>'Não há saídas programadas nos próximos 14 dias.',
+          default=>'Ainda não há partidas cadastradas saindo desta cidade.'
+        });
+      ?></p>
+    <?php endif; ?>
+    <p class="home-bus-disclaimer">Horários cadastrados, sem localização em tempo real. Confirme a partida com a empresa.</p>
+  </section>
   <div class="section-heading headline-heading"><h2>Últimas notícias</h2><a href="<?= h(url(['p'=>'buscar'])) ?>">Ver todas →</a></div>
   <?php if ($recent): ?><section class="cards-grid"><?php foreach (array_slice($recent,0,4) as $a) news_card($a); ?></section><?php else: ?><p class="empty-text">Ainda não existem notícias recentes.</p><?php endif; ?>
   <?php ad_display_slot($db,'p02'); ?>

@@ -1,6 +1,18 @@
-# Diretrizes de manutenção — Meu Site (v1.0.143)
+# Diretrizes de manutenção — Meu Site (v1.0.145)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Home e busca (1.0.145)
+
+- Remover somente a faixa `categories-strip` da home; categorias continuam nas demais navegações. O resumo `home-bus` deve consultar as linhas existentes com `America/Sao_Paulo` e jamais criar horários/chegadas não cadastrados.
+- Sugestões do topo: somente notícias publicadas, editorias e trechos ativos, endpoint GET público com parâmetros limitados, escaping e JSON, sem duplicar a busca do acervo e com fallback sem JavaScript.
+- CSS compilado via `tools/build_css.py`, scripts com versão para cache, testes de funcionalidade e schema 37 inalterado. Documentação `docs/HOME_BUSCA_ONIBUS_145.md`.
+
+## Correção da vistoria de atualização (1.0.144)
+
+- Para atualização direta em hospedagem compartilhada, `igua_updater_code_target_issue()` precisa verificar capacidade de renomeação no **diretório pai existente mais profundo**, não escrita no arquivo que será substituído. Arquivos somente leitura podem ser substituídos atomicamente por `rename()` quando o diretório é gravável. O arquivo antigo precisa permanecer legível para backup e links simbólicos continuam recusados.
+- A vistoria é somente leitura, deve relatar razões por caminho e nunca executar `chmod`, `chown` ou ignorar falha de permissões do diretório. Em VPS manter `IGUA_DEPLOY_VPS=1`, worker dedicado e diretórios de código inacessíveis para escrita pelo PHP-FPM.
+- Testar `tests/updater_code_permissions_244.php` e manter o ZIP de atualização sem `storage/`, credenciais ou arquivos privados. Nenhuma alteração de schema 37 ou backup v12.
 
 ## Editor mobile e publicação (1.0.143)
 

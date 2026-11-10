@@ -522,6 +522,33 @@ function igua_updater_history(int $limit=6,?string $jobsRoot=null): array {
 }
 
 /**
+ * Conferência de destino para substituição atômica por rename().
+ * O destino existente precisa ser legível para backup, mas NÃO gravável:
+ * tempnam()/rename() trabalham no diretório pai. Exigir escrita no próprio
+ * arquivo causava um falso bloqueio em arquivos 0444 de hospedagem compartilhada.
+ * A vistoria é somente leitura; não altera chmod, ownership ou arquivos.
+ */
+function igua_updater_code_target_issue(string $relative): ?string {
+    if(!igua_updater_safe_path($relative))return 'caminho não autorizado';
+    if(!is_dir(IGUA_ROOT)||is_link(IGUA_ROOT))return 'raiz do projeto insegura';
+    $cursor=IGUA_ROOT;
+    foreach(explode('/',dirname($relative)) as $part){
+        if($part==='.')continue;
+        $next=$cursor.'/'.$part;
+        if(is_link($next))return 'link simbólico em pasta do código';
+        if(!file_exists($next))break; // A instalação criará pastas que faltam.
+        if(!is_dir($next))return 'componente da pasta não é diretório';
+        $cursor=$next;
+    }
+    $target=IGUA_ROOT.'/'.$relative;
+    if(is_link($target))return 'arquivo é link simbólico';
+    if(file_exists($target)&&!is_file($target))return 'destino não é arquivo comum';
+    if(is_file($target)&&!is_readable($target))return 'arquivo não pode ser lido para backup';
+    if(!is_writable($cursor)||!is_executable($cursor))return 'pasta de destino sem escrita/travessia';
+    return null;
+}
+
+/**
  * Diagnóstico sem escrita: o painel não muda arquivos nem o banco ao vistoriar.
  * O status "aviso" descreve limites não verificáveis (ex.: cota da hospedagem),
  * e nunca deve ser mostrado como um teste real de backup ou deploy bem-sucedido.
@@ -598,27 +625,23 @@ function igua_updater_preflight(?PDO $db=null, ?array $manifest=null): array {
         }
     }else{
     $paths=$manifest['files']??[['path'=>'VERSION'],['path'=>'app/updater.php'],['path'=>'public/admin.php']];
-    $bad=[];$examined=0;
+    $bad=[];$examined=0;$readonly=0;
     foreach($paths as $entry){
         $rel=$entry['path']??null;
-        if(!is_string($rel)||!igua_updater_safe_path($rel)){$bad[]='caminho inválido';continue;}
+        if(!is_string($rel)){$bad[]='caminho inválido';continue;}
         $examined++;
-        $target=IGUA_ROOT.'/'.$rel;$parent=dirname($target);$cursor=$parent;$unsafe=false;
-        // Sem mkdir neste diagnóstico: verifica o ancestral existente.
-        for($i=0;$i<32;$i++){
-            if(is_link($cursor)){$unsafe=true;break;}
-            if(file_exists($cursor))break;
-            $next=dirname($cursor);
-            if($next===$cursor){$unsafe=true;break;}
-            $cursor=$next;
+        $issue=igua_updater_code_target_issue($rel);
+        if($issue!==null){
+            if(count($bad)<5)$bad[]=$rel.' ('.$issue.')';
+            continue;
         }
-        if($unsafe||!is_dir($cursor)||is_link($target)||
-           (file_exists($target)&&(!is_file($target)||!is_writable($target)))||
-           !is_writable($cursor)){
-            if(count($bad)<5)$bad[]=$rel;
-        }
+        $target=IGUA_ROOT.'/'.$rel;
+        if(is_file($target)&&!is_writable($target))$readonly++;
     }
-    $add('Escrita do código',$bad?'falha':'ok',$bad?'Sem permissão ou caminho inseguro: '.implode(', ',$bad):'Permissões aparentes para '.$examined.' arquivo(s)');
+    $description=$bad?'Destino não substituível com segurança: '.implode(', ',$bad):
+        'Pastas graváveis para troca atômica de '.$examined.' arquivo(s)'.
+        ($readonly>0?'; '.$readonly.' arquivo(s) somente leitura podem ser substituídos por rename()':'');
+    $add('Escrita do código',$bad?'falha':'ok',$description);
     }
     $disk=@disk_free_space(IGUA_STORAGE);
     if($disk===false)$add('Espaço disponível','aviso','Não foi possível consultar o espaço; a cota contratual deve ser verificada no Plesk');

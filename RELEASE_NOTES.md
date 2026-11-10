@@ -1,3 +1,17 @@
+## Versão 1.0.145
+
+A página inicial deixa de exibir a faixa horizontal de categorias ("Todas", "Geral", "Cidade", etc.). Em seu lugar aparece "Próximos ônibus", com até três partidas programadas e links ao quadro completo. Só aparecem horários efetivamente cadastrados; não se trata de localização ao vivo.
+
+A busca do topo passa a sugerir notícias publicadas, editorias e trajetos de ônibus durante a digitação. Continua possível pesquisar notícias pelo botão Buscar quando o JavaScript não funciona. Menus de categorias e barra inferior permanecem.
+
+Compatível com schema 37/backup v12, sem migração SQL. Validação local automatizada; testar com MariaDB/Chrome Android e na EC2 antes da atualização de produção. Consulte `docs/HOME_BUSCA_ONIBUS_145.md`.
+
+## Versão 1.0.144
+
+**Atualizador:** a vistoria deixa de reprovar automaticamente arquivos PHP e `VERSION` somente leitura se a pasta de destino permite substituição atômica por `rename()`. Exibe o motivo exato quando o diretório não é gravável, o arquivo não pode ser lido para backup ou há caminho inseguro. Mantidas as proteções de manifesto, backup, rollback e a separação do worker em VPS.
+
+**Atenção:** esta versão não altera permissões reais do servidor. Se o PHP não tiver escrita nos diretórios em hospedagem compartilhada, corrija o proprietário/permissões fora do painel. Na AWS EC2 use o worker `iguanews-deploy`, nunca dê escrita irrestrita ao `www-data`. Schema 37 e backup v12 inalterados; instalação real ainda precisa de teste no servidor.
+
 ## Versão 1.0.143
 
 **Melhorias solicitadas após teste no celular:** os atalhos Gemini do título, resumo e SEO deixam de parecer botões vazios e passam a ser claramente identificados. As ferramentas SEO e os botões da biblioteca quebram/reorganizam o layout sem cortar palavras.
