@@ -1,3 +1,5 @@
+> **1.0.146 (2026-11-10):** card de ônibus da home reduzido a uma única próxima partida com hora, destino, dia e contagem regressiva. Removidos subtítulos, empresa/ponto e aviso longo; quadro completo mantido. Sem mudanças de banco. Consulte `docs/HOME_ONIBUS_COMPACTO_146.md`.
+
 > **1.0.145 (2026-11-10):** faixa de categorias removida da home e substituída pelo card de próximas saídas programadas de ônibus. Pesquisa superior com sugestões automáticas de notícias, editorias e trechos cadastrados. Sem migração do banco. Consulte `docs/HOME_BUSCA_ONIBUS_145.md`.
 
 > **1.0.144 (2026-11-10):** vistoria do atualizador ajustada à substituição atômica: arquivos do código somente leitura não impedem atualização quando seus diretórios são graváveis pela conta de instalação. Caso a pasta esteja protegida, é preciso corrigir permissões no servidor ou configurar o worker na VPS. Consulte `docs/PERMISSOES_CODIGO_144.md`.
@@ -6,7 +8,7 @@
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.145** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.146** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 

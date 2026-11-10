@@ -1,6 +1,10 @@
-# Diretrizes de manutenção — Meu Site (v1.0.145)
+# Diretrizes de manutenção — Meu Site (v1.0.146)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Home e busca (1.0.146)
+
+- Na home, manter **uma única** próxima partida programada dentro de um card curto: hora, dia, destino e contagem; sem cabeçalhos auxiliares, empresa/ponto ou aviso de rodapé no resumo. Preservar link para o módulo de ônibus e estados de ausência/erro. `docs/HOME_ONIBUS_COMPACTO_146.md`.
 
 ## Home e busca (1.0.145)
 

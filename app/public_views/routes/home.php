@@ -11,31 +11,29 @@
   <?php ad_display_slot($db,'p01'); ?>
   <?php
     require_once __DIR__.'/../../bus_home.php';
-    $homeBuses=bus_home_summary($db,setting('city','Iguatama - MG'),3);
+    $homeBuses=bus_home_summary($db,setting('city','Iguatama - MG'),1);
     $busNow=new DateTimeImmutable('now',new DateTimeZone('America/Sao_Paulo'));
   ?>
   <section class="home-bus" aria-labelledby="home-bus-heading">
-    <div class="home-bus-heading"><div><span class="home-bus-eyebrow">TRANSPORTE REGIONAL</span><h2 id="home-bus-heading">🚌 Próximos ônibus</h2><p>Saídas programadas de <?=h($homeBuses['origin'])?></p></div><a class="home-bus-all" href="/index.php?p=onibus">Ver horários <span aria-hidden="true">→</span></a></div>
-    <?php if ($homeBuses['status']==='ok'): ?>
-      <div class="home-bus-list">
-        <?php foreach ($homeBuses['trips'] as $trip): ?>
-          <a class="home-bus-trip" href="<?=h(url(['p'=>'onibus','origem'=>$homeBuses['origin'],'destino'=>$trip['destination_city']]))?>">
-            <span class="home-bus-clock"><strong><?=h($trip['departs_at']->format('H:i'))?></strong><small><?=h(bus_calendar_label($trip['departs_at'],$busNow))?></small></span>
-            <span class="home-bus-route"><strong><?=h($trip['destination_city'])?></strong><small><?=h($trip['company']?:$trip['route_name'])?> · <?=h($trip['origin_label']?:'Ponto a confirmar')?></small></span>
-            <span class="home-bus-remaining" data-bus-time="<?=h($trip['departs_at']->format('c'))?>"><?=h(bus_relative_departure($trip['departs_at'],$busNow))?></span>
-          </a>
-        <?php endforeach; ?>
-      </div>
+    <div class="home-bus-heading">
+      <h2 id="home-bus-heading">🚌 Próximo ônibus</h2>
+      <a class="home-bus-all" href="/index.php?p=onibus">Ver horários <span aria-hidden="true">→</span></a>
+    </div>
+    <?php if ($homeBuses['status']==='ok' && !empty($homeBuses['trips'])): $trip=$homeBuses['trips'][0]; ?>
+      <a class="home-bus-departure" href="<?=h(url(['p'=>'onibus','origem'=>$homeBuses['origin'],'destino'=>$trip['destination_city']]))?>">
+        <span class="home-bus-clock"><strong><?=h($trip['departs_at']->format('H:i'))?></strong><small><?=h(bus_calendar_label($trip['departs_at'],$busNow))?></small></span>
+        <span class="home-bus-route"><strong><?=h($trip['destination_city'])?></strong></span>
+        <span class="home-bus-remaining" data-bus-time="<?=h($trip['departs_at']->format('c'))?>"><?=h(bus_relative_departure($trip['departs_at'],$busNow))?></span>
+      </a>
     <?php else: ?>
       <p class="home-bus-empty"><?php
         echo h(match ($homeBuses['status']) {
-          'unavailable'=>'Consulta de horários indisponível no momento.',
-          'no_departures'=>'Não há saídas programadas nos próximos 14 dias.',
-          default=>'Ainda não há partidas cadastradas saindo desta cidade.'
+          'unavailable'=>'Horários indisponíveis no momento.',
+          'no_departures'=>'Sem próximas partidas programadas.',
+          default=>'Nenhuma partida cadastrada para esta cidade.'
         });
       ?></p>
     <?php endif; ?>
-    <p class="home-bus-disclaimer">Horários cadastrados, sem localização em tempo real. Confirme a partida com a empresa.</p>
   </section>
   <div class="section-heading headline-heading"><h2>Últimas notícias</h2><a href="<?= h(url(['p'=>'buscar'])) ?>">Ver todas →</a></div>
   <?php if ($recent): ?><section class="cards-grid"><?php foreach (array_slice($recent,0,4) as $a) news_card($a); ?></section><?php else: ?><p class="empty-text">Ainda não existem notícias recentes.</p><?php endif; ?>

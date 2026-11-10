@@ -63,7 +63,7 @@ $db->rows=[
 ];
 $summary=bus_home_summary($db,'Iguatama - MG');
 check245($summary['origin']==='Iguatama' && $summary['status']==='ok','origem configurada e partidas existentes');
-check245(count($summary['trips'])>=1 && count($summary['trips'])<=3,'máximo de três partidas na home');
+check245(count($summary['trips'])>=1 && count($summary['trips'])<=3,'limite genérico do agregador preservado');
 check245($summary['trips'][0]['destination_city']==='Bambuí' && $summary['trips'][0]['departs_at']>=$now,'destino e horário válidos calculados pelo módulo existente');
 $db->rows['FROM bus_departures']=[];
 check245(bus_home_summary($db,'Iguatama - MG')['status']==='no_departures','sem horários, não fabrica partida');

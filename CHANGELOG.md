@@ -1,3 +1,9 @@
+## 1.0.146 — Próximo ônibus compacto (2026-11-10)
+
+- A home agora mostra apenas a partida cronologicamente mais próxima saindo da cidade configurada. Reduzido o espaço vertical e removidas as informações de empresa, ponto e o texto de advertência deste card.
+- Cabeçalho simplificado para “Próximo ônibus” e link “Ver horários”. Na linha: horário, Hoje/Amanhã, destino e tempo restante; a página completa de transporte mantém suas informações.
+- Mantidos fallback quando não há partidas ou quando o banco falha, busca automática e navegação já existentes. Sem alteração de SQL, schema 37, backup v12, permissões ou AWS. Testes locais, implantação real pendente. `docs/HOME_ONIBUS_COMPACTO_146.md`.
+
 ## 1.0.145 — Busca automática e ônibus no lugar dos filtros (2026-11-10)
 
 - Removida da home a faixa horizontal "Todas / Geral / Cidade / Política / Eventos", sem eliminar a navegação inferior ou as editorias.

@@ -1,3 +1,9 @@
+## Versão 1.0.146
+
+O quadro de ônibus da página inicial foi reduzido: um único card “Próximo ônibus” exibe apenas a primeira saída programada, com horário, dia, destino e contagem até a partida. Foram removidos “TRANSPORTE REGIONAL”, “Saídas programadas”, empresa/ponto, partidas adicionais e o aviso extenso do rodapé. “Ver horários” continua abrindo a página completa.
+
+A busca automática e as demais áreas do portal permanecem inalteradas. Sem mudanças em banco de dados (schema 37), backup v12 ou infraestrutura. Testes locais realizados; ainda falta validar no Chrome Android e na EC2.
+
 ## Versão 1.0.145
 
 A página inicial deixa de exibir a faixa horizontal de categorias ("Todas", "Geral", "Cidade", etc.). Em seu lugar aparece "Próximos ônibus", com até três partidas programadas e links ao quadro completo. Só aparecem horários efetivamente cadastrados; não se trata de localização ao vivo.
