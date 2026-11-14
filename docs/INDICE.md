@@ -1,8 +1,5 @@
-# Documentação atual do Meu Site (1.0.150)
+# Documentação atual do Meu Site (1.0.147)
 
-- [Leitura de notícias 1.0.150](LEITURA_NOTICIAS_150.md) — metadados, tipografia móvel e matérias relacionadas.
-- [Correção da busca 1.0.149](CORRECAO_BUSCA_149.md) — notícias/editorias nas sugestões com URLs amigáveis e legadas.
-- [Experiência pública 1.0.148](EXPERIENCIA_PUBLICA_148.md) — compartilhar matérias, navegação por teclado e carregamento de imagens.
 - [Busca compacta 1.0.147](BUSCA_UI_147.md) — sugestões adaptadas ao teclado móvel, ícones por tipo e rolagem interna.
 - [Home: ônibus compacto 1.0.146](HOME_ONIBUS_COMPACTO_146.md) — um horário, interface enxuta, preservando o quadro completo.
 - [Home: busca e ônibus 1.0.145](HOME_BUSCA_ONIBUS_145.md) — troca dos filtros da página inicial por saídas programadas e sugestões automáticas.

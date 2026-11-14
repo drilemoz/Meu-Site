@@ -147,15 +147,3 @@ html,body{max-width:100%;overflow-x:clip}
 .home-bus-empty{margin:0;padding:9px 0 1px;border-top:1px solid #e2eaf5;color:#5c7190;font-size:12px}
 @media(max-width:760px){.home-bus{padding:11px 13px;margin:11px 0 16px}.home-bus-heading h2{font-size:17px}.home-bus-departure{gap:10px}.home-bus-remaining{font-size:10px;max-width:105px}.header-search-suggestions{box-shadow:0 16px 28px #173a7933}}
 @media(max-width:350px){.home-bus-heading{gap:7px}.home-bus-heading h2{font-size:16px}.home-bus-all{font-size:11px}.home-bus-departure{gap:8px}.home-bus-clock{padding-right:8px}.home-bus-clock strong{font-size:21px}.home-bus-route strong{font-size:13px}.home-bus-remaining{max-width:85px}}
-
-/* v1.0.148 — navegação acessível e ações públicas nas notícias. */
-.skip-to-content{position:fixed;left:12px;top:10px;z-index:10001;background:#125bd3;color:#fff;font-size:14px;font-weight:800;border-radius:9px;padding:11px 15px;transform:translateY(-170%);transition:none}
-.skip-to-content:focus{transform:translateY(0);outline:3px solid #ffc536;outline-offset:2px}
-.site-header a:focus-visible,.site-header button:focus-visible,.page-main a:focus-visible,.page-main button:focus-visible,.bottom-nav a:focus-visible,.site-footer a:focus-visible{outline:3px solid #0c60dc;outline-offset:3px}
-.article-share{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 20px}
-.article-share button{min-height:42px;border:1px solid #cfdff3;border-radius:10px;background:#f5f9ff;color:#174b89;font-size:13px;font-weight:750;padding:8px 13px}
-.article-share button:hover,.article-share button:focus-visible{background:#e5f0ff;border-color:#90b8f5}
-.article-share-status{font-size:12px;color:#496783;line-height:1.5}
-.article-share-manual:not([hidden]){flex:1 1 100%;width:100%;min-width:0;border:1px solid #b6cae6;border-radius:8px;padding:10px 12px;font-size:13px;color:#284c75;background:white}
-@media(max-width:760px){.article-share{gap:7px;margin-bottom:16px}.article-share button{min-height:44px}.article-share-status{flex-basis:100%}}
-@media(prefers-reduced-motion:reduce){.site-header .btn,.page-main .btn,.page-main .news-card{transition:none}}

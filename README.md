@@ -1,9 +1,3 @@
-> **1.0.150 (2026-11-10):** leitura das matérias mais confortável no celular, tempo estimado de leitura e até três notícias relacionadas da mesma editoria. Nenhuma alteração do ADM, banco, ônibus ou AWS. Consulte `docs/LEITURA_NOTICIAS_150.md`.
-
-> **1.0.149 (2026-11-10):** corrigida regressão da busca automática que ocultava notícias/editorias em sites com URLs amigáveis habilitadas; o painel preserva links legados, ônibus e rejeita endereços externos. Consulte `docs/CORRECAO_BUSCA_149.md`.
-
-> **1.0.148 (2026-11-10):** melhorias focadas no site público: compartilhamento das matérias, navegação por teclado e prioridade de carregamento das imagens principais, sem modificar o ADM, banco ou configuração de servidor. Consulte `docs/EXPERIENCIA_PUBLICA_148.md`.
-
 > **1.0.147 (2026-11-10):** painel de sugestões da busca redesenhado com linhas compactas, ícones, texto destacado, rolagem interna e altura adaptativa para teclado Android. Continua sendo uma pesquisa progressiva com envio GET tradicional; sem alterações no banco. Consulte `docs/BUSCA_UI_147.md`.
 
 > **1.0.146 (2026-11-10):** card de ônibus da home reduzido a uma única próxima partida com hora, destino, dia e contagem regressiva. Removidos subtítulos, empresa/ponto e aviso longo; quadro completo mantido. Sem mudanças de banco. Consulte `docs/HOME_ONIBUS_COMPACTO_146.md`.
@@ -16,7 +10,7 @@
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.150** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.147** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 

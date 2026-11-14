@@ -160,6 +160,20 @@ sudo journalctl -u iguatama-deploy.service -n 80 --no-pager
 sudo systemctl enable --now iguatama-deploy.timer
 ```
 
+### Rotas de matérias e categorias em Nginx
+
+O portal usa o `public/index.php` como front controller. Quando `Usar URLs amigáveis` está ativado, os links de matérias ficam no formato `/noticia/slug` e as categorias em `/categoria/slug`. O Nginx **não lê `.htaccess`**; sem a regra abaixo, essas URLs podem retornar 404 mesmo que a página inicial funcione.
+
+Inclua `deploy/aws/nginx-public-routes.conf` dentro do bloco `server` HTTPS do portal. O arquivo define `location /` com fallback para `index.php`, preservando arquivos e diretórios existentes. Mantenha também o `location ~ \\.php$` que encaminha PHP ao socket correto. Não crie um segundo `location /` se o vhost já possuir um: nesse caso, incorpore somente a diretiva `try_files` ao bloco existente.
+
+```bash
+sudo nginx -T | grep -n -E 'server_name|location /|try_files|fastcgi_pass'
+# Depois de editar o vhost e incluir a regra:
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Teste uma matéria publicada e uma categoria usando os endereços `/noticia/SEU-SLUG` e `/categoria/SEU-SLUG`. Ambos devem responder HTTP 200. O endereço antigo `index.php?p=noticia&slug=SEU-SLUG` também deve continuar funcionando. Se o site usa URLs amigáveis desativadas, os links tradicionais continuam válidos sem essa regra; ela é necessária para as rotas amigáveis.
+
 ### IndexNow em Nginx
 
 Inclua `deploy/aws/nginx-indexnow.conf` no `server` HTTPS, **antes** do regex geral `location ~ \\.php$`. O snippet mostra `fastcgi_pass unix:/run/php/php8.3-fpm.sock` como **exemplo padrão**. Se o site usa pool dedicado, troque-o pelo socket `listen` real desse pool; não copie cegamente. Verifique com:

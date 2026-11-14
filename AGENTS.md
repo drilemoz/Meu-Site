@@ -1,26 +1,6 @@
-# Diretrizes de manutenção — Meu Site (v1.0.150)
+# Diretrizes de manutenção — Meu Site (v1.0.147)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
-
-## Experiência de leitura das matérias (1.0.150)
-
-- Somente tela pública `app/public_views/routes/article.php` e estilos do módulo `03-editorial-articles.css` foram alterados no código. Não modificar telas do ADM, dados, esquema 37, backup v12 ou EC2.
-- Tempo de leitura é estimativa do texto em blocos (ou corpo legado) a 200 palavras/minuto, no mínimo 1 minuto. Não confundir com métrica real.
-- Sugestões usam `fetch_news()` (filtro de publicadas e data já liberada), `category_id` e `exclude` para não repetir a matéria. Ocultar seção se vazia, não transformar falha na consulta em falha de exibição; escapar links/títulos.
-- Estilos restringidos às páginas de matéria; validar `tools/build_css.py --check`, `tests/public_article_250.php` e `tests/public_article_ui_250.py`, além das regressões anteriores.
-- Documentação: `docs/LEITURA_NOTICIAS_150.md`.
-
-## Correção de URLs da busca (1.0.149)
-
-- O endpoint `app/public_search.php` pode gerar links de artigos/editorias tanto por `/noticia/slug` e `/categoria/slug` com `seo_pretty_urls=1` quanto `/index.php?p=...` com SEO desligado; o JS deve aceitar ambos e continuar bloqueando URLs externas, `javascript:`, rotas arbitrárias e caminhos inválidos.
-- Não modificar ADM, lógica SQL, ordem das sugestões, dados, esquema 37/backup v12, ônibus ou configuração de deploy. Testar `tests/search_suggestions_ui_247.py` com URLs amigáveis e legadas.
-- Documentar em `docs/CORRECAO_BUSCA_149.md` e manter os arquivos de versão sincronizados.
-
-## Experiência pública (1.0.148)
-
-- Preservar o ADM integralmente. Compartilhamento ocorre somente após ação do visitante, com Web Share ou cópia manual no mesmo domínio; não introduzir rastreamento nem dados privados.
-- Adicionar link acessível para pular ao conteúdo, foco visível e fechamento do menu móvel por Escape/toque externo. Imagens principais têm prioridade e miniaturas mantêm lazy loading.
-- Testar `tests/public_ux_248.py` e manter `docs/EXPERIENCIA_PUBLICA_148.md` sincronizado. Schema 37 e backup v12 inalterados.
 
 ## Sugestões compactas de busca (1.0.147)
 

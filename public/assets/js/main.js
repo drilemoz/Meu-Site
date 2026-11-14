@@ -22,26 +22,11 @@
 (() => {
   const toggle = document.querySelector('#menuToggle');
   const menu = document.querySelector('#mainNav');
-  if (toggle && menu) {
-    const setOpen = open => {
-      menu.classList.toggle('open', open);
-      toggle.setAttribute('aria-expanded', String(open));
-      toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
-      toggle.textContent = open ? '✕' : '☰';
-    };
-    toggle.addEventListener('click', () => setOpen(!menu.classList.contains('open')));
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && menu.classList.contains('open')) {
-        setOpen(false);
-        toggle.focus();
-      }
-    });
-    document.addEventListener('click', event => {
-      if (menu.classList.contains('open') && !menu.contains(event.target) && !toggle.contains(event.target)) {
-        setOpen(false);
-      }
-    });
-  }
+  toggle?.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.textContent = open ? '✕' : '☰';
+  });
   // Confirmações no painel são tratadas pelo admin-ui.js, em fase de captura.
   if (!document.body.classList.contains('admin-body')) {
     document.querySelectorAll('[data-confirm]').forEach(el => {
