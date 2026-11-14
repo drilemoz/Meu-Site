@@ -2,11 +2,25 @@
 (()=>{'use strict';
  const form=document.querySelector('#news-form');if(!form)return;
  const notice=message=>{if(typeof window!=='undefined'&&window.IguaAdminUI?.notify)return window.IguaAdminUI.notify(message);if(typeof alert==='function')return alert(message);};
- const inputs=[{el:form.querySelector('[name=image]'),label:document.querySelector('#news-image-upload-feedback')},{el:form.querySelector('[name="gallery_files[]"]'),label:document.querySelector('#news-gallery-upload-feedback')}];
+ const inputs=[{el:form.querySelector('[name=image]'),label:document.querySelector('#news-image-upload-feedback')},{el:form.querySelector('[name="gallery_files[]"]'),label:document.querySelector('#news-gallery-upload-feedback')},{el:form.querySelector('[name=photo_zip]'),label:null},{el:form.querySelector('[name="attachment_files[]"]'),label:null}];
  const target=1450*1024; // Abaixo do upload_max_filesize padrão do PHP (2M).
  const pending=new Map(),errors=new Map(),selectionTokens=new WeakMap();
+ const SNAPSHOT_LIMIT=40*1024*1024; // Acima disso mantém o arquivo original para não estourar a memória do aparelho.
  function status(text,label){if(label)label.textContent=text;}
  function canvasJpeg(canvas,quality){return new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));}
+ // ERR_UPLOAD_FILE_CHANGED: o Chrome compara o arquivo do disco/galeria no momento do envio com o que foi
+ // escolhido. Se a foto foi movida, editada, sincronizada ou limpa do cache durante o preenchimento (o editor tem
+ // várias etapas), o envio inteiro falha. Copiar o conteúdo para a memória logo na seleção elimina essa dependência.
+ async function snapshotFile(file){
+   if(typeof file.arrayBuffer!=='function'||typeof File==='undefined'||typeof DataTransfer==='undefined'||file.size>SNAPSHOT_LIMIT)return file;
+   try{
+     const buffer=await file.arrayBuffer();
+     return new File([buffer],file.name,{type:file.type,lastModified:file.lastModified});
+   }catch(_){
+     const err=Error('Não foi possível ler “'+file.name+'”: o arquivo foi movido, editado ou apagado. Selecione-o novamente.');
+     err.unreadable=true;throw err;
+   }
+ }
  async function optimize(file){
    if(file.size<=target||!/^image\/(jpeg|png|webp)$/.test(file.type))return file;
    if(typeof createImageBitmap!=='function'||typeof DataTransfer==='undefined')throw Error('Este navegador não suporta otimização automática. Envie JPG menor que 1,5 MB.');
@@ -39,7 +53,7 @@
      const task=(async()=>{
        status('Preparando '+chosen.length+' foto(s) para envio…',label);
        const originals=chosen.map(f=>f.size);
-       const optimized=await Promise.all(chosen.map(optimize));
+       const optimized=await Promise.all(chosen.map(async f=>{const out=await optimize(f);return out!==f?out:await snapshotFile(f);}));
        // No Android, selecionar novamente enquanto a foto anterior é processada
        // não pode sobrescrever a seleção mais recente quando a tarefa antiga termina.
        if(!isCurrent())return;
@@ -54,6 +68,13 @@
      })().catch(err=>{
        if(!isCurrent())return;
        const message=err.message||'Não foi possível otimizar as fotos.';
+       if(err.unreadable){
+         // Não deixa o Chrome tentar enviar um arquivo que já não existe como estava (ERR_UPLOAD_FILE_CHANGED).
+         try{el.value='';}catch(_){}
+         status(message,label);
+         if(el.hasAttribute('data-upload-input'))el.dispatchEvent(new Event('news:files-ready',{bubbles:false}));
+         status(message,label);notice(message);return;
+       }
        errors.set(el,message);status(message,label);
      });
      pending.set(el,task);task.finally(()=>{if(pending.get(el)===task)pending.delete(el);});

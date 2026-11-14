@@ -1,3 +1,9 @@
+## Versão 1.0.153
+
+Corrige a mensagem "Não foi possível acessar seu arquivo ... ERR_UPLOAD_FILE_CHANGED" ao clicar em publicar notícia. As fotos, o ZIP e os anexos escolhidos agora são guardados na memória do navegador no momento da seleção, então o envio não depende mais de o arquivo continuar igual no aparelho. Se o arquivo já tiver sido movido ou apagado, o editor avisa na hora para selecioná-lo de novo.
+
+Sem alterações de schema 37 ou backup v12.
+
 ## Versão 1.0.152
 
 Corrige o clique nas notícias quando as URLs amigáveis estão ativadas e o servidor não reescreve o endereço, como no `php -S ... -t public` do Termux sem `router.php`. Antes, `/noticia/nome-da-materia` mostrava a página inicial; agora o portal identifica a notícia pelo próprio caminho.

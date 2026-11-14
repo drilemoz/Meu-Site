@@ -1,3 +1,9 @@
+## 1.0.153 — ERR_UPLOAD_FILE_CHANGED ao publicar notícia (2026-11-14)
+
+- Causa: o formulário de notícia é enviado como POST nativo com os arquivos escolhidos nos campos de foto, galeria, ZIP e anexos. Fotos pequenas (até 1,45 MB) e arquivos que não são imagem permaneciam apontando para o arquivo original; se ele mudava ou era removido (galeria, Downloads, nuvem, cache do Android) durante as etapas do editor, o Chrome recusava o envio com `ERR_UPLOAD_FILE_CHANGED`.
+- `news-upload.js` agora copia cada arquivo (até 40 MB) para a memória na seleção, inclusive ZIP de fotos e anexos. Arquivo que já não pode ser lido é removido do campo com aviso para selecionar de novo. Otimização de fotos grandes e proteção contra seleção antiga inalteradas.
+- Testes `tests/editor_media_122.js` cobrem a cópia em memória e o arquivo ilegível. Sem alteração de schema 37, backup v12 ou banco.
+
 ## 1.0.152 — Notícias abriam a página inicial sem reescrita de URL (2026-11-14)
 
 - Causa: com "Usar URLs amigáveis", o link é `/noticia/slug`. Em `php -S 127.0.0.1:8000 -t public` (como o Termux Manager inicia o portal) sem `router.php`, o servidor entregava `index.php` sem `?p=` e a página inicial era exibida no lugar da notícia.

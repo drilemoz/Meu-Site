@@ -1,3 +1,5 @@
+> **1.0.153 (2026-11-14):** corrigido o erro `ERR_UPLOAD_FILE_CHANGED` ao publicar notícia com fotos, ZIP ou anexos: os arquivos escolhidos agora são copiados para a memória do navegador na seleção, sem depender do arquivo original no aparelho até o envio. Sem alteração de schema 37 ou backup v12.
+
 > **1.0.152 (2026-11-14):** corrigido o clique nas notícias quando as URLs amigáveis estão ativas e o servidor entrega tudo ao `index.php` (por exemplo `php -S ... -t public` do Termux sem `router.php`): `/noticia/slug` abria a página inicial. Sem alteração de schema 37 ou backup v12.
 
 > **1.0.151 (2026-11-13):** correção das notícias que não abriam ao clicar quando "Usar URLs amigáveis" está ativo em servidor Nginx: novo `deploy/aws/nginx-friendly-urls.conf` com as regras equivalentes ao `.htaccess`. Sem alteração de código PHP, schema 37 ou backup v12.
@@ -20,7 +22,7 @@
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.152** · PHP 8.1+ · MySQL/MariaDB · schema 37.
+**Versão atual do código-fonte: 1.0.153** · PHP 8.1+ · MySQL/MariaDB · schema 37.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 

@@ -90,7 +90,7 @@ function makeUploadHarness() {
     requestSubmit() { this.resubmitted = true; }
   };
   class FakeFile {
-    constructor(parts, name, options) { this.name = name; this.size = parts.reduce((n,p)=>n+p.size,0); this.type=options.type; }
+    constructor(parts, name, options) { this.name = name; this.size = parts.reduce((n,p)=>n+(p.size ?? p.byteLength ?? 0),0); this.type=options.type; this.lastModified=options.lastModified; }
   }
   class FakeDataTransfer {
     constructor() { const list=[]; this.items={add:val=>list.push(val)}; this.files=list; }
@@ -147,4 +147,23 @@ async function testErrorIsolation() {
   assert.equal(h.submit().prevented,false,'Remover campo com erro permite salvar');
   console.log('OK: erro de um upload não é ocultado ao alterar outro campo');
 }
-(async()=>{testPreviewRetention();await testAsyncStaleSelection();await testErrorIsolation();})().catch(e=>{console.error(e);process.exitCode=1;});
+async function testSnapshotInMemory() {
+  const h=makeUploadHarness();
+  const original={name:'capa.jpg',size:900000,type:'image/jpeg',lastModified:5,arrayBuffer:async()=>new ArrayBuffer(900000)};
+  h.imageInput.files=[original];h.imageInput.emit('change');await flush();
+  assert.notEqual(h.imageInput.files[0],original,'Foto pequena deve ser copiada para a memória na seleção (ERR_UPLOAD_FILE_CHANGED)');
+  assert.equal(h.imageInput.files[0].name,'capa.jpg');assert.equal(h.imageInput.files[0].size,900000);
+  assert.equal(h.submit().prevented,false,'Cópia em memória não bloqueia o envio');
+  console.log('OK: arquivo escolhido é copiado para a memória e não depende mais do disco no envio');
+}
+async function testUnreadableFile() {
+  const h=makeUploadHarness();
+  h.imageInput.value='C:\\fake\\capa.jpg';
+  h.imageInput.files=[{name:'capa.jpg',size:900000,type:'image/jpeg',arrayBuffer:async()=>{throw new Error('NotReadableError');}}];
+  h.imageInput.emit('change');await flush();
+  assert.equal(h.imageInput.value,'','Arquivo ilegível deve ser removido do campo');
+  assert(h.alerts.some(x=>x.includes('movido, editado ou apagado')),'Usuário é avisado para selecionar de novo');
+  assert.equal(h.submit().prevented,false,'Campo limpo não impede salvar o restante');
+  console.log('OK: arquivo movido/apagado é detectado na seleção, sem tela de erro do Chrome no envio');
+}
+(async()=>{testPreviewRetention();await testAsyncStaleSelection();await testErrorIsolation();await testSnapshotInMemory();await testUnreadableFile();})().catch(e=>{console.error(e);process.exitCode=1;});

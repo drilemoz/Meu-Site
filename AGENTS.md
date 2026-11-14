@@ -1,6 +1,10 @@
-# Diretrizes de manutenção — Meu Site (v1.0.152)
+# Diretrizes de manutenção — Meu Site (v1.0.153)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Uploads do editor de notícias (1.0.153)
+
+- `public/assets/js/news-upload.js` copia para a memória (`File` a partir de `arrayBuffer()`) toda foto, galeria, ZIP e anexo escolhido, até 40 MB por arquivo, logo na seleção. Evita `ERR_UPLOAD_FILE_CHANGED` quando o arquivo original muda ou some durante o preenchimento do editor. Arquivo ilegível é removido do campo com aviso, sem bloquear o restante. Não reintroduzir envio direto do arquivo do disco; manter `tests/editor_media_122.js` verde.
 
 ## Rotas amigáveis sem reescrita (1.0.152)
 
