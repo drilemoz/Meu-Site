@@ -1,4 +1,4 @@
-# Documentação atual do Meu Site (1.0.151)
+# Documentação atual do Meu Site (1.0.152)
 
 - [URLs amigáveis e Nginx 1.0.151](SEO_URLS.md) — regras de reescrita para Nginx; sem elas as notícias retornam 404.
 - [Leitura de notícias 1.0.150](LEITURA_NOTICIAS_150.md) — metadados, tipografia móvel e matérias relacionadas.

@@ -1,6 +1,10 @@
-# Diretrizes de manutenção — Meu Site (v1.0.151)
+# Diretrizes de manutenção — Meu Site (v1.0.152)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Rotas amigáveis sem reescrita (1.0.152)
+
+- `public/index.php` resolve `/noticia/slug`, `/categoria/slug` e rotas de aplicativos pelo `REQUEST_URI` quando `?p=` não existe. Isso cobre `php -S -t public` sem `router.php` (Termux) e Nginx com `try_files ... /index.php`. Não remover; manter as regras de `router.php`, `.htaccess` e `nginx-friendly-urls.conf` consistentes com ela.
 
 ## URLs amigáveis no Nginx (1.0.151)
 

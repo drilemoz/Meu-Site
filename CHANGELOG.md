@@ -1,3 +1,9 @@
+## 1.0.152 — Notícias abriam a página inicial sem reescrita de URL (2026-11-14)
+
+- Causa: com "Usar URLs amigáveis", o link é `/noticia/slug`. Em `php -S 127.0.0.1:8000 -t public` (como o Termux Manager inicia o portal) sem `router.php`, o servidor entregava `index.php` sem `?p=` e a página inicial era exibida no lugar da notícia.
+- `public/index.php` agora reconhece `/noticia/slug`, `/categoria/slug` e rotas de aplicativos pelo caminho da requisição quando `?p=` está ausente. Links com `?p=`, `.htaccess`, `router.php` e Nginx dedicado continuam funcionando.
+- Sem alteração de schema 37, backup v12 ou banco. Validar no aparelho: abrir uma notícia pela home e pela URL direta.
+
 ## 1.0.151 — Notícias não abriam com URLs amigáveis no Nginx (2026-11-13)
 
 - Causa: com "Usar URLs amigáveis" ativo, os links viram `/noticia/slug`, resolvidos apenas pelo `public/.htaccess` (Apache). No Nginx da EC2 essas rotas retornavam 404 e a notícia não abria ao clicar.

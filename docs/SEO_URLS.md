@@ -47,3 +47,7 @@ Ao habilitar, os links antigos com querystring redirecionam ao endereço amigáv
 ## Nginx (VPS/EC2)
 
 O `.htaccess` não é lido pelo Nginx. Inclua `deploy/aws/nginx-friendly-urls.conf` no `server` HTTPS (substituindo o `location /` atual) e recarregue o Nginx antes de ativar **Usar URLs amigáveis**. Sem isso, links `/noticia/slug` retornam 404 e a notícia não abre ao clicar. Alternativa imediata: desativar a opção no painel (Configurações → SEO), que volta aos links `/index.php?p=noticia&slug=...`.
+
+## Servidor embutido sem router (1.0.152)
+
+Desde a 1.0.152, `public/index.php` resolve `/noticia/slug` e `/categoria/slug` pelo caminho quando `?p=` não existe. Assim `php -S 127.0.0.1:8000 -t public` (sem `router.php`) também abre as notícias com URLs amigáveis. O aviso anterior para não ativar a opção nesse comando não se aplica mais.

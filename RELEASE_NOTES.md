@@ -1,3 +1,9 @@
+## Versão 1.0.152
+
+Corrige o clique nas notícias quando as URLs amigáveis estão ativadas e o servidor não reescreve o endereço, como no `php -S ... -t public` do Termux sem `router.php`. Antes, `/noticia/nome-da-materia` mostrava a página inicial; agora o portal identifica a notícia pelo próprio caminho.
+
+Sem alterações de schema 37 ou backup v12.
+
 ## Versão 1.0.151
 
 Corrige notícias que não abriam ao clicar quando as URLs amigáveis estão ativadas em servidor Nginx. O `.htaccess` não é lido pelo Nginx; o novo arquivo `deploy/aws/nginx-friendly-urls.conf` traz as regras de reescrita equivalentes. Também é possível desativar "Usar URLs amigáveis" no painel como solução imediata.

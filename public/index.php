@@ -13,6 +13,16 @@ require __DIR__.'/../app/analytics.php';
 require_once __DIR__.'/../app/apps_legal.php';
 if (!installed()) redirect('/setup.php');
 try { $db=db(); } catch (Throwable $e) {igua_health_log('PUBLIC_DB_UNAVAILABLE',$e); http_response_code(503); exit('Banco de dados indisponível. Verifique a configuração.'); }
+// Servidores que entregam qualquer caminho ao index.php sem reescrita (php -S sem router.php, Nginx com try_files ... /index.php)
+// chegam aqui sem ?p=. Resolve /noticia/slug, /categoria/slug e rotas de aplicativos pelo próprio caminho.
+if(!isset($_GET['p'])){
+    $uriPath=rawurldecode((string)(parse_url((string)($_SERVER['REQUEST_URI']??'/'),PHP_URL_PATH)??'/'));
+    if(preg_match('~^/(noticia|categoria)/([a-z0-9]+(?:-[a-z0-9]+)*)/?$~D',$uriPath,$uriMatch)){
+        $_GET['p']=$uriMatch[1];$_GET['slug']=$uriMatch[2];
+    } elseif(preg_match('~^/([a-z0-9]+(?:-[a-z0-9]+)*)(?:/([a-z0-9]+(?:-[a-z0-9]+)*))?/?$~D',$uriPath,$uriMatch)){
+        $_GET['p']='app';$_GET['app_slug']=$uriMatch[1];$_GET['app_page']=$uriMatch[2]??'inicio';
+    }
+}
 $route=(string)($_GET['p']??'inicio');
 $legalPage=null;
 if($route==='app'){
