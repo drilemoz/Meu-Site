@@ -1,0 +1,12 @@
+'use strict';
+const fs=require('fs'),assert=require('assert'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const js=fs.readFileSync(path.join(root,'public/assets/js/seo-settings.js'),'utf8');
+const css=fs.readFileSync(path.join(root,'public/assets/css/modules/14-seo.css'),'utf8');
+assert(js.includes('seo-content-dialog')&&js.includes('seo-advanced-dialog')&&js.includes('seo-diagnostic-dialog'));
+assert(js.includes("'ArrowRight'")&&js.includes("'ArrowLeft'")&&js.includes('aria-selected'));
+assert(js.includes('event.preventDefault()')&&js.includes('form.requestSubmit('));
+assert(!js.includes('fetch('));
+assert(css.includes('.seo-portal-dialog')&&css.includes('max-height:min(85dvh,780px)'));
+assert(css.includes('.seo-portal-tab:focus-visible'));
+console.log('SEO 1.0.102: estrutura JS/CSS, diagnóstico local e navegação verificados.');

@@ -1,0 +1,178 @@
+/* 1.0.12: cadastro simples, opções avançadas apenas quando necessárias */
+.news-primary-text{display:grid;gap:9px;font-weight:700;color:#193458;min-width:0}
+.news-primary-text textarea{width:100%;min-height:175px;resize:vertical;line-height:1.6;font-weight:400}
+.news-optional{border:1px solid #dce7f3;background:#f8fbff;border-radius:14px;padding:13px 15px;margin:15px 0;min-width:0}
+.news-optional>summary{cursor:pointer;font-weight:750;color:#1c4e80;line-height:1.5;list-style-position:inside}
+.news-optional[open]>summary{margin-bottom:15px}
+.news-optional .form-grid,.news-optional .import-link-bar{margin-top:8px}
+.news-optional .import-link-bar{padding:0;background:transparent;border:0}
+.news-add-extra{display:inline-block;border:1px solid #dce7f3;border-radius:10px;padding:8px 12px;background:white}
+.news-add-extra summary{cursor:pointer;color:#23518d;font-size:13px;font-weight:700}
+.news-add-extra .btn{margin:7px 4px 0 0}
+.news-editor-shell .news-editor-top{align-items:center}
+.news-editor-shell .news-editor-top .btn{white-space:normal}
+@media(max-width:620px){.news-editor-step{padding:14px}.news-editor-step h3{font-size:19px}.news-optional{padding:11px}.news-editor-steps button{font-size:12px}}
+
+/* IguaNews 1.0.13: filtro editorial compacto e navegação paginada */
+.news-admin-filter{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:15px 0 18px;padding:15px;background:#f6f9ff;border:1px solid #e1e9f4;border-radius:14px}
+.news-admin-filter label{display:grid;gap:6px;flex:1 1 180px;font-size:13px;font-weight:700;color:#234568}
+.news-admin-filter input,.news-admin-filter select{min-width:0;width:100%;height:44px;border:1px solid #cfdaeb;border-radius:9px;padding:0 12px;background:white;color:#13263e}
+.news-admin-filter .btn{min-height:44px;white-space:nowrap}
+.news-admin-pagination{display:flex;justify-content:center;align-items:center;gap:15px;margin-top:18px;flex-wrap:wrap;font-size:14px;color:#64748b}
+.news-admin-pagination a{display:inline-flex;padding:10px 14px;border-radius:10px;border:1px solid #d8e4f2;color:#1557ba;font-weight:700;text-decoration:none}
+.action-cell .btn-link{padding:0;border:0;background:transparent;color:#195cb8;font-size:inherit;cursor:pointer;text-decoration:underline}
+.status-toggle{display:inline-flex;align-items:center;gap:8px;border:1px solid #d3e1ef;background:#f5f9ff;color:#22558e;border-radius:999px;padding:7px 11px;cursor:pointer;font:inherit;font-size:12px;font-weight:700}.status-toggle.is-on{background:#e8f7ee;border-color:#cbe9d5;color:#197b48}.status-toggle.is-off{background:#f5f8fc;color:#5a708a}.status-toggle-icon{font-size:14px;line-height:1}.status-toggle-text{white-space:nowrap}
+@media(max-width:620px){.news-admin-filter{padding:12px;gap:8px}.news-admin-filter label{flex-basis:100%}.news-admin-filter .btn{flex:1}}
+
+/* 1.0.54 — Atualizações compactas. Exclusivo do painel; sem dependências externas. */
+.updater-panel{padding:19px 21px!important;margin-bottom:14px!important}
+.updater-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.updater-header h2{font-size:18px;letter-spacing:-.025em;line-height:1.2;margin:0!important}
+.updater-help{position:relative;flex:none;margin:0}
+.updater-help summary{list-style:none;display:grid;place-items:center;width:31px;height:31px;border:1px solid #cad9ed;border-radius:50%;color:#1a61c6;background:#eff5ff;cursor:pointer;font-size:14px;font-weight:800}
+.updater-help summary::-webkit-details-marker{display:none}
+.updater-help-content{position:absolute;z-index:10;right:0;top:39px;width:min(330px,calc(100vw - 60px));background:#fff;color:#40516e;border:1px solid #d9e4f1;box-shadow:0 12px 32px #162d5530;border-radius:12px;padding:14px;font-size:13px;line-height:1.55}
+.updater-overview{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:9px}
+.updater-overview>div{padding:12px;background:#f5f8fe;border:1px solid #e7eef9;border-radius:11px;min-width:0}
+.updater-overview span,.updater-source-label{display:block;color:#667892;font-size:11px;font-weight:700}
+.updater-overview strong{display:block;color:#172b4b;font-size:16px;margin-top:3px;overflow-wrap:anywhere}
+.updater-overview strong.updater-status-new{font-size:13px;color:#127347}
+.updater-overview strong.updater-status-neutral{font-size:13px}
+.updater-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+.updater-actions form{margin:0}
+.updater-actions .btn,.updater-install-form .btn,.updater-source-form .btn{font-size:13px;min-height:39px;padding:9px 13px;white-space:normal}
+.updater-subtle-link{font-weight:700;font-size:12px;color:#1662cb}
+.updater-details{border-top:1px solid #e9eff6;padding-top:11px;margin-top:12px}
+.updater-details summary{cursor:pointer;color:#1b60c4;font-size:13px;font-weight:750;list-style-position:inside}
+.updater-details[open]>summary{margin-bottom:12px}
+.updater-hint{color:#687993;font-size:12px;line-height:1.5;margin:9px 0!important}
+.updater-source-line{display:flex;align-items:center;flex-wrap:wrap;gap:8px;overflow-wrap:anywhere;font-size:14px}
+.updater-source-line>strong{color:#203455}
+.updater-tag,.updater-pill{display:inline-block;background:#ebf3fe;color:#1b62bc;border-radius:30px;padding:3px 9px;font-size:11px;font-weight:750}
+.updater-pill{background:#e2f5ec;color:#137f4f}
+.updater-source-form{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:9px}
+.updater-source-form label,.updater-install-form>label:not(.updater-check){display:flex;flex-direction:column;gap:5px;color:#4f617b;font-size:12px;font-weight:650;min-width:0}
+.updater-source-form input,.updater-install-form input[type=file],.updater-install-form input[type=password]{width:100%;min-width:0;min-height:42px;border:1px solid #d6e0ee;background:#fff;color:#203452;padding:8px;border-radius:10px;font-size:14px}
+.updater-install-form{display:grid;gap:10px;margin:13px 0 0!important}
+.updater-check{display:flex;align-items:flex-start;gap:8px;color:#52627c;font-size:12px;line-height:1.5}
+.updater-check input{flex:none;accent-color:#1769d3;margin:3px 0 0}
+.updater-install-form>.btn{justify-self:start}
+.updater-release{padding:12px;border-radius:12px;border:1px solid #d5e8de;background:#f2fbf6}
+.updater-release>div{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.updater-release>div strong{color:#1b4b31}
+.updater-release summary{color:#257048;cursor:pointer;font-size:12px;font-weight:700}
+.updater-release-notes{padding:10px 0 1px;font-size:12px;white-space:normal;line-height:1.6;overflow-wrap:anywhere}
+.updater-compact-result{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#eef8f3;border:1px solid #cce7d7;border-radius:10px;padding:9px 11px;color:#167245;font-size:12px}
+.updater-compact-result.updater-bad{background:#fff4f4;border-color:#f2cccc;color:#9a3535}
+.updater-checks{display:grid;gap:6px;margin-top:13px}
+.updater-checks>div{border-bottom:1px solid #e8eef6;padding:7px 0;font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.updater-checks>div strong{color:#1e385c}.updater-checks>div span{color:#6a7b91}
+@media(max-width:700px){.updater-panel{padding:14px!important;margin-bottom:11px!important}.updater-header h2{font-size:16px}.updater-overview{grid-template-columns:1fr 1fr}.updater-overview>div:last-child{grid-column:1/-1}.updater-overview>div{padding:9px 11px}.updater-source-form{grid-template-columns:1fr;gap:8px}.updater-install-form>.btn{width:100%;justify-self:stretch}.updater-checks>div{display:block}.updater-checks>div span{display:block;margin-top:3px}.updater-help-content{right:0}}
+
+/* v1.0.55 — detalhes compactos de integridade e histórico de atualizações */
+.updater-diff-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+.updater-diff-summary>span{border:1px solid #dce6f2;border-radius:9px;background:#f7faff;padding:9px 6px;text-align:center;font-size:11px;color:#526782}
+.updater-diff-summary strong{display:block;color:#203b60;font-size:17px}
+.updater-diff-summary .updater-alert{background:#fff3f3;border-color:#f3d0d0;color:#ae3030}
+.updater-history-list{padding:0;margin:10px 0 0;list-style:none;display:grid;gap:0}
+.updater-history-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #e7eef6;padding:9px 0;font-size:12px;color:#435b79;min-width:0}
+.updater-history-list li:last-child{border-bottom:0}
+.updater-history-list li code{font-size:11px;overflow-wrap:anywhere;min-width:0}
+.updater-history-list li>span:first-child{min-width:0}
+.updater-history-list li small{display:block;color:#6f7d92;line-height:1.3;margin-top:3px}
+.updater-history-list li>span:last-child{flex:none}
+@media(max-width:420px){.updater-diff-summary{gap:4px}.updater-diff-summary>span{padding:7px 3px}}
+
+/* 1.0.56 — fonte e vistoria em modais, reduzindo altura da tela móvel. */
+.updater-quick-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.updater-quick-link{display:flex;align-items:center;gap:8px;flex:1 1 185px;min-width:0;text-align:left;border:1px solid #d9e5f4;border-radius:11px;background:#f7faff;color:#1d3656;padding:8px 10px;cursor:pointer}
+.updater-quick-link>span:first-child{font-size:18px;display:grid;place-items:center;min-width:29px;height:29px;border-radius:9px;background:#eaf0fd;color:#145ac3}
+.updater-quick-link.is-ok>span:first-child{background:#e5f6ed;color:#16764b}
+.updater-quick-link.is-error>span:first-child{background:#fff0ed;color:#b43232}
+.updater-quick-link>span:nth-child(2){display:block;min-width:0}
+.updater-quick-link small{display:block;color:#6d7c92;font-size:10px}
+.updater-quick-link strong{display:block;font-size:12px;overflow-wrap:anywhere}
+.updater-quick-link:hover,.updater-quick-link:focus-visible{border-color:#7ba8eb;background:#eef5ff;outline-offset:2px}
+.updater-dialog{width:min(540px,calc(100vw - 24px));max-height:min(82vh,760px);overflow:auto;border:1px solid #d7e3f2;border-radius:18px;padding:19px;background:#fff;color:#1a2e4c;box-shadow:0 24px 72px #0a1d3e60}
+.updater-dialog::backdrop{background:#14233a99;backdrop-filter:blur(2px)}
+.updater-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.updater-dialog-head h2{font-size:19px;margin:0}
+.updater-dialog-close{border:0;border-radius:50%;background:#edf2fa;width:37px;height:37px;display:grid;place-items:center;color:#344f71;font-size:24px;cursor:pointer;flex:none}
+.updater-dialog-close:hover,.updater-dialog-close:focus-visible{background:#dbe9fb;outline:2px solid #6f9de4;outline-offset:2px}
+.updater-dialog .updater-source-form{grid-template-columns:1fr 1fr;gap:10px}
+.updater-dialog .updater-source-form>button{grid-column:1/-1;justify-self:stretch}
+.updater-dialog .updater-source-line{margin:0 0 8px}
+.updater-reset-form{margin:10px 0 0}
+.updater-reset-form .btn{font-size:12px;min-height:36px}
+@media(max-width:560px){.updater-quick-link{flex-basis:145px}.updater-dialog{padding:15px}.updater-dialog .updater-source-form{grid-template-columns:1fr}.updater-dialog .updater-source-form>button{grid-column:auto}}
+
+/* 1.0.75 — Envio manual em janela central, sem crescimento da página. */
+.updater-upload-trigger{border-radius:10px;min-height:42px;box-shadow:0 5px 16px #0c59bf24}
+.updater-upload-trigger-short{display:none}
+.updater-upload-dialog{width:min(450px,calc(100vw - 24px));max-height:min(88dvh,720px);padding:18px;overscroll-behavior:contain;scrollbar-width:thin}
+.updater-upload-dialog .updater-dialog-head{position:sticky;top:-18px;z-index:2;padding:7px 0 13px;background:#fff;border-bottom:1px solid #e3eaf4}
+.updater-upload-heading{display:flex;align-items:center;gap:10px;min-width:0}
+.updater-upload-heading h2{font-size:18px;letter-spacing:-.025em;line-height:1.2}
+.updater-upload-heading small{display:block;font-size:11px;color:#6b7f98;margin-top:2px}
+.updater-upload-icon{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:linear-gradient(140deg,#e9f3ff,#e9f7f1);color:#0c60c6;font-size:25px;font-weight:800}
+.updater-upload-form{gap:0;margin-top:13px!important}
+.updater-form-fields,.updater-confirm-step{display:grid;gap:12px;min-width:0}
+.updater-upload-form .updater-form-fields>label{display:grid;gap:6px;color:#425976;font-size:12px;font-weight:700}
+.updater-upload-form .updater-form-fields input[type="file"],.updater-upload-form .updater-form-fields input[type="password"]{display:block;width:100%;min-width:0;min-height:47px;padding:10px;background:#f6f9fd;color:#253e61;border:1px solid #cfdff2;border-radius:11px;font-size:14px}
+.updater-form-fields[hidden],.updater-confirm-step[hidden]{display:none!important}
+.updater-upload-form .updater-submit{width:100%;min-height:45px;display:flex;justify-content:center;align-items:center;gap:10px;border-radius:11px;font-weight:750}
+.updater-upload-note{margin:0;color:#64758f;font-size:11px;line-height:1.45}
+.updater-confirm-step{border:1px solid #dbe7f6;background:#f6f9fe;border-radius:13px;padding:14px;font-size:13px;color:#344e6e;line-height:1.5}
+.updater-stage-tag{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#1b62b5;font-weight:800}
+.updater-confirm-step p{margin:0}
+.updater-confirm-file{background:#e8f1ff;color:#164d8f;padding:9px 11px;border-radius:10px;overflow-wrap:anywhere;font-weight:750}
+.updater-confirm-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px}
+.updater-confirm-actions .btn{min-height:44px;border-radius:10px}
+.updater-upload-dialog .updater-progress{padding:18px 14px;background:linear-gradient(145deg,#f5faff,#eaf3ff);border-color:#bed5f5;gap:12px;text-align:center;border-radius:15px}
+.updater-upload-dialog .updater-progress-head{flex-direction:column;justify-content:center;gap:3px;font-size:14px}
+.updater-upload-dialog .updater-progress-value{font-size:26px;line-height:1.2;letter-spacing:-.025em;color:#175fc7}
+.updater-upload-dialog .updater-progress progress{height:12px}
+.updater-progress-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.updater-upload-dialog[data-updater-busy="1"] .updater-dialog-close{opacity:.45;cursor:not-allowed}
+@media(max-width:550px){
+ .updater-actions{gap:8px}.updater-actions .btn{padding:8px 10px;font-size:12px;min-height:44px}
+ .updater-upload-trigger-long{display:none}.updater-upload-trigger-short{display:inline}
+ .updater-subtle-link{font-size:12px;min-height:44px;display:inline-flex;align-items:center}
+ .updater-upload-dialog{padding:14px;border-radius:19px;max-height:min(88dvh,700px)}
+ .updater-upload-dialog .updater-dialog-head{top:-14px}
+ .updater-upload-dialog .updater-dialog-close{width:44px;height:44px}
+ .updater-confirm-actions{grid-template-columns:1fr 1.35fr}
+}
+@media(max-width:345px){.updater-actions{gap:6px}.updater-actions .btn{padding:8px 9px}}
+
+/* 1.0.92 — consulta do GitHub e instalação dentro de um único diálogo. */
+.updater-actions-simple{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.updater-actions-simple .btn{width:100%;min-height:46px;border-radius:11px}
+.updater-github-dialog{width:min(470px,calc(100vw - 22px))}
+.updater-github-status{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:15px;border:1px solid #d6e4f4;background:#f5f9ff;border-radius:13px;margin:14px 0}
+.updater-github-status p{flex:1 0 100%;margin:0;color:#5a6c84;font-size:13px}
+.updater-github-status[hidden],.updater-github-dialog [hidden]{display:none!important}
+.updater-github-spinner{display:inline-block;width:19px;height:19px;flex:none;border:2px solid #b8cdec;border-top-color:#1765d1;border-radius:50%;animation:igua-update-spin .9s linear infinite}
+@keyframes igua-update-spin{to{transform:rotate(360deg)}}
+.updater-github-status[data-state="done"] .updater-github-spinner,.updater-github-status[data-state="error"] .updater-github-spinner{display:none}
+.updater-github-status[data-state="error"]{border-color:#f1c6c6;background:#fff7f7}
+.updater-github-status[data-state="done"]{border-color:#c7e6d4;background:#f3fbf6}
+.updater-github-form{margin-top:16px!important}
+.updater-github-form .updater-github-submit{width:100%;min-height:46px}
+.updater-github-process{display:grid;gap:13px;margin:16px 0;padding:16px;border:1px solid #cadff6;border-radius:13px;background:#f5faff}
+.updater-github-step{display:flex;align-items:center;gap:10px;font-size:14px}
+.updater-github-process progress{width:100%;height:12px;accent-color:#1167d8}
+.updater-github-process p{color:#526988;font-size:13px;line-height:1.5;margin:0}
+.updater-github-final{display:grid;gap:12px;padding:17px;background:#eefaf2;border:1px solid #bde1ca;border-radius:14px}
+.updater-github-final[data-result="error"]{background:#fff6f6;border-color:#e8c2c2}
+.updater-github-final p{font-size:13px;color:#3d536f;margin:0;line-height:1.5}
+.updater-github-final .btn{width:100%}
+.updater-github-actions{display:grid;gap:9px;margin-top:12px}
+.updater-github-advanced{font-size:12px;color:#546780}
+.updater-github-advanced summary{cursor:pointer;font-weight:650}
+.updater-github-advanced p{line-height:1.5}
+.updater-github-tools{display:flex;gap:8px;flex-wrap:wrap}
+.updater-github-tools .btn{min-height:42px;flex:1;font-size:12px}
+.updater-github-dialog .updater-release-notes{white-space:pre-wrap;max-height:230px;overflow:auto}
+@media(max-width:420px){.updater-actions-simple{gap:8px}.updater-actions-simple .btn{font-size:13px!important;min-height:46px}}
+@media(prefers-reduced-motion:reduce){.updater-github-spinner{animation:none}}

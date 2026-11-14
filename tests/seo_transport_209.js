@@ -1,0 +1,12 @@
+'use strict';
+const fs=require('fs'),assert=require('assert'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const seo=fs.readFileSync(path.join(root,'public/assets/js/seo-settings.js'),'utf8');
+const media=fs.readFileSync(path.join(root,'public/assets/js/media-library.js'),'utf8');
+const css=fs.readFileSync(path.join(root,'public/assets/css/style.css'),'utf8');
+assert(seo.includes('seo-pages-dialog')&&seo.includes('seo_home_title'));
+assert(seo.includes("'seo_page_title_'+route")&&seo.includes("'seo_favicon_image'"));
+assert(media.includes("mode==='favicon'"));
+assert(css.includes('.bus-search-collapsible')&&css.includes('.seo-portal-dialog[open]'));
+assert(!seo.includes('fetch('));
+console.log('SEO e ônibus 1.0.109 JS/CSS aprovados.');

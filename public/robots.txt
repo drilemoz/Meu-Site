@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin.php
+Disallow: /setup.php
+
+# Sitemap XML do domínio público oficial do IguatamaOnline.
+Sitemap: https://iguatama.online/sitemap.php

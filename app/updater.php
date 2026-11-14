@@ -1,0 +1,865 @@
+<?php
+declare(strict_types=1);
+/**
+ * Atualizador de código do Meu Site. Aceita ZIP v2 sem assinatura após
+ * reautenticação do administrador; pacotes assinados legados v1 continuam
+ * autenticados pela chave pública original. SHA-256 verifica integridade, NÃO
+ * a autoria de pacotes sem assinatura. Nunca executa comandos de shell.
+ * A revisão do banco deve permanecer igual (migrações exigem release assistida).
+ */
+const IGUA_UPDATE_PUBLIC_KEY_B64 = 'zfq5ZuBvX88sMlOrIrKuvQwDV/OTYP8SQzkIogBmPAY=';
+const IGUA_UPDATE_FORMAT = 'meu-site-update-v2';
+const IGUA_UPDATE_LEGACY_FORMAT = 'meu-site-update-v1';
+const IGUA_UPDATE_MAX_ZIP = 32 * 1024 * 1024;
+const IGUA_UPDATE_MAX_TOTAL = 80 * 1024 * 1024;
+const IGUA_UPDATE_MAX_FILES = 800;
+const IGUA_UPDATE_DIR = IGUA_STORAGE . '/updater';
+require_once __DIR__.'/updater_vps.php';
+
+/** Diagnósticos públicos controlados: nunca retornar resposta bruta, token ou caminhos do servidor. */
+function igua_updater_diagnostic(Throwable $error): array {
+    $message=$error->getMessage();
+    if(str_contains($message,'cURL indisponível') || str_contains($message,'Extensão cURL'))
+        return ['code'=>'curl_missing','title'=>'Extensão cURL ausente',
+            'detail'=>'O PHP não consegue fazer a consulta HTTPS pelo atualizador.',
+            'action'=>'Ative a extensão cURL na hospedagem ou use um pacote compatível enviado manualmente.'];
+    if(preg_match('/HTTP (\d{3})/', $message,$m)){
+        $status=(int)$m[1];
+        if($status===403 || $status===429)return ['code'=>'github_limited','title'=>'Consulta limitada pelo GitHub (HTTP '.$status.')',
+            'detail'=>'A API pode estar limitando requisições feitas do IP do servidor.',
+            'action'=>'Aguarde a renovação da cota e confira o repositório configurado. Evite repetir consultas seguidas.'];
+        if($status===404)return ['code'=>'github_not_found','title'=>'Repositório ou release não encontrado (HTTP 404)',
+            'detail'=>'A consulta não encontrou a origem solicitada.',
+            'action'=>'Verifique proprietário/repositório e a publicação de uma release não marcada como rascunho.'];
+        if($status>=500)return ['code'=>'github_remote_error','title'=>'Serviço remoto indisponível (HTTP '.$status.')',
+            'detail'=>'O servidor remoto respondeu com falha.',
+            'action'=>'Tente novamente mais tarde; confira status.github.com se o problema persistir.'];
+        return ['code'=>'github_http','title'=>'GitHub respondeu HTTP '.$status,
+            'detail'=>'O servidor respondeu, mas não aceitou a consulta.',
+            'action'=>'Confira o endereço do repositório e as restrições de rede da hospedagem.'];
+    }
+    if(preg_match('/Could not resolve|resolve host|name lookup|DNS/i',$message))
+        return ['code'=>'dns','title'=>'Falha de DNS na hospedagem',
+            'detail'=>'A hospedagem não conseguiu localizar o endereço do serviço GitHub.',
+            'action'=>'Verifique DNS e acesso de saída a api.github.com no provedor.'];
+    if(preg_match('/SSL|certificate|TLS|peer certificate|CA bundle/i',$message))
+        return ['code'=>'tls','title'=>'Falha TLS/certificado',
+            'detail'=>'A conexão segura HTTPS não pôde ser validada.',
+            'action'=>'Peça ao provedor para conferir certificados CA e configuração TLS do PHP. Não desative a validação SSL.'];
+    if(preg_match('/timeout|timed out|tempo limite|Tempo de resposta/i',$message))
+        return ['code'=>'timeout','title'=>'Tempo limite da conexão',
+            'detail'=>'O servidor não recebeu resposta em tempo hábil.',
+            'action'=>'Confira rede de saída, firewall e limite de execução PHP na hospedagem.'];
+    if(preg_match('/schema|revisão do banco|instalação assistida/i',$message))
+        return ['code'=>'schema_migration','title'=>'Atualização precisa de migração do banco',
+            'detail'=>'O pacote altera a revisão do MariaDB; o instalador comum bloqueia esse cenário para preservar os dados.',
+            'action'=>'Faça backup externo e siga o procedimento de instalação assistida da versão. Não force a instalação automática.'];
+    if(preg_match('/versão.*instalada|Pacote antigo/i',$message))
+        return ['code'=>'version','title'=>'Versão não aplicável',
+            'detail'=>'O pacote não é mais recente que o código instalado.',
+            'action'=>'Confira a versão atual e escolha um pacote de atualização mais recente.'];
+    if(preg_match('/ZipArchive|extensão ZIP/i',$message))
+        return ['code'=>'zip_missing','title'=>'Extensão PHP ZIP ausente',
+            'detail'=>'O PHP não consegue abrir o pacote.',
+            'action'=>'Ative ZipArchive no PHP usado pelo site.'];
+    if(preg_match('/permissão|escrita|espaço|diretório|armazenamento|arquivo temporário|salvar ZIP/i',$message))
+        return ['code'=>'storage','title'=>'Problema de armazenamento/permissão',
+            'detail'=>'A hospedagem pode estar impedindo arquivos temporários ou operações de escrita.',
+            'action'=>'Verifique espaço disponível, permissões das pastas privadas e cotas da hospedagem.'];
+    if(preg_match('/manifesto|Integridade|assinatura|formato|caminho|incompleto|ZIP/i',$message))
+        return ['code'=>'zip_invalid','title'=>'Pacote ZIP incompatível ou inválido',
+            'detail'=>'A validação do pacote não foi concluída.',
+            'action'=>'Use apenas o ZIP de atualização oficial, com manifesto íntegro, e nunca o ZIP do código-fonte.'];
+    return ['code'=>'unknown','title'=>'Falha não classificada',
+        'detail'=>'Não há informações suficientes para identificar uma causa única.',
+        'action'=>'Consulte a Vistoria do servidor e o registro privado de erros do painel. Não repita instalações de resultado incerto.'];
+}
+/** Verificação do ZIP sem aplicação, execução de SQL ou alteração do código. */
+function igua_updater_diagnose_zip(string $zipPath, ?PDO $db=null): array {
+    if(!class_exists('ZipArchive'))return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException('Extensão ZIP indisponível'))];
+    if(!is_file($zipPath) || is_link($zipPath) || filesize($zipPath)>IGUA_UPDATE_MAX_ZIP)
+        return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException('ZIP inválido ou acima do limite'))];
+    $zip=new ZipArchive();
+    if($zip->open($zipPath)!==true)return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException('ZIP corrompido'))];
+    try{
+        $raw=$zip->getFromName('release.json');$signature=$zip->getFromName('release.sig');
+        if(!is_string($raw))return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException('Manifesto ZIP ausente'))];
+        $manifest=igua_updater_check_manifest($raw,is_string($signature)?$signature:null);
+    }catch(Throwable $error){return ['ok'=>false,'diagnostic'=>igua_updater_diagnostic($error)];}
+    finally{$zip->close();}
+    $version=(string)$manifest['version'];$schema=(int)$manifest['schema_revision'];
+    $base=['version'=>$version,'package_schema'=>$schema,'server_schema'=>defined('IGUA_SCHEMA_REVISION')?IGUA_SCHEMA_REVISION:null];
+    if(version_compare($version,igua_updater_version(),'<=') || $schema!==IGUA_SCHEMA_REVISION){
+        $reason=$schema!==IGUA_SCHEMA_REVISION?'Esta atualização altera a revisão do banco. Exige instalação assistida e backup externo.':'Pacote antigo: versão já instalada';
+        return $base+['ok'=>false,'diagnostic'=>igua_updater_diagnostic(new RuntimeException($reason))];
+    }
+    try{
+        $preview=igua_updater_preview_zip($zipPath,$db);
+        if(!$preview['preflight']['ok'])return $base+['ok'=>false,'diagnostic'=>[
+            'code'=>'preflight','title'=>'Bloqueio na vistoria do servidor',
+            'detail'=>'Uma ou mais verificações de escrita, extensões ou segurança falharam.',
+            'action'=>'Abra Vistoria do servidor e corrija os itens marcados como falha.'],
+            'checks'=>$preview['preflight']['checks']];
+        return $base+['ok'=>true,'diagnostic'=>[
+            'code'=>'compatible','title'=>'Pacote compatível na simulação',
+            'detail'=>'Manifesto, hashes e pré-requisitos locais passaram na verificação.',
+            'action'=>'Esta análise não instala o ZIP nem garante sucesso em operações de backup ou substituição. Faça backup externo antes de continuar.']];
+    }catch(Throwable $error){return $base+['ok'=>false,'diagnostic'=>igua_updater_diagnostic($error)];}
+}
+function igua_updater_version(): string {
+    $v=trim((string)@file_get_contents(IGUA_ROOT.'/VERSION'));
+    return preg_match('/^\d+\.\d+\.\d+$/D',$v)?$v:'0.0.0';
+}
+function igua_updater_folder(): string {
+    if(is_link(IGUA_UPDATE_DIR) || (!is_dir(IGUA_UPDATE_DIR) && !@mkdir(IGUA_UPDATE_DIR,0700,true)))
+        throw new RuntimeException('Diretório privado do atualizador indisponível.');
+    if(!is_dir(IGUA_UPDATE_DIR)||!is_writable(IGUA_UPDATE_DIR))throw new RuntimeException('Atualizador sem permissão de escrita.');
+    return IGUA_UPDATE_DIR;
+}
+function igua_updater_write_json(string $path,array $data): void {
+    if(is_link($path))throw new RuntimeException('Arquivo privado inesperado.');
+    $tmp=@tempnam(dirname($path),'.up-');
+    if($tmp===false)throw new RuntimeException('Sem espaço para registrar atualização.');
+    try{
+        @chmod($tmp,(igua_updater_vps_mode() && PHP_SAPI==='cli')?0640:0600);
+        $encoded=json_encode($data,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+        if(file_put_contents($tmp,$encoded,LOCK_EX)!==strlen($encoded)||!@rename($tmp,$path))throw new RuntimeException('Falha ao registrar atualização.');
+    }finally{if(is_file($tmp))@unlink($tmp);}
+}
+function igua_updater_read_json(string $path): ?array {
+    if(!is_file($path)||is_link($path))return null;
+    $data=json_decode((string)@file_get_contents($path),true);
+    return is_array($data)?$data:null;
+}
+/** Consulta de progresso da atualização, vinculada ao usuário autenticado e token aleatório. */
+function igua_updater_progress_file(int $userId,string $token): ?string {
+    if($userId<1||!preg_match('/^[a-f0-9]{32}$/D',$token))return null;
+    return igua_updater_folder().'/progress-'.hash('sha256',$userId.':'.$token).'.json';
+}
+function igua_updater_progress_write(int $userId,string $token,string $stage,string $message): void {
+    if(!in_array($stage,['connecting','download','validating','preflight','backup','applying','complete','failed'],true))return;
+    try{
+        $path=igua_updater_progress_file($userId,$token);
+        if($path!==null)igua_updater_write_json($path,['stage'=>$stage,'message'=>substr($message,0,150),'at'=>time()]);
+    }catch(Throwable $ignored){ /* Falha no indicador nunca deve comprometer a instalação. */ }
+}
+function igua_updater_progress_read(int $userId,string $token): ?array {
+    if(igua_updater_vps_mode())return igua_updater_vps_status($userId,$token);
+    $path=igua_updater_progress_file($userId,$token);
+    if($path===null)return null;
+    $data=igua_updater_read_json($path);
+    if(!$data||!is_int($data['at']??null)||$data['at']<time()-1800)return null;
+    return ['stage'=>(string)($data['stage']??''),'message'=>(string)($data['message']??''),'at'=>$data['at']];
+}
+function igua_updater_safe_path(string $path): bool {
+    if(strlen($path)<3||strlen($path)>230||str_contains($path,'\\')||str_contains($path,"\0"))return false;
+    if($path==='VERSION')return true;
+    if($path==='public/ads.txt')return false; // arquivo de propriedade do editor, nunca sobrescrever
+    if(!str_starts_with($path,'app/')&&!str_starts_with($path,'public/'))return false;
+    if(!preg_match('~^[A-Za-z0-9._/-]+$~D',$path))return false;
+    $parts=explode('/',$path);
+    foreach($parts as $part){if($part===''||$part==='.'||$part==='..')return false;}
+    if(str_starts_with($path,'public/uploads/')||str_contains($path,'/storage/')||str_contains($path,'/backups/'))return false;
+    if(preg_match('~\.(?:key|pem|env|sql|sqlite|zip|tar|gz|p12|jks)$~iD',$path))return false;
+    return true;
+}
+function igua_updater_check_manifest(string $raw,?string $signature=null,?string $pub=null): array {
+    if(strlen($raw)>140000)throw new RuntimeException('Manifesto muito grande.');
+    $m=json_decode($raw,true,128,JSON_THROW_ON_ERROR);
+    $format=is_array($m)?($m['format']??null):null;
+    if(!in_array($format,[IGUA_UPDATE_FORMAT,IGUA_UPDATE_LEGACY_FORMAT],true))
+        throw new RuntimeException('Formato de atualização não reconhecido.');
+    // Um ZIP legado v1 NUNCA pode perder a assinatura por remoção de release.sig.
+    if($format===IGUA_UPDATE_LEGACY_FORMAT && $signature===null)
+        throw new RuntimeException('Pacote legado exige assinatura digital Ed25519.');
+    if($signature!==null){
+        if(!function_exists('sodium_crypto_sign_verify_detached'))
+            throw new RuntimeException('Extensão Sodium indisponível para validar assinatura.');
+        $key=base64_decode($pub??IGUA_UPDATE_PUBLIC_KEY_B64,true);
+        if(!is_string($key)||strlen($key)!==SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES ||
+           strlen($signature)!==SODIUM_CRYPTO_SIGN_BYTES ||
+           !sodium_crypto_sign_verify_detached($signature,$raw,$key))
+            throw new RuntimeException('Assinatura digital inválida. Pacote recusado.');
+    }
+    if(!is_array($m)||!is_string($m['version']??null)||
+       !preg_match('/^\d+\.\d+\.\d+$/D',$m['version']) || !isset($m['files'])||!is_array($m['files'])||count($m['files'])<2||count($m['files'])>IGUA_UPDATE_MAX_FILES)
+        throw new RuntimeException('Manifesto de atualização inválido.');
+    if(!isset($m['schema_revision'])||!is_int($m['schema_revision'])||$m['schema_revision']<1)
+        throw new RuntimeException('Revisão do banco não informada.');
+    if(!isset($m['min_php'])||!is_string($m['min_php'])||!preg_match('/^\d+\.\d+\.\d+$/D',$m['min_php']))
+        throw new RuntimeException('Versão mínima PHP inválida.');
+    if(version_compare(PHP_VERSION,$m['min_php'],'<'))throw new RuntimeException('Atualização exige PHP '.$m['min_php'].' ou superior.');
+    $total=0;$paths=[];
+    foreach($m['files'] as $entry){
+        if(!is_array($entry)||!is_string($entry['path']??null)||!igua_updater_safe_path($entry['path'])||
+           !is_string($entry['sha256']??null)||!preg_match('/^[a-f0-9]{64}$/D',$entry['sha256'])||
+           !is_int($entry['size']??null)||$entry['size']<0||$entry['size']>12*1024*1024)
+            throw new RuntimeException('Manifesto contém caminho ou tamanho inválido.');
+        if(isset($paths[$entry['path']]))throw new RuntimeException('Manifesto contém arquivo duplicado.');
+        $paths[$entry['path']]=true;
+        $total+=$entry['size'];
+        if($total>IGUA_UPDATE_MAX_TOTAL)throw new RuntimeException('Pacote descompactado excede limite.');
+    }
+    if(!isset($paths['VERSION'],$paths['public/admin.php'],$paths['app/updater.php']))
+        throw new RuntimeException('Pacote incompleto: faltam arquivos essenciais.');
+    $m['signature_status']=$signature===null?'unsigned':'signed';
+    return $m;
+}
+function igua_updater_unzip_verified(string $zipPath,string $stage): array {
+    if(!class_exists('ZipArchive'))throw new RuntimeException('A extensão ZIP do PHP precisa estar ativa.');
+    if(is_link($zipPath)||!is_file($zipPath)||filesize($zipPath)>IGUA_UPDATE_MAX_ZIP)
+        throw new RuntimeException('Pacote ZIP inválido ou acima do limite de 32 MB.');
+    $zip=new ZipArchive();
+    if($zip->open($zipPath)!==true)throw new RuntimeException('Não foi possível abrir o ZIP.');
+    try {
+        if($zip->numFiles<3||$zip->numFiles>IGUA_UPDATE_MAX_FILES+2)throw new RuntimeException('Quantidade de arquivos inválida.');
+        $raw=$zip->getFromName('release.json');$sig=$zip->getFromName('release.sig');
+        if(!is_string($raw)||($sig!==false&&!is_string($sig)))
+            throw new RuntimeException('Manifesto ou assinatura do ZIP inválidos.');
+        $signed=is_string($sig);
+        $m=igua_updater_check_manifest($raw,$signed?$sig:null);
+        if(version_compare($m['version'],igua_updater_version(),'='))
+            throw new RuntimeException('A versão '.$m['version'].' já está instalada. Nenhuma alteração foi necessária.');
+        if(version_compare($m['version'],igua_updater_version(),'<'))
+            throw new RuntimeException('Pacote antigo: a versão instalada é '.igua_updater_version().'. Nenhuma alteração foi necessária.');
+        if(!defined('IGUA_SCHEMA_REVISION')||$m['schema_revision']!==IGUA_SCHEMA_REVISION)
+            throw new RuntimeException('Esta atualização altera a revisão do banco. Exige instalação assistida e backup externo.');
+        $expected=[];foreach($m['files'] as $f)$expected[$f['path']]=$f;
+        $seen=[];
+        for($i=0;$i<$zip->numFiles;$i++){
+            $stat=$zip->statIndex($i);
+            if(!is_array($stat))throw new RuntimeException('ZIP com entrada inválida.');
+            $name=$stat['name'];
+            if(isset($seen[$name]))throw new RuntimeException('ZIP contém entrada repetida.');
+            $seen[$name]=true;
+            if($name==='release.json'||$name==='release.sig')continue;
+            if(!isset($expected[$name])||!igua_updater_safe_path($name)||$stat['size']!==$expected[$name]['size'])
+                throw new RuntimeException('ZIP contém arquivo inesperado ou incorreto.');
+            $external=$zip->getExternalAttributesIndex($i,$opsys,$attrs);
+            if($external && $opsys===ZipArchive::OPSYS_UNIX && (($attrs>>16)&0170000)===0120000)
+                throw new RuntimeException('Links simbólicos não são permitidos no ZIP.');
+        }
+        if(count($seen)!==count($expected)+($signed?2:1))throw new RuntimeException('Pacote incompleto.');
+        if(!@mkdir($stage,0700,true))throw new RuntimeException('Não foi possível preparar área privada de atualização.');
+        foreach($expected as $path=>$f){
+            $target=$stage.'/'.$path;
+            if(!is_dir(dirname($target))&&!@mkdir(dirname($target),0700,true))throw new RuntimeException('Falha ao preparar pacote.');
+            $input=$zip->getStream($path);$output=@fopen($target,'wb');
+            if(!$input||!$output){if(is_resource($input))fclose($input);if(is_resource($output))fclose($output);throw new RuntimeException('Falha ao extrair pacote.');}
+            try { $written=stream_copy_to_stream($input,$output,$f['size']+1); }
+            finally {fclose($input);fclose($output);}
+            if($written!==$f['size'] || !hash_equals($f['sha256'],hash_file('sha256',$target)))
+                throw new RuntimeException('Integridade SHA-256 divergente: '.$path);
+        }
+        $got=trim((string)file_get_contents($stage.'/VERSION'));
+        if($got!==$m['version'])throw new RuntimeException('Versão interna do pacote divergente.');
+        return $m;
+    }finally{$zip->close();}
+}
+function igua_updater_delete_tree(string $path): void {
+    if(!is_dir($path)||is_link($path))return;
+    $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS),RecursiveIteratorIterator::CHILD_FIRST);
+    foreach($it as $file){$p=$file->getPathname();if($file->isLink()||$file->isFile())@unlink($p);else @rmdir($p);}
+    @rmdir($path);
+}
+function igua_updater_checked_target(string $path): string {
+    if(!igua_updater_safe_path($path))throw new RuntimeException('Caminho não autorizado.');
+    $target=IGUA_ROOT.'/'.$path;$dir=dirname($target);
+    $base=realpath(IGUA_ROOT);
+    if(!$base||is_link(IGUA_ROOT))throw new RuntimeException('Raiz de projeto insegura.');
+    $relative=explode('/',dirname($path));$cursor=IGUA_ROOT;
+    foreach($relative as $segment){
+        if($segment==='.')continue;
+        $cursor.='/'.$segment;
+        if(is_link($cursor))throw new RuntimeException('Link simbólico na pasta de destino.');
+        if(!file_exists($cursor)&&!@mkdir($cursor,0755))throw new RuntimeException('Não foi possível criar pasta de destino.');
+        if(!is_dir($cursor))throw new RuntimeException('Pasta de destino inválida.');
+    }
+    if(is_link($target)|| (file_exists($target)&&!is_file($target)))throw new RuntimeException('Arquivo de destino inesperado.');
+    return $target;
+}
+function igua_updater_replace(string $source,string $destination): void {
+    $tmp=@tempnam(dirname($destination),'.deploy-');
+    if($tmp===false)throw new RuntimeException('Não foi possível criar arquivo temporário no destino.');
+    try{
+        $in=@fopen($source,'rb');$out=@fopen($tmp,'wb');
+        if(!$in||!$out)throw new RuntimeException('Falha de abertura ao atualizar arquivo.');
+        try{$n=stream_copy_to_stream($in,$out);}finally{fclose($in);fclose($out);}
+        if($n!==filesize($source)||!@chmod($tmp,0644)||!@rename($tmp,$destination))
+            throw new RuntimeException('Falha ao substituir arquivo do portal.');
+    }finally{if(is_file($tmp))@unlink($tmp);}
+}
+function igua_updater_backup_code(array $m,string $dir): array {
+    $entries=[];
+    foreach($m['files'] as $file){
+        $path=$file['path'];$dest=igua_updater_checked_target($path);
+        $exists=is_file($dest);
+        $snap=$dir.'/old/'.$path;
+        if($exists){
+            if(!is_dir(dirname($snap))&&!@mkdir(dirname($snap),0700,true))throw new RuntimeException('Falha ao preparar cópia de segurança.');
+            if(!@copy($dest,$snap))throw new RuntimeException('Não foi possível salvar código original.');
+            @chmod($snap,0600);
+            if(hash_file('sha256',$dest)!==hash_file('sha256',$snap))throw new RuntimeException('Backup de código não foi validado.');
+        }
+        $entries[]=['path'=>$path,'exists'=>$exists,'sha256'=>$exists?hash_file('sha256',$snap):null,'new_sha256'=>$file['sha256']];
+    }
+    return $entries;
+}
+/**
+ * Restaura código usando somente snapshots previamente conferidos.
+ * Uma cópia ausente/adulterada deve bloquear a operação ANTES de qualquer escrita.
+ * Mesmo após a pré-validação, falhas de I/O podem exigir recuperação assistida.
+ */
+function igua_updater_rollback_plan(string $jobDir,array $journal): array {
+    $entries=$journal['files']??null;
+    if(!is_array($entries)||$entries===[])throw new RuntimeException('Registro de recuperação inválido.');
+    $planned=[];
+    foreach(array_reverse($entries) as $entry){
+        if(!is_array($entry)||!is_string($entry['path']??null)||!igua_updater_safe_path($entry['path'])||
+           !is_bool($entry['exists']??null))
+            throw new RuntimeException('Registro de recuperação inválido.');
+        $path=$entry['path'];
+        $dest=igua_updater_checked_target($path);
+        $newSha=$entry['new_sha256']??null;
+        $oldSha=$entry['sha256']??null;
+        if(!is_string($newSha)||!preg_match('/^[a-f0-9]{64}$/D',$newSha)||
+           ($entry['exists']&&(!is_string($oldSha)||!preg_match('/^[a-f0-9]{64}$/D',$oldSha))))
+            throw new RuntimeException('Registro de recuperação contém hash inválido.');
+        // Em aplicações parciais, cada destino só pode conter a versão antiga,
+        // a nova, ou estar ausente quando o arquivo não existia originalmente.
+        // Isso impede sobrescrever uma intervenção externa feita após a falha.
+        $currentSha=is_file($dest)?@hash_file('sha256',$dest):false;
+        if(($journal['status']??'')==='complete'){
+            if(!is_string($currentSha)||!hash_equals($newSha,$currentSha))
+                throw new RuntimeException('Arquivos foram modificados após a atualização. Não é seguro restaurar automaticamente.');
+        } elseif($currentSha===false) {
+            if($entry['exists'])throw new RuntimeException('Arquivos foram modificados fora da atualização. Recuperação automática bloqueada.');
+        } elseif(!hash_equals($newSha,$currentSha)&&
+                !($entry['exists']&&hash_equals($oldSha,$currentSha))) {
+            throw new RuntimeException('Arquivos foram modificados fora da atualização. Recuperação automática bloqueada.');
+        }
+        $old=null;
+        if($entry['exists']){
+            $old=$jobDir.'/old/'.$path;
+            if(is_link($old)||!is_file($old)||!is_string($entry['sha256']??null)||
+               !hash_equals($entry['sha256'],hash_file('sha256',$old)))
+                throw new RuntimeException('Arquivo de recuperação ausente ou adulterado.');
+        }
+        $planned[]=['dest'=>$dest,'old'=>$old];
+    }
+    return $planned;
+}
+/** Callback opcional apenas para simular interrupções durante a restauração offline. */
+function igua_updater_rollback(string $jobDir,array $journal,?callable $afterRestore=null): void {
+    $planned=igua_updater_rollback_plan($jobDir,$journal);
+    foreach($planned as $item){
+        if($item['old']!==null){
+            igua_updater_replace($item['old'],$item['dest']);
+            if(function_exists('opcache_invalidate') && str_ends_with($item['dest'],'.php'))@opcache_invalidate($item['dest'],true);
+        }elseif(is_file($item['dest'])&&!@unlink($item['dest'])){
+            throw new RuntimeException('Falha ao retirar arquivo novo na recuperação.');
+        }
+        if($afterRestore!==null)$afterRestore($item['dest']);
+    }
+}
+/**
+ * Aplica os arquivos com VERSION por último. O callback opcional é exclusivo
+ * dos testes offline para injetar falhas determinísticas entre substituições.
+ */
+function igua_updater_apply_code(array $entries,string $jobDir,?callable $afterReplace=null): void {
+    foreach($entries as $entry){
+        if($entry['path']==='VERSION')continue;
+        $path=$entry['path'];
+        igua_updater_replace($jobDir.'/new/'.$path,igua_updater_checked_target($path));
+        if(function_exists('opcache_invalidate') && str_ends_with($path,'.php'))@opcache_invalidate(IGUA_ROOT.'/'.$path,true);
+        if($afterReplace!==null)$afterReplace($path);
+    }
+    igua_updater_replace($jobDir.'/new/VERSION',igua_updater_checked_target('VERSION'));
+    if($afterReplace!==null)$afterReplace('VERSION');
+}
+function igua_updater_maintenance(): string {
+    // Consulta sem falha fatal caso a VPS ainda não tenha sido provisionada.
+    return igua_updater_vps_mode()?IGUA_UPDATE_DIR.'/vps/private/maintenance':IGUA_STORAGE.'/.update-maintenance';
+}
+/** Um marcador legado da implantação anterior exige investigação, nunca é removido automaticamente. */
+function igua_updater_maintenance_present(): bool {
+    if(igua_updater_vps_mode() && (is_file(IGUA_STORAGE.'/.update-maintenance')||is_link(IGUA_STORAGE.'/.update-maintenance')))return true;
+    $marker=igua_updater_maintenance();
+    return is_file($marker)||is_link($marker);
+}
+/** Em VPS, grava o marcador no diretório do worker, com leitura para o painel e sem escrita do www-data. */
+function igua_updater_set_maintenance(string $id): void {
+    if(!preg_match('/^[a-f0-9]{24}$/D',$id))throw new RuntimeException('Marcador inválido.');
+    $marker=igua_updater_maintenance();
+    if(is_link($marker)||file_exists($marker))throw new RuntimeException('Já existe manutenção pendente.');
+    if(igua_updater_vps_mode()){
+        if(PHP_SAPI!=='cli')throw new RuntimeException('Apenas o worker pode ativar manutenção.');
+        igua_updater_vps_assert_worker();
+        igua_updater_vps_private_dir();
+        $tmp=@tempnam(dirname($marker),'.maint-');
+        if($tmp===false)throw new RuntimeException('Controle privado do deploy indisponível.');
+        try {
+            if(file_put_contents($tmp,$id,LOCK_EX)!==strlen($id)||!@chmod($tmp,0640)||!@rename($tmp,$marker))
+                throw new RuntimeException('Falha ao ativar modo de manutenção.');
+        }finally{if(is_file($tmp))@unlink($tmp);}
+    }else{
+        if(file_put_contents($marker,$id,LOCK_EX)!==strlen($id)){
+            @unlink($marker);throw new RuntimeException('Falha ao ativar modo de manutenção.');
+        }
+        @chmod($marker,0600);
+    }
+}
+
+/** Não reportar sucesso quando a hospedagem não consegue retirar a manutenção. */
+function igua_updater_clear_maintenance(): void {
+    $marker=igua_updater_maintenance();
+    if(is_link($marker))throw new RuntimeException('Marcador de manutenção inesperado. Recuperação assistida necessária.');
+    if(file_exists($marker)&&!@unlink($marker))
+        throw new RuntimeException('Falha ao remover modo de manutenção. Recuperação assistida necessária.');
+}
+
+function igua_updater_lock(){
+        $path=igua_updater_vps_mode()?igua_updater_vps_private_path('.code.lock'):igua_updater_folder().'/.lock';
+    if(is_link($path))throw new RuntimeException('Lock de atualização inseguro.');
+    $fp=@fopen($path,'c+b');
+    if(!$fp||!flock($fp,LOCK_EX|LOCK_NB))throw new RuntimeException('Outra atualização já está em execução.');
+    return $fp;
+}
+function igua_updater_last_job(): ?array {
+    $index=igua_updater_read_json(igua_updater_folder().'/last.json');
+    if(!$index||!is_string($index['id']??null)||!preg_match('/^[a-f0-9]{24}$/D',$index['id']))return null;
+    $journal=igua_updater_read_json(IGUA_UPDATE_DIR.'/jobs/'.$index['id'].'/state.json');
+    return $journal && ($journal['id']??null)===$index['id'] ? ['dir'=>IGUA_UPDATE_DIR.'/jobs/'.$index['id'],'journal'=>$journal] : null;
+}
+/**
+ * Analisa os caminhos de um manifesto validado sem alterar arquivos locais.
+ * A comparação é informativa: "alterado" não significa que o código local foi
+ * adulterado, apenas que difere da nova versão que se deseja instalar.
+ */
+function igua_updater_inspect_path(string $relative,?string $base=null): ?string {
+    if(!igua_updater_safe_path($relative))return null;
+    $root=$base??IGUA_ROOT;
+    if(is_link($root)||!is_dir($root))return null;
+    $cursor=$root;
+    foreach(explode('/',$relative) as $part){
+        $cursor.='/'.$part;
+        if(is_link($cursor))return null;
+    }
+    return $cursor;
+}
+function igua_updater_file_changes(array $manifest,?string $base=null): array {
+    $counts=['new'=>0,'changed'=>0,'identical'=>0,'unsafe'=>0];$examples=[];
+    foreach(($manifest['files']??[]) as $file){
+        $path=is_array($file)?($file['path']??null):null;
+        $sha=is_array($file)?($file['sha256']??null):null;
+        $size=is_array($file)?($file['size']??null):null;
+        if(!is_string($path)||!is_string($sha)||!preg_match('/^[a-f0-9]{64}$/D',$sha)||!is_int($size)||$size<0) {
+            $counts['unsafe']++;continue;
+        }
+        $target=igua_updater_inspect_path($path,$base);
+        if($target===null || (file_exists($target)&&!is_file($target))){$type='unsafe';}
+        elseif(!is_file($target)){$type='new';}
+        elseif(filesize($target)===$size && hash_equals($sha,(string)@hash_file('sha256',$target))){$type='identical';}
+        else{$type='changed';}
+        $counts[$type]++;
+        if($type!=='identical'&&count($examples)<12)$examples[]=['path'=>$path,'type'=>$type];
+    }
+    return ['counts'=>$counts,'examples'=>$examples,'total'=>array_sum($counts)];
+}
+/** Verifica os hashes que o journal marcou como instalados na última atualização. */
+function igua_updater_installed_integrity(?array $journal=null,?string $base=null): array {
+    if($journal===null){$last=igua_updater_last_job();$journal=$last['journal']??null;}
+    if(!is_array($journal)||($journal['status']??'')!=='complete'||!is_array($journal['files']??null))
+        return ['available'=>false,'status'=>'unavailable'];
+    $root=$base??IGUA_ROOT;
+    $version=trim((string)@file_get_contents($root.'/VERSION'));
+    if($version!==($journal['to']??null))return ['available'=>false,'status'=>'version_mismatch'];
+    $total=0;$verified=0;$issues=[];
+    foreach($journal['files'] as $entry){
+        if(++$total>IGUA_UPDATE_MAX_FILES)break;
+        $path=is_array($entry)?($entry['path']??null):null;
+        $sha=is_array($entry)?($entry['new_sha256']??null):null;
+        if(!is_string($path)||!is_string($sha)||!preg_match('/^[a-f0-9]{64}$/D',$sha)){$status='unsafe';}
+        else{
+            $target=igua_updater_inspect_path($path,$root);
+            if($target===null)$status='unsafe';
+            elseif(!is_file($target))$status='missing';
+            elseif(!hash_equals($sha,(string)@hash_file('sha256',$target)))$status='changed';
+            else{$status='ok';$verified++;}
+        }
+        if($status!=='ok'&&count($issues)<8)$issues[]=['path'=>is_string($path)?$path:'(inválido)','status'=>$status];
+    }
+    if($total===0||count($journal['files'])>IGUA_UPDATE_MAX_FILES)return ['available'=>false,'status'=>'invalid_journal'];
+    return ['available'=>true,'status'=>$verified===$total?'ok':'changed','total'=>$total,'verified'=>$verified,'issues'=>$issues];
+}
+/** Retorna as operações recentes sem expor nomes de backups ou dados privados. */
+function igua_updater_history(int $limit=6,?string $jobsRoot=null): array {
+    $limit=max(1,min(10,$limit));$root=$jobsRoot??IGUA_UPDATE_DIR.'/jobs';
+    if(!is_dir($root)||is_link($root))return [];
+    $candidates=[];$scanned=0;
+    try{$iterator=new DirectoryIterator($root);}catch(Throwable $e){return [];}
+    foreach($iterator as $dir){
+        if(++$scanned>2000)break;
+        if(!$dir->isDir()||$dir->isLink()||!preg_match('/^[a-f0-9]{24}$/D',$dir->getFilename()))continue;
+        $state=$dir->getPathname().'/state.json';
+        if(!is_file($state)||is_link($state)||(int)@filesize($state)>512*1024)continue;
+        $candidates[]=['path'=>$state,'mtime'=>(int)@filemtime($state)];
+    }
+    usort($candidates,static fn($a,$b)=>$b['mtime']<=>$a['mtime']);
+    $history=[];
+    foreach(array_slice($candidates,0,max(25,$limit*3)) as $candidate){
+        $data=igua_updater_read_json($candidate['path']);
+        if(!is_array($data)||!preg_match('/^[a-f0-9]{24}$/D',(string)($data['id']??''))||
+           $data['id']!==basename(dirname($candidate['path']))||
+           !preg_match('/^\d+\.\d+\.\d+$/D',(string)($data['from']??''))||
+           !preg_match('/^\d+\.\d+\.\d+$/D',(string)($data['to']??'')))continue;
+        $state=(string)($data['status']??'');
+        if(!in_array($state,['preparing','prepared','applying','complete','rolled_back','recovery_needed'],true))continue;
+        $history[]=['id'=>$data['id'],'from'=>$data['from'],'to'=>$data['to'],'status'=>$state,'at'=>is_string($data['at']??null)?$data['at']:''];
+        if(count($history)>=$limit)break;
+    }
+    return $history;
+}
+
+/**
+ * Conferência de destino para substituição atômica por rename().
+ * O destino existente precisa ser legível para backup, mas NÃO gravável:
+ * tempnam()/rename() trabalham no diretório pai. Exigir escrita no próprio
+ * arquivo causava um falso bloqueio em arquivos 0444 de hospedagem compartilhada.
+ * A vistoria é somente leitura; não altera chmod, ownership ou arquivos.
+ */
+function igua_updater_code_target_issue(string $relative): ?string {
+    if(!igua_updater_safe_path($relative))return 'caminho não autorizado';
+    if(!is_dir(IGUA_ROOT)||is_link(IGUA_ROOT))return 'raiz do projeto insegura';
+    $cursor=IGUA_ROOT;
+    foreach(explode('/',dirname($relative)) as $part){
+        if($part==='.')continue;
+        $next=$cursor.'/'.$part;
+        if(is_link($next))return 'link simbólico em pasta do código';
+        if(!file_exists($next))break; // A instalação criará pastas que faltam.
+        if(!is_dir($next))return 'componente da pasta não é diretório';
+        $cursor=$next;
+    }
+    $target=IGUA_ROOT.'/'.$relative;
+    if(is_link($target))return 'arquivo é link simbólico';
+    if(file_exists($target)&&!is_file($target))return 'destino não é arquivo comum';
+    if(is_file($target)&&!is_readable($target))return 'arquivo não pode ser lido para backup';
+    if(!is_writable($cursor)||!is_executable($cursor))return 'pasta de destino sem escrita/travessia';
+    return null;
+}
+
+/**
+ * Diagnóstico sem escrita: o painel não muda arquivos nem o banco ao vistoriar.
+ * O status "aviso" descreve limites não verificáveis (ex.: cota da hospedagem),
+ * e nunca deve ser mostrado como um teste real de backup ou deploy bem-sucedido.
+ */
+function igua_updater_preflight(?PDO $db=null, ?array $manifest=null): array {
+    $checks=[];
+    $add=static function(string $name,string $status,string $detail)use(&$checks):void {
+        $checks[]=['name'=>$name,'status'=>$status,'detail'=>$detail];
+    };
+    $add('PHP 8.1+',version_compare(PHP_VERSION,'8.1.0','>=')?'ok':'falha','Versão detectada: '.PHP_VERSION);
+    foreach(['zip'=>'Leitura e validação de ZIP','pdo_mysql'=>'Conexão PDO MySQL'] as $ext=>$label){
+        $add($label,extension_loaded($ext)?'ok':'falha',$ext.' '.(extension_loaded($ext)?'disponível':'não disponível'));
+    }
+    $add('Ed25519 legado',extension_loaded('sodium')?'ok':'aviso',extension_loaded('sodium')?'Pacotes antigos assinados podem ser verificados':'Pacotes antigos assinados exigem Sodium; pacotes v2 sem assinatura continuam disponíveis');
+    $add('cURL para GitHub',extension_loaded('curl')?'ok':'aviso',extension_loaded('curl')?'Download direto disponível':'Sem cURL: use somente o envio manual de ZIP');
+    $storage=realpath(IGUA_STORAGE);
+    $public=realpath(IGUA_PUBLIC);
+    $safeStorage=$storage!==false&&$public!==false&&$storage!==$public&&!str_starts_with($storage,$public.'/');
+    $add('Dados privados fora da web',$safeStorage?'ok':'falha',$safeStorage?'storage está fora da raiz pública':'Não foi possível comprovar isolamento de storage');
+    $layout=realpath(IGUA_ROOT.'/public');
+    $supported=$layout!==false&&$public!==false&&$layout===$public;
+    $add('Layout de publicação',$supported?'ok':'falha',$supported?'Código público em public/':'O motor atual usa IGUA_ROOT/public; outro layout exige atualização assistida');
+    $root=realpath(IGUA_ROOT);
+    $add('Pasta do código',$root!==false&&!is_link(IGUA_ROOT)?'ok':'falha',$root!==false?'Diretório existente':'Raiz do projeto ausente ou por link simbólico');
+    $vps=igua_updater_vps_mode();
+    if($vps){
+        $canRead=is_dir(IGUA_STORAGE)&&!is_link(IGUA_STORAGE)&&is_readable(IGUA_STORAGE.'/config.php');
+        $add('Dados privados acessíveis ao worker',$canRead?'ok':'falha',
+            $canRead?'Configuração privada legível; storage não precisa ser gravável pelo deploy':'Worker sem leitura do arquivo de configuração');
+    }
+    foreach(($vps?['backups'=>IGUA_STORAGE.'/backups','atualizador'=>IGUA_UPDATE_DIR]:
+                ['storage'=>IGUA_STORAGE,'backups'=>IGUA_STORAGE.'/backups','atualizador'=>IGUA_UPDATE_DIR]) as $label=>$path){
+        $valid=!is_link($path)&&(is_dir($path)?is_writable($path):(is_dir(dirname($path))&&!is_link(dirname($path))&&is_writable(dirname($path))));
+        $add('Escrita em '.$label,$valid?'ok':'falha',$valid?'Permissão aparente adequada':'Pasta ausente sem possibilidade aparente de criação/escrita');
+    }
+    if($db!==null){
+        try{$ok=$db->query('SELECT 1')->fetchColumn()!==false;$add('Leitura do MySQL',$ok?'ok':'falha',$ok?'SELECT 1 executado':'Consulta não retornou resultado');}
+        catch(Throwable $e){$add('Leitura do MySQL','falha','Não foi possível consultar o banco; verifique a conexão no painel');}
+    }else{$add('Leitura do MySQL','aviso','Banco não testado nesta vistoria');}
+    if(igua_updater_maintenance_present())$add('Atualização pendente','falha','Modo de manutenção ativo: conclua a recuperação antes de instalar');
+    else $add('Atualização pendente','ok','Nenhuma manutenção ativa');
+    if($vps){
+        try{
+            $queue=igua_updater_vps_dir();
+            if(PHP_SAPI==='cli'){
+                $health=igua_updater_vps_worker_probe();
+                $recent=true;
+            }else{
+                $worker=igua_updater_vps_read('worker.json');
+                $recent=is_array($worker)&&is_int($worker['at']??null)&&$worker['at']>=time()-180;
+                $health=$recent?$worker:[];
+            }
+            $ready=$recent&&($health['ready']??false)===true;
+            $add('Serviço de implantação separado',$ready?'ok':'falha',
+                $ready?'Vistoria real do worker aprovada; PHP-FPM não substitui código':'Worker ausente ou vistoria real não aprovada. Execute bin/aws-deploy-check.php como conta dedicada.');
+            $checks=$health['checks']??[];
+            $atomics=$ready&&is_array($checks)&&($checks['root_atomic']??false)===true&&
+                ($checks['app_atomic']??false)===true&&($checks['public_atomic']??false)===true&&
+                ($checks['control_atomic']??false)===true&&($checks['jobs_atomic']??false)===true;
+            $add('Renomeação atômica pela conta de deploy',$atomics?'ok':'falha',
+                $atomics?'Raiz, app/, public/ e controles testados com arquivos descartáveis':'O serviço não comprovou a troca atômica nos diretórios necessários.');
+            $control=$ready&&($checks['queue_secure']??false)===true&&($checks['queue_lock']??false)===true;
+            $add('Controles protegidos do worker',$control?'ok':'falha',
+                $control?'Marcadores exclusivos do deploy; www-data apenas solicita e consulta':'Controle privado, fila ou lock não verificados.');
+            $queueWritable=is_writable($queue);
+            $add('Fila privada de atualizações',$queueWritable?'ok':'falha',
+                $queueWritable?'PHP-FPM pode enviar pedidos sem acesso à implantação':'PHP-FPM não consegue enviar solicitações.');
+            if(is_file(igua_updater_vps_path('running.json')))$add('Deploy em andamento','aviso','Solicitação ativa ou interrompida; investigar antes de novo envio.');
+            $add('Escrita do código', $ready?'ok':'falha',
+                $ready?'Escrita validada pela conta dedicada; PHP-FPM não precisa escrever em VERSION':'Serviço não comprovou o acesso de escrita necessário.');
+        }catch(Throwable){
+            $add('Serviço de implantação separado','falha','Fila ou diretório privado do worker não configurados.');
+            $add('Escrita do código','falha','Permissões de implantação não confirmadas.');
+        }
+    }else{
+    $paths=$manifest['files']??[['path'=>'VERSION'],['path'=>'app/updater.php'],['path'=>'public/admin.php']];
+    $bad=[];$examined=0;$readonly=0;
+    foreach($paths as $entry){
+        $rel=$entry['path']??null;
+        if(!is_string($rel)){$bad[]='caminho inválido';continue;}
+        $examined++;
+        $issue=igua_updater_code_target_issue($rel);
+        if($issue!==null){
+            if(count($bad)<5)$bad[]=$rel.' ('.$issue.')';
+            continue;
+        }
+        $target=IGUA_ROOT.'/'.$rel;
+        if(is_file($target)&&!is_writable($target))$readonly++;
+    }
+    $description=$bad?'Destino não substituível com segurança: '.implode(', ',$bad):
+        'Pastas graváveis para troca atômica de '.$examined.' arquivo(s)'.
+        ($readonly>0?'; '.$readonly.' arquivo(s) somente leitura podem ser substituídos por rename()':'');
+    $add('Escrita do código',$bad?'falha':'ok',$description);
+    }
+    $disk=@disk_free_space(IGUA_STORAGE);
+    if($disk===false)$add('Espaço disponível','aviso','Não foi possível consultar o espaço; a cota contratual deve ser verificada no Plesk');
+    else {
+        $mib=(int)floor($disk/(1024*1024));
+        $add('Espaço disponível',$mib>=160?'ok':'aviso',$mib.' MiB livres informados pelo sistema; isso não garante a cota real da hospedagem');
+    }
+    $memory=ini_get('memory_limit');$seconds=(int)ini_get('max_execution_time');
+    $memoryBytes=igua_updater_ini_bytes((string)$memory);
+    $add('Limites de execução',($memoryBytes===-1||$memoryBytes>=128*1024*1024)&&($seconds===0||$seconds>=60)?'ok':'aviso',
+        'memory_limit='.($memory!==false?$memory:'desconhecido').'; max_execution_time='.$seconds.' s. O provedor pode encerrar processos antes disso');
+    $fails=count(array_filter($checks,static fn($c)=>$c['status']==='falha'));
+    $warnings=count(array_filter($checks,static fn($c)=>$c['status']==='aviso'));
+    return ['ok'=>$fails===0,'failures'=>$fails,'warnings'=>$warnings,'checks'=>$checks];
+}
+function igua_updater_ini_bytes(string $value): int {
+    $value=trim($value);
+    if($value==='-1')return -1;
+    if(!preg_match('/^(\d+)([KMG]?)$/iD',$value,$m))return 0;
+    $n=(int)$m[1];$factor=[''=>1,'K'=>1024,'M'=>1048576,'G'=>1073741824];
+    return $n*$factor[strtoupper($m[2])];
+}
+/** Simula uma atualização sem substituir código e sem gravar no MySQL. */
+function igua_updater_preview_zip(string $zipPath, ?PDO $db=null): array {
+    $dir=igua_updater_folder().'/preview-'.bin2hex(random_bytes(12));
+    try {
+        $m=igua_updater_unzip_verified($zipPath,$dir);
+        $report=igua_updater_preflight($db,$m);
+        return ['version'=>$m['version'],'files'=>count($m['files']),'signature_status'=>$m['signature_status'],'preflight'=>$report,'changes'=>igua_updater_file_changes($m)];
+    } finally {igua_updater_delete_tree($dir);}
+}
+function igua_updater_install_zip(string $zipPath,PDO $db,?callable $onStage=null): array {
+    $lock=igua_updater_lock();$jobDir='';$journal=[];$maintenance=false;
+    try{
+        if(igua_updater_maintenance_present())throw new RuntimeException('Instalação anterior interrompida. Faça a recuperação antes de atualizar novamente.');
+        $id=bin2hex(random_bytes(12));$jobDir=IGUA_UPDATE_DIR.'/jobs/'.$id;
+        if(!@mkdir($jobDir,igua_updater_vps_mode()?0750:0700,true))throw new RuntimeException('Não foi possível preparar cópia privada.');
+        $onStage && $onStage('validating','Validando manifesto, caminhos e integridade do ZIP.');
+        $m=igua_updater_unzip_verified($zipPath,$jobDir.'/new');
+        $onStage && $onStage('preflight','Conferindo compatibilidade e permissões do servidor.');
+        $preflight=igua_updater_preflight($db,$m);
+        if(!$preflight['ok'])throw new RuntimeException('Pré-atualização bloqueada: corrija '.implode(', ',array_column(array_values(array_filter($preflight['checks'],static fn($check)=>$check['status']==='falha')),'name')).'.');
+        $journal=['id'=>$id,'from'=>igua_updater_version(),'to'=>$m['version'],'status'=>'preparing','at'=>date(DATE_ATOM),'files'=>[],'db_backup'=>null,'signature_status'=>$m['signature_status']];
+        $onStage && $onStage('backup','Criando cópias do código e do banco antes de instalar.');
+        $entries=igua_updater_backup_code($m,$jobDir);
+        $journal['files']=$entries;
+        // Banco é copiado antes de qualquer alteração do código.
+        $backup=make_backup($db,'manual');
+        if(igua_updater_vps_mode() && PHP_SAPI==='cli'){
+            $saved=backup_path($backup);
+            if($saved===null||!@chmod($saved,0640))throw new RuntimeException('Não foi possível disponibilizar o backup privado para recuperação pela interface.');
+        }
+        $journal['db_backup']=$backup;
+        $journal['status']='prepared';
+        igua_updater_write_json($jobDir.'/state.json',$journal);
+        igua_updater_write_json(IGUA_UPDATE_DIR.'/last.json',['id'=>$id]);
+        igua_updater_set_maintenance($id);$maintenance=true;
+        $journal['status']='applying';igua_updater_write_json($jobDir.'/state.json',$journal);
+        $onStage && $onStage('applying','Substituindo arquivos verificados do portal.');
+        igua_updater_apply_code($entries,$jobDir);
+        $journal['status']='complete';igua_updater_write_json($jobDir.'/state.json',$journal);
+        igua_updater_clear_maintenance();$maintenance=false;
+        igua_updater_delete_tree($jobDir.'/new');
+        @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
+        $onStage && $onStage('complete','Atualização instalada e registrada com sucesso.');
+        return ['version'=>$m['version'],'backup'=>$backup,'id'=>$id];
+    } catch(Throwable $e){
+        if($jobDir!=='' && ($journal['status']??'')==='applying'){
+            try{igua_updater_rollback($jobDir,$journal);if($maintenance)igua_updater_clear_maintenance();$journal['status']='rolled_back';igua_updater_write_json($jobDir.'/state.json',$journal);}
+            catch(Throwable $rollbackError){$journal['status']='recovery_needed';igua_updater_write_json($jobDir.'/state.json',$journal);throw new RuntimeException('Atualização interrompida e recuperação pendente. Reabra Atualizações no painel e restaure o código.');}
+        }
+        throw $e;
+    } finally {flock($lock,LOCK_UN);fclose($lock);}
+}
+function igua_updater_manual_rollback(): void {
+    $lock=igua_updater_lock();
+    try{
+        $job=igua_updater_last_job();
+        if(!$job || !in_array(($job['journal']['status']??''),['prepared','complete','recovery_needed','applying'],true))
+            throw new RuntimeException('Nenhuma atualização aplicável para recuperar.');
+        // Verificar versões e TODOS os snapshots antes de iniciar a recuperação.
+        igua_updater_rollback_plan($job['dir'],$job['journal']);
+        $marker=igua_updater_maintenance();
+        if(igua_updater_vps_mode()&&(is_file(IGUA_STORAGE.'/.update-maintenance')||is_link(IGUA_STORAGE.'/.update-maintenance')))
+            throw new RuntimeException('Marcador legado pendente: realize inspeção manual antes da recuperação.');
+        if(is_link($marker)|| (is_file($marker) && trim((string)@file_get_contents($marker))!==$job['journal']['id']))
+            throw new RuntimeException('Marcador de atualização não corresponde a esta recuperação.');
+        if(!is_file($marker)){
+            $id=(string)$job['journal']['id'];
+            igua_updater_set_maintenance($id);
+        }
+        // Persistir estado recuperável ANTES de substituir qualquer arquivo.
+        // Se a restauração for interrompida, a próxima tentativa é idempotente.
+        $job['journal']['status']='recovery_needed';
+        igua_updater_write_json($job['dir'].'/state.json',$job['journal']);
+        igua_updater_rollback($job['dir'],$job['journal']);
+        $job['journal']['status']='rolled_back';
+        igua_updater_write_json($job['dir'].'/state.json',$job['journal']);
+        try{igua_updater_clear_maintenance();}
+        catch(Throwable $error){
+            $job['journal']['status']='recovery_needed';
+            igua_updater_write_json($job['dir'].'/state.json',$job['journal']);
+            throw $error;
+        }
+    }finally{flock($lock,LOCK_UN);fclose($lock);}
+}
+/**
+ * Fonte de releases: configuração do administrador tem prioridade. Quando o
+ * pacote foi criado com uma origem oficial identificada, podemos ler o arquivo
+ * app/update-origin.json, assinado como parte do pacote do portal. Nunca
+ * identificar um repositório a partir de github-manager.json: neste projeto
+ * ele pode pertencer a outro aplicativo que compartilha o mesmo ZIP.
+ */
+function igua_updater_parse_repository(string $value): ?array {
+    $value=trim($value);
+    if(preg_match('~^https://github\.com/([A-Za-z0-9-]{1,39})/([A-Za-z0-9._-]{1,100})(?:\.git)?/?$~D',$value,$m)){
+        $value=$m[1].'/'.preg_replace('/\.git$/i','',$m[2]);
+    }
+    if(!preg_match('~^([A-Za-z0-9-]{1,39})/([A-Za-z0-9._-]{1,100})$~D',$value,$m))return null;
+    if(str_contains($m[2],'..')||$m[2]==='.'||$m[2]==='..'||str_ends_with($m[2],'.git'))return null;
+    return ['owner'=>$m[1],'repo'=>$m[2]];
+}
+function igua_updater_source(): array {
+    // Na VPS, pin imutável. Não confiar em source.json gravável pelo processo web.
+    if(igua_updater_vps_mode()) return ['owner'=>'drilemoz','repo'=>'Meu-Site','origin'=>'vps-fixed'];
+    $stored=igua_updater_read_json(IGUA_UPDATE_DIR.'/source.json');
+    if(is_array($stored)){
+        $source=igua_updater_parse_repository((string)($stored['owner']??'').'/'.(string)($stored['repo']??''));
+        if($source!==null)return $source+['origin'=>'manual'];
+    }
+    // Quando houver metadados específicos do portal, a fonte aparece
+    // automaticamente sem recolher credenciais nem consultar repos aleatórios.
+    $metadata=igua_updater_read_json(__DIR__.'/update-origin.json');
+    if(is_array($metadata)){
+        $source=igua_updater_parse_repository((string)($metadata['repository']??''));
+        if($source!==null)return $source+['origin'=>'metadata'];
+    }
+    $environment=getenv('IGUA_UPDATE_REPOSITORY');
+    if(is_string($environment)){
+        $source=igua_updater_parse_repository($environment);
+        if($source!==null)return $source+['origin'=>'environment'];
+    }
+    return ['owner'=>'','repo'=>'','origin'=>'unconfigured'];
+}
+function igua_updater_release_asset_name(string $name,string $version): bool {
+    return $name==='Atualizacao-v'.$version.'.zip' || $name==='Meu-Site-update-v'.$version.'.zip';
+}
+function igua_updater_set_source(string $owner,string $repo): void {
+    if(igua_updater_vps_mode())throw new RuntimeException('Origem GitHub bloqueada no modo VPS.');
+    foreach([$owner,$repo] as $part){if(!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$/D',$part)||str_contains($part,'..'))throw new RuntimeException('Nome de conta ou repositório inválido.');}
+    igua_updater_write_json(igua_updater_folder().'/source.json',['owner'=>$owner,'repo'=>$repo]);
+    @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
+}
+function igua_updater_reset_source(): void {
+    if(igua_updater_vps_mode())throw new RuntimeException('Origem imutável no modo VPS.');
+    $metadata=igua_updater_read_json(__DIR__.'/update-origin.json');
+    if(!is_array($metadata)||igua_updater_parse_repository((string)($metadata['repository']??''))===null)
+        throw new RuntimeException('Sem origem oficial válida no pacote para restaurar.');
+    $file=igua_updater_folder().'/source.json';
+    if(is_file($file)&&!@unlink($file))throw new RuntimeException('Não foi possível remover a origem personalizada.');
+    @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
+}
+function igua_updater_http(string $url,int $max): string {
+    if(!function_exists('curl_init'))throw new RuntimeException('Extensão cURL indisponível.');
+    $allowed=['api.github.com','github.com','release-assets.githubusercontent.com','objects.githubusercontent.com'];
+    for($jump=0;$jump<6;$jump++){
+        $parts=parse_url($url);
+        if(!$parts||strtolower($parts['scheme']??'')!=='https'||!in_array(strtolower($parts['host']??''),$allowed,true)||isset($parts['user']) || isset($parts['pass']) || isset($parts['fragment']) || isset($parts['port']))
+            throw new RuntimeException('Destino de download não autorizado.');
+        $ch=curl_init($url);$buffer='';$location='';$overLimit=false;
+        curl_setopt_array($ch,[CURLOPT_FOLLOWLOCATION=>false,CURLOPT_RETURNTRANSFER=>false,CURLOPT_TIMEOUT=>25,CURLOPT_CONNECTTIMEOUT=>6,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,CURLOPT_USERAGENT=>'MeuSiteUpdater/1.0 (+https://github.com)',CURLOPT_HTTPHEADER=>['Accept: application/vnd.github+json'],CURLOPT_HEADERFUNCTION=>static function($ch,$header)use(&$location){if(stripos($header,'Location:')===0)$location=trim(substr($header,9));return strlen($header);},CURLOPT_WRITEFUNCTION=>static function($ch,$chunk)use(&$buffer,$max,&$overLimit){if(strlen($buffer)+strlen($chunk)>$max){$overLimit=true;return 0;}$buffer.=$chunk;return strlen($chunk);}]);
+        $ok=curl_exec($ch);$status=(int)curl_getinfo($ch,CURLINFO_RESPONSE_CODE);$err=curl_error($ch);curl_close($ch);
+        if($overLimit)throw new RuntimeException('Resposta remota excede limite.');
+        if($ok===false)throw new RuntimeException('Falha na consulta HTTPS ao GitHub: '.$err);
+        if($status>=300&&$status<400&&$location!==''){$url=$location;continue;}
+        if($status!==200)throw new RuntimeException('Consulta à versão no GitHub retornou HTTP '.$status.'.');
+        return $buffer;
+    }
+    throw new RuntimeException('Redirecionamentos demais no download.');
+}
+function igua_updater_remote_release(bool $force=false): ?array {
+    $dir=igua_updater_folder();$source=igua_updater_source();
+    if(empty($source['owner'])||empty($source['repo']))return null;
+    $cache=igua_updater_read_json($dir.'/release-cache.json');
+    if(!$force && $cache && ($cache['checked']??0)>time()-1800){
+        $saved=$cache['release']??null;
+        if(is_array($saved))$saved['newer']=version_compare((string)($saved['version']??'0.0.0'),igua_updater_version(),'>');
+        return $saved;
+    }
+    $url='https://api.github.com/repos/'.rawurlencode($source['owner']).'/'.rawurlencode($source['repo']).'/releases/latest';
+    // Um repositório recém-criado pode ainda não ter releases; isso não é falha de SSL.
+    try {$response=igua_updater_http($url,384*1024);}
+    catch(RuntimeException $exc) {
+        if(str_contains($exc->getMessage(),'HTTP 404')){
+            igua_updater_write_json($dir.'/release-cache.json',['checked'=>time(),'release'=>null]);
+            return null;
+        }
+        throw $exc;
+    }
+    $json=json_decode($response,true);
+    if(!is_array($json))throw new RuntimeException('Resposta inválida do GitHub.');
+    $tag=ltrim((string)($json['tag_name']??''),'vV');
+    if(!preg_match('/^\d+\.\d+\.\d+$/D',$tag))throw new RuntimeException('Release sem versão semântica válida.');
+    $assetUrl=null;
+    foreach(($json['assets']??[]) as $asset){
+        if(!is_array($asset))continue;
+        if(igua_updater_release_asset_name((string)($asset['name']??''),$tag) && (int)($asset['size']??0)>0 && (int)$asset['size']<=IGUA_UPDATE_MAX_ZIP){
+            $assetUrl=(string)($asset['browser_download_url']??'');break;
+        }
+    }
+    $release=['version'=>$tag,'notes'=>substr((string)($json['body']??''),0,1800),'url'=>$assetUrl,'newer'=>version_compare($tag,igua_updater_version(),'>')];
+    igua_updater_write_json($dir.'/release-cache.json',['checked'=>time(),'release'=>$release]);
+    return $release;
+}
+function igua_updater_download_release(string $url): string {
+    $dir=igua_updater_folder();$bytes=igua_updater_http($url,IGUA_UPDATE_MAX_ZIP);
+    $file=@tempnam($dir,'.download-');if(!$file)throw new RuntimeException('Espaço privado indisponível para download.');
+    @chmod($file,0600);
+    if(file_put_contents($file,$bytes,LOCK_EX)!==strlen($bytes)){@unlink($file);throw new RuntimeException('Falha ao salvar ZIP recebido.');}
+    return $file;
+}

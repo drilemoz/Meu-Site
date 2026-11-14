@@ -1,0 +1,18 @@
+Options -Indexes
+DirectoryIndex index.php
+<FilesMatch "^(?:\.user\.ini|\.env|composer\.(?:json|lock))$">
+  Require all denied
+</FilesMatch>
+
+# URLs amigáveis opcionais do IguaNews (Apache mod_rewrite).
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^(noticia|categoria)/([a-z0-9]+(?:-[a-z0-9]+)*)/?$ index.php?p=$1&slug=$2 [L,QSA]
+  # Rotas de aplicativos preservam arquivos e diretórios físicos.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^([a-z0-9]+(?:-[a-z0-9]+)*)/([a-z0-9]+(?:-[a-z0-9]+)*)/?$ index.php?p=app&app_slug=$1&app_page=$2 [L,QSA]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^([a-z0-9]+(?:-[a-z0-9]+)*)/?$ index.php?p=app&app_slug=$1 [L,QSA]
+</IfModule>

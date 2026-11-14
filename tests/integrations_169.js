@@ -1,0 +1,28 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const script=fs.readFileSync(__dirname+'/../public/assets/js/integrations-admin.js','utf8');
+function node(id){return {id,hidden:false,open:false,attrs:{},dataset:{},classList:{flags:new Set(),toggle(c,v){if(v)this.flags.add(c);else this.flags.delete(c);}},setAttribute(k,v){this.attrs[k]=v;},scrollIntoView(){this.scrolled=true;}};}
+const sections=['google','diagnostico','catalogo'].map(node);
+const details=node('google-adsense'); details.tagName='DETAILS'; details.closest=()=>sections[0];
+const buttons=sections.map(x=>{const b=node('btn-'+x.id);b.dataset.intTarget=x.id;b.addEventListener=(name,cb)=>{b.cb=cb;};return b;});
+const nav={querySelectorAll:()=>buttons};
+const hub={querySelector:(selector)=>selector==='[data-integrations-nav]'?nav:null,querySelectorAll:(selector)=>selector==='[data-int-section]'?sections:[],contains:()=>true};
+const ids=Object.fromEntries([...sections,details].map(x=>[x.id,x]));
+const location={hash:''};const handlers={};
+const context={document:{getElementById:(id)=>id==='integrations-hub'?hub:ids[id]},location,history:{replaceState(a,b,hash){location.hash=hash;}},window:{addEventListener(name,cb){handlers[name]=cb;}},decodeURIComponent,encodeURIComponent};
+vm.runInNewContext(script,context);
+assert.equal(sections[0].hidden,false);
+assert.equal(sections[1].hidden,true);
+assert.equal(buttons[0].attrs['aria-pressed'],'true');
+buttons[1].cb();
+assert.equal(sections[1].hidden,false);
+assert.equal(sections[0].hidden,true);
+assert.equal(buttons[1].attrs['aria-pressed'],'true');
+assert.equal(location.hash,'#diagnostico');
+location.hash='#google-adsense';handlers.hashchange();
+assert.equal(details.open,true);
+assert.equal(sections[0].hidden,false);
+assert.equal(details.scrolled,true);
+console.log('Integrações 169 JS: abas, acessibilidade, link profundo e expansão aprovados.');

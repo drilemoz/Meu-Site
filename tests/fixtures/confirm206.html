@@ -1,0 +1,22 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Teste 206</title></head><body class="admin-body">
+<dialog id="admin-confirm-dialog"><p id="admin-confirm-message"></p><form method="dialog"><button type="submit" value="cancel">Cancelar</button><button id="admin-confirm-accept" type="submit" value="confirm">Confirmar</button></form></dialog>
+<dialog id="admin-message-dialog"><p id="admin-message-text"></p><button data-admin-message-close>Fechar</button></dialog>
+<form id="bus" method="post" action="/admin.php?action=bus_import_teixeira"><input type="checkbox" name="teixeira_confirm" required checked><button id="bus-trigger" type="submit" data-confirm="Cadastrar os horários da Teixeira?">Cadastrar</button></form>
+<form id="form-other" method="post" action="/admin.php?action=other" data-confirm="Autoriza a ação?" ><input type="checkbox" required checked><button id="form-trigger" type="submit">Autorizar</button></form>
+<script>window.__submitted=[];document.querySelectorAll('form[id]').forEach(form=>form.addEventListener('submit',e=>{e.preventDefault();window.__submitted.push(form.id)}));</script>
+<script src="../../public/assets/js/admin-ui.js"></script>
+<script>
+(async()=>{
+ const wait=ms=>new Promise(r=>setTimeout(r,ms));
+ document.getElementById('bus-trigger').click();await wait(60);
+ const openedBus=document.getElementById('admin-confirm-dialog').open;
+ document.getElementById('admin-confirm-accept').click();await wait(60);
+ const busSubmitted=window.__submitted.includes('bus');
+ document.getElementById('form-trigger').click();await wait(60);
+ const openedOther=document.getElementById('admin-confirm-dialog').open;
+ document.getElementById('admin-confirm-accept').click();await wait(60);
+ const otherSubmitted=window.__submitted.includes('form-other');
+ document.body.dataset.confirm206=openedBus&&busSubmitted&&openedOther&&otherSubmitted?'PASS':'FAIL';
+ document.body.dataset.details206=JSON.stringify({openedBus,busSubmitted,openedOther,otherSubmitted,submitted:window.__submitted});
+})();
+</script></body></html>

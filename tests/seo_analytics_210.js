@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs');const assert=require('assert');const root=require('path').join(__dirname,'..');
+const js=fs.readFileSync(root+'/public/assets/js/seo-settings.js','utf8');
+assert(js.includes("[data-seo-clear]"));
+assert(js.includes("'seo_page_description_'+route"));
+assert(js.includes("el('seo-social-selected-image')"));
+const picker=fs.readFileSync(root+'/public/assets/js/media-library.js','utf8');
+assert(picker.includes("mode==='social'||mode==='favicon'"));
+assert(picker.includes("input.dispatchEvent(new Event('input'"));
+console.log('SEO/analytics 1.0.110 JS aprovado');
