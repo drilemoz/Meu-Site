@@ -1,5 +1,0 @@
-<?php if($id): ?>
-<div class="panel news-revisions"><h3>Histórico de revisões</h3><p class="muted">Últimas 20 versões: recupere texto, blocos, categorias e SEO sem apagar fotos, anexos nem data de publicação.</p>
-<?php $rev=$db->prepare('SELECT r.id,r.created_at,u.name FROM article_revisions r LEFT JOIN users u ON u.id=r.user_id WHERE r.article_id=? ORDER BY r.id DESC LIMIT 20');$rev->execute([$id]);$items=$rev->fetchAll(); ?>
-<?php if(!$items): ?><p class="muted">Ainda não há revisões anteriores.</p><?php else: ?><div class="news-revision-list"><?php foreach($items as $item): ?><div><span><?= h(date('d/m/Y H:i',strtotime($item['created_at']))) ?> · <?= h($item['name']??'Equipe') ?></span><form method="post" action="/admin.php?action=restore_article_revision"><?= csrf_field() ?><input type="hidden" name="id" value="<?= $id ?>"><input type="hidden" name="revision_id" value="<?= (int)$item['id'] ?>"><button class="btn outline small" type="submit" data-confirm="Restaurar texto e categorias desta versão?">Restaurar conteúdo</button></form></div><?php endforeach; ?></div><?php endif; ?></div>
-<?php endif; ?>

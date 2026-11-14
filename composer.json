@@ -1,6 +1,0 @@
-{
-  "name": "iguanews/portal",
-  "description": "Portal de notícias locais IguaNews",
-  "type": "project",
-  "require": {"php": ">=8.1", "phpmailer/phpmailer": "^6.10"}
-}

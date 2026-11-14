@@ -43,3 +43,7 @@ Ao habilitar, os links antigos com querystring redirecionam ao endereço amigáv
 7. Gere backup v10 e teste restauração em banco isolado, com o histórico incluído.
 
 **Limitação de validação local:** testes PHP CLI sem PDO MySQL e testes JS não comprovam funcionamento no MariaDB/Termux ou Apache. Esses testes precisam ser executados no dispositivo/hospedagem.
+
+## Nginx (VPS/EC2)
+
+O `.htaccess` não é lido pelo Nginx. Inclua `deploy/aws/nginx-friendly-urls.conf` no `server` HTTPS (substituindo o `location /` atual) e recarregue o Nginx antes de ativar **Usar URLs amigáveis**. Sem isso, links `/noticia/slug` retornam 404 e a notícia não abre ao clicar. Alternativa imediata: desativar a opção no painel (Configurações → SEO), que volta aos links `/index.php?p=noticia&slug=...`.

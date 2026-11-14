@@ -1,3 +1,21 @@
+## Versão 1.0.151
+
+Corrige notícias que não abriam ao clicar quando as URLs amigáveis estão ativadas em servidor Nginx. O `.htaccess` não é lido pelo Nginx; o novo arquivo `deploy/aws/nginx-friendly-urls.conf` traz as regras de reescrita equivalentes. Também é possível desativar "Usar URLs amigáveis" no painel como solução imediata.
+
+Sem alterações de código PHP, schema 37 ou backup v12. Requer aplicar a regra no Nginx e recarregar o serviço.
+
+## Versão 1.0.150 — Leitura e navegação entre notícias (2026-11-10)
+
+O site público ganhou tipografia de matéria mais legível no celular, metadados agrupados, tempo de leitura aproximado calculado a partir do texto e até três notícias relacionadas da mesma editoria. As sugestões usam apenas matérias publicadas, excluem a matéria aberta e são omitidas se não houver outras. Imagens com carregamento sob demanda; sem chamadas externas, rastreamento, ou novo banco. Nenhuma tela ou arquivo administrativo alterado. Schema 37 e backup v12 preservados. Validado offline (PHP e Chromium); teste na EC2 e no Android real continua pendente. Detalhes em `docs/LEITURA_NOTICIAS_150.md`.
+
+## Versão 1.0.149 — Resultados de notícias na busca (2026-11-10)
+
+O painel automático da busca agora mostra novamente notícias e editorias quando o portal utiliza URLs amigáveis, além dos horários de ônibus. A validação permite apenas as rotas internas esperadas e continua bloqueando links externos. A correção é restrita ao JavaScript público, sem alterar a busca SQL, o ADM, o banco ou a infraestrutura. Foram incluídos testes de regressão para ambos os formatos de URL. A atualização do site na EC2 ainda precisa ser realizada.
+
+## Versão 1.0.148 — Experiência pública (2026-11-10)
+
+Visitantes podem compartilhar matérias via compartilhamento nativo do Android ou copiar o endereço com fallback manual. O site ganha atalho acessível ao conteúdo, indicação de foco, fechamento do menu móvel por Escape/toque externo e prioridade no carregamento das fotos principais. Não altera o ADM, banco, dados, horários, AWS nem configurações de publicação. Validação real na EC2 e no Chrome Android ainda pendente. Detalhes: `docs/EXPERIENCIA_PUBLICA_148.md`.
+
 ## Versão 1.0.147
 
 A busca automática do cabeçalho ganhou painel compacto com ícones por tipo de resultado, títulos de até duas linhas, destaque seguro da correspondência, identificação discreta de Notícia/Editoria/Ônibus e link inferior para mais notícias. Menos espaços vazios e rolagem interna.
