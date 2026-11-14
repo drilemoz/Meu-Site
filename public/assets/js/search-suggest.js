@@ -82,11 +82,25 @@
     allLink.hidden = true;
     open();
   };
+  // Aceitar os dois formatos oficiais da API: URLs amigáveis quando SEO está
+  // ativo e /index.php?... nas instalações que ainda usam as rotas antigas.
+  // Não aceitar links externos, caminhos arbitrários ou javascript:.
+  const isSafeSuggestionUrl = url => {
+    if (typeof url !== 'string') return false;
+    if (/^\/(?:noticia|categoria)\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(url)) return true;
+    if (!url.startsWith('/index.php?')) return false;
+    // O prefixo fixo já garante caminho relativo local; analisar só os parâmetros
+    // permite testar também em páginas sem origem HTTP (ex.: testes isolados).
+    const queryString = url.slice('/index.php?'.length);
+    if (!queryString || queryString.includes('#') || queryString.includes('\\')) return false;
+    const params = new URLSearchParams(queryString);
+    return ['noticia', 'categoria', 'onibus'].includes(params.get('p'));
+  };
   const show = (rows, query) => {
     optionsList.replaceChildren();
     active = -1;
     input.removeAttribute('aria-activedescendant');
-    const visible = rows.filter(item => item && typeof item.label === 'string' && typeof item.type === 'string' && typeof item.url === 'string' && item.url.startsWith('/index.php?')).slice(0, 6);
+    const visible = rows.filter(item => item && typeof item.label === 'string' && typeof item.type === 'string' && typeof item.url === 'string' && isSafeSuggestionUrl(item.url)).slice(0, 6);
     if (!visible.length) {showMessage('Nenhum resultado encontrado'); return;}
     visible.forEach((item, index) => {
       const kind = item.type === 'Ônibus' ? 'bus' : item.type === 'Editoria' ? 'category' : 'news';

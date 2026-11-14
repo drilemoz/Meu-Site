@@ -44,7 +44,7 @@ function news_link(array $article): string { return url(['p'=>'noticia','slug'=>
 function cat_link(array $c): string { return url(['p'=>'categoria','slug'=>$c['slug']]); }
 function news_card(array $a, string $kind='normal'): void { ?>
   <a class="news-card <?= h($kind) ?>" href="<?= h(news_link($a)) ?>">
-    <div class="thumb"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($a['image'])) ?>" alt="" loading="lazy"></div>
+    <div class="thumb"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($a['image'])) ?>" alt="" loading="lazy" decoding="async"></div>
     <div class="news-card-body"><span class="category-label" style="--category-color:<?= h($a['category_color']??'#1260e6') ?>"><?= h($a['category']??'Geral') ?></span>
       <h3><?= h($a['title']) ?></h3><p><?= h($a['summary']) ?></p>
       <span class="news-meta">◷ <?= h(readable_date($a['published_at'])) ?><?= $a['is_demo']?' · Exemplo':'' ?></span>
@@ -52,14 +52,14 @@ function news_card(array $a, string $kind='normal'): void { ?>
   </a>
 <?php }
 function mini_card(array $a): void { ?>
-  <a class="mini-card" href="<?= h(news_link($a)) ?>"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($a['image'])) ?>" alt="" loading="lazy"><span><strong><?= h($a['title']) ?></strong><small>◷ <?= h(readable_date($a['published_at'])) ?><?= !empty($a['is_demo'])?' · Exemplo':'' ?></small></span></a>
+  <a class="mini-card" href="<?= h(news_link($a)) ?>"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($a['image'])) ?>" alt="" loading="lazy" decoding="async"><span><strong><?= h($a['title']) ?></strong><small>◷ <?= h(readable_date($a['published_at'])) ?><?= !empty($a['is_demo'])?' · Exemplo':'' ?></small></span></a>
 <?php }
 function section_category(PDO $db,array $c): void {
     $list=fetch_news($db,3,(int)$c['id']);
     if (!$list) return; // A página inicial não exibe módulos vazios.
     ?>
     <section class="section-column"><div class="section-heading"><h2><?= h($c['name']) ?></h2><a href="<?= h(cat_link($c)) ?>">Ver todas →</a></div>
-      <?php if ($list): $main=array_shift($list); ?><a href="<?= h(news_link($main)) ?>" class="section-lead"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($main['image'])) ?>" alt="" loading="lazy"><h3><?= h($main['title']) ?></h3><p><?= h($main['summary']) ?></p></a><?php foreach ($list as $a) mini_card($a); else: ?><p class="muted">Em breve, novas notícias.</p><?php endif; ?>
+      <?php if ($list): $main=array_shift($list); ?><a href="<?= h(news_link($main)) ?>" class="section-lead"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($main['image'])) ?>" alt="" loading="lazy" decoding="async"><h3><?= h($main['title']) ?></h3><p><?= h($main['summary']) ?></p></a><?php foreach ($list as $a) mini_card($a); else: ?><p class="muted">Em breve, novas notícias.</p><?php endif; ?>
     </section>
 <?php }
 $article=null;$category=null;$search=archive_search_term($_GET['q']??'');

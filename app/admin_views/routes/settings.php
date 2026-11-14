@@ -95,7 +95,7 @@ $seoExampleTitle=$seoHomeTitle!==''?$seoHomeTitle:$seoExampleTitle;
         <label>Endereço público oficial (HTTPS)<input name="seo_site_url" type="url" maxlength="240" placeholder="https://seudominio.com.br" value="<?=h($seoSiteUrl)?>"></label>
         <p class="muted tiny">Imagens e favicon são escolhidos pela biblioteca de mídias na tela principal. Os caminhos dos arquivos são preenchidos automaticamente.</p>
         <label class="checkbox-line"><input type="checkbox" name="seo_pretty_urls" value="1" <?=setting('seo_pretty_urls','0')==='1'?'checked':''?>><span>Usar URLs amigáveis (/noticia/nome-do-endereco)</span></label>
-        <p class="muted tiny">URLs amigáveis exigem roteamento funcional. No Nginx, configure try_files para encaminhar as rotas ao index.php; o .htaccess não é lido pelo Nginx.</p>
+        <p class="muted tiny">URLs amigáveis exigem roteamento funcional. Verifique o Apache ou o roteador PHP antes de ativar.</p>
         <label class="checkbox-line"><input type="checkbox" name="seo_index" value="1" <?=setting('seo_index','0')==='1'?'checked':''?>><span>Permitir indexação pelos buscadores</span></label>
         <p class="seo-portal-sensitive">Indexação exige portal pronto e URL oficial válida. Desativar a indexação pode reduzir a visibilidade das páginas públicas; haverá confirmação ao salvar.</p>
         <a href="<?=h(admin_link('sitemap'))?>">Administrar sitemap, robots.txt e ads.txt ↗</a>

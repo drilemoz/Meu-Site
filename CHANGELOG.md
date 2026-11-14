@@ -1,3 +1,24 @@
+## 1.0.150 — Leitura de matérias públicas (2026-11-10)
+
+- Melhorias de leitura nas páginas individuais: hierarquia do título e resumo, parágrafos com espaçamento responsivo e metadados divididos em autoria, data, visualizações e tempo estimado de leitura (200 palavras/minuto, cálculo aproximado).
+- Seção **Leia também** com até três publicações da mesma categoria, excluindo a própria matéria, somente notícias já publicadas e com data de publicação atingida. Link adicional para a editoria.
+- Se não houver sugestões, a seção não é mostrada. Exceção de consulta de recomendações não derruba a notícia. Títulos e URLs escapados; miniaturas preguiçosas, sem rastreio.
+- Sem mudanças no ADM, no conteúdo das matérias, em esquema 37, backup v12, módulo de ônibus ou serviço AWS. Testes offline PHP + visual em Chromium; confirmar a experiência no Chrome Android após atualização.
+
+## 1.0.149 — Correção das sugestões de notícias (2026-11-10)
+
+- Corrigida regressão da busca pública: o painel compacto descartava notícias e editorias quando o SEO gerava URLs amigáveis (`/noticia/slug` e `/categoria/slug`), exibindo apenas linhas de ônibus.
+- Aceitos os formatos amigável e legado (`/index.php?p=...`), mantendo bloqueio de URLs externas, esquemas inseguros e rotas arbitrárias.
+- Teste de interface Chromium cobrindo notícia amigável, editoria amigável, links legados, ônibus e rejeição de links inseguros.
+- Nenhuma mudança na consulta SQL, banco, esquema 37, backup v12, ADM, deploy EC2 ou módulo de ônibus. Instalação em produção pendente.
+
+## 1.0.148 — Navegação e leitura públicas (2026-11-10)
+
+- Notícia pública: compartilhamento nativo pelo celular, cópia de link e fallback manual, sem rastreadores ou mudança de dados.
+- Melhorias de acessibilidade: salto ao conteúdo, foco visível e menu móvel com Escape, clique externo e rótulo acessível.
+- Priorização das imagens principais e decodificação assíncrona das miniaturas; comportamento real depende do navegador e rede.
+- Somente frontend público; ADM, base MariaDB, schema 37, backup v12 e AWS intactos. `docs/EXPERIENCIA_PUBLICA_148.md`.
+
 ## 1.0.147 — Sugestões de pesquisa compactas e responsivas (2026-11-10)
 
 - Redesenhado o menu de sugestões de busca: linhas horizontais com ícones de notícia/editoria/ônibus, tipo discreto, títulos em até duas linhas, destaque da parte procurada e setas de navegação. Mantidas acessibilidade de teclado e links gerados pela API.
