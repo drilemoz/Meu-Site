@@ -115,8 +115,19 @@ if(($_SERVER['REQUEST_METHOD']??'GET')==='GET' && $route!=='404'){
 if($article && !empty($article['image'])){
     try { $coverAlt=$db->prepare('SELECT alt_text FROM media_library WHERE filename=? AND deleted_at IS NULL LIMIT 1');$coverAlt->execute([(string)$article['image']]);$article['cover_alt']=(string)($coverAlt->fetchColumn()?:''); } catch(PDOException) {$article['cover_alt']='';}
 }
-if($article && !empty($article['author_profile_id'])){
-    try{$pa=$db->prepare('SELECT name FROM author_profiles WHERE id=?');$pa->execute([$article['author_profile_id']]);$authorName=$pa->fetchColumn();if($authorName)$article['author']=$authorName;}catch(Throwable){}
+if($article){
+    $accountAuthor=trim((string)($article['author'] ?? ''));
+    $profileAuthor='';
+    if(!empty($article['author_profile_id'])){
+        try{
+            $pa=$db->prepare('SELECT name FROM author_profiles WHERE id=?');
+            $pa->execute([(int)$article['author_profile_id']]);
+            $profileAuthor=trim((string)$pa->fetchColumn());
+        }catch(PDOException $e){igua_health_log('NEWS_AUTHOR_UNAVAILABLE',$e);}
+    }
+    $article['author']=($profileAuthor!=='' ? $profileAuthor : $accountAuthor);
+    $article['author_type']=$article['author']!=='' ? 'Person' : 'Organization';
+    if($article['author']==='')$article['author']='Redação '.igua_brand_name();
 }
 $pageTitle= $legalPage ? (string)$legalPage['title'] : ($article ? (trim((string)($article['seo_title']??'')) ?: $article['title']) : ($category['name']??($route==='buscar'?'Buscar notícias':($route==='onibus'?'Horários de ônibus':(['anuncie'=>'Anuncie','contato'=>'Contato','sobre'=>'Sobre o portal','privacidade'=>'Política de Privacidade','termos'=>'Termos de Uso'][$route]??'Últimas notícias')))));
 // Páginas fixas podem ter um título SEO completo, sem sufixo obrigatório.
@@ -144,5 +155,5 @@ if(str_starts_with($socialImg,'/uploads/') && $siteBase!=='')$socialImg=$siteBas
 if($article && $siteBase!=='')$socialImg=$siteBase.asset_image($article['image']);
 if($legalPage)$socialImg=($legalPage['logo_filename']!=='' && $siteBase!=='')?$siteBase.asset_image((string)$legalPage['logo_filename']):'';
 $ld=null;
-if($article && $indexable && $canonical!=='')$ld=['@context'=>'https://schema.org','@type'=>'NewsArticle','headline'=>$article['title'],'description'=>$seoDesc,'datePublished'=>date(DATE_ATOM,strtotime($article['published_at'])),'dateModified'=>date(DATE_ATOM,strtotime($article['updated_at'])),'author'=>['@type'=>'Person','name'=>$article['author']??'Redação '.igua_brand_name()],'publisher'=>['@type'=>'Organization','name'=>igua_brand_name(),'url'=>$siteBase],'mainEntityOfPage'=>$canonical,'image'=>$socialImg!==''?[$socialImg]:[]];
+if($article && $indexable && $canonical!=='')$ld=['@context'=>'https://schema.org','@type'=>'NewsArticle','headline'=>$article['title'],'description'=>$seoDesc,'datePublished'=>date(DATE_ATOM,strtotime($article['published_at'])),'dateModified'=>date(DATE_ATOM,strtotime($article['updated_at'])),'author'=>['@type'=>$article['author_type'],'name'=>$article['author']],'publisher'=>['@type'=>'Organization','name'=>igua_brand_name(),'url'=>$siteBase],'mainEntityOfPage'=>$canonical,'image'=>$socialImg!==''?[$socialImg]:[]];
 require __DIR__.'/../app/public_views/layout.php';

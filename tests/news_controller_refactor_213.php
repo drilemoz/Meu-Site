@@ -9,8 +9,9 @@ function news213(bool $ok,string $message): void {
 $root=dirname(__DIR__);
 $main=(string)file_get_contents($root.'/app/admin_controllers/news.php');
 $reconstituted=igua_test_news_controller_source();
-news213(hash('sha256',$reconstituted)==='744ba96874b7691dff061177b90e5267cf3097722238efd979830388dc9ce780',
-    'recomposição byte a byte equivalente ao controlador 1.0.112');
+// A 1.0.154 adiciona a ação de autor ao fragmento existente de taxonomia.
+news213(hash('sha256',$reconstituted)==='39b06f8f5d180ac16f648ec1943e03b6f99df9ffb6d59ac89c40a6a147f72a75',
+    'recomposição byte a byte do controlador editorial 1.0.154');
 news213(substr_count($main,"require __DIR__.'/news/")===5 && !str_contains($main,'$_GET') && !str_contains($main,'$_POST'),
     'entrada contém somente includes fixos, sem caminhos ou ações controladas pelo usuário');
 $files=['taxonomy','gemini','drafts','save','lifecycle'];
@@ -18,7 +19,7 @@ foreach($files as $part){
     $path=$root.'/app/admin_controllers/news/'.$part.'.php';
     news213(is_file($path),'fragmento disponível: '.$part);
 }
-foreach(['news_create_category','news_create_source','news_gemini_suggest','autosave_news','import_url',
+foreach(['news_create_category','news_create_source','news_create_author','news_gemini_suggest','autosave_news','import_url',
     'restore_article_revision','save_article','duplicate_article','delete_article','toggle_article_status'] as $action){
     news213(igua_admin_post_module($action)==='news' && str_contains($reconstituted,"'".$action."'"),
         'rota editorial preservada: '.$action);

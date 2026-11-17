@@ -7,6 +7,7 @@ $articleReadingText = $articleStructured
 $articleReadingText = strip_tags($articleReadingText);
 $articleWordCount = preg_match_all('/[\p{L}\p{N}]+/u', $articleReadingText);
 $articleReadingMinutes = max(1, (int)ceil(($articleWordCount === false ? 0 : $articleWordCount) / 200));
+$articleViews = (int)$article['views'] + 1;
 $articleRelated = [];
 if ((int)($article['category_id'] ?? 0) > 0) {
     try {
@@ -19,14 +20,21 @@ if ((int)($article['category_id'] ?? 0) > 0) {
 ?>
   <div class="breadcrumb"><a href="/index.php">Início</a> › <a href="<?= h(url(['p'=>'categoria','slug'=>$article['category_slug']])) ?>"><?= h($article['category']??'Notícias') ?></a></div>
   <article class="article-view"><span class="category-label"><?= h($article['category']??'Geral') ?></span><h1><?= h($article['title']) ?></h1><p class="article-summary"><?= h($article['summary']) ?></p><div class="article-byline" aria-label="Informações da notícia">
-    <span>Por <strong><?= h($article['author'] ?? 'Redação '.igua_brand_name()) ?></strong></span>
+    <span class="article-author">Por <strong><?= h(trim((string)($article['author'] ?? '')) ?: 'Redação '.igua_brand_name()) ?></strong></span>
     <span><time datetime="<?= h(date('c', strtotime($article['published_at']))) ?>"><?= h(date('d/m/Y \à\s H:i', strtotime($article['published_at']))) ?></time></span>
-    <span><?= (int)$article['views'] + 1 ?> visualizações</span>
-    <span class="article-reading-time" aria-label="Tempo de leitura estimado: <?= $articleReadingMinutes ?> <?= $articleReadingMinutes === 1 ? 'minuto' : 'minutos' ?>">◷ <?= $articleReadingMinutes ?> min de leitura</span>
+    <span><?= number_format($articleViews,0,',','.') ?> <?= $articleViews === 1 ? 'visualização' : 'visualizações' ?></span>
   </div>
-  <div class="article-share" data-public-share data-share-url="<?= h(news_link($article)) ?>" data-share-title="<?= h($article['title']) ?>" aria-label="Compartilhar esta notícia">
-    <button type="button" data-share-trigger>↗ Compartilhar</button>
-    <button type="button" data-share-copy>🔗 Copiar link</button>
+  <div class="article-share" data-public-share data-share-url="<?= h(news_link($article)) ?>" data-share-title="<?= h($article['title']) ?>" role="group" aria-label="Ações e tempo de leitura da notícia">
+    <button type="button" class="article-tool" data-share-trigger aria-label="Compartilhar" title="Compartilhar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/></svg>
+    </button>
+    <button type="button" class="article-tool" data-share-copy aria-label="Copiar link" title="Copiar link">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 13.5 4-4m-6.7 2.1-2.8 2.8a3.6 3.6 0 0 0 5.1 5.1l2.8-2.8m-.8-9.4 2.8-2.8a3.6 3.6 0 0 1 5.1 5.1l-2.8 2.8"/></svg>
+    </button>
+    <span class="article-tool article-reading-time" title="Tempo estimado de leitura">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <?= $articleReadingMinutes ?> min de leitura
+    </span>
     <span class="article-share-status" data-share-status role="status" aria-live="polite"></span>
     <input class="article-share-manual" type="text" data-share-manual aria-label="Link da notícia para copiar manualmente" readonly hidden>
   </div>

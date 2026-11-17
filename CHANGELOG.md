@@ -1,3 +1,10 @@
+## 1.0.154 — Ações compactas, autores e navegação (2026-11-17)
+
+- Compartilhar e copiar agora são ícones do mesmo tamanho, na mesma linha e antes do tempo estimado de leitura. A autoria, data e visualizações continuam acima.
+- O editor exibe a assinatura e permite cadastrar um autor sem fechar a notícia. O nome selecionado tem prioridade na assinatura pública e nos metadados.
+- A categoria Economia integra a instalação limpa, sem duplicar categorias já cadastradas. As páginas públicas ganharam atalho fixo para o topo sem sobrepor a navegação móvel.
+- Sem alterações de schema 37 ou backup v12. O empacotamento do fonte preserva a configuração de URLs amigáveis do Nginx.
+
 ## 1.0.153 — ERR_UPLOAD_FILE_CHANGED ao publicar notícia (2026-11-14)
 
 - Causa: o formulário de notícia é enviado como POST nativo com os arquivos escolhidos nos campos de foto, galeria, ZIP e anexos. Fotos pequenas (até 1,45 MB) e arquivos que não são imagem permaneciam apontando para o arquivo original; se ele mudava ou era removido (galeria, Downloads, nuvem, cache do Android) durante as etapas do editor, o Chrome recusava o envio com `ERR_UPLOAD_FILE_CHANGED`.

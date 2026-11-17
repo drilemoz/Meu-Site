@@ -1,3 +1,9 @@
+## Versão 1.0.154 — Ações da notícia, autor e volta ao topo
+
+Compartilhar e copiar viraram ícones compactos ao lado do tempo de leitura. No passo Classificação, a assinatura ficou visível e o botão **+ Autor** cadastra e seleciona um perfil editorial sem sair do editor. Nas páginas públicas, a seta fixa leva ao topo e fica acima da barra inferior no celular.
+
+**Economia** agora vem na instalação limpa. Um portal que já tem a categoria mantém seus registros. Se uma instalação anterior ainda não a tem, use **Categorias** ou crie pelo editor. Não muda schema 37 nem backup v12. Consulte [a documentação](docs/EXPERIENCIA_EDITORIAL_154.md).
+
 ## Versão 1.0.153
 
 Corrige a mensagem "Não foi possível acessar seu arquivo ... ERR_UPLOAD_FILE_CHANGED" ao clicar em publicar notícia. As fotos, o ZIP e os anexos escolhidos agora são guardados na memória do navegador no momento da seleção, então o envio não depende mais de o arquivo continuar igual no aparelho. Se o arquivo já tiver sido movido ou apagado, o editor avisa na hora para selecioná-lo de novo.

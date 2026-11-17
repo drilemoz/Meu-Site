@@ -86,7 +86,8 @@ function migrate_article_fields(PDO $db): array {
 function seed_initial_categories(PDO $db): void {
     $cats = [
       ['Geral','geral','◉','#53647d'],['Cidade','cidade','⌂','#0964ed'],
-      ['Política','politica','▤','#1356c4'],['Eventos','eventos','▣','#ef4662'],
+      ['Política','politica','▤','#1356c4'],['Economia','economia','▥','#176a67'],
+      ['Eventos','eventos','▣','#ef4662'],
       ['Esportes','esportes','◉','#139757'],['Empregos','empregos','▧','#325fd8'],
       ['Saúde','saude','✚','#20a8a8'],['Educação','educacao','▰','#2eaf83'],
       ['Segurança','seguranca','⬡','#f18a21'],['Cultura','cultura','✿','#ec5680']

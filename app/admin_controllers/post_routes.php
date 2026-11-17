@@ -43,6 +43,7 @@ function igua_admin_post_module(string $action): ?string {
         'autosave_news'=>'news',
         'news_create_category'=>'news',
         'news_create_source'=>'news',
+        'news_create_author'=>'news',
         'bus_approve_import'=>'bus',
         'bus_ignore_import'=>'bus',
         'bus_stage_import'=>'bus',

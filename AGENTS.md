@@ -1,6 +1,13 @@
-# Diretrizes de manutenção — Meu Site (v1.0.153)
+# Diretrizes de manutenção — Meu Site (v1.0.154)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
+
+## Ações das matérias e navegação pública (1.0.154)
+
+- Manter o grupo Compartilhar / Copiar / tempo de leitura, nesta ordem, com ícones acessíveis e área de toque de 44 px. Preservar a cópia manual quando a área de transferência não estiver disponível.
+- O cadastro direto de autor no editor usa o catálogo existente, POST, CSRF e `manage_taxonomy`, sem criar conta ou publicar. A assinatura tem prioridade sobre a conta na página pública e nos dados estruturados.
+- Economia integra as categorias iniciais sem sobrescrever as existentes. O atalho fixo para o topo usa o layout público, âncora nativa e espaço acima da barra móvel. Sem mudança no schema 37 ou no backup v12.
+- Verificar `tests/public_article_ui_250.py`, `tests/public_ux_248.py`, `tests/editorial_navigation_254.php` e `tests/author_taxonomy_254.py`, rebuild de CSS, JavaScript e fingerprint do editor.
 
 ## Uploads do editor de notícias (1.0.153)
 

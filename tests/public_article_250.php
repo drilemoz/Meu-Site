@@ -41,11 +41,11 @@ function article_media(PDO $db,int $id):array{return [];}
 function igua_health_log(string $code,?Throwable $error=null):void{}
 require $root.'/app/news_queries.php';
 
-function render_article(bool $related,int $category=8):array {
+function render_article(bool $related,int $category=8,string $author='Redação',int $views=10):array {
     $db=new FakeArticlePDO($related);
     $article=['id'=>1,'slug'=>'principal','title'=>'Título da notícia','summary'=>'Resumo curto',
-        'category_slug'=>'cidade','category'=>'Cidade','category_id'=>$category,'author'=>'Redação',
-        'published_at'=>'2026-11-10 10:00:00','views'=>10,'is_demo'=>0,'image'=>'capa.jpg',
+        'category_slug'=>'cidade','category'=>'Cidade','category_id'=>$category,'author'=>$author,
+        'published_at'=>'2026-11-10 10:00:00','views'=>$views,'is_demo'=>0,'image'=>'capa.jpg',
         'body'=>'Texto original','source_url'=>''];
     ob_start();require dirname(__DIR__).'/app/public_views/routes/article.php';
     return [ob_get_clean(),$db->queries];
@@ -59,6 +59,13 @@ assert(!str_contains($html,'<script>alert(1)</script>'));
 assert(str_contains($html,'&lt;script&gt;alert(1)&lt;/script&gt;'));
 assert(str_contains($html,'· Exemplo'));
 assert(str_contains($html,'id="texto-da-noticia"'));
+assert(strpos($html,'data-share-trigger')<strpos($html,'data-share-copy'));
+assert(strpos($html,'data-share-copy')<strpos($html,'article-reading-time'));
+[$byline,]=render_article(false,8,' Autora <Teste> ',0);
+assert(str_contains($byline,'Por <strong>Autora &lt;Teste&gt;</strong>'));
+assert(str_contains($byline,'>1 visualização</span>'));
+[$fallback,]=render_article(false,8,'  ');
+assert(str_contains($fallback,'Por <strong>Redação IguatamaOnline</strong>'));
 assert(count(array_filter($queries,fn($q)=>str_contains($q,'a.status = \'published\'') && str_contains($q,'a.id<>?')))==1);
 [$empty,$unused]=render_article(false);
 assert(!str_contains($empty,'class="article-related"'));

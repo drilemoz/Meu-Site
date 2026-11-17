@@ -2,15 +2,20 @@
       <p class="news-question-tag">PASSO 7 · CLASSIFICAÇÃO</p>
       <h3>Em qual categoria entra esta notícia?</h3><p class="muted">Escolha a categoria principal. Outras informações são opcionais.</p>
       <div class="news-taxonomy-main"><label>Categoria principal<select name="category_id" required><option value="">Selecione uma categoria</option><?php foreach($cats as $c): ?><option value="<?= (int)$c['id'] ?>" <?= selected((string)$row['category_id'],(string)$c['id']) ?>><?= h($c['name']) ?></option><?php endforeach; ?></select></label><?php if(role_allowed((string)$me['role'],'manage_taxonomy')): ?><button type="button" class="btn outline small" data-news-taxonomy="category">+ Nova</button><?php endif; ?></div><div id="news-category-suggest" aria-live="polite"></div>
-      <div class="news-source-section"><div class="news-taxonomy-heading"><strong>Fontes e assinatura</strong><small>Informe a origem da informação; confira antes de publicar.</small></div>
+      <div class="news-source-section"><div class="news-taxonomy-heading"><strong>Fonte da notícia</strong><small>Informe a origem da informação; confira antes de publicar.</small></div>
       <div class="form-grid"><label class="full">Fonte principal cadastrada<select name="source_id"><option value="0">Fonte manual / não cadastrada</option><?php foreach($sources as $s): ?><option value="<?= (int)$s['id'] ?>" <?= selected((string)($row['source_id']??''),(string)$s['id']) ?>><?= h($s['name']) ?></option><?php endforeach; ?></select></label>
       <?php if(role_allowed((string)$me['role'],'manage_taxonomy')): ?><button type="button" class="btn outline small news-add-source" data-news-taxonomy="source">+ Cadastrar fonte</button><?php endif; ?>
       <label>Nome da fonte<input name="source_name" maxlength="160" value="<?= h($row['source_name']) ?>"></label><label>URL HTTPS<input name="source_url" type="url" maxlength="600" value="<?= h($row['source_url']) ?>"></label></div>
       <small class="news-taxonomy-hint">A fonte cadastrada selecionada tem prioridade sobre os campos manuais. A versão atual registra uma fonte principal por notícia.</small></div>
-      <details class="news-optional" <?= $extra?'open':'' ?>><summary>Autor e categorias adicionais</summary><div class="form-grid">
-        <div class="full"><label class="news-field-title">Categorias adicionais</label><div class="news-category-chips"><?php foreach($cats as $c): ?><label><input type="checkbox" name="extra_categories[]" value="<?= (int)$c['id'] ?>" <?= in_array((int)$c['id'],$extra,true)?'checked':'' ?>> <?= h($c['name']) ?></label><?php endforeach; ?></div></div>
-        <label>Assinatura<select name="author_profile_id"><option value="0">Conta / Redação</option><?php foreach($profiles as $p): ?><option value="<?= (int)$p['id'] ?>" <?= selected((string)($row['author_profile_id']??''),(string)$p['id']) ?>><?= h($p['name']) ?></option><?php endforeach; ?></select></label>
-
+      <div class="news-source-section">
+        <div class="news-taxonomy-main">
+          <label>Autor da notícia<select name="author_profile_id"><option value="0">Conta / Redação</option><?php foreach($profiles as $p): ?><option value="<?= (int)$p['id'] ?>" <?= selected((string)($row['author_profile_id']??''),(string)$p['id']) ?>><?= h($p['name']) ?></option><?php endforeach; ?></select></label>
+          <?php if(role_allowed((string)$me['role'],'manage_taxonomy')): ?><button type="button" class="btn outline small" data-news-taxonomy="author">+ Autor</button><?php endif; ?>
+        </div>
+        <small class="news-taxonomy-hint">A assinatura escolhida aparece na notícia publicada.</small>
+      </div>
+      <details class="news-optional" <?= $extra?'open':'' ?>><summary>Categorias adicionais</summary><div class="form-grid">
+        <div class="full"><div class="news-category-chips"><?php foreach($cats as $c): ?><label><input type="checkbox" name="extra_categories[]" value="<?= (int)$c['id'] ?>" <?= in_array((int)$c['id'],$extra,true)?'checked':'' ?>> <?= h($c['name']) ?></label><?php endforeach; ?></div></div>
       </div></details>
       <?php if(role_allowed((string)$me['role'],'manage_taxonomy')): ?>
       <dialog id="news-taxonomy-dialog" class="igua-modal igua-modal--narrow news-seo-dialog" aria-labelledby="news-taxonomy-title"><div class="news-seo-dialog-head"><h4 id="news-taxonomy-title">Novo cadastro</h4><button type="button" class="btn outline small" id="news-taxonomy-close" aria-label="Fechar">✕</button></div>
