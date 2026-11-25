@@ -6,7 +6,7 @@ const AD_SLOTS = [
  'p02'=>['Entre notícias','Depois da primeira grade da home'],
  'p03'=>['Antes do rodapé','Área institucional inferior'],
  'p04'=>['Dentro da notícia','Após o segundo parágrafo da matéria'],
- 'p05'=>['Lateral desktop','Abaixo das mais lidas: lateral desktop ou empilhado no celular'],
+ 'p05'=>['Final da home','Abaixo das mais lidas ou das últimas editorias, no desktop e no celular'],
  'p06'=>['Horários de ônibus','Após a lista de partidas'],
 ];
 const AD_PROVIDERS = ['off','local','adsense','external'];

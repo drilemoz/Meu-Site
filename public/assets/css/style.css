@@ -421,6 +421,19 @@ html,body{max-width:100%;overflow-x:clip}
 .back-to-top:focus-visible{outline:3px solid #0c60dc;outline-offset:3px}
 @media(max-width:760px){:root{--public-bottom-nav-height:68px}.back-to-top{bottom:calc(var(--public-bottom-nav-height,68px) + max(10px,env(safe-area-inset-bottom)))}}
 @media(prefers-reduced-motion:reduce){html.public-page{scroll-behavior:auto}.site-header .btn,.page-main .btn,.page-main .news-card{transition:none}}
+
+/* Página inicial editorial: destaque ocupa toda a largura; ranking visível no celular. */
+.hero-grid.home-hero-single{grid-template-columns:minmax(0,1fr)}
+.home-editorial-sections .section-column{min-width:0;padding-left:0;border-left:0}
+.home-popular.popular-box{display:block;margin-top:24px}
+.home-popular-note{font-size:12px;margin:4px 0 8px}
+.home-settings{margin:20px 0;padding:16px;border:1px solid var(--line);border-radius:10px}
+.home-settings h2{margin:0 0 8px;font-size:18px}
+.home-settings-categories{border:0;padding:0;margin:12px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px}
+.home-settings-categories legend{font-weight:700;margin-bottom:8px}
+.home-settings-categories label{display:flex;align-items:center;gap:8px;font-size:13px}
+.home-settings-categories input[type=checkbox]{width:18px;height:18px;flex:none;margin:0;accent-color:var(--blue)}
+.home-region-select{display:grid;gap:6px;max-width:420px;font-weight:650;margin:12px 0}
 /* 1.0.9 · publicidade discreta, identificada e opcional */
 .ad-unit{max-width:100%;min-width:0;margin:24px auto 30px;padding:12px;border-radius:15px;border:1px solid #e0e9f4;background:#f7faff;box-shadow:0 7px 19px rgba(20,50,90,.04)}
 .ad-disclosure{display:block;color:#71849c;font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.09em;margin-bottom:9px}

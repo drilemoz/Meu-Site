@@ -8,7 +8,7 @@ declare(strict_types=1);
 function has_published_demo_news(PDO $db): bool {
     return $db->query("SELECT 1 FROM articles WHERE is_demo=1 AND status='published' LIMIT 1")->fetchColumn() !== false;
 }
-function fetch_news(PDO $db, int $limit=8, ?int $category=null, ?int $exclude=null): array {
+function fetch_news(PDO $db, int $limit=8, ?int $category=null, ?int $exclude=null, array $excludeIds=[]): array {
     $sql='SELECT a.id,a.slug,a.title,a.summary,a.image,a.is_demo,a.published_at,'.
         'c.name AS category,c.slug AS category_slug,c.color AS category_color '.
         'FROM articles a LEFT JOIN categories c ON c.id=a.category_id WHERE '.published_filter();
@@ -22,6 +22,7 @@ function fetch_news(PDO $db, int $limit=8, ?int $category=null, ?int $exclude=nu
         $sql.=' AND a.id<>?';
         $params[]=$exclude;
     }
+    news_append_exclusions($sql,$params,$excludeIds);
     $sql.=' ORDER BY a.published_at DESC,a.id DESC LIMIT '.max(1,min($limit,30));
     $stmt=$db->prepare($sql);
     $stmt->execute($params);
@@ -34,8 +35,20 @@ function fetch_featured_news(PDO $db): array|false {
         ' AND a.featured=1 ORDER BY a.published_at DESC,a.id DESC LIMIT 1';
     return $db->query($sql)->fetch();
 }
-function fetch_popular_news(PDO $db): array {
-    $sql='SELECT a.id,a.title,a.slug,a.published_at,a.views FROM articles a WHERE '.published_filter().
-        ' ORDER BY a.views DESC,a.published_at DESC,a.id DESC LIMIT 5';
-    return $db->query($sql)->fetchAll();
+/** Exclusões parametrizadas ANTES de LIMIT: não reduz a lista quando há outros artigos disponíveis. */
+function news_append_exclusions(string &$sql,array &$params,array $ids): void {
+    $ids=array_values(array_unique(array_filter(array_map('intval',$ids),static fn(int $id):bool=>$id>0)));
+    if (!$ids) return;
+    $sql.=' AND a.id NOT IN ('.implode(',',array_fill(0,count($ids),'?')).')';
+    array_push($params,...$ids);
+}
+function fetch_popular_news(PDO $db,array $excludeIds=[]): array {
+    $sql='SELECT a.id,a.title,a.slug,a.published_at,a.views FROM articles a WHERE '.published_filter();
+    $params=[];
+    news_append_exclusions($sql,$params,$excludeIds);
+    $sql.=' ORDER BY a.views DESC,a.published_at DESC,a.id DESC LIMIT 5';
+    if (!$params) return $db->query($sql)->fetchAll();
+    $stmt=$db->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll();
 }

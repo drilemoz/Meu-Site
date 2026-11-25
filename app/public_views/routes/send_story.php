@@ -1,3 +1,4 @@
+<?php ?>
 <div class="info-layout"><section class="info-card"><h1>Envie sua notícia</h1><p class="muted">Conte à redação o que aconteceu em Iguatama e região. Nenhum envio é publicado automaticamente.</p>
 <?php foreach($storyErrors as $error):?><p class="alert error" role="alert"><?=h($error)?></p><?php endforeach;?>
 <?php if(!empty($_SESSION['story_success'])): unset($_SESSION['story_success']);?><p class="alert success" role="status">Notícia recebida! Nossa redação vai avaliar sua sugestão.</p><?php endif;?>

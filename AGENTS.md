@@ -1,8 +1,15 @@
+## 1.0.156 — Página inicial sem notícias repetidas (2026-11-25)
+
+- Distribuição central por ID: destaque marcado mais recente, últimas (4), Cidade, região e editorias selecionadas (3 por seção), mais lidas restantes (5).
+- ADM → Configurações → Seções da página inicial: seleção das categorias e escolha explícita da categoria regional; seções vazias ficam ocultas. Padrão Cidade, Política e Eventos; região somente se identificada ou configurada.
+- Mais lidas passa para o final e fica visível em telas móveis. Categorias, buscas, matérias e horários continuam independentes. Sem alteração do schema 38 ou backup v13; preferências na tabela settings.
+- Consulte `docs/HOME_EDITORIAL_156.md`.
+
 ## 1.0.155 — Notícias recebidas (2026-11-25)
 
 Formulário público sem SMTP, caixa de entrada privada, fotos e moderação com criação de rascunho. Schema 38, backup lógico v13 (leitura v1–v12 preservada). Consulte `docs/NOTICIAS_RECEBIDAS_155.md`.
 
-# Diretrizes de manutenção — Meu Site (v1.0.155)
+# Diretrizes de manutenção — Meu Site (v1.0.156)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/home_news.php';
 /** Valida todos os campos antes de iniciar qualquer gravação no banco. */
 function igua_settings_validate(PDO $db,array $post): array {
     $limits=['site_name'=>80,'site_tagline'=>200,'city'=>100,'contact_email'=>190,'seo_title_template'=>220,'seo_default_description'=>320,'seo_social_image'=>600,'seo_site_url'=>240,'seo_index'=>1,'seo_pretty_urls'=>1,'seo_home_title'=>220,'seo_favicon_image'=>600,'seo_page_title_onibus'=>220,'seo_page_title_sobre'=>220,'seo_page_title_contato'=>220,'seo_page_title_anuncie'=>220,'seo_page_title_privacidade'=>220,'seo_page_title_termos'=>220,'seo_page_description_onibus'=>320,'seo_page_description_sobre'=>320,'seo_page_description_contato'=>320,'seo_page_description_anuncie'=>320,'seo_page_description_privacidade'=>320,'seo_page_description_termos'=>320];
@@ -32,6 +33,11 @@ function igua_settings_validate(PDO $db,array $post): array {
         if(str_starts_with($key,'seo_page_description_') || $key==='seo_default_description')$v=clean_seo_text($v,320);
         if($key==='contact_email' && !filter_var($v,FILTER_VALIDATE_EMAIL))throw new InvalidArgumentException('E-mail de contato inválido.');
         $result[$key]=$v;
+    }
+    if (array_key_exists('home_preferences_present',$post)) {
+        if ($post['home_preferences_present']!=='1') throw new InvalidArgumentException('Configuração da página inicial inválida.');
+        $categories=$db->query('SELECT id FROM categories')->fetchAll(PDO::FETCH_ASSOC);
+        $result+=igua_home_validate_preferences($categories,$post);
     }
     return $result;
 }

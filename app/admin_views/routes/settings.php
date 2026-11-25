@@ -21,6 +21,7 @@ $seoExampleTitle=$seoHomeTitle!==''?$seoHomeTitle:$seoExampleTitle;
       <label>E-mail de contato<input name="contact_email" type="email" maxlength="190" value="<?=h(setting('contact_email'))?>"></label>
     </div>
 
+    <?php require __DIR__.'/../partials/home_preferences.php'; ?>
     <section class="seo-settings seo-portal-center" id="seo-portal-center" aria-labelledby="seo-portal-title">
       <div class="seo-portal-heading"><div><h2 id="seo-portal-title">SEO e compartilhamento</h2><p class="muted">Veja a apresentação do portal e faça ajustes sem sair da página.</p></div><a class="btn outline small" href="<?=h(admin_link('sitemap'))?>">⌕ Sitemap</a></div>
 

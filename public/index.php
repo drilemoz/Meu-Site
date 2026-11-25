@@ -3,7 +3,7 @@ declare(strict_types=1);
 require __DIR__.'/../app/bootstrap.php';
 require __DIR__.'/../app/news_editor.php';
 require __DIR__.'/../app/news_archive.php';
-require __DIR__.'/../app/news_queries.php';
+require_once __DIR__.'/../app/home_news.php';
 require_once __DIR__.'/../app/article_workflow.php';
 require __DIR__.'/../app/editorial.php';
 require __DIR__.'/../app/bus_public.php';
@@ -79,11 +79,10 @@ function news_card(array $a, string $kind='normal'): void { ?>
 function mini_card(array $a): void { ?>
   <a class="mini-card" href="<?= h(news_link($a)) ?>"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($a['image'])) ?>" alt="" loading="lazy" decoding="async"><span><strong><?= h($a['title']) ?></strong><small>◷ <?= h(readable_date($a['published_at'])) ?><?= !empty($a['is_demo'])?' · Exemplo':'' ?></small></span></a>
 <?php }
-function section_category(PDO $db,array $c): void {
-    $list=fetch_news($db,3,(int)$c['id']);
+function section_category(array $c,array $list,string $title): void {
     if (!$list) return; // A página inicial não exibe módulos vazios.
     ?>
-    <section class="section-column"><div class="section-heading"><h2><?= h($c['name']) ?></h2><a href="<?= h(cat_link($c)) ?>">Ver todas →</a></div>
+    <section class="section-column"><div class="section-heading"><h2><?= h($title) ?></h2><a href="<?= h(cat_link($c)) ?>">Ver todas →</a></div>
       <?php if ($list): $main=array_shift($list); ?><a href="<?= h(news_link($main)) ?>" class="section-lead"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($main['image'])) ?>" alt="" loading="lazy" decoding="async"><h3><?= h($main['title']) ?></h3><p><?= h($main['summary']) ?></p></a><?php foreach ($list as $a) mini_card($a); else: ?><p class="muted">Em breve, novas notícias.</p><?php endif; ?>
     </section>
 <?php }
