@@ -97,7 +97,7 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   </div>
   <form id="updater-upload-form" class="updater-install-form updater-upload-form" data-updater-progress-form data-updater-confirm-flow="manual" method="post" enctype="multipart/form-data" action="<?=h(admin_link('updates'))?>">
     <?=csrf_field()?><input type="hidden" name="operation" value="upload">
-    <p class="updater-upload-note updater-schema-warning"><strong>Importante:</strong> versões que alteram o esquema do banco, como a 1.0.96 (schema 37), precisam de instalação assistida com backup externo. O envio comum não faz essa migração.</p>
+    <p class="updater-upload-note updater-schema-warning"><strong>Importante:</strong> versões que alteram o esquema do banco, como a 1.0.155 (schema 38), precisam de instalação assistida com backup externo. O envio comum não faz essa migração.</p>
     <div class="updater-form-fields" data-updater-fields>
       <label class="updater-upload-label">Pacote de atualização<input type="file" name="update_zip" accept=".zip,application/zip" required></label>
       <label>Senha administrativa<input type="password" name="confirm_password" autocomplete="current-password" required></label>

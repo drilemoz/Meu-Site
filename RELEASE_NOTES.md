@@ -1,3 +1,7 @@
+## 1.0.155 — Notícias recebidas (2026-11-25)
+
+Formulário público sem SMTP, caixa de entrada privada, fotos e moderação com criação de rascunho. Schema 38, backup lógico v13 (leitura v1–v12 preservada). Consulte `docs/NOTICIAS_RECEBIDAS_155.md`.
+
 ## Versão 1.0.154 — Ações da notícia, autor e volta ao topo
 
 Compartilhar e copiar viraram ícones compactos ao lado do tempo de leitura. No passo Classificação, a assinatura ficou visível e o botão **+ Autor** cadastra e seleciona um perfil editorial sem sair do editor. Nas páginas públicas, a seta fixa leva ao topo e fica acima da barra inferior no celular.

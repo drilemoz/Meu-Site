@@ -69,7 +69,7 @@ try {
     $dsn='mysql:host='.$host.';port='.$port.';dbname='.$name.';charset=utf8mb4';
     $db=new PDO($dsn,$user,$pass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false,PDO::ATTR_TIMEOUT=>6]);
-    check217(igua_schema_revision($db)===IGUA_SCHEMA_REVISION,'banco CI já instalado, schema 37');
+    check217(igua_schema_revision($db)===IGUA_SCHEMA_REVISION,'banco CI já instalado, schema 38');
     $admin=(int)$db->query("SELECT COUNT(*) FROM users WHERE role='admin' AND active=1")->fetchColumn();
     check217($admin>=1,'banco CI já preparado com administrador ativo');
     $articlesBefore=(int)$db->query('SELECT COUNT(*) FROM articles')->fetchColumn();

@@ -57,6 +57,8 @@ function install_schema(PDO $db,bool $recordRevision=true): void {
     meu_elections_schema($db);
     require_once __DIR__.'/apps_legal.php';
     igua_migrate_apps_schema($db);
+    require_once __DIR__.'/story_submissions.php';
+    igua_story_schema($db);
     require_once __DIR__.'/schema_migrations.php';
     if($recordRevision)igua_record_schema_revision($db);
 }

@@ -34,7 +34,7 @@ function indexes146(PDO $db):array {
     foreach ($db->query('SHOW INDEX FROM articles')->fetchAll(PDO::FETCH_ASSOC) as $row)$names[$row['Key_name']]=true;
     return $names;
 }
-check146mysql(igua_schema_revision($db)===37,'esquema 37 instalado');
+check146mysql(igua_schema_revision($db)===38,'esquema 38 instalado');
 $indices=indexes146($db);
 check146mysql(isset($indices['idx_public_featured'],$indices['idx_public_popular']),'ambos os índices estão presentes');
 // Confirmar todas as funções ANTES de efetuar DDL auto-commit no banco isolado.
@@ -51,7 +51,7 @@ check146mysql(true,'dependências de migração importadas antes da alteração 
 // Simula atualização 35->36 no ambiente isolado, inclusive após DDL parcial.
 $db->exec('ALTER TABLE articles DROP INDEX idx_public_featured');
 $db->prepare('UPDATE settings SET value=? WHERE name=?')->execute(['35',IGUA_SCHEMA_REVISION_KEY]);
-check146mysql(igua_migrate_schema($db) && igua_schema_revision($db)===37,'migração de 35 para 37 recompõe índice ausente');
+check146mysql(igua_migrate_schema($db) && igua_schema_revision($db)===38,'migração de 35 para 38 recompõe índice ausente');
 check146mysql(isset(indexes146($db)['idx_public_featured']),'índice recomposto após atualização');
 check146mysql(!igua_migrate_schema($db),'segunda migração não altera a estrutura');
 $plans=igua_news_explain($db);

@@ -1,4 +1,8 @@
-# Documentação atual do Meu Site (1.0.154)
+## 1.0.155 — Notícias recebidas (2026-11-25)
+
+Formulário público sem SMTP, caixa de entrada privada, fotos e moderação com criação de rascunho. Schema 38, backup lógico v13 (leitura v1–v12 preservada). [Documentação do módulo](NOTICIAS_RECEBIDAS_155.md).
+
+# Documentação atual do Meu Site (1.0.155)
 
 - [Experiência editorial 1.0.154](EXPERIENCIA_EDITORIAL_154.md) — ações, assinatura, categoria Economia e atalho para o topo.
 

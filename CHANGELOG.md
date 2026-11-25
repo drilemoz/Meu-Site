@@ -1,3 +1,7 @@
+## 1.0.155 — Notícias recebidas (2026-11-25)
+
+Formulário público sem SMTP, caixa de entrada privada, fotos e moderação com criação de rascunho. Schema 38, backup lógico v13 (leitura v1–v12 preservada). Consulte `docs/NOTICIAS_RECEBIDAS_155.md`.
+
 ## 1.0.154 — Ações compactas, autores e navegação (2026-11-17)
 
 - Compartilhar e copiar agora são ícones do mesmo tamanho, na mesma linha e antes do tempo estimado de leitura. A autoria, data e visualizações continuam acima.

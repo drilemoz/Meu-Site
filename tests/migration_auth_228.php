@@ -6,7 +6,7 @@ $archive=sys_get_temp_dir().'/igua-mig-auth-'.bin2hex(random_bytes(7)).'.zip';
 $entry='db/manual-20261108-193000-a1b2c3.json';
 $tables=array_fill_keys(BACKUP_TABLES,[]);
 $tables['users']=[['id'=>1,'name'=>'Admin','email'=>'admin@teste.invalid','role'=>'admin','active'=>1,'password_hash'=>password_hash('SenhaBemForte123!',PASSWORD_DEFAULT)]];
-$json=json_encode(['format'=>'iguanews-backup','version'=>12,'created_at'=>date(DATE_ATOM),'tables'=>$tables],JSON_THROW_ON_ERROR);
+$json=json_encode(['format'=>'iguanews-backup','version'=>13,'created_at'=>date(DATE_ATOM),'tables'=>$tables],JSON_THROW_ON_ERROR);
 $manifest=json_encode(['format'=>'iguanews-media-bundle','version'=>2,'db'=>$entry,'db_sha256'=>hash('sha256',$json),'files'=>[]],JSON_THROW_ON_ERROR);
 if(!class_exists('ZipArchive')){
  class ZipArchive{

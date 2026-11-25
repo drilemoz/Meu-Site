@@ -7,7 +7,7 @@ require_once __DIR__.'/../app/backup.php';
 require_once __DIR__.'/../app/schema_migrations.php';
 require_once __DIR__.'/../app/admin_controllers/post_routes.php';
 function legal196(bool $ok,string $description):void{if(!$ok)throw new RuntimeException('Módulo legal: '.$description);}
-legal196(IGUA_SCHEMA_REVISION===37,'schema 37 exigido');
+legal196(IGUA_SCHEMA_REVISION===38,'schema 38 exigido');
 legal196(igua_app_slug_valid('uaicortes') && igua_app_slug_valid('meu-aplicativo-2'),'identificadores de múltiplos aplicativos');
 foreach(['','u','UPPER','meu_app','site/evil','../admin','app--dois','app-',' app','á'] as $bad)
     legal196(!igua_app_slug_valid($bad),'identificador recusado: '.$bad);
@@ -32,7 +32,7 @@ foreach(['http://example.org','javascript:alert(1)','https://user:secret@example
     legal196($rejected,'URL externa perigosa rejeitada');
 }
 legal196(in_array('legal_apps',BACKUP_TABLES,true)&&in_array('legal_app_revisions',BACKUP_TABLES,true),'backup contempla aplicativos e revisões');
-legal196(count(BACKUP_TABLES)===count(BACKUP_TABLES_V11)+4,'backup adiciona somente quatro tabelas');
+legal196(count(BACKUP_TABLES_V12)===count(BACKUP_TABLES_V11)+4,'backup adiciona somente quatro tabelas');
 foreach(['save_legal_app','publish_legal_app','save_legal_page','publish_legal_page','restore_legal_revision','unpublish_legal_page'] as $action)
     legal196(igua_admin_post_module($action)==='apps_legal','rota POST explícita '.$action);
 $admin=file_get_contents(__DIR__.'/../public/admin.php');

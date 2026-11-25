@@ -15,11 +15,11 @@ function recovery214_reject(callable $run,string $message):void {
 }
 $tables=array_fill_keys(BACKUP_TABLES,[]);
 $tables['users']=[['id'=>1,'role'=>'admin','active'=>1]];
-$backup=['format'=>'iguanews-backup','version'=>12,'tables'=>$tables];
+$backup=['format'=>'iguanews-backup','version'=>13,'tables'=>$tables];
 $encode=static fn(array $data):string=>json_encode($data,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);
-recovery214_assert(parse_backup($encode($backup),'teste.json')['tables']['users'][0]['role']==='admin','backup v12 de administrador válido');
+recovery214_assert(parse_backup($encode($backup),'teste.json')['tables']['users'][0]['role']==='admin','backup v13 de administrador válido');
 if(function_exists('gzencode')){
-    recovery214_assert(parse_backup(gzencode($encode($backup)),'teste.json.gz')['version']===12,'backup GZIP válido');
+    recovery214_assert(parse_backup(gzencode($encode($backup)),'teste.json.gz')['version']===13,'backup GZIP válido');
     recovery214_reject(static fn()=>@parse_backup('GZIP inválido','teste.json.gz'),'GZIP corrompido recusado');
 }
 $mutated=$backup;unset($mutated['tables']['settings']);

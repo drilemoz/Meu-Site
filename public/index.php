@@ -8,6 +8,7 @@ require_once __DIR__.'/../app/article_workflow.php';
 require __DIR__.'/../app/editorial.php';
 require __DIR__.'/../app/bus_public.php';
 require __DIR__.'/../app/contact.php';
+require_once __DIR__.'/../app/story_submissions.php';
 require __DIR__.'/../app/ads.php';
 require __DIR__.'/../app/analytics.php';
 require_once __DIR__.'/../app/apps_legal.php';
@@ -38,6 +39,20 @@ if($route==='app'){
     if(!$legalPage){$route='404';http_response_code(404);}
 }
 if($route==='mais')redirect('/index.php?p=onibus');
+$storyErrors=[];$storyInput=[];
+if($route==='enviar-noticia'){
+    header('Cache-Control: private, no-store, max-age=0');
+    if(request_post()){
+        $storyInput=$_POST;
+        try{
+            if((int)($_SERVER['CONTENT_LENGTH']??0)>1200*1024 || (empty($_POST) && (int)($_SERVER['CONTENT_LENGTH']??0)>0))throw new DomainException('Envio muito grande. Reduza as fotos e tente novamente.');
+            check_csrf();
+            igua_story_receive($db,$_POST,$_FILES['photos']??[]);
+            $_SESSION['story_success']=true;redirect('/index.php?p=enviar-noticia');
+        }catch(DomainException $e){$storyErrors[]=$e->getMessage();http_response_code(422);}
+        catch(Throwable $e){igua_health_log('STORY_RECEIVE_FAILED',$e);$storyErrors[]='Envio temporariamente indisponível. Tente novamente mais tarde.';http_response_code(503);}
+    }
+}
 $contactErrors=[];$contactInput=[];
 if(in_array($route,['contato','anuncie'],true) && request_post()){
     $contactInput=$_POST;
@@ -96,7 +111,7 @@ if ($route==='noticia') {
     foreach ($categories as $c) if ($c['slug']===($_GET['slug']??'')) { $category=$c;break; }
     if (!$category) {$route='404';http_response_code(404);}
     elseif(setting('seo_pretty_urls','0')==='1' && str_starts_with((string)($_SERVER['REQUEST_URI']??''),'/index.php?')){header('Location: '.archive_link('categoria',archive_page_number($_GET['page']??1),'',(string)$category['slug'],archive_period_days($_GET['period']??'')),true,301);exit;}
-} elseif (!in_array($route,['inicio','buscar','onibus','privacidade','termos','anuncie','contato','sobre','app'],true)) {$route='404';http_response_code(404);}
+} elseif (!in_array($route,['inicio','buscar','onibus','privacidade','termos','anuncie','contato','sobre','app','enviar-noticia'],true)) {$route='404';http_response_code(404);}
 $archivePage=archive_page_number($_GET['page']??1);
 $archiveDays=archive_period_days($_GET['period']??'');
 $archiveCatSlug=archive_category_slug($categories,$_GET['cat']??'');
@@ -129,7 +144,7 @@ if($article){
     $article['author_type']=$article['author']!=='' ? 'Person' : 'Organization';
     if($article['author']==='')$article['author']='Redação '.igua_brand_name();
 }
-$pageTitle= $legalPage ? (string)$legalPage['title'] : ($article ? (trim((string)($article['seo_title']??'')) ?: $article['title']) : ($category['name']??($route==='buscar'?'Buscar notícias':($route==='onibus'?'Horários de ônibus':(['anuncie'=>'Anuncie','contato'=>'Contato','sobre'=>'Sobre o portal','privacidade'=>'Política de Privacidade','termos'=>'Termos de Uso'][$route]??'Últimas notícias')))));
+$pageTitle= $legalPage ? (string)$legalPage['title'] : ($article ? (trim((string)($article['seo_title']??'')) ?: $article['title']) : ($category['name']??($route==='buscar'?'Buscar notícias':($route==='onibus'?'Horários de ônibus':(['enviar-noticia'=>'Envie sua notícia','anuncie'=>'Anuncie','contato'=>'Contato','sobre'=>'Sobre o portal','privacidade'=>'Política de Privacidade','termos'=>'Termos de Uso'][$route]??'Últimas notícias')))));
 // Páginas fixas podem ter um título SEO completo, sem sufixo obrigatório.
 // Títulos de notícias, categorias e aplicativos continuam sendo editados em seus próprios módulos.
 $seoPageKey=['inicio'=>'seo_home_title','onibus'=>'seo_page_title_onibus','sobre'=>'seo_page_title_sobre','contato'=>'seo_page_title_contato','anuncie'=>'seo_page_title_anuncie','privacidade'=>'seo_page_title_privacidade','termos'=>'seo_page_title_termos'][$route]??'';
@@ -144,10 +159,10 @@ if($seoPageDescriptionKey!==''){
 }
 // As configurações aceitam 320 caracteres. Evitar truncamento silencioso a 260.
 $seoDesc=excerpt($seoDesc,320);
-$indexable=$legalPage!==null || (setting('seo_index','0')==='1' && !in_array($route,['404','buscar'],true) && !($route==='categoria' && $archiveDays>0) && !($article && (int)$article['is_demo']===1) && ($article || $demoCount===0));
+$indexable=$legalPage!==null || (setting('seo_index','0')==='1' && !in_array($route,['404','buscar','enviar-noticia'],true) && !($route==='categoria' && $archiveDays>0) && !($article && (int)$article['is_demo']===1) && ($article || $demoCount===0));
 $siteBase=setting('seo_site_url');
 try{$siteBase=safe_seo_url($siteBase);}catch(Throwable){$siteBase='';}
-$relative = $legalPage ? igua_app_page_url((string)$legalPage['slug'],(string)$legalPage['page_slug']) : ($article ? news_link($article) : ($category ? archive_link('categoria',$archive['page'],'',(string)$category['slug'],$archiveDays) : ($route==='inicio' ? '/index.php' : url(['p'=>(in_array($route,['onibus','privacidade','termos','anuncie','contato','sobre'],true)?$route:'buscar')]))));
+$relative = $legalPage ? igua_app_page_url((string)$legalPage['slug'],(string)$legalPage['page_slug']) : ($article ? news_link($article) : ($category ? archive_link('categoria',$archive['page'],'',(string)$category['slug'],$archiveDays) : ($route==='inicio' ? '/index.php' : url(['p'=>(in_array($route,['onibus','privacidade','termos','anuncie','contato','sobre','enviar-noticia'],true)?$route:'buscar')]))));
 if($legalPage && $siteBase==='')$siteBase='https://iguatama.online';
 $canonical=$siteBase!==''?$siteBase.$relative:'';
 $socialImg=setting('seo_social_image');

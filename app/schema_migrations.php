@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 /**
- * Registro de migração para instalações existentes, incluindo sessões persistentes (34), cadastro eleitoral (35) e índices públicos (36) e aplicativos/páginas legais (37).
+ * Registro de migração para instalações existentes, incluindo sessões persistentes (34), cadastro eleitoral (35) e índices públicos (36) e aplicativos/páginas legais (37) e sugestões de notícias (38).
  * O marcador é gravado por último, somente se TODAS as migrações forem concluídas.
  * Ao adicionar uma migração futura, aumente IGUA_SCHEMA_REVISION.
  */
-const IGUA_SCHEMA_REVISION = 37;
+const IGUA_SCHEMA_REVISION = 38;
 const IGUA_SCHEMA_REVISION_KEY = 'igua_schema_revision';
 
 function igua_schema_revision(PDO $db): int {
@@ -78,6 +78,8 @@ function igua_migrate_schema(PDO $db): bool {
     igua_migrate_public_news_indexes($db);
     require_once __DIR__.'/apps_legal.php';
     igua_migrate_apps_schema($db);
+    require_once __DIR__.'/story_submissions.php';
+    igua_story_schema($db);
     igua_record_schema_revision($db);
     return true;
 }

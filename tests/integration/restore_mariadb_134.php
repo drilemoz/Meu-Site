@@ -50,7 +50,7 @@ try{
     foreach(BACKUP_TABLES as $table){
         $db->query('SELECT * FROM `'.$table.'` LIMIT 0')->closeCursor();
     }
-    integration134_assert(true,'todas as tabelas do backup v12 existem');
+    integration134_assert(true,'todas as tabelas do backup v13 existem');
     $db->prepare('INSERT INTO users (name,email,password_hash,role,active) VALUES (?,?,?,?,1)')
         ->execute(['Administrador teste','integracao134@example.invalid',password_hash('senha-temporaria-134',PASSWORD_DEFAULT),'admin']);
     $userId=(int)$db->lastInsertId();
@@ -141,6 +141,20 @@ try{
     integration134_assert($db->query('SELECT title FROM articles WHERE id='.$articleId)->fetchColumn()==='Notícia teste de recuperação','ZIP recupera o conteúdo do banco');
     integration134_assert((int)$db->query('SELECT is_demo FROM articles WHERE id='.$articleId)->fetchColumn()===1,'ZIP preserva marca de demonstração');
     integration134_assert(!$db->inTransaction(),'restituição ZIP encerra a transação');
+    $_SESSION['story_last']=0;
+    $suggestion=igua_story_receive($db,['name'=>'Pessoa teste','contact'=>'teste@example.invalid','title'=>'Pauta de integração','message'=>'Relato fictício com detalhes para a redação.','consent'=>'1'],[]);
+    $draft=igua_story_draft($db,$suggestion,$userId);
+    integration134_assert($draft===igua_story_draft($db,$suggestion,$userId),'rascunho não duplica');
+    integration134_assert($db->query('SELECT status FROM articles WHERE id='.$draft)->fetchColumn()==='draft','sugestão nunca publica automaticamente');
+    $photoJson=json_encode([igua_story_photo($png)],JSON_THROW_ON_ERROR);
+    $db->prepare('UPDATE story_submissions SET photos=? WHERE id=?')->execute([$photoJson,$suggestion]);
+    $storyBackup=make_backup($db);$storyPath=backup_path($storyBackup);$createdBackups[]=$storyPath;
+    $storyData=parse_backup((string)file_get_contents($storyPath),$storyBackup);
+    $db->exec('DELETE FROM story_submissions WHERE id='.$suggestion);
+    restore_backup($db,$storyData);
+    integration134_assert($db->query('SELECT photos FROM story_submissions WHERE id='.$suggestion)->fetchColumn()===$photoJson,'backup v13 restaura foto privada');
+    $db->exec('DELETE FROM story_submissions WHERE id='.$suggestion);
+    $db->exec('DELETE FROM articles WHERE id='.$draft);
     echo "INTEGRAÇÃO 1.0.34: MariaDB real + ZipArchive real aprovados em banco isolado.\n";
 } finally {
     foreach($createdBackups as $file)if(is_file($file))@unlink($file);

@@ -1,4 +1,5 @@
-<?php if(in_array($action,['legal_apps','legal_app_edit','legal_app_info','legal_page_edit'],true)): require __DIR__.'/routes/legal_apps.php'; ?>
+<?php if($action==='story_submissions'): require __DIR__.'/routes/story_submissions.php'; ?>
+<?php elseif(in_array($action,['legal_apps','legal_app_edit','legal_app_info','legal_page_edit'],true)): require __DIR__.'/routes/legal_apps.php'; ?>
 <?php elseif(in_array($action,['bus','bus_edit','bus_import'],true)): bus_admin_view($db,$action); ?>
 <?php elseif($action==='ads'): ad_admin_view($db); ?>
 <?php elseif($action==='files'): require __DIR__.'/routes/files.php'; ?>

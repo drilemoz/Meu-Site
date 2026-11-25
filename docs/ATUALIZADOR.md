@@ -1,3 +1,7 @@
+## Migração assistida na v1.0.155 (schema 38)
+
+A atualização de 37 para 38 é incompatível com o atualizador comum. Não modifique o manifesto nem desative a validação. Veja [o procedimento](NOTICIAS_RECEBIDAS_155.md).
+
 # Atualizações e recuperação — versão 1.0.92
 
 ## Pacotes

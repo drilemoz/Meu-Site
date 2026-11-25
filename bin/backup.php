@@ -5,10 +5,13 @@ require __DIR__.'/../app/bootstrap.php';
 require __DIR__.'/../app/backup.php';
 require __DIR__.'/../app/ads.php';
 require __DIR__.'/../app/news_editor.php';
+require_once __DIR__.'/../app/schema.php';
+require_once __DIR__.'/../app/article_workflow.php';
+require_once __DIR__.'/../app/analytics.php';
+require_once __DIR__.'/../app/schema_migrations.php';
 if (!installed()) {fwrite(STDERR,"IguaNews não instalado.\n");exit(1);}
 try {
-    migrate_ads_schema(db());
-    migrate_news_schema(db());
+    igua_migrate_schema(db());
     $filename=make_backup(db(),date('w')==='0'?'weekly':'daily');
     // Verifica o conteúdo completo antes de descartar cópias antigas por retenção.
     $path=backup_path($filename);

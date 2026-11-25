@@ -16,7 +16,7 @@ require_once __DIR__.'/../../app/backup.php';
 $db=connection(['host'=>getenv('IGUA_TEST_DB_HOST'),'port'=>(int)(getenv('IGUA_TEST_DB_PORT')?:3306),
     'database'=>$name,'username'=>getenv('IGUA_TEST_DB_USER'),'password'=>getenv('IGUA_TEST_DB_PASSWORD')]);
 function legal196mysql(bool $ok,string $what):void{if(!$ok)throw new RuntimeException('LEGAL 196 MariaDB: '.$what);echo 'OK: '.$what."\n";}
-legal196mysql(igua_schema_revision($db)===37,'migração para schema 37');
+legal196mysql(igua_schema_revision($db)===38,'migração para schema 38');
 legal196mysql((int)$db->query("SELECT COUNT(*) FROM legal_apps WHERE slug='uaicortes' AND status='draft'")->fetchColumn()===1,'Uai Cortes criado como rascunho inicial');
 $base='legal-ci-'.bin2hex(random_bytes(4));$ids=[];$backupFile=null;
 try{
@@ -85,7 +85,7 @@ try{
     $backupFile=make_backup($db,'manual');
     $path=backup_path($backupFile);
     $data=parse_backup((string)file_get_contents($path),$backupFile);
-    legal196mysql(count($data['tables']['legal_apps'])>=3 && count($data['tables']['legal_app_revisions'])>=2,'backup v12 inclui vários apps e revisões');
+    legal196mysql(count($data['tables']['legal_apps'])>=3 && count($data['tables']['legal_app_revisions'])>=2,'backup v13 inclui vários apps e revisões');
     $db->prepare('UPDATE legal_app_pages SET published_revision_id=? WHERE id=?')->execute([$rev1,$homeId]);
     restore_backup($db,$data);
     legal196mysql(igua_app_public($db,$firstSlug,'inicio')['body']===$body2,'restauração preserva revisão pública publicada');

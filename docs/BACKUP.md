@@ -1,4 +1,6 @@
-# Backup e restauração — Meu Site 1.0.130
+# Backup e restauração — Meu Site 1.0.155
+
+O backup lógico v13 inclui a tabela privada `story_submissions`, inclusive fotos codificadas em Base64. Backups v1–v12 continuam aceitos; restaurá-los substitui também a caixa de entrada por uma vazia. As fotos das matérias continuam dependentes do ZIP completo.
 
 O portal possui **dois formatos distintos**; escolher o formato errado pode deixar imagens e anexos de fora.
 

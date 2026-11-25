@@ -1,4 +1,8 @@
-# Diretrizes de manutenção — Meu Site (v1.0.154)
+## 1.0.155 — Notícias recebidas (2026-11-25)
+
+Formulário público sem SMTP, caixa de entrada privada, fotos e moderação com criação de rascunho. Schema 38, backup lógico v13 (leitura v1–v12 preservada). Consulte `docs/NOTICIAS_RECEBIDAS_155.md`.
+
+# Diretrizes de manutenção — Meu Site (v1.0.155)
 
 Este repositório contém **somente o portal PHP/MySQL Meu Site**. Antes de editar código, ler `README.md`, `docs/INDICE.md`, o módulo afetado e os testes.
 
