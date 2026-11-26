@@ -1,7 +1,17 @@
 <?php
 declare(strict_types=1);
 /** Fila estritamente limitada para deploy na VPS. Nenhuma execução de shell via HTTP. */
-function igua_updater_vps_mode(): bool { return getenv('IGUA_DEPLOY_VPS')==='1'; }
+/** Detecta a estrutura já provisionada quando o PHP-FPM não recebeu a variável.
+ * Não concede escrita ao PHP web; apenas encaminha a atualização ao worker.
+ */
+function igua_updater_vps_layout(string $root): bool {
+    $queue=$root.'/storage/updater/vps';$private=$queue.'/private';
+    return !is_link($queue)&&!is_link($private)&&is_dir($queue)&&is_dir($private)
+        &&fileowner($root)!==false&&fileowner($private)===fileowner($root);
+}
+function igua_updater_vps_mode(): bool {
+    return getenv('IGUA_DEPLOY_VPS')==='1' || (PHP_SAPI!=='cli' && igua_updater_vps_layout(IGUA_ROOT));
+}
 function igua_updater_vps_dir(): string {
     $dir=IGUA_UPDATE_DIR.'/vps';
     if(is_link($dir)||!is_dir($dir))throw new RuntimeException('Fila de deploy não configurada. Consulte docs/AWS_EC2_DEPLOY.md.');
@@ -123,9 +133,9 @@ function igua_updater_vps_status(int $userId,string $token): ?array {
        !is_int($status['at']??null)||$status['at']<time()-86400)return null;
     return ['stage'=>(string)($status['stage']??''),'message'=>(string)($status['message']??''),'at'=>$status['at']];
 }
-function igua_updater_vps_status_update(array $request,string $stage,string $message): void {
+function igua_updater_vps_status_update(array $request,string $stage,string $message,?array $diagnostic=null): void {
     igua_updater_vps_write('status.json',['user_id'=>$request['user_id'],'token'=>$request['token'],
-        'stage'=>$stage,'message'=>substr($message,0,150),'at'=>time()]);
+        'stage'=>$stage,'message'=>function_exists('mb_strcut')?mb_strcut($message,0,600,'UTF-8'):$message,'at'=>time()]+($diagnostic===null?[]:['diagnostic'=>$diagnostic]));
 }
 function igua_updater_vps_take(): ?array {
     $lock=igua_updater_vps_lock();
@@ -170,7 +180,8 @@ function igua_updater_vps_run(): void {
     }catch(Throwable $error){
         // Erro genérico ao navegador. Detalhes somente no journalctl do serviço.
         error_log('IGUA VPS DEPLOY: '.get_class($error).': '.$error->getMessage());
-        igua_updater_vps_status_update($request,'failed','Implantação não confirmada. Verifique o journalctl e o histórico privado antes de tentar novamente.');
+         $diagnostic=igua_updater_diagnostic($error);
+        igua_updater_vps_status_update($request,'failed',$diagnostic['title'].'. '.$diagnostic['action'],$diagnostic);
     }finally{
         if(is_string($zip)&&is_file($zip))@unlink($zip);
         // Se processo morreu abruptamente, running.json permanece e impede repetição.

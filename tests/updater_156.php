@@ -21,7 +21,7 @@ check156(str_contains($view,'class="updater-source-form"') && str_contains($view
 check156(str_contains($view,'value="source_reset"')&&str_contains($controller,"$"."operation==='source_reset'"),'restauração segura da origem oficial');
 check156(str_contains($js,'showModal')&&str_contains($js,'closeDialog')&&str_contains($js,'data-updater-close'),'modal com fechamento e backdrop');
 check156(str_contains($css,'.site-footer{padding-bottom:calc(68px') && str_contains($css,'.footer-new{padding:23px 0 0}'),'rodapé móvel sem padding duplicado');
-check156(substr_count($view,'name="confirm_password"')===3,'senha de recuperação preservada');
+check156(substr_count($view,'name="confirm_password"')===1,'senha de recuperação preservada');
 check156(substr_count($view,'name="confirm_install"')===2,'confirmações de instalação preservadas');
 $updater=(string)file_get_contents(__DIR__.'/../app/updater.php');
 check156(str_contains($updater,"HTTP 404")&&str_contains($updater,"'release'=>null"),'repo sem Releases não produz alerta falso');

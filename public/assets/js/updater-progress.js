@@ -17,7 +17,7 @@
       '<progress max="100" aria-label="Progresso do envio"></progress>' +
       '<small class="updater-progress-detail"></small>' +
       '<div class="updater-progress-buttons"><button type="button" class="btn outline small updater-progress-edit" hidden>Rever dados</button>' +
-      '<button type="button" class="btn primary small updater-progress-result" hidden>Ver resultado</button></div>';
+      '<button type="button" class="btn primary small updater-progress-result" hidden>Ver resultado</button><a class="btn outline small" href="/admin.php?action=updates&amp;updater_report=1" data-updater-report>Baixar relatório completo (.txt)</a></div>';
     form.append(ui);
     return ui;
   }
@@ -67,13 +67,15 @@
         data.append('csrf', form.querySelector('input[name="csrf"]')?.value || '');
         data.append('update_zip', file);
         const response = await fetch(form.action, {method:'POST',body:data,credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json'}});
-        if (!(response.headers.get('content-type') || '').includes('application/json')) throw new Error('Resposta não estruturada');
+        if (response.status === 413) {displayDiagnosis({code:'php_upload_limit',title:'Arquivo maior que o limite de envio',detail:'O servidor recusou o tamanho do ZIP.',action:'Use o TermuxManager ou ajuste o limite de upload no servidor.'}); return false;}
+        if (response.redirected && String(response.url || '').includes('action=login') || response.status === 401 || response.status === 403) {displayDiagnosis({code:'session',title:'Sessão expirada ou acesso não autorizado',detail:'O painel não aceitou sua sessão.',action:'Entre novamente no painel e repita a verificação.'});return false;}
+        if (!(response.headers.get('content-type') || '').includes('application/json')) {displayDiagnosis({code:'http_'+response.status,title:'O servidor não conseguiu analisar o ZIP',detail:'A resposta não continha o diagnóstico esperado.',action:'Verifique a sessão ou use o TermuxManager. Nenhuma instalação foi iniciada.'}); return false;}
         const result = await response.json();
-        if (!response.ok || !result.diagnostic) throw new Error('Falha na verificação');
+        if (!result.diagnostic) throw new Error('Falha na verificação');
         if (fileInput.files?.[0] !== file) return false;
         displayDiagnosis(result.diagnostic);
         lastDiagnosedFile = file;
-        lastCompatible = result.ok === true;
+        lastCompatible = response.ok && result.ok === true;
         return lastCompatible;
       } catch (_) {
         displayDiagnosis({code:'connection',title:'Diagnóstico não concluído',detail:'A hospedagem não retornou um resultado verificável.',action:'Confira a sessão administrativa, o limite de upload do PHP e a conexão. O ZIP não foi instalado.'});

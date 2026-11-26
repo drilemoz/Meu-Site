@@ -1,3 +1,15 @@
+## 1.0.163 — Relatório de atualização (2026-11-26)
+
+- Exportação TXT administrativa na tela de atualizações, vistoria, diagnóstico ZIP e resultado GitHub; reúne versão, schema real/esperado, permissões, extensões, limites PHP, saúde da fila, histórico e tentativas da sessão. O navegador acrescenta o erro visível e oferece relatório parcial se o servidor não responder.
+- Corrige sobrescrita da lista de verificações pela saúde do worker VPS; falhas específicas aparecem no diagnóstico do pacote. Não exporta credenciais, tokens, dumps, respostas HTTP brutas nem journal do sistema.
+- Schema 39 e permissões existentes preservados. Instalação em produção ainda precisa de validação.
+
+## 1.0.162 — Atualização simplificada (2026-11-26)
+
+- Instalação por sessão administrativa e confirmação explícita, sem repetir senha. Restauração mantém senha.
+- Reconhecimento da estrutura VPS existente quando a variável do PHP-FPM não está disponível; uso do serviço dedicado preservado.
+- Diagnósticos de upload, sessão e implantação em linguagem simples. Mudança de schema continua pelo TermuxManager 1.0.142+. Schema 39 mantido.
+
 ## 1.0.161 — Portal configurável (2026-11-26)
 
 - Home compacta por padrão: destaque manual, ônibus, três últimas notícias, uma manchete por categoria local/regional, sem ranking ou etiquetas nos cartões. Limite de 14 dias para listas e seções; destaque manual permanece. Sem duplicatas.
@@ -65,7 +77,7 @@ Formulário público sem SMTP, caixa de entrada privada, fotos e moderação com
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.158** · PHP 8.1+ · MySQL/MariaDB · schema 38.
+**Versão atual do código-fonte: 1.0.162** · PHP 8.1+ · MySQL/MariaDB · schema 39.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 

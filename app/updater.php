@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * Atualizador de código do Meu Site. Aceita ZIP v2 sem assinatura após
- * reautenticação do administrador; pacotes assinados legados v1 continuam
+ * autorização da sessão administrativa; pacotes assinados legados v1 continuam
  * autenticados pela chave pública original. SHA-256 verifica integridade, NÃO
  * a autoria de pacotes sem assinatura. Nunca executa comandos de shell.
  * A revisão do banco deve permanecer igual (migrações exigem release assistida).
@@ -18,6 +18,7 @@ const IGUA_UPDATE_CACHE = IGUA_UPDATE_DIR . '/release-cache-v160.json';
 const IGUA_UPDATE_GITHUB_AUTH = IGUA_UPDATE_DIR . '/github-auth.json';
 const IGUA_UPDATE_CACHE_TTL = 60;
 require_once __DIR__.'/updater_vps.php';
+require_once __DIR__.'/updater_report.php';
 
 /** Diagnósticos públicos controlados: nunca retornar resposta bruta, token ou caminhos do servidor. */
 function igua_updater_diagnostic(Throwable $error): array {
@@ -57,8 +58,8 @@ function igua_updater_diagnostic(Throwable $error): array {
             'action'=>'Confira rede de saída, firewall e limite de execução PHP na hospedagem.'];
     if(preg_match('/schema|revisão do banco|instalação assistida/i',$message))
         return ['code'=>'schema_migration','title'=>'Atualização precisa de migração do banco',
-            'detail'=>'O pacote altera a revisão do MariaDB; o instalador comum bloqueia esse cenário para preservar os dados.',
-            'action'=>'Faça backup externo e siga o procedimento de instalação assistida da versão. Não force a instalação automática.'];
+            'detail'=>'Esta versão precisa atualizar a estrutura do banco de dados.',
+            'action'=>'Instale pelo TermuxManager 1.0.142 ou superior, que realiza o backup e a migração.'];
     if(preg_match('/versão.*instalada|Pacote antigo/i',$message))
         return ['code'=>'version','title'=>'Versão não aplicável',
             'detail'=>'O pacote não é mais recente que o código instalado.',
@@ -67,6 +68,14 @@ function igua_updater_diagnostic(Throwable $error): array {
         return ['code'=>'zip_missing','title'=>'Extensão PHP ZIP ausente',
             'detail'=>'O PHP não consegue abrir o pacote.',
             'action'=>'Ative ZipArchive no PHP usado pelo site.'];
+    if(str_starts_with($message,'Não foi possível preparar cópia privada.'))
+        return ['code'=>'deploy_unavailable','title'=>'Não foi possível criar a pasta de trabalho da instalação',
+            'detail'=>'A criação de uma pasta em storage/updater/jobs falhou antes de instalar os arquivos.',
+            'action'=>'Baixe o relatório para verificar as permissões e o proprietário de jobs.'];
+    if(preg_match('/cópia privada|área privada|lock de deploy|fila de deploy|controle privado|serviço externo de implantação|pré-atualização bloqueada/i',$message))
+        return ['code'=>'deploy_unavailable','title'=>'O instalador do servidor não está disponível',
+            'detail'=>'A conta de implantação não conseguiu preparar a atualização ou a fila está indisponível.',
+            'action'=>'Abra a vistoria do servidor. Use o TermuxManager para instalar se o serviço continuar indisponível.'];
     if(preg_match('/permissão|escrita|espaço|diretório|armazenamento|arquivo temporário|salvar ZIP/i',$message))
         return ['code'=>'storage','title'=>'Problema de armazenamento/permissão',
             'detail'=>'A hospedagem pode estar impedindo arquivos temporários ou operações de escrita.',
@@ -102,7 +111,7 @@ function igua_updater_diagnose_zip(string $zipPath, ?PDO $db=null): array {
         $preview=igua_updater_preview_zip($zipPath,$db);
         if(!$preview['preflight']['ok'])return $base+['ok'=>false,'diagnostic'=>[
             'code'=>'preflight','title'=>'Bloqueio na vistoria do servidor',
-            'detail'=>'Uma ou mais verificações de escrita, extensões ou segurança falharam.',
+            'detail'=>implode(' · ',array_map(static fn($c)=>$c['name'].': '.$c['detail'],array_filter($preview['preflight']['checks'],static fn($c)=>$c['status']==='falha'))),
             'action'=>'Abra Vistoria do servidor e corrija os itens marcados como falha.'],
             'checks'=>$preview['preflight']['checks']];
         return $base+['ok'=>true,'diagnostic'=>[
@@ -608,22 +617,22 @@ function igua_updater_preflight(?PDO $db=null, ?array $manifest=null): array {
             }
             $ready=$recent&&($health['ready']??false)===true;
             $add('Serviço de implantação separado',$ready?'ok':'falha',
-                $ready?'Vistoria real do worker aprovada; PHP-FPM não substitui código':'Worker ausente ou vistoria real não aprovada. Execute bin/aws-deploy-check.php como conta dedicada.');
-            $checks=$health['checks']??[];
-            $atomics=$ready&&is_array($checks)&&($checks['root_atomic']??false)===true&&
-                ($checks['app_atomic']??false)===true&&($checks['public_atomic']??false)===true&&
-                ($checks['control_atomic']??false)===true&&($checks['jobs_atomic']??false)===true;
+                $ready?'Vistoria real do worker aprovada; PHP-FPM não substitui código':'O serviço não confirmou que está pronto. Confira o painel da VPS.');
+            $workerChecks=$health['checks']??[];
+            $atomics=$ready&&is_array($workerChecks)&&($workerChecks['root_atomic']??false)===true&&
+                ($workerChecks['app_atomic']??false)===true&&($workerChecks['public_atomic']??false)===true&&
+                ($workerChecks['control_atomic']??false)===true&&($workerChecks['jobs_atomic']??false)===true;
             $add('Renomeação atômica pela conta de deploy',$atomics?'ok':'falha',
                 $atomics?'Raiz, app/, public/ e controles testados com arquivos descartáveis':'O serviço não comprovou a troca atômica nos diretórios necessários.');
-            $control=$ready&&($checks['queue_secure']??false)===true&&($checks['queue_lock']??false)===true;
+            $control=$ready&&($workerChecks['queue_secure']??false)===true&&($workerChecks['queue_lock']??false)===true;
             $add('Controles protegidos do worker',$control?'ok':'falha',
                 $control?'Marcadores exclusivos do deploy; www-data apenas solicita e consulta':'Controle privado, fila ou lock não verificados.');
             $queueWritable=is_writable($queue);
             $add('Fila privada de atualizações',$queueWritable?'ok':'falha',
-                $queueWritable?'PHP-FPM pode enviar pedidos sem acesso à implantação':'PHP-FPM não consegue enviar solicitações.');
+                $queueWritable?'O painel pode solicitar instalações':'O painel não consegue solicitar instalações.');
             if(is_file(igua_updater_vps_path('running.json')))$add('Deploy em andamento','aviso','Solicitação ativa ou interrompida; investigar antes de novo envio.');
             $add('Escrita do código', $ready?'ok':'falha',
-                $ready?'Escrita validada pela conta dedicada; PHP-FPM não precisa escrever em VERSION':'Serviço não comprovou o acesso de escrita necessário.');
+                $ready?'O serviço de instalação tem acesso aos arquivos do portal':'O serviço não confirmou que pode instalar arquivos.');
         }catch(Throwable){
             $add('Serviço de implantação separado','falha','Fila ou diretório privado do worker não configurados.');
             $add('Escrita do código','falha','Permissões de implantação não confirmadas.');

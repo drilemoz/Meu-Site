@@ -18,7 +18,7 @@ A atualização de 37 para 38 é incompatível com o atualizador comum. Não mod
 
 1. Em **Configurações → Atualizações**, confira a versão e mantenha backup externo do banco e das mídias.
 2. Clique em **Visualizar** para conectar ao GitHub e consultar a última release e as notas de mudanças, sem sair da página.
-3. Se houver atualização com ZIP, confirme a origem e informe a senha administrativa no modal para iniciar a instalação. Configuração da origem e vistoria ficam em **Configurações e diagnóstico**, sem cartões na tela principal.
+3. Se houver atualização com ZIP, confirme a origem no modal (sessão administrativa ativa, sem repetir senha) para iniciar a instalação. Configuração da origem e vistoria ficam em **Configurações e diagnóstico**, sem cartões na tela principal.
 4. O progresso remoto apresenta **apenas as etapas escritas pelo PHP** (download, manifesto, preflight, backup, arquivos). Não há porcentagem real para a execução do servidor, portanto a barra permanece indeterminada até confirmação da conclusão. Durante manutenção a consulta de status pode ficar indisponível temporariamente.
 5. Após a resposta de sucesso do PHP, a janela exibe **Atualização concluída** e o botão **Atualizar página**.
 6. Como alternativa, clique em **Enviar ZIP** para o modal de envio manual, com revisão/consentimento e progresso **somente dos bytes enviados** pelo navegador.
@@ -28,7 +28,7 @@ A atualização de 37 para 38 é incompatível com o atualizador comum. Não mod
 
 - A verificação de nova release e a leitura do estágio usam GET autenticado sob a capacidade `manage_settings`.
 - A leitura do estágio exige token hexadecimal aleatório de 128 bits, associado ao ID administrativo; o servidor grava apenas o nome da etapa e uma mensagem estática em `storage/updater/` (privado).
-- Durante o POST de atualização remota, o PHP libera o bloqueio da sessão somente após autorizar senha/CSRF, e o retoma antes de registrar a mensagem de sucesso/erro.
+- Durante o POST de atualização remota, o PHP libera o bloqueio da sessão somente após autorizar sessão administrativa/CSRF, e o retoma antes de registrar a mensagem de sucesso/erro.
 - Download de release e backup podem levar tempo; falha de consulta de status não significa falha de instalação. A tela evita mostrar porcentagens não fundamentadas.
 
 ## Migração assistida na v1.0.96 (schema 37)
@@ -37,7 +37,7 @@ A atualização automática via GitHub e o envio de ZIP pelo painel da 1.0.95 ou
 
 ## Segurança e limitações
 
-O servidor verifica versão, tamanho, caminhos, manifesto, CSRF e reautenticação; cria arquivos de segurança, journal e tenta rollback em caso de falha. O formato atual não executa migrações automáticas de banco: o schema do ZIP deve coincidir com o instalado. A v1.0.96 é schema 37 e sua primeira instalação exige migração assistida, conforme acima.
+O servidor verifica versão, tamanho, caminhos, manifesto, CSRF, sessão administrativa e aceite explícito; cria arquivos de segurança, journal e tenta rollback em caso de falha. O formato atual não executa migrações automáticas de banco: o schema do ZIP deve coincidir com o instalado. A v1.0.96 é schema 37 e sua primeira instalação exige migração assistida, conforme acima.
 
 Uma atualização de código **não substitui** um backup. O restaurador de código e o backup de dados são fluxos distintos. Ver [BACKUP.md](BACKUP.md).
 
@@ -53,7 +53,7 @@ O processo GitHub é automático; **instalar continua sendo uma decisão do admi
 
 O botão **Visualizar** classifica os erros da consulta remota em códigos não sensíveis: `curl_missing`, `dns`, `tls`, `timeout`, `github_limited`, `github_http`, `github_remote_error`, `storage` ou `unknown`. Esses códigos são hipóteses baseadas na falha real do PHP, não prova de que o servidor tenha completado qualquer instalação.
 
-O botão **Diagnosticar ZIP antes de instalar** envia o arquivo apenas para validação de leitura (`operation=diagnose_zip`, POST + sessão de administrador + CSRF). Ele avalia o manifesto e, quando compatível, realiza preflight sem gravar no MySQL nem substituir código. A confirmação de instalação depende de senha e seleção posterior.
+O botão **Diagnosticar ZIP antes de instalar** envia o arquivo apenas para validação de leitura (`operation=diagnose_zip`, POST + sessão de administrador + CSRF). Ele avalia o manifesto e, quando compatível, realiza preflight sem gravar no MySQL nem substituir código. A confirmação de instalação depende da sessão administrativa e aceite explícito.
 
 **Bloqueio obrigatório:** a versão 1.0.96 introduziu schema 37. Pacotes que cruzam schema 36→37, inclusive a atualização 1.0.97 usada num portal ainda na 1.0.95/schema 36, precisam de **instalação assistida** com backup externo. Não force a aplicação via ZIP comum, mesmo que a release esteja disponível no GitHub.
 

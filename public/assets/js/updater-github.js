@@ -35,7 +35,6 @@
     diagnosticCode.textContent = 'Código: ' + (info.code || 'unknown');
   }
   const actions = get('.updater-github-actions');
-  const password = form.querySelector('input[name="confirm_password"]');
   const tokenInput = form.querySelector('input[name="update_token"]');
   const submit = form.querySelector('button[type="submit"]');
   const csrf = form.querySelector('input[name="csrf_token"]'); // preservado pelo próprio form
@@ -71,7 +70,6 @@
     showDiagnostic(null);
     previousStage = '';
     targetVersion = '';
-    password.value = '';
     form.querySelector('input[name="confirm_install"]').checked = false;
     submit.disabled = false;
   }
@@ -124,7 +122,7 @@
         return;
       }
       form.hidden = false;
-      showStatus('Atualização disponível: ' + remote.version, 'Confira as novidades, confirme a origem e informe sua senha para instalar.', 'done');
+      showStatus('Atualização disponível: ' + remote.version, 'Confira as novidades e confirme a instalação.', 'done');
     } catch (error) {
       if (seq !== generation) return;
       showStatus('Não foi possível consultar', error && error.message ? error.message : 'Verifique a conexão com o GitHub.', 'error');
@@ -222,7 +220,7 @@
     xhr.onabort = () => showFinal(false, 'Solicitação interrompida', 'Confira o estado do sistema antes de tentar novamente.');
     poll(tokenInput.value);
     pollTimer = setInterval(() => poll(tokenInput.value), 1400);
-    // O POST só é criado após ação explícita do usuário, com CSRF, senha e confirmação.
+    // O POST só é criado após ação explícita do usuário, com CSRF, sessão e confirmação.
     xhr.send(new FormData(form));
   }
   trigger.addEventListener('click', () => consult(false));

@@ -39,7 +39,7 @@ if(igua_security_blocked()) {
 $action=(string)($_GET['action']??'dashboard');
 if(in_array($action,['story_submissions','story_photo','updates','files','files_download','server_info','dns_diagnostic'],true)){header('Cache-Control: private, no-store, max-age=0');header('Pragma: no-cache');}
 // Se post_max_size for ultrapassado, PHP esvazia $_POST e $_FILES antes do CSRF.
-if(request_post()&&in_array($action,['save_article','ads_save_campaign','media_upload','save_legal_app','files_save'],true)){
+if(request_post()&&in_array($action,['save_article','ads_save_campaign','media_upload','save_legal_app','files_save','updates'],true)){
     $maxPost=igua_ini_bytes((string)ini_get('post_max_size'));
     $length=(int)($_SERVER['CONTENT_LENGTH']??0);
     if($maxPost>0&&$length>$maxPost){
@@ -108,6 +108,14 @@ $abilityForPage=['story_submissions'=>'edit_all','story_photo'=>'edit_all','lega
 if(isset($abilityForPage[$action]))require_ability($abilityForPage[$action],$me);
 if(in_array($action,['legal_apps','legal_app_edit','legal_app_info','legal_page_edit'],true) && ($me['role']??'')!=='admin'){http_response_code(403);exit('Acesso restrito a administradores.');}
 if(!in_array($action,['story_submissions','story_photo','legal_apps','legal_app_edit','legal_app_info','legal_page_edit','save_legal_app','publish_legal_app','publish_legal_all','delete_legal_app','create_legal_page','save_legal_page','publish_legal_page','unpublish_legal_page','restore_legal_revision','delete_legal_page','load_uai_legal_examples','dashboard','ads','ads_save_settings','ads_save_slot','ads_save_campaign','ads_toggle_campaign','ads_delete_campaign','ads_delete_demo','load_ad_examples','articles','toggle_article_status','new','edit','seo','sitemap','categories','authors','sources','users','settings','integrations','integrations_save_ga4','integrations_save_adsense','integrations_save_verification','integrations_save_dns','integrations_check_dns','integrations_save_search_console_mode','integrations_search_console_test','integrations_search_console_inspect','integrations_pagespeed_test','indexnow_setup','indexnow_submit','bing_save','bing_test','bing_remove','integrations_ga4_credentials','integrations_ga4_remove','integrations_ga4_test','integrations_ga4_report','integrations_gemini_save','integrations_gemini_test','integrations_gemini_remove','news_gemini_suggest','integrations_adsense_credentials','integrations_adsense_disconnect','integrations_adsense_connect','integrations_adsense_report','integrations_adsense_callback','backups','backup_restore','backup_policy_save','backup_pin','backup_delete','backup_prune','download','download_bundle','download_migration','save_article','duplicate_article','restore_article_revision','delete_article','save_category','delete_category','portal_local_preset','portal_category_selection','portal_category_move','save_settings','load_samples','load_editor_examples','create_backup','restore_backup','restore_bundle','save_user','toggle_user','save_author','delete_author','save_source','delete_source','elections','save_election','save_election_candidate','archive_election','toggle_election_candidate','toggle_elections_module','bus','bus_edit','bus_import','bus_import_teixeira','bus_stage_import','bus_approve_import','bus_ignore_import','bus_toggle_fixed','save_bus_route','save_bus_wizard','save_bus_departure','toggle_bus_departure','delete_bus_departure','delete_bus_route','import_url','autosave_news','news_create_category','news_create_source','news_create_author','analytics','analytics_settings','health','health_verify','security','security_block','security_unblock','updates','maintenance','maintenance_clear_demo','maintenance_clear_all','maintenance_reset','server_info','dns_diagnostic','error_diagnostics','admin_error_event','files','files_save','files_download','media','media_list','media_upload','media_update','media_download','media_trash','media_restore'],true)) {http_response_code(404);exit('Página não encontrada.');}
+if($action==='updates' && !request_post() && isset($_GET['updater_report'])){
+    if(($me['role']??'')!=='admin'){http_response_code(403);exit('Acesso restrito a administradores.');}
+    $report=igua_updater_report_text($db,$_SESSION['igua_update_report_events']??[]);
+    header('Content-Type: text/plain; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="IguatamaOnline-atualizacao-'.date('Y-m-d-His').'.txt"');
+    header('Cache-Control: private, no-store');header('X-Content-Type-Options: nosniff');
+    echo $report;exit;
+}
 // API de leitura para o modal de atualizações. Sem ação de instalação por GET.
 if($action==='updates' && !request_post() && (isset($_GET['updater_info'])||isset($_GET['updater_status']))){
     header('Content-Type: application/json; charset=UTF-8');
@@ -133,6 +141,7 @@ if($action==='updates' && !request_post() && (isset($_GET['updater_info'])||isse
             'schema'=>IGUA_SCHEMA_REVISION],JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
     }catch(Throwable $e){
         igua_health_log('UPDATER_LOOKUP_FAILED',$e);
+        igua_updater_report_event('github_lookup',['ok'=>false,'diagnostic'=>igua_updater_diagnostic($e)],$e);
         http_response_code(502);
         echo json_encode(['ok'=>false,'message'=>'Não foi possível consultar a versão no GitHub.',
             'diagnostic'=>igua_updater_diagnostic($e)],JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
@@ -259,7 +268,20 @@ if (request_post()) {
             $strategy=$_POST['pagespeed_strategy']??'mobile';
             igua_int_diag_failure($_SESSION,$action,$e,is_string($strategy)?$strategy:'mobile');
         }
-        if($action==='updates')igua_security_event('update_failed');
+        if($action==='updates'){
+            igua_security_event('update_failed');
+            if(in_array($_POST['operation']??'',['upload','install_remote','diagnose_zip','preview'],true)){
+                igua_health_log('UPDATE_FAILED',$e);
+                $diagnostic=igua_updater_diagnostic($e);
+                igua_updater_report_event((string)$_POST['operation'],['ok'=>false,'diagnostic'=>$diagnostic],$e);
+                if(($_POST['operation']??'')==='diagnose_zip'){
+                    header('Content-Type: application/json; charset=UTF-8');
+                    header('Cache-Control: no-store');
+                    echo json_encode(['ok'=>false,'diagnostic'=>$diagnostic],JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);exit;
+                }
+                $e=new RuntimeException($diagnostic['code']==='unknown'?'Não foi possível concluir a atualização. Veja o histórico ou a Central de Saúde.':$diagnostic['title'].'. '.$diagnostic['action']);
+            }
+        }
         if(in_array($action,['media_upload','save_article','save_legal_app'],true))igua_security_event('upload_rejected');
         if($action==='save_bus_wizard')$_SESSION['bus_wizard_unsaved']=$_POST;
         // Erros de banco ou internos não devem vazar detalhes do servidor ao navegador.

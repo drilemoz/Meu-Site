@@ -59,6 +59,6 @@ try{
     $view=file_get_contents(__DIR__.'/../app/admin_views/routes/updates.php');
     verify155(str_contains($controller,"'changes'=>\$result['changes']"),'prévia redirecionada com resumo de diferenças');
     verify155(str_contains($view,'igua_updater_installed_integrity') && str_contains($view,'igua_updater_history(6)'),'nova interface usa integridade e histórico');
-    verify155(substr_count($view,'name="confirm_password"')===3 && substr_count($view,'name="confirm_install"')===2,'confirmação e senha separadas, sem regressão');
+    verify155(substr_count($view,'name="confirm_password"')===1 && substr_count($view,'name="confirm_install"')===2,'confirmação e senha separadas, sem regressão');
 } finally {cleanup155($base);}
 echo "Auditoria local concluída. Banco e hospedagem reais ainda exigem teste.\n";

@@ -42,13 +42,16 @@ if($operation==='diagnose_zip'){
     $status=(int)($file['error']??UPLOAD_ERR_NO_FILE);
     if($status!==UPLOAD_ERR_OK || !is_uploaded_file((string)($file['tmp_name']??''))){
         $limit=in_array($status,[UPLOAD_ERR_INI_SIZE,UPLOAD_ERR_FORM_SIZE],true);
-        echo json_encode(['ok'=>false,'diagnostic'=>[
+        $result=['ok'=>false,'diagnostic'=>[
            'code'=>$limit?'php_upload_limit':'upload_error',
            'title'=>$limit?'O arquivo excede o limite da hospedagem':'Arquivo não recebido',
            'detail'=>$limit?'O PHP recusou o envio antes de analisar o ZIP.':'Selecione um arquivo ZIP válido e tente diagnosticar novamente.',
-           'action'=>$limit?'Peça ao provedor para revisar upload_max_filesize e post_max_size.':'Confira a conexão e o seletor de arquivos.']],JSON_UNESCAPED_UNICODE);exit;
+           'action'=>$limit?'Peça ao provedor para revisar upload_max_filesize e post_max_size.':'Confira a conexão e o seletor de arquivos.']];
+        igua_updater_report_event('diagnose_zip',$result+['upload_error'=>$status,'size'=>(int)($file['size']??0)]);
+        echo json_encode($result,JSON_UNESCAPED_UNICODE);exit;
     }
     $result=igua_updater_diagnose_zip((string)$file['tmp_name'],$db);
+    igua_updater_report_event('diagnose_zip',$result+['size'=>(int)($file['size']??0)]);
     echo json_encode($result,JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);exit;
 }
 if($operation==='preview'){
@@ -57,13 +60,14 @@ if($operation==='preview'){
        (int)($up['size']??0)<100||(int)($up['size']??0)>IGUA_UPDATE_MAX_ZIP)
        throw new RuntimeException('Envie um ZIP de atualização com até 32 MB para simular.');
     $result=igua_updater_preview_zip((string)$up['tmp_name'],$db);
+    igua_updater_report_event('preview',['ok'=>$result['preflight']['ok'],'version'=>$result['version'],'checks'=>$result['preflight']['checks']]);
     $_SESSION['igua_update_preview']=['at'=>time(),'version'=>$result['version'],'files'=>$result['files'],'signature_status'=>$result['signature_status'],'preflight'=>$result['preflight'],'changes'=>$result['changes']];
     flash('Simulação concluída. Nenhum arquivo do portal ou tabela do MySQL foi alterado.');
     redirect('/admin.php?action=updates');
 }
 if(in_array($operation,['upload','install_remote','rollback'],true)){
-    if(igua_updater_vps_mode() && ($me['role']??'')!=='admin')
-        throw new RuntimeException('Deploy na VPS é restrito ao administrador.');
+    if(($me['role']??'')!=='admin')
+        throw new RuntimeException('Somente administradores podem instalar atualizações.');
     if(igua_updater_vps_mode() && $operation==='upload')
         throw new RuntimeException('A VPS só aceita instalação da release oficial pelo serviço externo. Envio manual desativado.');
     if($operation==='rollback'){
@@ -80,22 +84,10 @@ if(in_array($operation,['upload','install_remote','rollback'],true)){
         flash('Arquivos restaurados. O banco de dados não foi alterado pelo atualizador.');
         redirect('/admin.php?action=updates');
     }
-    // Ausência de assinatura elimina a prova da autoria do ZIP. Exigir
-    // reautenticação mesmo em downloads do GitHub, além de sessão/CSRF.
+    // A sessão administrativa ativa, CSRF e aceite explícito autorizam a instalação.
+    // A restauração de código mantém confirmação de senha separada.
     if(($_POST['confirm_install']??'')!=='yes')
         throw new RuntimeException('Confirme a instalação antes de atualizar o código.');
-    $attempts=array_values(array_filter($_SESSION['igua_update_auth_failures']??[],
-        static fn($time)=>is_int($time)&&$time>time()-900));
-    if(count($attempts)>=5)throw new RuntimeException('Muitas senhas incorretas. Tente novamente em até 15 minutos.');
-    $pwd=(string)($_POST['confirm_password']??'');
-    $st=$db->prepare('SELECT password_hash FROM users WHERE id=? AND active=1 LIMIT 1');
-    $st->execute([(int)$me['id']]);
-    $hash=$st->fetchColumn();
-    if(!is_string($hash)||!password_verify($pwd,$hash)){
-        $attempts[]=time();$_SESSION['igua_update_auth_failures']=$attempts;
-        throw new RuntimeException('Informe sua senha administrativa para autorizar a atualização.');
-    }
-    unset($_SESSION['igua_update_auth_failures']);
     if(igua_updater_vps_mode()){
         if($operation!=='install_remote')throw new RuntimeException('Operação não aceita pela implantação da VPS.');
         $token=(string)($_POST['update_token']??'');

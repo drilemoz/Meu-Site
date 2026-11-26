@@ -41,7 +41,8 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
     <button type="button" class="btn outline" id="updater-github-trigger" data-updater-open="updater-github-dialog" aria-haspopup="dialog" aria-controls="updater-github-dialog">↻ Verificar novamente</button>
     <button type="button" class="btn primary updater-upload-trigger" data-updater-open="updater-upload-dialog" aria-haspopup="dialog" aria-controls="updater-upload-dialog" <?=($vpsDeploy||!$ready)?'disabled title="Upload direto indisponível neste ambiente"':''?>>Enviar ZIP</button>
   </div>
-  <?php if($vpsDeploy): ?><div class="alert info">Modo VPS: o www-data não altera código. A atualização oficial é realizada pelo serviço systemd, com progresso nesta tela; ZIP manual fica desativado.</div><?php endif; ?>
+  <a class="btn outline" href="/admin.php?action=updates&amp;updater_report=1" data-updater-report>Baixar relatório completo (.txt)</a>
+  <?php if($vpsDeploy): ?><div class="alert info">O servidor instala as atualizações oficiais do GitHub. Para instalar um ZIP manualmente, use o AL Sistemas VPS ou o TermuxManager.</div><?php endif; ?>
   <?php if(!$ready): ?><div class="alert warning">Para instalar atualizações, o PHP precisa da extensão ZipArchive. Sodium é opcional para os pacotes antigos assinados.</div><?php endif; ?>
   <?php if($remoteError): ?><div class="alert warning"><?=h($remoteError)?></div><?php endif; ?>
   <?php if(igua_updater_maintenance_present()): ?><div class="alert error">Atualização interrompida. Recupere o código antes de continuar.</div><?php endif; ?>
@@ -59,7 +60,8 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   <section class="updater-diagnostic" data-github-diagnostic hidden aria-live="polite">
     <h3 data-github-diagnostic-title>Diagnóstico</h3>
     <p data-github-diagnostic-detail></p><p class="updater-diagnostic-action" data-github-diagnostic-action></p>
-    <small data-github-diagnostic-code></small>
+    <details><summary>Detalhes técnicos</summary><small data-github-diagnostic-code></small></details>
+    <a class="btn outline" href="/admin.php?action=updates&amp;updater_report=1" data-updater-report>Baixar relatório completo (.txt)</a>
   </section>
   <div data-github-release hidden>
     <div class="updater-release"><div><span class="updater-pill">Nova versão</span><strong data-github-version></strong></div>
@@ -70,7 +72,6 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
       <input type="hidden" name="operation" value="install_remote">
       <input type="hidden" name="update_token" value="<?=bin2hex(random_bytes(16))?>">
       <label class="updater-check"><input type="checkbox" name="confirm_install" value="yes" required> Confirmei o repositório e autorizo a instalação e o backup prévio.</label>
-      <label>Senha administrativa<input type="password" name="confirm_password" autocomplete="current-password" required></label>
       <button class="btn primary updater-github-submit" type="submit">Atualizar agora</button>
     </form>
   </div>
@@ -83,12 +84,13 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
     <strong data-github-final-title></strong>
     <p data-github-final-message></p>
     <button type="button" class="btn primary" data-github-refresh>Atualizar página</button>
+    <a class="btn outline" href="/admin.php?action=updates&amp;updater_report=1" data-updater-report>Baixar relatório completo (.txt)</a>
   </div>
   <div class="updater-github-actions">
     <button type="button" class="btn outline" data-github-retry hidden>Consultar novamente</button>
     <details class="updater-github-advanced">
       <summary>Configurações e diagnóstico</summary>
-      <p>Verificações e proteção por senha continuam ativas. Pacotes v2 sem assinatura exigem que a origem seja confiável.</p>
+      <p>Sua sessão administrativa autoriza a atualização. Instale apenas pacotes de origem confiável.</p>
       <div class="updater-github-tools">
         <button type="button" class="btn outline" data-updater-open="updater-source-dialog">Configurar origem</button>
         <button type="button" class="btn outline" data-updater-open="updater-check-dialog">Vistoria do servidor</button>
@@ -103,17 +105,18 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   </div>
   <form id="updater-upload-form" class="updater-install-form updater-upload-form" data-updater-progress-form data-updater-confirm-flow="manual" method="post" enctype="multipart/form-data" action="<?=h(admin_link('updates'))?>">
     <?=csrf_field()?><input type="hidden" name="operation" value="upload">
-    <p class="updater-upload-note updater-schema-warning"><strong>Importante:</strong> versões que alteram o esquema do banco, como a 1.0.159 (schema 39), precisam de instalação assistida com backup externo. O envio comum não faz essa migração.</p>
+    <p class="updater-upload-note updater-schema-warning"><strong>Importante:</strong> se a atualização modificar o banco de dados, use o TermuxManager atualizado. Ele prepara o backup e executa a migração do pacote.</p>
     <div class="updater-form-fields" data-updater-fields>
       <label class="updater-upload-label">Pacote de atualização<input type="file" name="update_zip" accept=".zip,application/zip" required></label>
-      <label>Senha administrativa<input type="password" name="confirm_password" autocomplete="current-password" required></label>
       <p class="updater-upload-note">Use <strong>Atualizacao-vX.Y.Z.zip</strong>. O pacote de código-fonte não serve para instalar.</p>
       <button type="button" class="btn outline updater-zip-check" data-updater-diagnose-zip>Diagnosticar ZIP antes de instalar</button>
       <section class="updater-diagnostic" data-updater-zip-diagnostic hidden aria-live="polite">
         <h3 data-updater-zip-title>Diagnóstico do pacote</h3>
         <p data-updater-zip-detail></p><p class="updater-diagnostic-action" data-updater-zip-action></p>
-        <small data-updater-zip-code></small>
+        <details><summary>Detalhes técnicos</summary><small data-updater-zip-code></small></details>
+        <a class="btn outline" href="/admin.php?action=updates&amp;updater_report=1" data-updater-report>Baixar relatório completo (.txt)</a>
       </section>
+      <a class="btn outline" href="/admin.php?action=updates&amp;updater_report=1" data-updater-report>Baixar relatório completo (.txt)</a>
       <button class="btn primary updater-submit" type="submit">Enviar <span aria-hidden="true">→</span></button>
     </div>
     <div class="updater-confirm-step" data-updater-confirm-step hidden>
@@ -170,6 +173,7 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
     <strong><?= $preflight['ok']?'✓ Sem bloqueios detectados':'! Atualização bloqueada' ?></strong>
     <span><?= (int)$preflight['failures'] ?> falha(s) · <?= (int)$preflight['warnings'] ?> aviso(s)</span>
   </div>
+  <a class="btn outline" href="/admin.php?action=updates&amp;updater_report=1" data-updater-report>Baixar relatório completo (.txt)</a>
   <details class="updater-details"><summary>Ver verificações e simular um ZIP</summary>
     <div class="updater-checks">
     <?php foreach($preflight['checks'] as $check): ?>
@@ -258,3 +262,5 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
 <script src="/assets/js/updater-dialogs.js?v=<?=h(igua_updater_version())?>" defer></script>
 <script src="/assets/js/updater-progress.js?v=<?=h(igua_updater_version())?>" defer></script>
 <script src="/assets/js/updater-github.js?v=<?=h(igua_updater_version())?>" defer></script>
+
+<script src="/assets/js/updater-report.js?v=<?=h(igua_updater_version())?>" defer></script>

@@ -5,6 +5,7 @@ const IGUA_ROOT = __DIR__ . '/..';
 const IGUA_STORAGE = IGUA_ROOT . '/storage';
 require_once __DIR__.'/environment.php';
 require_once __DIR__.'/db_transport.php';
+require_once __DIR__.'/updater_vps.php';
 define('IGUA_PUBLIC', igua_public_directory(IGUA_ROOT));
 // Atualização incompleta: manter páginas públicas em manutenção, mas permitir
 // login e recuperação autenticada pelo atualizador. Nunca expõe diretórios privados.
@@ -12,7 +13,7 @@ $iguaMaintenanceLegacy=IGUA_STORAGE.'/.update-maintenance';
 $iguaMaintenanceVps=IGUA_STORAGE.'/updater/vps/private/maintenance';
 // O diretório privado pertence exclusivamente ao worker; a conta PHP-FPM pode apenas ler.
 $iguaMaintenanceActive=is_file($iguaMaintenanceLegacy)||is_link($iguaMaintenanceLegacy)||
-    (getenv('IGUA_DEPLOY_VPS')==='1' && (is_file($iguaMaintenanceVps)||is_link($iguaMaintenanceVps)));
+    (igua_updater_vps_mode() && (is_file($iguaMaintenanceVps)||is_link($iguaMaintenanceVps)));
 if (PHP_SAPI!=='cli' && $iguaMaintenanceActive) {
     $script=basename((string)(parse_url((string)($_SERVER['REQUEST_URI']??''),PHP_URL_PATH)?:''));
     $action=(string)($_GET['action']??'');
