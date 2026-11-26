@@ -25,3 +25,6 @@
 
 # Chaves de conta de serviço Google (fora do backup e do ZIP)
 /storage/integrations/*
+
+# Credenciais, cache e estado privado do atualizador
+/storage/updater/

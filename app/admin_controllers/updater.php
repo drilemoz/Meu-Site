@@ -3,6 +3,22 @@ declare(strict_types=1);
 // Executado pelo admin.php somente depois de autenticação, verificação do papel e CSRF.
 require_ability('manage_settings',$me);
 $operation=(string)($_POST['operation']??'');
+if(in_array($operation,['github_auth_save','github_auth_test','github_auth_remove'],true)){
+    if(($me['role']??'')!=='admin')throw new RuntimeException('Somente o administrador pode gerenciar a credencial GitHub.');
+    if($operation==='github_auth_remove'){
+        igua_updater_github_remove();flash('Token removido do servidor.');
+    }else{
+        try{
+            if($operation==='github_auth_save')igua_updater_github_save(trim((string)($_POST['github_pat']??'')));
+            else igua_updater_github_test();
+            flash($operation==='github_auth_save'?'Token salvo. Acesso ao repositório confirmado.':'Conexão com o repositório confirmada.');
+        }catch(Throwable $error){
+            $diagnostic=igua_updater_diagnostic($error);
+            throw new RuntimeException($diagnostic['code']==='unknown'?'Não foi possível validar a configuração. Confira o token e a origem.':$diagnostic['title'].'. '.$diagnostic['action']);
+        }
+    }
+    redirect('/admin.php?action=updates');
+}
 if($operation==='source'){
     igua_updater_set_source(trim((string)($_POST['owner']??'')),trim((string)($_POST['repo']??'')));
     flash('Repositório configurado. Confira a origem antes de instalar; pacotes sem assinatura não comprovam autoria.');

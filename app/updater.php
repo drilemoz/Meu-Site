@@ -14,6 +14,9 @@ const IGUA_UPDATE_MAX_ZIP = 32 * 1024 * 1024;
 const IGUA_UPDATE_MAX_TOTAL = 80 * 1024 * 1024;
 const IGUA_UPDATE_MAX_FILES = 800;
 const IGUA_UPDATE_DIR = IGUA_STORAGE . '/updater';
+const IGUA_UPDATE_CACHE = IGUA_UPDATE_DIR . '/release-cache-v160.json';
+const IGUA_UPDATE_GITHUB_AUTH = IGUA_UPDATE_DIR . '/github-auth.json';
+const IGUA_UPDATE_CACHE_TTL = 60;
 require_once __DIR__.'/updater_vps.php';
 
 /** Diagnósticos públicos controlados: nunca retornar resposta bruta, token ou caminhos do servidor. */
@@ -25,12 +28,14 @@ function igua_updater_diagnostic(Throwable $error): array {
             'action'=>'Ative a extensão cURL na hospedagem ou use um pacote compatível enviado manualmente.'];
     if(preg_match('/HTTP (\d{3})/', $message,$m)){
         $status=(int)$m[1];
+        if($status===401)return ['code'=>'github_auth','title'=>'Token inválido ou expirado (HTTP 401)',
+            'detail'=>'O GitHub recusou a credencial.','action'=>'Gere um token de leitura e cadastre-o em Configurar origem.'];
         if($status===403 || $status===429)return ['code'=>'github_limited','title'=>'Consulta limitada pelo GitHub (HTTP '.$status.')',
-            'detail'=>'A API pode estar limitando requisições feitas do IP do servidor.',
-            'action'=>'Aguarde a renovação da cota e confira o repositório configurado. Evite repetir consultas seguidas.'];
+            'detail'=>'A API pode estar limitando consultas ou recusando as permissões do token.',
+            'action'=>'Confira a permissão Contents: Read-only, a validade do token e a cota da API.'];
         if($status===404)return ['code'=>'github_not_found','title'=>'Repositório ou release não encontrado (HTTP 404)',
-            'detail'=>'A consulta não encontrou a origem solicitada.',
-            'action'=>'Verifique proprietário/repositório e a publicação de uma release não marcada como rascunho.'];
+            'detail'=>'O repositório pode ser privado, inexistente ou não estar autorizado no token.',
+            'action'=>'Confira a origem e cadastre um token com acesso ao repositório em Configurar origem.'];
         if($status>=500)return ['code'=>'github_remote_error','title'=>'Serviço remoto indisponível (HTTP '.$status.')',
             'detail'=>'O servidor remoto respondeu com falha.',
             'action'=>'Tente novamente mais tarde; confira status.github.com se o problema persistir.'];
@@ -705,7 +710,7 @@ function igua_updater_install_zip(string $zipPath,PDO $db,?callable $onStage=nul
         $journal['status']='complete';igua_updater_write_json($jobDir.'/state.json',$journal);
         igua_updater_clear_maintenance();$maintenance=false;
         igua_updater_delete_tree($jobDir.'/new');
-        @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
+        @unlink(IGUA_UPDATE_CACHE);
         $onStage && $onStage('complete','Atualização instalada e registrada com sucesso.');
         return ['version'=>$m['version'],'backup'=>$backup,'id'=>$id];
     } catch(Throwable $e){
@@ -793,7 +798,7 @@ function igua_updater_set_source(string $owner,string $repo): void {
     if(igua_updater_vps_mode())throw new RuntimeException('Origem GitHub bloqueada no modo VPS.');
     foreach([$owner,$repo] as $part){if(!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$/D',$part)||str_contains($part,'..'))throw new RuntimeException('Nome de conta ou repositório inválido.');}
     igua_updater_write_json(igua_updater_folder().'/source.json',['owner'=>$owner,'repo'=>$repo]);
-    @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
+    @unlink(IGUA_UPDATE_CACHE);
 }
 function igua_updater_reset_source(): void {
     if(igua_updater_vps_mode())throw new RuntimeException('Origem imutável no modo VPS.');
@@ -802,20 +807,95 @@ function igua_updater_reset_source(): void {
         throw new RuntimeException('Sem origem oficial válida no pacote para restaurar.');
     $file=igua_updater_folder().'/source.json';
     if(is_file($file)&&!@unlink($file))throw new RuntimeException('Não foi possível remover a origem personalizada.');
-    @unlink(IGUA_UPDATE_DIR.'/release-cache.json');
+    @unlink(IGUA_UPDATE_CACHE);
 }
-function igua_updater_http(string $url,int $max): string {
+/** Credencial exclusiva da origem atual. Nunca incluir em sessão, cache, HTML ou backup. */
+function igua_updater_github_token_valid(string $token): bool {
+    return strlen($token)<=512 && (bool)preg_match('/\A(?:github_pat_[A-Za-z0-9_]{20,}|ghp_[A-Za-z0-9]{20,})\z/D',$token);
+}
+function igua_updater_github_auth(): ?array {
+    $path=IGUA_UPDATE_GITHUB_AUTH;
+    if(!file_exists($path) && !is_link($path))return null;
+    $storage=realpath(IGUA_STORAGE);$public=realpath(IGUA_PUBLIC);$folder=realpath(IGUA_UPDATE_DIR);
+    if($storage===false||$public===false||$folder===false||is_link(IGUA_STORAGE)||is_link(IGUA_UPDATE_DIR)||
+        $storage===$public||str_starts_with($storage,$public.'/')||$folder!==$storage.'/updater'||
+        is_link($path)||!is_file($path)||!is_readable($path)||((int)fileperms($path)&0037)!==0||filesize($path)>2048)
+        throw new RuntimeException('Permissão ou armazenamento privado do token GitHub inválido.');
+    $auth=igua_updater_read_json($path);
+    if(!is_array($auth)||!igua_updater_github_token_valid((string)($auth['token']??''))||
+        !preg_match('/^[a-f0-9]{32}$/D',(string)($auth['revision']??'')))
+        throw new RuntimeException('Configuração privada do token GitHub inválida.');
+    $source=igua_updater_source();
+    return strcasecmp((string)($auth['source']??''),$source['owner'].'/'.$source['repo'])===0?$auth:null;
+}
+function igua_updater_github_configured(): bool { return igua_updater_github_auth()!==null; }
+function igua_updater_github_save(string $token, ?callable $http=null): void {
+    if(!igua_updater_github_token_valid($token))throw new RuntimeException('Token inválido. Cole o token pessoal do GitHub sem espaços.');
+    $source=igua_updater_source();
+    // Confirmar leitura do repositório antes de substituir uma credencial válida.
+    igua_updater_github_test($token,$http);
+    $dir=igua_updater_folder();$storage=realpath(IGUA_STORAGE);$public=realpath(IGUA_PUBLIC);
+    if($storage===false||$public===false||is_link(IGUA_STORAGE)||realpath($dir)!==$storage.'/updater'||
+        $storage===$public||str_starts_with($storage,$public.'/')||is_link(IGUA_UPDATE_GITHUB_AUTH))
+        throw new RuntimeException('Armazenamento privado do token indisponível.');
+    // No modo VPS, a pasta setgid pertence ao grupo www-data; o worker usa esse grupo suplementar.
+    $mode=igua_updater_vps_mode()?0640:0600;
+    $tmp=@tempnam($dir,'.github-auth-');
+    if($tmp===false)throw new RuntimeException('Não foi possível guardar o token no servidor.');
+    try{
+        if(realpath(dirname($tmp))!==realpath($dir)||!@chmod($tmp,$mode))throw new RuntimeException('Não foi possível proteger o token.');
+        if(igua_updater_vps_mode() && filegroup($tmp)!==filegroup($dir))throw new RuntimeException('Grupo privado do serviço de implantação incorreto.');
+        $data=json_encode(['source'=>$source['owner'].'/'.$source['repo'],'token'=>$token,'revision'=>bin2hex(random_bytes(16))],JSON_THROW_ON_ERROR);
+        if(file_put_contents($tmp,$data,LOCK_EX)!==strlen($data)||!@rename($tmp,IGUA_UPDATE_GITHUB_AUTH))throw new RuntimeException('Não foi possível guardar o token no servidor.');
+    }finally{if(is_file($tmp))@unlink($tmp);}
+    @unlink(IGUA_UPDATE_CACHE);
+}
+function igua_updater_github_remove(): void {
+    $path=IGUA_UPDATE_GITHUB_AUTH;
+    if((is_file($path)||is_link($path))&&!@unlink($path))throw new RuntimeException('Não foi possível remover o token do servidor.');
+    @unlink(IGUA_UPDATE_CACHE);
+}
+function igua_updater_github_base(array $source): string {
+    if(empty($source['owner'])||empty($source['repo']))throw new RuntimeException('Configure a origem do GitHub.');
+    return 'https://api.github.com/repos/'.rawurlencode($source['owner']).'/'.rawurlencode($source['repo']);
+}
+function igua_updater_github_test(?string $token=null,?callable $http=null): array {
+    $source=igua_updater_source();$http=$http??'igua_updater_http';
+    $token=$token??(igua_updater_github_auth()['token']??'');
+    $data=json_decode($http(igua_updater_github_base($source),384*1024,$token,false),true);
+    if(!is_array($data)||strcasecmp((string)($data['full_name']??''),$source['owner'].'/'.$source['repo'])!==0)
+        throw new RuntimeException('Resposta inválida da origem do GitHub.');
+    return ['private'=>($data['private']??false)===true];
+}
+/** Nunca encaminhar Authorization a CDN, redirecionamento ou destino não autorizado. */
+function igua_updater_http_headers(string $url,string $token,bool $binary,int $jump): array {
+    $host=strtolower((string)parse_url($url,PHP_URL_HOST));
+    $headers=['Accept: '.($binary?'application/octet-stream':'application/vnd.github+json')];
+    if($jump===0&&$host==='api.github.com'){
+        if($token!==''){
+            if(!igua_updater_github_token_valid($token))throw new RuntimeException('Token GitHub inválido.');
+            $headers[]='Authorization: Bearer '.$token;
+        }
+        $headers[]='X-GitHub-Api-Version: 2026-03-10';
+    }
+    return $headers;
+}
+function igua_updater_http(string $url,int $max,string $token='',bool $binary=false): string {
     if(!function_exists('curl_init'))throw new RuntimeException('Extensão cURL indisponível.');
     $allowed=['api.github.com','github.com','release-assets.githubusercontent.com','objects.githubusercontent.com'];
     for($jump=0;$jump<6;$jump++){
         $parts=parse_url($url);
         if(!$parts||strtolower($parts['scheme']??'')!=='https'||!in_array(strtolower($parts['host']??''),$allowed,true)||isset($parts['user']) || isset($parts['pass']) || isset($parts['fragment']) || isset($parts['port']))
             throw new RuntimeException('Destino de download não autorizado.');
+        // Só o endpoint inicial da API recebe a credencial. Redirecionamento de metadados não é aceito.
+        if($jump>0 && (!$binary || !in_array(strtolower($parts['host']),['release-assets.githubusercontent.com','objects.githubusercontent.com','github.com'],true)))
+            throw new RuntimeException('Redirecionamento GitHub não autorizado.');
         $ch=curl_init($url);$buffer='';$location='';$overLimit=false;
-        curl_setopt_array($ch,[CURLOPT_FOLLOWLOCATION=>false,CURLOPT_RETURNTRANSFER=>false,CURLOPT_TIMEOUT=>25,CURLOPT_CONNECTTIMEOUT=>6,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,CURLOPT_USERAGENT=>'MeuSiteUpdater/1.0 (+https://github.com)',CURLOPT_HTTPHEADER=>['Accept: application/vnd.github+json'],CURLOPT_HEADERFUNCTION=>static function($ch,$header)use(&$location){if(stripos($header,'Location:')===0)$location=trim(substr($header,9));return strlen($header);},CURLOPT_WRITEFUNCTION=>static function($ch,$chunk)use(&$buffer,$max,&$overLimit){if(strlen($buffer)+strlen($chunk)>$max){$overLimit=true;return 0;}$buffer.=$chunk;return strlen($chunk);}]);
-        $ok=curl_exec($ch);$status=(int)curl_getinfo($ch,CURLINFO_RESPONSE_CODE);$err=curl_error($ch);curl_close($ch);
+        curl_setopt_array($ch,[CURLOPT_FOLLOWLOCATION=>false,CURLOPT_RETURNTRANSFER=>false,CURLOPT_TIMEOUT=>25,CURLOPT_CONNECTTIMEOUT=>6,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,CURLOPT_USERAGENT=>'MeuSiteUpdater/1.0 (+https://github.com)',CURLOPT_HTTPHEADER=>igua_updater_http_headers($url,$token,$binary,$jump),CURLOPT_HEADERFUNCTION=>static function($ch,$header)use(&$location){if(stripos($header,'Location:')===0)$location=trim(substr($header,9));return strlen($header);},CURLOPT_WRITEFUNCTION=>static function($ch,$chunk)use(&$buffer,$max,&$overLimit){if(strlen($buffer)+strlen($chunk)>$max){$overLimit=true;return 0;}$buffer.=$chunk;return strlen($chunk);}]);
+        $ok=curl_exec($ch);$status=(int)curl_getinfo($ch,CURLINFO_RESPONSE_CODE);$errno=curl_errno($ch);curl_close($ch);
         if($overLimit)throw new RuntimeException('Resposta remota excede limite.');
-        if($ok===false)throw new RuntimeException('Falha na consulta HTTPS ao GitHub: '.$err);
+        // curl_error pode incluir URL assinada: usar somente descrição genérica do código.
+        if($ok===false)throw new RuntimeException('Falha na consulta HTTPS ao GitHub: '.curl_strerror($errno));
         if($status>=300&&$status<400&&$location!==''){$url=$location;continue;}
         if($status!==200)throw new RuntimeException('Consulta à versão no GitHub retornou HTTP '.$status.'.');
         return $buffer;
@@ -831,24 +911,27 @@ function igua_updater_release_status(?array $release,string $installed,bool $con
     if($comparison===0)return 'Versão instalada igual à release';
     return empty($release['url'])?'Nova release sem ZIP compatível':'Atualização disponível';
 }
-function igua_updater_remote_release(bool $force=false): ?array {
-    $dir=igua_updater_folder();$source=igua_updater_source();
+function igua_updater_remote_release(bool $force=false,?callable $http=null): ?array {
+    igua_updater_folder();$source=igua_updater_source();
     if(empty($source['owner'])||empty($source['repo']))return null;
-    $cache=igua_updater_read_json($dir.'/release-cache.json');
-    if(!$force && ($cache['source']??null)===$source['owner'].'/'.$source['repo'] && $cache && ($cache['checked']??0)>time()-1800){
+    $auth=igua_updater_github_auth();$token=$auth['token']??'';$revision=$auth['revision']??'public';
+    $http=$http??'igua_updater_http';$key=$source['owner'].'/'.$source['repo'];
+    // Worker consulta sempre ao instalar; não disputa o cache gravado pelo PHP-FPM.
+    $useCache=!(igua_updater_vps_mode()&&PHP_SAPI==='cli');
+    $cache=$useCache?igua_updater_read_json(IGUA_UPDATE_CACHE):null;
+    if(!$force && $cache && ($cache['source']??null)===$key && ($cache['auth_revision']??null)===$revision && ($cache['checked']??0)>time()-IGUA_UPDATE_CACHE_TTL){
         $saved=$cache['release']??null;
         if(is_array($saved))$saved['newer']=version_compare((string)($saved['version']??'0.0.0'),igua_updater_version(),'>');
         return $saved;
     }
-    $url='https://api.github.com/repos/'.rawurlencode($source['owner']).'/'.rawurlencode($source['repo']).'/releases/latest';
-    // Um repositório recém-criado pode ainda não ter releases; isso não é falha de SSL.
-    try {$response=igua_updater_http($url,384*1024);}
+    $base=igua_updater_github_base($source);
+    try {$response=$http($base.'/releases/latest',384*1024,$token,false);}
     catch(RuntimeException $exc) {
-        if(str_contains($exc->getMessage(),'HTTP 404')){
-            igua_updater_write_json($dir.'/release-cache.json',['source'=>$source['owner'].'/'.$source['repo'],'checked'=>time(),'release'=>null]);
-            return null;
-        }
-        throw $exc;
+        if(!str_contains($exc->getMessage(),'HTTP 404'))throw $exc;
+        // GitHub oculta repos privados com 404: confirmar acesso antes de dizer que não há release.
+        igua_updater_github_test($token,$http);
+        if($useCache)igua_updater_write_json(IGUA_UPDATE_CACHE,['source'=>$key,'auth_revision'=>$revision,'checked'=>time(),'release'=>null]);
+        return null;
     }
     $json=json_decode($response,true);
     if(!is_array($json))throw new RuntimeException('Resposta inválida do GitHub.');
@@ -858,15 +941,20 @@ function igua_updater_remote_release(bool $force=false): ?array {
     foreach(($json['assets']??[]) as $asset){
         if(!is_array($asset))continue;
         if(igua_updater_release_asset_name((string)($asset['name']??''),$tag) && (int)($asset['size']??0)>0 && (int)$asset['size']<=IGUA_UPDATE_MAX_ZIP){
-            $assetUrl=(string)($asset['browser_download_url']??'');break;
+            $id=(string)($asset['id']??'');
+            if(preg_match('/^[1-9][0-9]{0,19}$/D',$id)){$assetUrl=$base.'/releases/assets/'.$id;break;}
         }
     }
     $release=['version'=>$tag,'notes'=>substr((string)($json['body']??''),0,1800),'url'=>$assetUrl,'newer'=>version_compare($tag,igua_updater_version(),'>')];
-    igua_updater_write_json($dir.'/release-cache.json',['source'=>$source['owner'].'/'.$source['repo'],'checked'=>time(),'release'=>$release]);
+    if($useCache)igua_updater_write_json(IGUA_UPDATE_CACHE,['source'=>$key,'auth_revision'=>$revision,'checked'=>time(),'release'=>$release]);
     return $release;
 }
-function igua_updater_download_release(string $url): string {
-    $dir=igua_updater_folder();$bytes=igua_updater_http($url,IGUA_UPDATE_MAX_ZIP);
+function igua_updater_download_release(string $url,?callable $http=null): string {
+    $base=igua_updater_github_base(igua_updater_source());
+    if(!preg_match('~^'.preg_quote($base,'~').'/releases/assets/[1-9][0-9]{0,19}$~D',$url))throw new RuntimeException('Destino de download não autorizado.');
+    $dir=igua_updater_folder();$http=$http??'igua_updater_http';
+    $bytes=$http($url,IGUA_UPDATE_MAX_ZIP,igua_updater_github_auth()['token']??'',true);
+    if(!str_starts_with($bytes,"PK\x03\x04"))throw new RuntimeException('ZIP de atualização não recebido do GitHub.');
     $file=@tempnam($dir,'.download-');if(!$file)throw new RuntimeException('Espaço privado indisponível para download.');
     @chmod($file,0600);
     if(file_put_contents($file,$bytes,LOCK_EX)!==strlen($bytes)){@unlink($file);throw new RuntimeException('Falha ao salvar ZIP recebido.');}

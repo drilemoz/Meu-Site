@@ -121,7 +121,7 @@ if($action==='updates' && !request_post() && (isset($_GET['updater_info'])||isse
         exit;
     }
     try{
-        $release=igua_updater_remote_release(true);
+        $release=igua_updater_remote_release(($_GET['force']??'')==='1');
         $source=igua_updater_source();
         echo json_encode(['ok'=>true,'installed'=>igua_updater_version(),
             'configured'=>!empty($source['owner'])&&!empty($source['repo']),

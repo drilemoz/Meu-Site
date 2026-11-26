@@ -199,3 +199,11 @@ Um marcador LEGADO `storage/.update-maintenance` de versões anteriores também 
 - O diretório do projeto pertencente à conta `iguanews-deploy` **não significa que o site web seja executado como esse usuário**. PHP-FPM permanece `www-data` sem escrita no código.
 - O pacote de atualização v2 atual pode não ter assinatura digital. Para autenticidade independente do GitHub/TLS, ainda será necessário distribuir releases assinadas e exigir verificação. Não confunda hash interno com assinatura.
 - Testes locais não substituem EC2: conferir permissões Unix, socket real, serviço systemd, MariaDB, deploy completo e rollback numa cópia isolada antes de liberar produção.
+
+### GitHub privado (a partir da versão 1.0.160)
+
+No painel administrativo, abra Atualizações > GitHub > Configurar origem. Crie um fine-grained PAT no GitHub com acesso somente a `drilemoz/Meu-Site`, Contents: Read-only e Metadata: Read-only. Cole no campo Token do GitHub e selecione Salvar e testar conexão. A consulta valida o acesso ao repositório antes de trocar a credencial; a janela GitHub verifica a disponibilidade da release e do ZIP.
+
+O token fica em `storage/updater/github-auth.json`, fora de `public/`. No modo VPS, o arquivo tem modo 0640 e herda o grupo do diretório setgid `storage/updater` (www-data na configuração padrão). O worker mantém a origem fixa e lê a mesma credencial usando seu grupo suplementar. Não habilite escrita do código pelo PHP-FPM. Se a vistoria não mostrar o serviço de implantação separado, revise o ambiente `IGUA_DEPLOY_VPS=1` no PHP-FPM e o serviço/timer existentes.
+
+A migração portátil e os backups lógicos excluem o token. Na nova VPS, recadastre-o pelo painel após configurar o serviço ou transfira-o por um canal SSH privado, preservando proprietário web e grupo do worker. Não coloque o token no GitHub, no ZIP, em URLs ou em logs. A instalação inicial desta versão deve usar o procedimento assistido caso a revisão instalada ainda seja 38, pois o pacote utiliza schema 39.

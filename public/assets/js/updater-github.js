@@ -75,13 +75,13 @@
     form.querySelector('input[name="confirm_install"]').checked = false;
     submit.disabled = false;
   }
-  async function consult() {
+  async function consult(force = false) {
     if (busy) return;
     const seq = ++generation;
     resetView();
     showStatus('Conectando…', 'Consultando a versão mais recente e as novidades no GitHub.');
     try {
-      const response = await fetch('/admin.php?action=updates&updater_info=1', {
+      const response = await fetch('/admin.php?action=updates&updater_info=1' + (force === true ? '&force=1' : ''), {
         credentials: 'same-origin', cache: 'no-store', headers: {'Accept': 'application/json'}
       });
       const type = response.headers?.get?.('content-type') || '';
@@ -106,7 +106,7 @@
       retry.hidden = false;
       if (!remote) {
         showStatus('Nenhuma atualização publicada', 'O repositório não informou uma release disponível.', 'done');
-        showDiagnostic({code:'release_missing',title:'Release não encontrada',detail:'Não foi localizada uma release pública marcada como versão mais recente.',action:'Verifique a aba Releases do repositório oficial.'});
+        showDiagnostic({code:'release_missing',title:'Release não encontrada',detail:'O repositório está acessível, mas não possui uma release estável marcada como mais recente.',action:'Verifique a aba Releases do repositório oficial.'});
         return;
       }
       if (!remote.newer) {
@@ -225,8 +225,8 @@
     // O POST só é criado após ação explícita do usuário, com CSRF, senha e confirmação.
     xhr.send(new FormData(form));
   }
-  trigger.addEventListener('click', consult);
-  retry.addEventListener('click', consult);
+  trigger.addEventListener('click', () => consult(false));
+  retry.addEventListener('click', () => consult(true));
   form.addEventListener('submit', install);
   refresh.addEventListener('click', () => { window.location.href = form.action; });
 })();

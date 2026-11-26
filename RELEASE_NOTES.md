@@ -1,3 +1,10 @@
+## 1.0.160 — Atualização de repositório privado (2026-11-26)
+
+- Atualizações > GitHub > Configurar origem: administrador pode salvar/testar/remover token de leitura, sem expô-lo em HTML ou pacote. Token restrito à origem configurada, fora de public/; no modo VPS, leitura compartilhada apenas com grupo do serviço dedicado.
+- API autenticada consulta releases e baixa o asset binário por ID; redirecionamento à CDN não recebe Authorization. Repositórios públicos continuam sem token. Diferencia ausência de release de repositório inacessível e token expirado.
+- Cache de 60 segundos na abertura da janela; consulta manual e instalação ignoram o cache. Worker VPS não disputa o cache do PHP-FPM; origem fixa e senha de instalação preservadas. Schema 39 permanece.
+- Primeira instalação em servidor com schema 38 exige migração assistida. O token não acompanha o ZIP portátil ou backup lógico; recadastre na VPS nova ou transfira o arquivo privado por SSH com permissões adequadas.
+
 ## 1.0.159 — Prioridade editorial e links por matéria (2026-11-26)
 
 - Home: destaque marcado permanece primeiro; reserva uma manchete por editoria antes das últimas notícias. Apenas as três mais recentes de cada categoria concorrem; alternativas e complementos com mais de 30 dias não são usados para preencher espaços. Categorias secundárias consideradas, sem repetir IDs; ordem visual preservada e data da manchete exibida.

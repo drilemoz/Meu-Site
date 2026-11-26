@@ -3,7 +3,10 @@
 declare(strict_types=1);
 require_ability('manage_settings',$me);
 $source=igua_updater_source();$remoteError='';
-$cached=igua_updater_read_json(IGUA_UPDATE_DIR.'/release-cache.json');
+$cached=igua_updater_read_json(IGUA_UPDATE_CACHE);
+try{$auth=igua_updater_github_auth();$authProblem=false;}catch(Throwable){$auth=null;$authProblem=true;}
+$hasGithubToken=$auth!==null;$authRevision=$auth['revision']??'public';unset($auth);
+if($authProblem||($cached['source']??null)!==$source['owner'].'/'.$source['repo']||($cached['auth_revision']??null)!==$authRevision)$cached=null;
 $release=is_array($cached['release']??null)?$cached['release']:null;
 if(is_array($release))$release['newer']=version_compare((string)($release['version']??'0.0.0'),igua_updater_version(),'>');
 $last=igua_updater_last_job();$journal=$last['journal']??null;
@@ -25,7 +28,7 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
   <div class="updater-header">
     <h2 id="updater-overview-title">Atualizações do sistema</h2>
     <details class="updater-help"><summary aria-label="Como funcionam as atualizações" title="Como funcionam as atualizações">?</summary>
-      <div class="updater-help-content">O painel consulta releases do GitHub e aceita pacotes v2 sem assinatura digital. SHA-256 detecta alterações acidentais, mas não comprova a origem do ZIP; instale somente arquivos confiáveis. Antes da instalação, faz backup lógico do MySQL e dos arquivos que serão trocados. Não modifica fotos, credenciais nem bancos com revisões incompatíveis. A tela mostra a última consulta armazenada. Toque em Verificar novamente para consultar o GitHub sem cache.</div>
+      <div class="updater-help-content">O painel consulta releases do GitHub e aceita pacotes v2 sem assinatura digital. SHA-256 detecta alterações acidentais, mas não comprova a origem do ZIP; instale somente arquivos confiáveis. Antes da instalação, faz backup lógico do MySQL e dos arquivos que serão trocados. Não modifica fotos, credenciais nem bancos com revisões incompatíveis. Ao abrir a consulta do GitHub, o painel aproveita o cache por até 60 segundos. Consultar novamente ignora o cache.</div>
     </details>
   </div>
   <div class="updater-overview">
@@ -138,6 +141,21 @@ $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identi
       <label>Repositório<input name="repo" type="text" maxlength="100" required value="<?=h($source['repo']??'')?>" autocapitalize="off" autocomplete="off"></label>
       <button class="btn outline" type="submit">Salvar origem</button>
     </form><?php else: ?><p class="updater-hint">Origem fixa na VPS: drilemoz/Meu-Site. Só o administrador do sistema pode mudar a política de implantação.</p><?php endif; ?>
+  <?php if(($me['role']??'')==='admin'): ?>
+  <hr>
+  <p><strong>Acesso ao repositório privado</strong></p>
+  <p class="updater-hint"><?= $authProblem?'A credencial precisa ser substituída ou removida.':($hasGithubToken?'Token cadastrado no servidor.':'Nenhum token cadastrado. Repositórios públicos funcionam sem token.') ?></p>
+  <form method="post" class="updater-source-form" action="<?=h(admin_link('updates'))?>" autocomplete="off">
+    <?=csrf_field()?><input type="hidden" name="operation" value="github_auth_save">
+    <label>Token do GitHub<input name="github_pat" type="password" maxlength="512" required autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="github_pat_…"></label>
+    <p class="updater-hint">Use um token de leitura (Contents e Metadata). Ele não será mostrado novamente. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">Criar token</a></p>
+    <button class="btn" type="submit">Salvar e testar conexão</button>
+  </form>
+  <form method="post" class="updater-reset-form" action="<?=h(admin_link('updates'))?>">
+    <?=csrf_field()?><button class="btn outline" name="operation" value="github_auth_test" type="submit">Testar conexão</button>
+    <?php if($hasGithubToken||$authProblem): ?><button class="btn outline" name="operation" value="github_auth_remove" type="submit">Remover token</button><?php endif; ?>
+  </form>
+  <?php endif; ?>
   <?php if(!$vpsDeploy && ($source['origin']??'')==='manual'): ?>
   <form method="post" action="<?=h(admin_link('updates'))?>" class="updater-reset-form">
     <?=csrf_field()?><input type="hidden" name="operation" value="source_reset">
