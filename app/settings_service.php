@@ -38,6 +38,7 @@ function igua_settings_validate(PDO $db,array $post): array {
         if ($post['home_preferences_present']!=='1') throw new InvalidArgumentException('Configuração da página inicial inválida.');
         $categories=$db->query('SELECT id FROM categories')->fetchAll(PDO::FETCH_ASSOC);
         $result+=igua_home_validate_preferences($categories,$post);
+        if(isset($post['portal_options_present']))$result+=igua_portal_validate_options($db,$post,$categories);
     }
     return $result;
 }

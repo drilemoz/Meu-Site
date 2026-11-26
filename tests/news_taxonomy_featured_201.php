@@ -48,6 +48,6 @@ regression201(fetch_featured_news($db)===false,'sem notícia marcada, nenhum des
 $plans=igua_news_explain_cases();
 regression201(str_contains($plans['destaque'][0],'a.featured=1'),'plano EXPLAIN mantém o mesmo filtro');
 $home=(string)file_get_contents(__DIR__.'/../app/public_views/routes/home.php');
-regression201(str_contains($home,'Acompanhe as notícias de Iguatama e região.') &&
+regression201(str_contains($home,'<h1><?=h(igua_brand_name())?></h1>') &&
     !str_contains($home,'Publique a primeira notícia'), 'home usa comunicação neutra quando não há notícia em destaque');
 echo "1.0.101: regressões de rotas AJAX e destaque aprovadas.\n";

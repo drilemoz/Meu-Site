@@ -61,6 +61,8 @@ if(in_array($route,['contato','anuncie'],true) && request_post()){
 }
 
 $categories=$db->query('SELECT id,name,slug,icon,color FROM categories ORDER BY sort_order,name')->fetchAll();
+$portalRaw=setting('portal_options','');$portalOptions=igua_portal_options($portalRaw);
+$portalCategories=igua_portal_active_categories($categories,setting('portal_active_categories',''));
 // A interface precisa apenas saber se existe acervo demonstrativo; não precisa contar todas as linhas.
 $demoCount=has_published_demo_news($db) ? 1 : 0;
 $GLOBALS['igua_demo_count']=$demoCount;
@@ -70,7 +72,7 @@ function cat_link(array $c): string { return url(['p'=>'categoria','slug'=>$c['s
 function news_card(array $a, string $kind='normal'): void { ?>
   <a class="news-card <?= h($kind) ?>" href="<?= h(news_link($a)) ?>">
     <div class="thumb"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($a['image'])) ?>" alt="" loading="lazy" decoding="async"></div>
-    <div class="news-card-body"><span class="category-label" style="--category-color:<?= h($a['category_color']??'#1260e6') ?>"><?= h($a['category']??'Geral') ?></span>
+    <div class="news-card-body"><?php if(($GLOBALS['igua_page_route']??'')!=='inicio'||($GLOBALS['portalOptions']['labels']??true)): ?><span class="category-label" style="--category-color:<?= h($a['category_color']??'#1260e6') ?>"><?= h($a['category']??'Geral') ?></span><?php endif; ?>
       <h3><?= h($a['title']) ?></h3><p><?= h($a['summary']) ?></p>
       <span class="news-meta">◷ <?= h(readable_date($a['published_at'])) ?><?= $a['is_demo']?' · Exemplo':'' ?></span>
     </div>

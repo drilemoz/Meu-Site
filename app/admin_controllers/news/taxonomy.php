@@ -8,6 +8,7 @@
                 $base=slug($name);$candidate=$base;$suffix=2;
                 while(true){$lookup=$db->prepare('SELECT id FROM categories WHERE slug=?');$lookup->execute([$candidate]);if(!$lookup->fetchColumn())break;$candidate=$base.'-'.$suffix++;}
                 $db->prepare('INSERT INTO categories(name,slug,sort_order) VALUES(?,?,100)')->execute([$name,$candidate]);
+                $createdCategoryId=(int)$db->lastInsertId();require_once __DIR__.'/../../portal_options.php';igua_portal_add_active($db,$createdCategoryId);
             }elseif($action==='news_create_author'){
                 $db->prepare('INSERT INTO author_profiles(name) VALUES(?)')->execute([$name]);
             }else{
@@ -16,5 +17,5 @@
                 $db->prepare('INSERT INTO editorial_sources(name,url) VALUES(?,?)')->execute([$name,$url]);
             }
             header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
-            echo json_encode(['saved'=>true,'id'=>(int)$db->lastInsertId(),'name'=>$name],JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);exit;
+            echo json_encode(['saved'=>true,'id'=>$createdCategoryId??(int)$db->lastInsertId(),'name'=>$name],JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);exit;
         }

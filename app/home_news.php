@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__.'/news_queries.php';
+require_once __DIR__.'/portal_options.php';
 
 /** Preferências na tabela settings existente. IDs mantêm a escolha ao renomear categorias. */
 function igua_home_preferences(array $categories,string $rawIds='',string $rawRegion=''): array {
@@ -72,4 +73,32 @@ function igua_home_news(PDO $db,array $categories,array $prefs): array {
     $sections=array_values($sections);
     $popular=$take(fetch_popular_news($db,array_keys($seen)),5);
     return compact('featured','recent','sections','popular');
+}
+
+/** Home compacta: apenas conteúdo atual; a notícia mais recente de cada seção é reservada. */
+function igua_portal_home(PDO $db,array $cats,array $prefs,array $options):array {
+    $featured=$options['featured']?fetch_featured_news($db):false;
+    $seen=$featured?[(int)$featured['id']]:[];
+    $cutoff=date('Y-m-d H:i:s',strtotime('-'.$options['max_age'].' days'));
+    $take=static function(array $rows,int $n)use(&$seen,$cutoff):array{
+        $out=[];foreach($rows as $r){$id=(int)$r['id'];if(in_array($id,$seen,true)||(string)$r['published_at']<$cutoff)continue;$seen[]=$id;$out[]=$r;if(count($out)>=$n)break;}return $out;
+    };
+    $sections=[];$recent=[];$popular=[];
+    if($options['sections']){
+        $ids=array_unique([...$prefs['ids'],$prefs['region']]);
+        foreach($cats as $c){$id=(int)$c['id'];if(!in_array($id,$ids,true))continue;
+            $rows=$take(fetch_news($db,$options['section_count'],$id),$options['section_count']);
+            if($rows)$sections[]=['category'=>$c,'title'=>$c['name'],'rows'=>$rows];
+        }
+    }
+    if($options['recent'])$recent=$take(fetch_news($db,$options['recent_count'],null,null,$seen),$options['recent_count']);
+    if($options['popular'])$popular=$take(fetch_popular_news($db,$seen),5);
+    return compact('featured','recent','sections','popular');
+}
+function igua_portal_home_prefs(array $cats,string $ids,string $region,string $rawOptions):array {
+    if($rawOptions===''){
+        $ids=json_encode(array_values(array_map(static fn($c)=>(int)$c['id'],array_filter($cats,static fn($c)=>in_array($c['slug'],['cidade','iguatama'],true)))));
+        // A primeira abertura na versão compacta ignora seleções antigas de editorias.
+    }
+    return igua_home_preferences($cats,$ids,$region);
 }

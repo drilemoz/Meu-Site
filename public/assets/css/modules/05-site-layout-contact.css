@@ -171,3 +171,10 @@ html,body{max-width:100%;overflow-x:clip}
 .home-settings-categories label{display:flex;align-items:center;gap:8px;font-size:13px}
 .home-settings-categories input[type=checkbox]{width:18px;height:18px;flex:none;margin:0;accent-color:var(--blue)}
 .home-region-select{display:grid;gap:6px;max-width:420px;font-weight:650;margin:12px 0}
+/* 1.0.161: portal configurável */
+body[style*="--portal-accent"]{--blue:var(--portal-accent,#1260e6)}
+.brand-icon .portal-logo{width:100%;height:100%;max-height:58px;object-fit:contain}
+.portal-setting-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:8px 0}
+.portal-setting-row>label:last-child{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.portal-setting-row input[type=number]{width:65px;padding:5px}
+@media(max-width:760px){.bottom-nav{display:flex}.bottom-nav>a{flex:1;min-width:0}.bottom-nav>a span{display:block}}

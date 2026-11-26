@@ -82,6 +82,7 @@ function igua_admin_post_module(string $action): ?string {
         'save_bus_route'=>'bus',
         'save_bus_wizard'=>'bus',
         'save_category'=>'editorial',
+        'portal_local_preset'=>'editorial', 'portal_category_selection'=>'editorial', 'portal_category_move'=>'editorial',
         'save_settings'=>'system',
         'save_source'=>'editorial',
         'save_user'=>'users',

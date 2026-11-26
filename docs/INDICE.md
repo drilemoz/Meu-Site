@@ -1,3 +1,10 @@
+## 1.0.161 — Portal configurável (2026-11-26)
+
+- Home compacta por padrão: destaque manual, ônibus, três últimas notícias, uma manchete por categoria local/regional, sem ranking ou etiquetas nos cartões. Limite de 14 dias para listas e seções; destaque manual permanece. Sem duplicatas.
+- Configurações → Organização do portal: ativar, ordenar e ajustar quantidades, prazo, categorias, atalhos, cor, logotipo e texto do cabeçalho. Ônibus pode sair dos menus sem apagar seus dados.
+- Categorias → Aplicar modelo Iguatama Online: Iguatama, Região, Minas Gerais, Brasil e Mundo. Preserva IDs/slugs existentes e arquiva as temáticas apenas na seleção. Reclassificação individual ou em lote explícita mantém URLs históricas; não presume abrangência de matérias antigas.
+- Schema 39 e backup v13 mantidos. Não altera serviço ou permissões da VPS. Consulte docs/PORTAL_CONFIGURAVEL_161.md.
+
 ## 1.0.158 — Consulta de atualizações (2026-11-25)
 
 - Diferencia release anterior, igual e nova sem ZIP; botão de consulta explícita, data do cache e distinção entre fonte e release. Cache vinculado ao repositório. Schema 38 e backup v13 preservados.

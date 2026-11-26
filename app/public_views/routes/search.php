@@ -3,7 +3,7 @@
   <form class="archive-filters" action="/index.php" method="get" aria-label="Pesquisar e filtrar notícias">
     <input type="hidden" name="p" value="buscar">
     <label class="archive-filter-search">Palavras-chave<input type="search" name="q" maxlength="100" placeholder="Título ou resumo" value="<?= h($search) ?>"></label>
-    <label>Editoria<select name="cat"><option value="">Todas as editorias</option><?php foreach($categories as $c): ?><option value="<?= h($c['slug']) ?>" <?= $archiveCatSlug===$c['slug']?'selected':'' ?>><?= h($c['name']) ?></option><?php endforeach; ?></select></label>
+    <label>Editoria<select name="cat"><option value="">Todas as editorias</option><?php foreach($portalCategories as $c): ?><option value="<?= h($c['slug']) ?>" <?= $archiveCatSlug===$c['slug']?'selected':'' ?>><?= h($c['name']) ?></option><?php endforeach; ?></select></label>
     <label>Período<select name="period"><option value="" <?= $archiveDays===0?'selected':'' ?>>Todas as datas</option><?php foreach([7,30,90] as $n): ?><option value="<?= $n ?>" <?= $archiveDays===$n?'selected':'' ?>>Últimos <?= $n ?> dias</option><?php endforeach; ?></select></label>
     <button type="submit">Buscar</button><a href="<?= h(url(['p'=>'buscar'])) ?>">Limpar</a>
   </form>
