@@ -1,3 +1,9 @@
+## 1.0.159 — Prioridade editorial e links por matéria (2026-11-26)
+
+- Home: destaque marcado permanece primeiro; reserva uma manchete por editoria antes das últimas notícias. Apenas as três mais recentes de cada categoria concorrem; alternativas e complementos com mais de 30 dias não são usados para preencher espaços. Categorias secundárias consideradas, sem repetir IDs; ordem visual preservada e data da manchete exibida.
+- Cadastro: links opcionais independentes da fonte, um por linha (até 10), salvos também pelo rascunho automático. Exibição ao final da matéria em nova aba, sem repetir o endereço da fonte. Revisões de texto preservam os links atuais.
+- Schema 39 adiciona `articles.reference_links` (TEXT NULL), sem alterar dados anteriores. Backup lógico v13 continua compatível (colunas dinâmicas); restaurar backups antigos deixa o novo campo vazio.
+
 ## 1.0.158 — Consulta de atualizações (2026-11-25)
 
 - Diferencia release anterior, igual e nova sem ZIP; botão de consulta explícita, data do cache e distinção entre fonte e release. Cache vinculado ao repositório. Schema 38 e backup v13 preservados.

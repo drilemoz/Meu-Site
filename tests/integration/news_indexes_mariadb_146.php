@@ -34,7 +34,7 @@ function indexes146(PDO $db):array {
     foreach ($db->query('SHOW INDEX FROM articles')->fetchAll(PDO::FETCH_ASSOC) as $row)$names[$row['Key_name']]=true;
     return $names;
 }
-check146mysql(igua_schema_revision($db)===38,'esquema 38 instalado');
+check146mysql(igua_schema_revision($db)===39,'esquema 39 instalado');
 $indices=indexes146($db);
 check146mysql(isset($indices['idx_public_featured'],$indices['idx_public_popular']),'ambos os índices estão presentes');
 // Confirmar todas as funções ANTES de efetuar DDL auto-commit no banco isolado.
@@ -51,9 +51,10 @@ check146mysql(true,'dependências de migração importadas antes da alteração 
 // Simula atualização 35->36 no ambiente isolado, inclusive após DDL parcial.
 $db->exec('ALTER TABLE articles DROP INDEX idx_public_featured');
 $db->prepare('UPDATE settings SET value=? WHERE name=?')->execute(['35',IGUA_SCHEMA_REVISION_KEY]);
-check146mysql(igua_migrate_schema($db) && igua_schema_revision($db)===38,'migração de 35 para 38 recompõe índice ausente');
+check146mysql(igua_migrate_schema($db) && igua_schema_revision($db)===39,'migração de 35 para 39 recompõe índice ausente');
 check146mysql(isset(indexes146($db)['idx_public_featured']),'índice recomposto após atualização');
 check146mysql(!igua_migrate_schema($db),'segunda migração não altera a estrutura');
+check146mysql(in_array('reference_links',array_column($db->query('SHOW COLUMNS FROM articles')->fetchAll(),'Field'),true),'schema 39 contém coluna de links');
 $plans=igua_news_explain($db);
 check146mysql(count($plans)===5 && count($plans['mais_lidas'])>=1,'EXPLAIN real de cinco padrões SQL executado');
 foreach ($plans as $name=>$rows) {
@@ -69,6 +70,10 @@ try {
     $add=$db->prepare("INSERT INTO articles (title,slug,summary,body,status,published_at) VALUES (?,?,?,'Texto de teste de pesquisa em MariaDB.','published',NOW())");
     $add->execute(['Relatório 50%_! teste','integracao-pesquisa-146-'.$suffix,'Relatório com símbolo de porcentagem']);
     $id=(int)$db->lastInsertId();
+    $links=implode("\n",news_reference_links("https://example.org/original\nhttps://example.org/documento"));
+    $db->prepare('UPDATE articles SET reference_links=? WHERE id=?')->execute([$links,$id]);
+    $read=$db->prepare('SELECT reference_links FROM articles WHERE id=?');$read->execute([$id]);
+    check146mysql($read->fetchColumn()===$links,'links persistem e são recuperados');
     $add->execute(['Relatório 50XX_ teste','integracao-outra-146-'.$suffix,'Texto sem sequência literal']);
     $public=archive_listing($db,1,'50%_!');
     check146mysql($public['total']===1 && (int)$public['rows'][0]['id']===$id,'pesquisa pública mantém sequência literal de símbolos');

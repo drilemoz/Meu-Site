@@ -1,3 +1,7 @@
+## Migração assistida na v1.0.159 (schema 39)
+
+Faça backup externo completo antes de instalar o código por gerenciador/SFTP ou deploy assistido, preservando configurações privadas, mídias e `storage/`. Acesse `/admin.php` com conta administrativa para executar a migração aditiva de `articles.reference_links` e confirme a revisão 39 na Central de Saúde. O atualizador ZIP interno da versão 1.0.158 bloqueia a mudança de schema corretamente; não force o manifesto. Se a migração falhar, restaure código e banco do mesmo snapshot. Após migrar, o atualizador comum volta a aceitar versões com schema 39.
+
 ## Migração assistida na v1.0.155 (schema 38)
 
 A atualização de 37 para 38 é incompatível com o atualizador comum. Não modifique o manifesto nem desative a validação. Veja [o procedimento](NOTICIAS_RECEBIDAS_155.md).

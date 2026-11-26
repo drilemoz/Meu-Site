@@ -37,5 +37,5 @@ foreach ($functions as $function) {
     if (!function_exists($function)) throw new RuntimeException('Função de migração ausente: '.$function);
     if (!str_contains($test,"'".$function."'")) throw new RuntimeException('Faltou preflight para: '.$function);
 }
-if (IGUA_SCHEMA_REVISION!==38) throw new RuntimeException('Revisão de schema inesperada: exige ensaio assistido.');
+if (IGUA_SCHEMA_REVISION!==39) throw new RuntimeException('Revisão de schema inesperada: exige ensaio assistido.');
 echo "OK: teste de índices importa todas as migrações antes do DDL.\n";

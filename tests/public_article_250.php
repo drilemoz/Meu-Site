@@ -40,13 +40,14 @@ function ad_article_body(PDO $db,string $body):void{echo '<p>'.h($body).'</p>';}
 function article_media(PDO $db,int $id):array{return [];}
 function igua_health_log(string $code,?Throwable $error=null):void{}
 require $root.'/app/news_queries.php';
+require $root.'/app/news_editor/links.php';
 
-function render_article(bool $related,int $category=8,string $author='Redação',int $views=10):array {
+function render_article(bool $related,int $category=8,string $author='Redação',int $views=10,string $links='',string $sourceUrl=''):array {
     $db=new FakeArticlePDO($related);
     $article=['id'=>1,'slug'=>'principal','title'=>'Título da notícia','summary'=>'Resumo curto',
         'category_slug'=>'cidade','category'=>'Cidade','category_id'=>$category,'author'=>'Conta interna <Privada>','source_name'=>$author,
         'published_at'=>'2026-11-10 10:00:00','views'=>$views,'is_demo'=>0,'image'=>'capa.jpg',
-        'body'=>'Texto original','source_url'=>''];
+        'body'=>'Texto original','source_url'=>$sourceUrl,'reference_links'=>$links];
     ob_start();require dirname(__DIR__).'/app/public_views/routes/article.php';
     return [ob_get_clean(),$db->queries];
 }
@@ -73,5 +74,8 @@ assert(count(array_filter($queries,fn($q)=>str_contains($q,'a.status = \'publish
 assert(!str_contains($empty,'class="article-related"'));
 [$noCategory,$unused]=render_article(true,0);
 assert(!str_contains($noCategory,'class="article-related"'));
+[$linked,]=render_article(false,8,'Fonte',1,"https://example.org/original\nhttps://example.org/documento?a=1&b=2\nhttps://example.org/documento?a=1&b=2\njavascript:alert(1)",'https://example.org/original');
+if(substr_count($linked,'href="https://example.org/original"')!==1 || substr_count($linked,'href="https://example.org/documento?a=1&amp;b=2" target="_blank" rel="noopener noreferrer nofollow"')!==1 || str_contains($linked,'javascript:alert(1)') || !str_contains($linked,'Links de referência'))throw new RuntimeException('Links públicos inválidos ou repetidos');
+if(str_contains($empty,'article-reference-links-title'))throw new RuntimeException('Bloco vazio de links');
 if(in_array('--render',$argv,true)){echo $html;exit;}
 echo "OK: matéria, metadados, contagem estimada, sugestões filtradas, escape, categoria vazia\n";

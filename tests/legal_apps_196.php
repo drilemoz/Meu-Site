@@ -7,7 +7,7 @@ require_once __DIR__.'/../app/backup.php';
 require_once __DIR__.'/../app/schema_migrations.php';
 require_once __DIR__.'/../app/admin_controllers/post_routes.php';
 function legal196(bool $ok,string $description):void{if(!$ok)throw new RuntimeException('Módulo legal: '.$description);}
-legal196(IGUA_SCHEMA_REVISION===38,'schema 38 exigido');
+legal196(IGUA_SCHEMA_REVISION===39,'schema 39 exigido');
 legal196(igua_app_slug_valid('uaicortes') && igua_app_slug_valid('meu-aplicativo-2'),'identificadores de múltiplos aplicativos');
 foreach(['','u','UPPER','meu_app','site/evil','../admin','app--dois','app-',' app','á'] as $bad)
     legal196(!igua_app_slug_valid($bad),'identificador recusado: '.$bad);

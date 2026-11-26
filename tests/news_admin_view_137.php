@@ -45,6 +45,7 @@ foreach([0,42] as $id){
     view137_assert(str_contains($html,'name="status"')&&str_contains($html,'name="publication_choice"'),'publish allowed');
     view137_assert(str_contains($html,'name="seo_title"')&&str_contains($html,'name="seo_description"'),'SEO preserved');
     view137_assert(str_contains($html,'name="extra_categories[]"'),'extra categories');
+    view137_assert(str_contains($html,'name="reference_links"'),'links de referência no cadastro');
     view137_assert(str_contains($html,'id="news-draft-initial"'),'draft script');
     view137_assert(str_contains($html,'news-editor.js'),'editor asset');
     if($id){view137_assert(str_contains($html,'Histórico de revisões'),'revisions view');view137_assert(str_contains($html,'Índice Google') && str_contains($html,'page=article%3A42'),'atalho do editor apenas na notícia publicada');}

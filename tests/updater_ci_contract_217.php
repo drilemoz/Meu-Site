@@ -32,6 +32,6 @@ assert217(str_contains($test,'strlen($tamperedPayload)===strlen($originalPayload
     str_contains($test,"'SHA-256'") &&
     str_contains($test,"'arquivo inesperado ou incorreto'"),
     'CI testa separadamente tamanho divergente e hash divergente com tamanho idêntico');
-assert217(str_contains($test,'schema 38')&&str_contains($test,'1.0.118'),
+assert217(str_contains($test,'schema 39')&&str_contains($test,'1.0.118'),
     'teste integrado acompanha versão e schema atuais');
 echo "Contrato do teste integrado aprovado. MariaDB e ZipArchive reais são exercitados no CI, não nesta suíte offline.\n";

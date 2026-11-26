@@ -10,8 +10,8 @@ $root=dirname(__DIR__);
 $main=(string)file_get_contents($root.'/app/admin_controllers/news.php');
 $reconstituted=igua_test_news_controller_source();
 // A 1.0.154 adiciona a ação de autor ao fragmento existente de taxonomia.
-news213(hash('sha256',$reconstituted)==='04d1420b6da1e93fb63653322c22cc56b1b64a03e44b5a0bb97ca4d46e485657',
-    'recomposição byte a byte do controlador editorial 1.0.157');
+news213(hash('sha256',$reconstituted)==='38a7c11da11e533bc7e91f3c142a983e5fbf966e557fc787c0340b070fe26d08',
+    'recomposição byte a byte do controlador editorial 1.0.159');
 news213(substr_count($main,"require __DIR__.'/news/")===5 && !str_contains($main,'$_GET') && !str_contains($main,'$_POST'),
     'entrada contém somente includes fixos, sem caminhos ou ações controladas pelo usuário');
 $files=['taxonomy','gemini','drafts','save','lifecycle'];

@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 /**
- * Registro de migração para instalações existentes, incluindo sessões persistentes (34), cadastro eleitoral (35) e índices públicos (36) e aplicativos/páginas legais (37) e sugestões de notícias (38).
+ * Registro de migração para instalações existentes, incluindo sessões persistentes (34), cadastro eleitoral (35) e índices públicos (36) e aplicativos/páginas legais (37) e sugestões de notícias (38) e links de referência por matéria (39).
  * O marcador é gravado por último, somente se TODAS as migrações forem concluídas.
  * Ao adicionar uma migração futura, aumente IGUA_SCHEMA_REVISION.
  */
-const IGUA_SCHEMA_REVISION = 38;
+const IGUA_SCHEMA_REVISION = 39;
 const IGUA_SCHEMA_REVISION_KEY = 'igua_schema_revision';
 
 function igua_schema_revision(PDO $db): int {

@@ -16,7 +16,7 @@ require_once __DIR__.'/../../app/backup.php';
 $db=connection(['host'=>getenv('IGUA_TEST_DB_HOST'),'port'=>(int)(getenv('IGUA_TEST_DB_PORT')?:3306),
     'database'=>$name,'username'=>getenv('IGUA_TEST_DB_USER'),'password'=>getenv('IGUA_TEST_DB_PASSWORD')]);
 function legal196mysql(bool $ok,string $what):void{if(!$ok)throw new RuntimeException('LEGAL 196 MariaDB: '.$what);echo 'OK: '.$what."\n";}
-legal196mysql(igua_schema_revision($db)===38,'migração para schema 38');
+legal196mysql(igua_schema_revision($db)===39,'migração para schema 39');
 legal196mysql((int)$db->query("SELECT COUNT(*) FROM legal_apps WHERE slug='uaicortes' AND status='draft'")->fetchColumn()===1,'Uai Cortes criado como rascunho inicial');
 $base='legal-ci-'.bin2hex(random_bytes(4));$ids=[];$backupFile=null;
 try{

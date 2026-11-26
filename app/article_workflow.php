@@ -110,11 +110,11 @@ function article_duplicate_draft(PDO $db,int $sourceId,int $userId):int {
     try {
         $title=usub('Cópia: '.$article['title'],0,220);
         $slug=article_editor_slug($db,$title,'');
-        $sql='INSERT INTO articles (category_id,title,slug,summary,body,image,image_caption,image_credit,source_name,source_url,source_id,author_profile_id,seo_title,seo_description,status,featured,published_at,author_id,is_demo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        $sql='INSERT INTO articles (category_id,title,slug,summary,body,image,image_caption,image_credit,source_name,source_url,source_id,author_profile_id,seo_title,seo_description,status,featured,published_at,author_id,is_demo,reference_links) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         $db->prepare($sql)->execute([
             $article['category_id'],$title,$slug,$article['summary'],$article['body'],$article['image'],$article['image_caption'],$article['image_credit'],
             $article['source_name'],$article['source_url'],$article['source_id'],$article['author_profile_id'],
-            '',$article['seo_description'],'draft',0,date('Y-m-d H:i:s'),$userId,(int)$article['is_demo']
+            '',$article['seo_description'],'draft',0,date('Y-m-d H:i:s'),$userId,(int)$article['is_demo'],$article['reference_links']??null
         ]);
         $newId=(int)$db->lastInsertId();
         $cats=article_extra_categories($db,$sourceId);

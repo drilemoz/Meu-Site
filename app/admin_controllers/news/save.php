@@ -51,8 +51,9 @@
             if($seoDesc==='')$seoDesc=news_seo_description($title,$summary,$body);
             if (ulen($caption)>360 || ulen($credit)>180 || ulen($sourceName)>160 || ulen($sourceUrl)>600) throw new RuntimeException('Legenda, crédito ou fonte acima do limite.');
             if ($sourceUrl!=='' && (!filter_var($sourceUrl,FILTER_VALIDATE_URL) || !str_starts_with($sourceUrl,'https://'))) throw new RuntimeException('A fonte deve ser uma URL HTTPS válida.');
+            $referenceLinks=implode("\n",news_reference_links($_POST['reference_links']??($old['reference_links']??'')));
             $candidate=article_editor_slug($db,$title,(string)($_POST['url_slug']??''),$id,(string)($old['slug']??''));
-            $args=[$cat,$title,$candidate,$summary,$body,$image,$caption,$credit,$sourceName,$sourceUrl,$sourceId?:null,$profile?:null,$seoTitle,$seoDesc,$status,(isset($_POST['featured'])&&role_allowed($me['role'],'publish'))?1:0,$publishAt];
+            $args=[$cat,$title,$candidate,$summary,$body,$image,$caption,$credit,$sourceName,$sourceUrl,$sourceId?:null,$profile?:null,$seoTitle,$seoDesc,$status,(isset($_POST['featured'])&&role_allowed($me['role'],'publish'))?1:0,$publishAt,$referenceLinks];
             $createdFiles=[];
             $onCreated=static function(string $path)use(&$createdFiles): void {$createdFiles[]=$path;};
             $db->beginTransaction();
@@ -65,10 +66,10 @@
                 if ($id) {
                     news_snapshot_revision($db,$old,(int)$me['id']);
                     article_record_slug_change($db,$id,(string)$old['slug'],$candidate);
-                    $stmt=$db->prepare('UPDATE articles SET category_id=?,title=?,slug=?,summary=?,body=?,image=?,image_caption=?,image_credit=?,source_name=?,source_url=?,source_id=?,author_profile_id=?,seo_title=?,seo_description=?,status=?,featured=?,published_at=?,is_demo=is_demo WHERE id=?');
+                    $stmt=$db->prepare('UPDATE articles SET category_id=?,title=?,slug=?,summary=?,body=?,image=?,image_caption=?,image_credit=?,source_name=?,source_url=?,source_id=?,author_profile_id=?,seo_title=?,seo_description=?,status=?,featured=?,published_at=?,reference_links=?,is_demo=is_demo WHERE id=?');
                     $stmt->execute([...$args,$id]);
                 } else {
-                    $stmt=$db->prepare('INSERT INTO articles (category_id,title,slug,summary,body,image,image_caption,image_credit,source_name,source_url,source_id,author_profile_id,seo_title,seo_description,status,featured,published_at,author_id,is_demo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)');
+                    $stmt=$db->prepare('INSERT INTO articles (category_id,title,slug,summary,body,image,image_caption,image_credit,source_name,source_url,source_id,author_profile_id,seo_title,seo_description,status,featured,published_at,reference_links,author_id,is_demo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)');
                     $stmt->execute([...$args,$me['id']]);$id=(int)$db->lastInsertId();
                 }
                 save_article_extras($db,$id,(array)($_POST['extra_categories']??[]),$blocks);

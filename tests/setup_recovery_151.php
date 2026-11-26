@@ -13,7 +13,7 @@ class Fake151Statement extends PDOStatement {
 class Fake151Database extends PDO {
     public array $tables=[];
     public array $counts=[];
-    public int $revision=38;
+    public int $revision=39;
     public string $adminEmail='admin@example.test';
     public string $adminHash='';
     public int $brandSettings=2;
@@ -46,13 +46,13 @@ $db->tables=$expected;$a=igua_setup_database_inventory($db);
 verify151($a['status']==='partial_empty' && igua_database_empty($db)[0],'30 tabelas vazias podem ser retomadas sem duplicação');
 $db->counts=['users'=>1,'settings'=>11];$a=igua_setup_database_inventory($db);
 verify151($a['status']==='recoverable' && !igua_database_empty($db)[0],'instalação com dados não é tratada como vazia');
-verify151(igua_setup_recovery_allowed($db),'instalação completa revisão 38 recuperável');
+verify151(igua_setup_recovery_allowed($db),'instalação completa revisão 39 recuperável');
 verify151(igua_setup_verify_recovery_admin($db,'admin@example.test','minha-senha-segura'),'senha administrativa correta validada');
 $db->counts['users']=4;verify151(igua_setup_database_inventory($db)['status']==='recoverable' && igua_setup_recovery_allowed($db),'recuperação permite portal migrado com vários usuários e exige admin');
 $db->counts['users']=1;
 verify151(!igua_setup_verify_recovery_admin($db,'admin@example.test','errada'),'senha administrativa incorreta rejeitada');
 $db->revision=35;verify151(!igua_setup_recovery_allowed($db),'revisão antiga requer migração, sem recuperação cega');
-$db->revision=38;$db->tables=['users','settings'];verify151(igua_setup_database_inventory($db)['status']==='occupied','esquema incompleto com dados bloqueado');
+$db->revision=39;$db->tables=['users','settings'];verify151(igua_setup_database_inventory($db)['status']==='occupied','esquema incompleto com dados bloqueado');
 $db->tables=['users','malware'];verify151(igua_setup_database_inventory($db)['status']==='foreign','tabelas de terceiros bloqueadas');
 $db->tables=$expected;$db->counts=['settings'=>4];verify151(igua_setup_database_inventory($db)['status']==='occupied','configuração sem administrador não é recuperada');
 $folder=sys_get_temp_dir().'/meusite-151-'.bin2hex(random_bytes(6));mkdir($folder,0700);

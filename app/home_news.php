@@ -44,17 +44,32 @@ function igua_home_news(PDO $db,array $categories,array $prefs): array {
     };
     $featured=fetch_featured_news($db);
     $featured=$featured?($take([$featured],1)[0]??false):false;
-    $recent=$take(fetch_news($db,4,null,null,array_keys($seen)),4);
     $sections=[];$ordered=[];
     // Cidade tem precedência. A categoria regional explícita vem a seguir, depois a ordem do ADM.
     foreach ($categories as $c) if ($c['slug']==='cidade'&&(int)$c['id']!==$prefs['region']&&in_array((int)$c['id'],$prefs['ids'],true)) $ordered[(int)$c['id']]=$c;
     foreach ($categories as $c) if ((int)$c['id']===$prefs['region']) $ordered[(int)$c['id']]=$c;
     foreach ($categories as $c) if (in_array((int)$c['id'],$prefs['ids'],true)) $ordered[(int)$c['id']]=$c;
+    // Reserve the most recent headline per category before filling the general feed.
+    // Do not query progressively older stories merely because another module used one.
+    $candidates=[];
+    $cutoff=date('Y-m-d H:i:s',strtotime('-30 days'));
     foreach ($ordered as $id=>$c) {
-        $rows=$take(fetch_news($db,3,$id,null,array_keys($seen)),3);
-        if (!$rows) continue;
-        $sections[]=['category'=>$c,'title'=>$id===$prefs['region']?'Acontece na região':$c['name'],'rows'=>$rows];
+        $top=fetch_news($db,3,$id);
+        if (!$top) continue;
+        // An old story may be the actual latest one, but not a fallback or filler.
+        $eligible=array_values(array_filter($top,static fn($row,$index)=>$index===0 || (string)$row['published_at'] >= $cutoff, ARRAY_FILTER_USE_BOTH));
+        $lead=$take($eligible,1);
+        if (!$lead) continue;
+        $candidates[$id]=$eligible;
+        $sections[$id]=['category'=>$c,'title'=>$id===$prefs['region']?'Acontece na região':$c['name'],'rows'=>$lead];
     }
+    $recent=$take(fetch_news($db,4,null,null,array_keys($seen)),4);
+    // Only add remaining fresh candidates; never steal the next category's lead.
+    foreach ($sections as $id=>&$section) {
+        array_push($section['rows'],...$take($candidates[$id],2));
+    }
+    unset($section);
+    $sections=array_values($sections);
     $popular=$take(fetch_popular_news($db,array_keys($seen)),5);
     return compact('featured','recent','sections','popular');
 }

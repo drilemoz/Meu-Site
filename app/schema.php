@@ -20,6 +20,7 @@ function install_schema(PDO $db,bool $recordRevision=true): void {
       image VARCHAR(150) DEFAULT NULL,
       image_caption VARCHAR(360) NOT NULL DEFAULT '', image_credit VARCHAR(180) NOT NULL DEFAULT '',
       source_name VARCHAR(160) NOT NULL DEFAULT '', source_url VARCHAR(600) NOT NULL DEFAULT '',
+      reference_links TEXT NULL,
       author_profile_id INT UNSIGNED NULL, source_id INT UNSIGNED NULL,
       seo_title VARCHAR(220) NOT NULL DEFAULT '', seo_description VARCHAR(320) NOT NULL DEFAULT '',
       status ENUM('draft','published') NOT NULL DEFAULT 'draft',
@@ -69,7 +70,8 @@ function migrate_article_fields(PDO $db): array {
       'image_caption' => "VARCHAR(360) NOT NULL DEFAULT ''",
       'image_credit' => "VARCHAR(180) NOT NULL DEFAULT ''",
       'source_name' => "VARCHAR(160) NOT NULL DEFAULT ''",
-      'source_url' => "VARCHAR(600) NOT NULL DEFAULT ''"
+      'source_url' => "VARCHAR(600) NOT NULL DEFAULT ''",
+      'reference_links' => 'TEXT NULL'
     ];
     $existing = array_column($db->query('SHOW COLUMNS FROM articles')->fetchAll(), 'Field');
     $added=[];

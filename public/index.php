@@ -83,7 +83,7 @@ function section_category(array $c,array $list,string $title): void {
     if (!$list) return; // A página inicial não exibe módulos vazios.
     ?>
     <section class="section-column"><div class="section-heading"><h2><?= h($title) ?></h2><a href="<?= h(cat_link($c)) ?>">Ver todas →</a></div>
-      <?php if ($list): $main=array_shift($list); ?><a href="<?= h(news_link($main)) ?>" class="section-lead"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($main['image'])) ?>" alt="" loading="lazy" decoding="async"><h3><?= h($main['title']) ?></h3><p><?= h($main['summary']) ?></p></a><?php foreach ($list as $a) mini_card($a); else: ?><p class="muted">Em breve, novas notícias.</p><?php endif; ?>
+      <?php if ($list): $main=array_shift($list); ?><a href="<?= h(news_link($main)) ?>" class="section-lead"><img data-image-fallback="/assets/img/cidade.jpg" src="<?= h(asset_image($main['image'])) ?>" alt="" loading="lazy" decoding="async"><h3><?= h($main['title']) ?></h3><p><?= h($main['summary']) ?></p><span class="news-meta">◷ <?= h(readable_date($main['published_at'])) ?><?= !empty($main['is_demo'])?' · Exemplo':'' ?></span></a><?php foreach ($list as $a) mini_card($a); else: ?><p class="muted">Em breve, novas notícias.</p><?php endif; ?>
     </section>
 <?php }
 $article=null;$category=null;$search=archive_search_term($_GET['q']??'');
