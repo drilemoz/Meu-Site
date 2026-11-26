@@ -1,3 +1,13 @@
+## 1.0.158 — Consulta de atualizações (2026-11-25)
+
+- Diferencia release anterior, igual e nova sem ZIP; botão de consulta explícita, data do cache e distinção entre fonte e release. Cache vinculado ao repositório. Schema 38 e backup v13 preservados.
+
+## 1.0.157 — Classificação compacta e fonte editorial (2026-11-25)
+
+- Fonte no cabeçalho público em vez da conta de cadastro; sem fonte, Redação. SEO separa autoria editorial de referência.
+- Classificação com categoria, fonte e categorias adicionais recolhidas; cadastro por modal. Fontes manuais anteriores são preservadas.
+- Intertítulos isolados reconhecidos na leitura e prévia, sem reescrever o texto salvo; Markdown explícito continua disponível. Schema 38 e backup v13 mantidos.
+
 ## 1.0.156 — Página inicial sem notícias repetidas (2026-11-25)
 
 - Distribuição central por ID: destaque marcado mais recente, últimas (4), Cidade, região e editorias selecionadas (3 por seção), mais lidas restantes (5).
@@ -35,7 +45,7 @@ Formulário público sem SMTP, caixa de entrada privada, fotos e moderação com
 
 # Meu Site — Portal Iguatama Online
 
-**Versão atual do código-fonte: 1.0.156** · PHP 8.1+ · MySQL/MariaDB · schema 38.
+**Versão atual do código-fonte: 1.0.158** · PHP 8.1+ · MySQL/MariaDB · schema 38.
 
 Portal de notícias locais com editor, categorias, autores/fontes, mídias, horários de ônibus, eleições, publicidade, métricas e administração com segurança, backups e atualizador de código. O sistema publicado pode estar numa versão anterior até o administrador instalar o pacote na hospedagem.
 

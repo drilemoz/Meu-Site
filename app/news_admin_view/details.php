@@ -1,19 +1,11 @@
     <section class="news-editor-step" data-step="classify" hidden>
       <p class="news-question-tag">PASSO 7 · CLASSIFICAÇÃO</p>
-      <h3>Em qual categoria entra esta notícia?</h3><p class="muted">Escolha a categoria principal. Outras informações são opcionais.</p>
+      <h3>Categoria e fonte</h3><p class="muted">Escolha a editoria e a origem da informação.</p>
       <div class="news-taxonomy-main"><label>Categoria principal<select name="category_id" required><option value="">Selecione uma categoria</option><?php foreach($cats as $c): ?><option value="<?= (int)$c['id'] ?>" <?= selected((string)$row['category_id'],(string)$c['id']) ?>><?= h($c['name']) ?></option><?php endforeach; ?></select></label><?php if(role_allowed((string)$me['role'],'manage_taxonomy')): ?><button type="button" class="btn outline small" data-news-taxonomy="category">+ Nova</button><?php endif; ?></div><div id="news-category-suggest" aria-live="polite"></div>
-      <div class="news-source-section"><div class="news-taxonomy-heading"><strong>Fonte da notícia</strong><small>Informe a origem da informação; confira antes de publicar.</small></div>
-      <div class="form-grid"><label class="full">Fonte principal cadastrada<select name="source_id"><option value="0">Fonte manual / não cadastrada</option><?php foreach($sources as $s): ?><option value="<?= (int)$s['id'] ?>" <?= selected((string)($row['source_id']??''),(string)$s['id']) ?>><?= h($s['name']) ?></option><?php endforeach; ?></select></label>
-      <?php if(role_allowed((string)$me['role'],'manage_taxonomy')): ?><button type="button" class="btn outline small news-add-source" data-news-taxonomy="source">+ Cadastrar fonte</button><?php endif; ?>
-      <label>Nome da fonte<input name="source_name" maxlength="160" value="<?= h($row['source_name']) ?>"></label><label>URL HTTPS<input name="source_url" type="url" maxlength="600" value="<?= h($row['source_url']) ?>"></label></div>
-      <small class="news-taxonomy-hint">A fonte cadastrada selecionada tem prioridade sobre os campos manuais. A versão atual registra uma fonte principal por notícia.</small></div>
-      <div class="news-source-section">
-        <div class="news-taxonomy-main">
-          <label>Autor da notícia<select name="author_profile_id"><option value="0">Conta / Redação</option><?php foreach($profiles as $p): ?><option value="<?= (int)$p['id'] ?>" <?= selected((string)($row['author_profile_id']??''),(string)$p['id']) ?>><?= h($p['name']) ?></option><?php endforeach; ?></select></label>
-          <?php if(role_allowed((string)$me['role'],'manage_taxonomy')): ?><button type="button" class="btn outline small" data-news-taxonomy="author">+ Autor</button><?php endif; ?>
-        </div>
-        <small class="news-taxonomy-hint">A assinatura escolhida aparece na notícia publicada.</small>
-      </div>
+      <?php $manualSource=trim((string)($row['source_name']??''));$manualUrl=trim((string)($row['source_url']??'')); ?>
+      <div class="news-taxonomy-main"><label>Fonte da notícia<select name="source_id"><option value="-1" <?= empty($row['source_id'])&&$manualSource===''&&$manualUrl===''?'selected':'' ?>>Sem fonte / Redação</option><option value="0" <?= empty($row['source_id'])&&($manualSource!==''||$manualUrl!=='')?'selected':'' ?> <?= $manualSource===''&&$manualUrl===''?'hidden':'' ?>><?= h($manualSource!==''?$manualSource:($manualUrl!==''?$manualUrl:'Fonte anterior')) ?> (manual)</option><?php foreach($sources as $s): ?><option value="<?= (int)$s['id'] ?>" <?= selected((string)($row['source_id']??''),(string)$s['id']) ?>><?= h($s['name']) ?></option><?php endforeach; ?></select></label><?php if(role_allowed((string)$me['role'],'manage_taxonomy')): ?><button type="button" class="btn outline small" data-news-taxonomy="source">+ Nova</button><?php endif; ?></div>
+      <input type="hidden" name="source_name" value="<?= h($manualSource) ?>"><input type="hidden" name="source_url" value="<?= h($manualUrl) ?>">
+      <input type="hidden" name="author_profile_id" value="<?= (int)($row['author_profile_id']??0) ?>">
       <details class="news-optional" <?= $extra?'open':'' ?>><summary>Categorias adicionais</summary><div class="form-grid">
         <div class="full"><div class="news-category-chips"><?php foreach($cats as $c): ?><label><input type="checkbox" name="extra_categories[]" value="<?= (int)$c['id'] ?>" <?= in_array((int)$c['id'],$extra,true)?'checked':'' ?>> <?= h($c['name']) ?></label><?php endforeach; ?></div></div>
       </div></details>

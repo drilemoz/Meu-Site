@@ -822,11 +822,20 @@ function igua_updater_http(string $url,int $max): string {
     }
     throw new RuntimeException('Redirecionamentos demais no download.');
 }
+/** Estado da última consulta, sem confundir release antiga com atualização. */
+function igua_updater_release_status(?array $release,string $installed,bool $configured): string {
+    if(!$configured)return 'Configure a origem';
+    if(!$release)return 'Nenhuma release consultada ou publicada';
+    $comparison=version_compare((string)($release['version']??'0.0.0'),$installed);
+    if($comparison<0)return 'Versão instalada superior à release';
+    if($comparison===0)return 'Versão instalada igual à release';
+    return empty($release['url'])?'Nova release sem ZIP compatível':'Atualização disponível';
+}
 function igua_updater_remote_release(bool $force=false): ?array {
     $dir=igua_updater_folder();$source=igua_updater_source();
     if(empty($source['owner'])||empty($source['repo']))return null;
     $cache=igua_updater_read_json($dir.'/release-cache.json');
-    if(!$force && $cache && ($cache['checked']??0)>time()-1800){
+    if(!$force && ($cache['source']??null)===$source['owner'].'/'.$source['repo'] && $cache && ($cache['checked']??0)>time()-1800){
         $saved=$cache['release']??null;
         if(is_array($saved))$saved['newer']=version_compare((string)($saved['version']??'0.0.0'),igua_updater_version(),'>');
         return $saved;
@@ -836,7 +845,7 @@ function igua_updater_remote_release(bool $force=false): ?array {
     try {$response=igua_updater_http($url,384*1024);}
     catch(RuntimeException $exc) {
         if(str_contains($exc->getMessage(),'HTTP 404')){
-            igua_updater_write_json($dir.'/release-cache.json',['checked'=>time(),'release'=>null]);
+            igua_updater_write_json($dir.'/release-cache.json',['source'=>$source['owner'].'/'.$source['repo'],'checked'=>time(),'release'=>null]);
             return null;
         }
         throw $exc;
@@ -853,7 +862,7 @@ function igua_updater_remote_release(bool $force=false): ?array {
         }
     }
     $release=['version'=>$tag,'notes'=>substr((string)($json['body']??''),0,1800),'url'=>$assetUrl,'newer'=>version_compare($tag,igua_updater_version(),'>')];
-    igua_updater_write_json($dir.'/release-cache.json',['checked'=>time(),'release'=>$release]);
+    igua_updater_write_json($dir.'/release-cache.json',['source'=>$source['owner'].'/'.$source['repo'],'checked'=>time(),'release'=>$release]);
     return $release;
 }
 function igua_updater_download_release(string $url): string {

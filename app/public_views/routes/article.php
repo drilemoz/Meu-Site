@@ -20,7 +20,7 @@ if ((int)($article['category_id'] ?? 0) > 0) {
 ?>
   <div class="breadcrumb"><a href="/index.php">Início</a> › <a href="<?= h(url(['p'=>'categoria','slug'=>$article['category_slug']])) ?>"><?= h($article['category']??'Notícias') ?></a></div>
   <article class="article-view"><span class="category-label"><?= h($article['category']??'Geral') ?></span><h1><?= h($article['title']) ?></h1><p class="article-summary"><?= h($article['summary']) ?></p><div class="article-byline" aria-label="Informações da notícia">
-    <span class="article-author">Por <strong><?= h(trim((string)($article['author'] ?? '')) ?: 'Redação '.igua_brand_name()) ?></strong></span>
+    <span class="article-author"><?php if(trim((string)($article['source_name']??''))!==''): ?>Fonte: <strong><?= h(trim((string)$article['source_name'])) ?></strong><?php else: ?><strong><?= h('Redação '.igua_brand_name()) ?></strong><?php endif; ?></span>
     <span><time datetime="<?= h(date('c', strtotime($article['published_at']))) ?>"><?= h(date('d/m/Y \à\s H:i', strtotime($article['published_at']))) ?></time></span>
     <span><?= number_format($articleViews,0,',','.') ?> <?= $articleViews === 1 ? 'visualização' : 'visualizações' ?></span>
   </div>
@@ -89,7 +89,7 @@ if ((int)($article['category_id'] ?? 0) > 0) {
   </dialog>
   <?php endif; ?>
   <?php if($docs): ?><section class="news-attachments"><h2>Documentos e anexos</h2><?php foreach($docs as $file): ?><a href="/download.php?id=<?= (int)$file['id'] ?>">📎 <?= h($file['caption']?:$file['original_name']) ?> <small><?= number_format((int)$file['bytes']/1024,1,',','.') ?> KB</small></a><?php endforeach; ?></section><?php endif; ?>
-  <?php if(!empty($article['source_url']) && filter_var($article['source_url'],FILTER_VALIDATE_URL) && str_starts_with($article['source_url'],'https://')): ?><div class="article-source"><strong>Fonte de referência:</strong> <a href="<?= h($article['source_url']) ?>" target="_blank" rel="noopener noreferrer nofollow"><?= h($article['source_name'] ?: 'Consultar a fonte') ?> ↗</a><small class="caption-hint">A fonte pode apontar para uma editoria ou matéria específica. Consulte o original para dados detalhados e atualizações.</small></div><?php endif; ?>
+  <?php if(!empty($article['source_url']) && filter_var($article['source_url'],FILTER_VALIDATE_URL) && str_starts_with($article['source_url'],'https://')): ?><div class="article-source"><strong>Fonte de referência:</strong> <a href="<?= h($article['source_url']) ?>" target="_blank" rel="noopener noreferrer nofollow"><?= h($article['source_name'] ?: 'Consultar a fonte') ?> ↗</a><small class="caption-hint">A fonte pode apontar para uma editoria ou matéria específica. Consulte o original para dados detalhados e atualizações.</small></div><?php elseif(trim((string)($article['source_name']??''))!==''): ?><div class="article-source"><strong>Fonte de referência:</strong> <?= h($article['source_name']) ?></div><?php endif; ?>
   <?php if ($articleRelated): ?>
   <section class="article-related" aria-labelledby="article-related-heading">
     <div class="article-related-header">

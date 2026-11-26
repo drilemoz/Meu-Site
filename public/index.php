@@ -88,7 +88,7 @@ function section_category(array $c,array $list,string $title): void {
 <?php }
 $article=null;$category=null;$search=archive_search_term($_GET['q']??'');
 if ($route==='noticia') {
-    $stmt=$db->prepare("SELECT a.*,c.name AS category,c.slug AS category_slug,c.color AS category_color,u.name AS author FROM articles a LEFT JOIN categories c ON c.id=a.category_id LEFT JOIN users u ON u.id=a.author_id WHERE a.slug=? AND ".$filter.' LIMIT 1');
+    $stmt=$db->prepare("SELECT a.*,c.name AS category,c.slug AS category_slug,c.color AS category_color FROM articles a LEFT JOIN categories c ON c.id=a.category_id WHERE a.slug=? AND ".$filter.' LIMIT 1');
     $stmt->execute([(string)($_GET['slug']??'')]); $article=$stmt->fetch();
     if (!$article) {
         // Redireciona apenas um slug histórico de matéria já publicada, nunca rascunhos.
@@ -130,18 +130,9 @@ if($article && !empty($article['image'])){
     try { $coverAlt=$db->prepare('SELECT alt_text FROM media_library WHERE filename=? AND deleted_at IS NULL LIMIT 1');$coverAlt->execute([(string)$article['image']]);$article['cover_alt']=(string)($coverAlt->fetchColumn()?:''); } catch(PDOException) {$article['cover_alt']='';}
 }
 if($article){
-    $accountAuthor=trim((string)($article['author'] ?? ''));
-    $profileAuthor='';
-    if(!empty($article['author_profile_id'])){
-        try{
-            $pa=$db->prepare('SELECT name FROM author_profiles WHERE id=?');
-            $pa->execute([(int)$article['author_profile_id']]);
-            $profileAuthor=trim((string)$pa->fetchColumn());
-        }catch(PDOException $e){igua_health_log('NEWS_AUTHOR_UNAVAILABLE',$e);}
-    }
-    $article['author']=($profileAuthor!=='' ? $profileAuthor : $accountAuthor);
-    $article['author_type']=$article['author']!=='' ? 'Person' : 'Organization';
-    if($article['author']==='')$article['author']='Redação '.igua_brand_name();
+    // A conta de cadastro é interna; fonte não equivale necessariamente a autoria.
+    $article['author']='Redação '.igua_brand_name();
+    $article['author_type']='Organization';
 }
 $pageTitle= $legalPage ? (string)$legalPage['title'] : ($article ? (trim((string)($article['seo_title']??'')) ?: $article['title']) : ($category['name']??($route==='buscar'?'Buscar notícias':($route==='onibus'?'Horários de ônibus':(['enviar-noticia'=>'Envie sua notícia','anuncie'=>'Anuncie','contato'=>'Contato','sobre'=>'Sobre o portal','privacidade'=>'Política de Privacidade','termos'=>'Termos de Uso'][$route]??'Últimas notícias')))));
 // Páginas fixas podem ter um título SEO completo, sem sufixo obrigatório.
@@ -170,4 +161,8 @@ if($article && $siteBase!=='')$socialImg=$siteBase.asset_image($article['image']
 if($legalPage)$socialImg=($legalPage['logo_filename']!=='' && $siteBase!=='')?$siteBase.asset_image((string)$legalPage['logo_filename']):'';
 $ld=null;
 if($article && $indexable && $canonical!=='')$ld=['@context'=>'https://schema.org','@type'=>'NewsArticle','headline'=>$article['title'],'description'=>$seoDesc,'datePublished'=>date(DATE_ATOM,strtotime($article['published_at'])),'dateModified'=>date(DATE_ATOM,strtotime($article['updated_at'])),'author'=>['@type'=>$article['author_type'],'name'=>$article['author']],'publisher'=>['@type'=>'Organization','name'=>igua_brand_name(),'url'=>$siteBase],'mainEntityOfPage'=>$canonical,'image'=>$socialImg!==''?[$socialImg]:[]];
+if($article && isset($ld) && ($ld['@type']??'')==='NewsArticle' && trim((string)($article['source_name']??''))!=='') {
+    $ld['citation']=['@type'=>'CreativeWork','name'=>trim((string)$article['source_name'])];
+    if(filter_var($article['source_url']??'',FILTER_VALIDATE_URL) && str_starts_with((string)$article['source_url'],'https://'))$ld['citation']['url']=$article['source_url'];
+}
 require __DIR__.'/../app/public_views/layout.php';

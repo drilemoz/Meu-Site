@@ -98,7 +98,7 @@ function ad_display_slot(PDO $db,string $slug): void {
     // Nenhum JavaScript/HTML enviado pelo painel é executado diretamente.
 }
 function ad_article_body(PDO $db,string $body): void {
-    $parts=array_values(array_filter(preg_split('/\R\s*\R/u',trim($body))?:[],static fn($p)=>trim($p)!==''));
+    $parts=array_values(array_filter(preg_split('/\R\s*\R/u',trim(news_auto_headings($body)))?:[],static fn($p)=>trim($p)!==''));
     foreach($parts as $i=>$paragraph) {
         echo news_text_format($paragraph);
         if($i===1)ad_display_slot($db,'p04');

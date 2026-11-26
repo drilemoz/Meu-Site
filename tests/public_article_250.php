@@ -44,7 +44,7 @@ require $root.'/app/news_queries.php';
 function render_article(bool $related,int $category=8,string $author='Redação',int $views=10):array {
     $db=new FakeArticlePDO($related);
     $article=['id'=>1,'slug'=>'principal','title'=>'Título da notícia','summary'=>'Resumo curto',
-        'category_slug'=>'cidade','category'=>'Cidade','category_id'=>$category,'author'=>$author,
+        'category_slug'=>'cidade','category'=>'Cidade','category_id'=>$category,'author'=>'Conta interna <Privada>','source_name'=>$author,
         'published_at'=>'2026-11-10 10:00:00','views'=>$views,'is_demo'=>0,'image'=>'capa.jpg',
         'body'=>'Texto original','source_url'=>''];
     ob_start();require dirname(__DIR__).'/app/public_views/routes/article.php';
@@ -62,10 +62,12 @@ assert(str_contains($html,'id="texto-da-noticia"'));
 assert(strpos($html,'data-share-trigger')<strpos($html,'data-share-copy'));
 assert(strpos($html,'data-share-copy')<strpos($html,'article-reading-time'));
 [$byline,]=render_article(false,8,' Autora <Teste> ',0);
-assert(str_contains($byline,'Por <strong>Autora &lt;Teste&gt;</strong>'));
+assert(str_contains($byline,'Fonte: <strong>Autora &lt;Teste&gt;</strong>'));
 assert(str_contains($byline,'>1 visualização</span>'));
+assert(!str_contains($byline,'Conta interna'));
+assert(str_contains($byline,'Fonte de referência:')); 
 [$fallback,]=render_article(false,8,'  ');
-assert(str_contains($fallback,'Por <strong>Redação IguatamaOnline</strong>'));
+assert(str_contains($fallback,'<strong>Redação IguatamaOnline</strong>'));
 assert(count(array_filter($queries,fn($q)=>str_contains($q,'a.status = \'published\'') && str_contains($q,'a.id<>?')))==1);
 [$empty,$unused]=render_article(false);
 assert(!str_contains($empty,'class="article-related"'));

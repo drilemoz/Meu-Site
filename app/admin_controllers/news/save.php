@@ -16,6 +16,7 @@
             }
             if(!role_allowed($me['role'],'publish'))$status='draft';
             $profile=(int)($_POST['author_profile_id']??0);$sourceId=(int)($_POST['source_id']??0);
+            $withoutSource=$sourceId===-1;if($withoutSource)$sourceId=0;
             if($profile){$st=$db->prepare('SELECT id FROM author_profiles WHERE id=?');$st->execute([$profile]);if(!$st->fetchColumn())throw new RuntimeException('Autor editorial inválido.');}
             if($sourceId){$st=$db->prepare('SELECT name,url FROM editorial_sources WHERE id=?');$st->execute([$sourceId]);$src=$st->fetch();if(!$src)throw new RuntimeException('Fonte inválida.');}
             if (ulen($title)<5 || ulen($title)>220 || ulen($summary)>480 || ulen($body)<10) throw new RuntimeException('Confira título (5–220), resumo (até 480) e texto (mínimo 10 caracteres).');
@@ -43,6 +44,7 @@
             $credit=trim((string)($_POST['image_credit']??''));
             $sourceName=trim((string)($_POST['source_name']??''));
             $sourceUrl=trim((string)($_POST['source_url']??''));
+            if($withoutSource){$sourceName='';$sourceUrl='';}
             if(!empty($src) && $sourceId){$sourceName=$src['name'];$sourceUrl=$src['url'];}
             $seoTitle=clean_seo_text((string)($_POST['seo_title']??''),220);
             $seoDesc=clean_seo_text((string)($_POST['seo_description']??''),320);

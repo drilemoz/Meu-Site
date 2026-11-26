@@ -122,7 +122,7 @@
    }
    return [...visual.childNodes].map(walk).join('').replace(/\u00a0/g,' ').replace(/\n{3,}/g,'\n\n').trim();
  }
- function loadVisual(){if(!visual||editingSource)return;visual.innerHTML=formattedPreview(bodyField.value);if(!bodyField.value.trim())visual.innerHTML='';}
+ function loadVisual(){if(!visual||editingSource)return;visual.innerHTML=formattedPreview(bodyField.value,false);if(!bodyField.value.trim())visual.innerHTML='';}
  function updateSource(){if(editingSource||!visual)return;bodyField.value=markdownFromVisual();bodyField.dispatchEvent(new Event('input',{bubbles:true}));}
  function toggleSource(){editingSource=!editingSource;raw.classList.toggle('source-visible',editingSource);visual.hidden=editingSource;sourceButton.textContent=editingSource?'Editor visual':'Texto simples';if(editingSource)bodyField.focus();else loadVisual();}
  sourceButton.addEventListener('click',toggleSource);
@@ -141,8 +141,18 @@
    if(type==='list')document.execCommand('insertUnorderedList',false,null);
    updateSource();
  }));
- function formattedPreview(value){
-   const escaped=esc(value),inline=t=>t.replace(/\*\*([^*\n]{1,400})\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]{1,400})\*(?!\*)/g,'$1<em>$2</em>');
+ function automaticHeadings(value){
+   const parts=value.trim().split(/(\r?\n[\t ]*\r?\n(?:[\t ]*\r?\n)*)/u);
+   const words=t=>(t.match(/[\p{L}\p{N}]+/gu)||[]).length;
+   const ends=t=>/[.!?][”"’)]?$/u.test(t.trim());
+   for(let i=2;i+2<parts.length;i+=2){
+     const line=parts[i].trim(),previous=parts[i-2],next=parts[i+2];
+     if(/^\p{Lu}[\p{L}\p{N} ,–—\-()]{7,89}$/u.test(line)&&!/[,:;.!?]$/u.test(line)&&words(line)>=3&&words(line)<=12&&ends(previous)&&ends(next)&&words(next)>=10)parts[i]='## '+line;
+   }
+   return parts.join('');
+ }
+ function formattedPreview(value,auto=true){
+   const escaped=esc(auto?automaticHeadings(value):value),inline=t=>t.replace(/\*\*([^*\n]{1,400})\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]{1,400})\*(?!\*)/g,'$1<em>$2</em>');
    let html='',paragraph=[],list=[];
    const flush=()=>{if(paragraph.length){html+='<p>'+paragraph.map(inline).join('<br>')+'</p>';paragraph=[];}if(list.length){html+='<ul>'+list.join('')+'</ul>';list=[];}};
    for(let line of escaped.trim().split(/\r?\n/)){line=line.trim();if(!line){flush();continue;}
@@ -323,6 +333,12 @@
        });
      }
    }
+   // Rascunhos legados podem conter fonte manual que não existia no cadastro inicial.
+   const sourceSelect=groups.get('source_id')?.[0];
+   const manualOption=Array.from(sourceSelect?.options||[]).find(opt=>opt.value==='0');
+   const manualName=groups.get('source_name')?.[0]?.value||'';
+   const manualUrl=groups.get('source_url')?.[0]?.value||'';
+   if(manualOption){manualOption.hidden=!manualName&&!manualUrl;manualOption.textContent=(manualName||manualUrl||'Fonte anterior')+' (manual)';if(sourceSelect.value==='0'&&manualOption.hidden)sourceSelect.value='-1';}
    if(Array.isArray(data.blocks))blocks=data.blocks;
    render();loadVisual();preview();categorySuggestion();updateCounters();updatePublication();if(typeof window!=='undefined')window.dispatchEvent(new Event('igua:seo-refresh'));
    status.textContent='Rascunho recuperado. Confira fotos, anexos e campos antes de publicar.';
@@ -374,7 +390,6 @@
    const kinds=new Map([
      ['category',{title:'Nova categoria',max:75,action:'news_create_category',field:'category_id'}],
      ['source',{title:'Nova fonte',max:160,action:'news_create_source',field:'source_id'}],
-     ['author',{title:'Novo autor',max:120,action:'news_create_author',field:'author_profile_id'}],
    ]);
    let taxonomyKind='category';
    for(const trigger of document.querySelectorAll('[data-news-taxonomy]'))trigger.addEventListener('click',()=>{
@@ -409,9 +424,6 @@
        if(kind==='category'){
          const label=document.createElement('label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.name='extra_categories[]';checkbox.value=String(result.id);
          label.append(checkbox,document.createTextNode(' '+result.name));document.querySelector('.news-category-chips').append(label);
-       }else if(kind==='source'){
-         form.querySelector('[name=source_name]').value=result.name;
-         form.querySelector('[name=source_url]').value=url;
        }
        if(taxonomyDialog.open)taxonomyDialog.close();
        status.textContent='Cadastro criado e selecionado. Continue a notícia.';

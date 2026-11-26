@@ -209,6 +209,8 @@
  .article-related-content strong{font-size:13px;line-height:1.38;-webkit-line-clamp:2}
 }
 @media(prefers-reduced-motion:reduce){.article-related-item{transition:none}}
+
+.article-view .article-body h2{font-weight:700}
 /* IguaNews v1.0.5 | Transporte regional, consistente com o portal. */
 .footer-admin-gear{margin-left:4px;width:34px;height:34px;flex:0 0 34px;border:1px solid #e0e7f2;border-radius:10px;color:#7183a2;font-size:19px;display:grid;place-items:center;background:#fff;transition:background .2s,color .2s}
 .footer-admin-gear:hover,.footer-admin-gear:focus-visible{background:#e9f1ff;color:#095ef0}
@@ -1190,6 +1192,10 @@ body.news-gallery-modal-open{overflow:hidden}
 .news-wizard-page .news-publish-row #news-submit[hidden]{display:none!important}
 .news-wizard-page .news-publish-help{margin:0 0 12px;font-size:11px;line-height:1.4}
 @media(max-width:360px){.news-wizard-page .news-publish-row{gap:6px}.news-wizard-page .news-publish-choice select,.news-wizard-page .news-publish-row #news-submit{font-size:12px}}
+
+/* Classificação editorial compacta: duas linhas e opções recolhidas. */
+.news-wizard-page [data-step="classify"] .news-taxonomy-main{margin:10px 0}
+.news-wizard-page [data-step="classify"] .news-taxonomy-main select{width:100%;min-width:0}
 /* 1.0.24 | Controle de endereço editorial e prévia SEO, sem rolagem horizontal */
 .news-url-control{display:flex;flex-wrap:wrap;gap:9px;align-items:end;margin:13px 0 7px}
 .news-url-control>label{flex:1 1 210px;min-width:0}

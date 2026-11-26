@@ -22,7 +22,6 @@
    const kinds=new Map([
      ['category',{title:'Nova categoria',max:75,action:'news_create_category',field:'category_id'}],
      ['source',{title:'Nova fonte',max:160,action:'news_create_source',field:'source_id'}],
-     ['author',{title:'Novo autor',max:120,action:'news_create_author',field:'author_profile_id'}],
    ]);
    let taxonomyKind='category';
    for(const trigger of document.querySelectorAll('[data-news-taxonomy]'))trigger.addEventListener('click',()=>{
@@ -57,9 +56,6 @@
        if(kind==='category'){
          const label=document.createElement('label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.name='extra_categories[]';checkbox.value=String(result.id);
          label.append(checkbox,document.createTextNode(' '+result.name));document.querySelector('.news-category-chips').append(label);
-       }else if(kind==='source'){
-         form.querySelector('[name=source_name]').value=result.name;
-         form.querySelector('[name=source_url]').value=url;
        }
        if(taxonomyDialog.open)taxonomyDialog.close();
        status.textContent='Cadastro criado e selecionado. Continue a notícia.';

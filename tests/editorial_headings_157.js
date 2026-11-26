@@ -1,0 +1,10 @@
+const fs=require('fs'),assert=require('assert'),vm=require('vm');
+const src=fs.readFileSync('public/assets/js/news-editor-modules/03-rich-text.js','utf8');
+const start=src.indexOf(' function automaticHeadings('),end=src.indexOf(' function formattedPreview(',start);
+const ctx={};vm.createContext(ctx);vm.runInContext(src.slice(start,end),ctx);
+const before='O governo anunciou mudanças nas regras fiscais.';
+const after='A legislação amplia os instrumentos disponíveis ao Executivo federal para controlar despesas e buscar o cumprimento das metas fiscais.';
+const text=h=>before+'\n\n'+h+'\n\n'+after;
+assert(ctx.automaticHeadings(text('Novas regras para os gastos públicos')).includes('## Novas regras para os gastos públicos'));
+for(const h of ['Uma frase comum.','- Um item da lista','<script>alert(1)</script>','Uma frase curta,','**Destaque explícito**','## Título manual'])assert.strictEqual(ctx.automaticHeadings(text(h)),text(h));
+console.log('OK: reconhecimento de intertítulos na prévia, Markdown explícito preservado');

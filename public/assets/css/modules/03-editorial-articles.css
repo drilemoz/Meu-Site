@@ -67,3 +67,5 @@
  .article-related-content strong{font-size:13px;line-height:1.38;-webkit-line-clamp:2}
 }
 @media(prefers-reduced-motion:reduce){.article-related-item{transition:none}}
+
+.article-view .article-body h2{font-weight:700}

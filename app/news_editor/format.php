@@ -25,8 +25,24 @@ function news_inline_format(string $text): string {
     return preg_replace('/(?<!\*)\*([^*\n]{1,400})\*(?!\*)/u','<em>$1</em>',$escaped)??$escaped;
 }
 
+/** Reconhece intertítulos isolados entre parágrafos, sem alterar o texto gravado.
+ * Markdown explícito continua tendo prioridade; frases, listas e citações são preservadas.
+ */
+function news_auto_headings(string $text): string {
+    $parts=preg_split('/(\R[\t ]*\R(?:[\t ]*\R)*)/u',trim($text),-1,PREG_SPLIT_DELIM_CAPTURE);
+    if(!$parts)return $text;
+    for($i=2;$i+2<count($parts);$i+=2){
+        $line=trim($parts[$i]);$previous=trim($parts[$i-2]);$next=trim($parts[$i+2]);
+        if(!preg_match('/^\p{Lu}[\p{L}\p{N} ,–—\-()]{7,89}$/u',$line) || preg_match('/^[\d\s]|[,:;.!?]$/u',$line))continue;
+        $words=preg_match_all('/[\p{L}\p{N}]+/u',$line);
+        if($words<3||$words>12||!preg_match('/[.!?][”"’)]?$/u',$previous)||!preg_match('/[.!?][”"’)]?$/u',$next)||preg_match_all('/[\p{L}\p{N}]+/u',$next)<10)continue;
+        $parts[$i]='## '.$line;
+    }
+    return implode('',$parts);
+}
+
 function news_text_format(string $text): string {
-    $lines=preg_split('/\R/u',trim($text))?:[];$html='';$paragraph=[];$list=[];
+    $lines=preg_split('/\R/u',trim(news_auto_headings($text)))?:[];$html='';$paragraph=[];$list=[];
     $flushP=static function()use(&$paragraph,&$html){if($paragraph){$html.='<p>'.implode('<br>',array_map('news_inline_format',$paragraph)).'</p>';$paragraph=[];}};
     $flushL=static function()use(&$list,&$html){if($list){$html.='<ul class="news-list">'.implode('',$list).'</ul>';$list=[];}};
     foreach($lines as $line){$line=trim($line);

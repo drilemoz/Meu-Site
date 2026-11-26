@@ -103,13 +103,14 @@
         return;
       }
       const remote = info.release;
+      retry.hidden = false;
       if (!remote) {
         showStatus('Nenhuma atualização publicada', 'O repositório não informou uma release disponível.', 'done');
         showDiagnostic({code:'release_missing',title:'Release não encontrada',detail:'Não foi localizada uma release pública marcada como versão mais recente.',action:'Verifique a aba Releases do repositório oficial.'});
         return;
       }
       if (!remote.newer) {
-        showStatus('Sistema atualizado', 'Versão instalada: ' + installedVersion + '. Última versão publicada: ' + remote.version + '.', 'done');
+        showStatus(remote.version === installedVersion ? 'Versão instalada igual à release' : 'Versão instalada superior à release', 'Versão instalada: ' + installedVersion + '. Última release consultada: ' + remote.version + '. Código sem release não é oferecido para instalação.', 'done');
         return;
       }
       targetVersion = remote.version;

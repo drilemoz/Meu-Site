@@ -37,6 +37,12 @@
        });
      }
    }
+   // Rascunhos legados podem conter fonte manual que não existia no cadastro inicial.
+   const sourceSelect=groups.get('source_id')?.[0];
+   const manualOption=Array.from(sourceSelect?.options||[]).find(opt=>opt.value==='0');
+   const manualName=groups.get('source_name')?.[0]?.value||'';
+   const manualUrl=groups.get('source_url')?.[0]?.value||'';
+   if(manualOption){manualOption.hidden=!manualName&&!manualUrl;manualOption.textContent=(manualName||manualUrl||'Fonte anterior')+' (manual)';if(sourceSelect.value==='0'&&manualOption.hidden)sourceSelect.value='-1';}
    if(Array.isArray(data.blocks))blocks=data.blocks;
    render();loadVisual();preview();categorySuggestion();updateCounters();updatePublication();if(typeof window!=='undefined')window.dispatchEvent(new Event('igua:seo-refresh'));
    status.textContent='Rascunho recuperado. Confira fotos, anexos e campos antes de publicar.';

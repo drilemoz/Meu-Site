@@ -20,6 +20,9 @@ const elements = [
   field('new_image_caption[]','Legenda temporária'),
   field('gallery_files[]',new FakeFile('foto.jpg'),'file'),
 ];
+const manualOption={value:'0',hidden:true,textContent:''};
+const sourceField={...field('source_id','-1','select-one'),options:[manualOption,{value:'-1'}]};
+elements.push(sourceField,field('source_name','','hidden'),field('source_url','','hidden'));
 const form = { querySelectorAll(selector) {assert.equal(selector,'[name]'); return elements;}};
 class FakeFormData {
   constructor(ignored) {assert.equal(ignored,form);this.entries=[];
@@ -67,5 +70,8 @@ assert.equal(elements.find(x=>x.name==='remove_media[]').checked,false);
 assert.equal(elements.find(x=>x.name==='title').value,'Rascunho sem destaques');
 assert.equal(elements.find(x=>x.name==='id').value,'91');
 assert.match(status.textContent,/fotos, anexos/);
+api.restoreDraft({fields:{source_id:'0',source_name:'Fonte manual recuperada',source_url:'https://fonte.test'}});
+assert.equal(manualOption.hidden,false);assert.match(manualOption.textContent,/Fonte manual recuperada/);assert.equal(sourceField.value,'0');
+api.restoreDraft({fields:{source_id:'0',source_name:'',source_url:''}});assert.equal(manualOption.hidden,true);assert.equal(sourceField.value,'-1');
 console.log('OK: autosave exclui arquivos/segredos e mantém arrays, campos escalares, permissões e blocos');
 console.log('OK: recuperação restaura checkboxes marcados/desmarcados, arrays por índice e ignora uploads');

@@ -22,7 +22,7 @@
    }
    return [...visual.childNodes].map(walk).join('').replace(/\u00a0/g,' ').replace(/\n{3,}/g,'\n\n').trim();
  }
- function loadVisual(){if(!visual||editingSource)return;visual.innerHTML=formattedPreview(bodyField.value);if(!bodyField.value.trim())visual.innerHTML='';}
+ function loadVisual(){if(!visual||editingSource)return;visual.innerHTML=formattedPreview(bodyField.value,false);if(!bodyField.value.trim())visual.innerHTML='';}
  function updateSource(){if(editingSource||!visual)return;bodyField.value=markdownFromVisual();bodyField.dispatchEvent(new Event('input',{bubbles:true}));}
  function toggleSource(){editingSource=!editingSource;raw.classList.toggle('source-visible',editingSource);visual.hidden=editingSource;sourceButton.textContent=editingSource?'Editor visual':'Texto simples';if(editingSource)bodyField.focus();else loadVisual();}
  sourceButton.addEventListener('click',toggleSource);
@@ -41,8 +41,18 @@
    if(type==='list')document.execCommand('insertUnorderedList',false,null);
    updateSource();
  }));
- function formattedPreview(value){
-   const escaped=esc(value),inline=t=>t.replace(/\*\*([^*\n]{1,400})\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]{1,400})\*(?!\*)/g,'$1<em>$2</em>');
+ function automaticHeadings(value){
+   const parts=value.trim().split(/(\r?\n[\t ]*\r?\n(?:[\t ]*\r?\n)*)/u);
+   const words=t=>(t.match(/[\p{L}\p{N}]+/gu)||[]).length;
+   const ends=t=>/[.!?][”"’)]?$/u.test(t.trim());
+   for(let i=2;i+2<parts.length;i+=2){
+     const line=parts[i].trim(),previous=parts[i-2],next=parts[i+2];
+     if(/^\p{Lu}[\p{L}\p{N} ,–—\-()]{7,89}$/u.test(line)&&!/[,:;.!?]$/u.test(line)&&words(line)>=3&&words(line)<=12&&ends(previous)&&ends(next)&&words(next)>=10)parts[i]='## '+line;
+   }
+   return parts.join('');
+ }
+ function formattedPreview(value,auto=true){
+   const escaped=esc(auto?automaticHeadings(value):value),inline=t=>t.replace(/\*\*([^*\n]{1,400})\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]{1,400})\*(?!\*)/g,'$1<em>$2</em>');
    let html='',paragraph=[],list=[];
    const flush=()=>{if(paragraph.length){html+='<p>'+paragraph.map(inline).join('<br>')+'</p>';paragraph=[];}if(list.length){html+='<ul>'+list.join('')+'</ul>';list=[];}};
    for(let line of escaped.trim().split(/\r?\n/)){line=line.trim();if(!line){flush();continue;}

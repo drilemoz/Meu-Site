@@ -320,3 +320,7 @@
 .news-wizard-page .news-publish-row #news-submit[hidden]{display:none!important}
 .news-wizard-page .news-publish-help{margin:0 0 12px;font-size:11px;line-height:1.4}
 @media(max-width:360px){.news-wizard-page .news-publish-row{gap:6px}.news-wizard-page .news-publish-choice select,.news-wizard-page .news-publish-row #news-submit{font-size:12px}}
+
+/* Classificação editorial compacta: duas linhas e opções recolhidas. */
+.news-wizard-page [data-step="classify"] .news-taxonomy-main{margin:10px 0}
+.news-wizard-page [data-step="classify"] .news-taxonomy-main select{width:100%;min-width:0}

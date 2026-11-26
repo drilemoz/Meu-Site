@@ -25,7 +25,7 @@ with sync_playwright() as p:
         page.set_content('<!doctype html><html lang="pt-BR" class="public-page"><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body>'+top_header+'Portal</header><main class="container page-main">'+html+'<div style="height:1200px"></div></main><nav class="bottom-nav" aria-label="Navegação móvel"></nav>'+top_link+'</body></html>')
         assert page.locator('.article-related-item').count()==2
         assert page.locator('.article-byline time').count()==1
-        assert page.locator('.article-author').inner_text()=='Por Redação'
+        assert page.locator('.article-author').inner_text()=='Fonte: Redação'
         controls=[page.get_by_role('button',name='Compartilhar'),page.get_by_role('button',name='Copiar link'),page.locator('.article-reading-time')]
         boxes=[control.bounding_box() for control in controls]
         assert boxes[0]['x']<boxes[1]['x']<boxes[2]['x']

@@ -17,22 +17,25 @@ unset($_SESSION['igua_update_preview']);
 $hasSource=!empty($source['owner'])&&!empty($source['repo']);
 $hasNewRelease=$release && !empty($release['newer']);
 $hasDownload=$hasNewRelease&&!empty($release['url']);
+$releaseStatus=igua_updater_release_status($release,igua_updater_version(),$hasSource);
+$checkedAt=(int)($cached['checked']??0);
 $originLabel=$hasSource?$source['owner'].'/'.$source['repo']:'Origem não identificada';
 ?>
 <section class="panel updater-panel" aria-labelledby="updater-overview-title">
   <div class="updater-header">
     <h2 id="updater-overview-title">Atualizações do sistema</h2>
     <details class="updater-help"><summary aria-label="Como funcionam as atualizações" title="Como funcionam as atualizações">?</summary>
-      <div class="updater-help-content">O painel consulta releases do GitHub e aceita pacotes v2 sem assinatura digital. SHA-256 detecta alterações acidentais, mas não comprova a origem do ZIP; instale somente arquivos confiáveis. Antes da instalação, faz backup lógico do MySQL e dos arquivos que serão trocados. Não modifica fotos, credenciais nem bancos com revisões incompatíveis. A consulta ocorre ao abrir esta tela ou ao tocar em Verificar.</div>
+      <div class="updater-help-content">O painel consulta releases do GitHub e aceita pacotes v2 sem assinatura digital. SHA-256 detecta alterações acidentais, mas não comprova a origem do ZIP; instale somente arquivos confiáveis. Antes da instalação, faz backup lógico do MySQL e dos arquivos que serão trocados. Não modifica fotos, credenciais nem bancos com revisões incompatíveis. A tela mostra a última consulta armazenada. Toque em Verificar novamente para consultar o GitHub sem cache.</div>
     </details>
   </div>
   <div class="updater-overview">
     <div><span>Instalada</span><strong><?=h(igua_updater_version())?></strong></div>
-    <div><span>Disponível</span><strong><?=h((string)($release['version']??'—'))?></strong></div>
-    <div><span>Status</span><strong class="<?= $hasNewRelease?'updater-status-new':'updater-status-neutral' ?>"><?= $hasNewRelease?'Atualização disponível':($hasSource?($remoteError?'Falha na consulta':($release && ($release['version']??'')===igua_updater_version()?'Você já está na versão mais recente':'Sem nova versão publicada')):'Configure a origem') ?></strong></div>
+    <div><span>Última release consultada</span><strong><?=h((string)($release['version']??'—'))?></strong></div>
+    <div><span>Status</span><strong class="<?= $hasNewRelease?'updater-status-new':'updater-status-neutral' ?>"><?=h($releaseStatus)?></strong></div>
   </div>
+  <p class="muted"><?= $checkedAt>0?h("Última consulta: ".date("d/m/Y H:i",$checkedAt)):"GitHub ainda não consultado." ?> Versões do código sem release não aparecem aqui.</p>
   <div class="updater-actions updater-actions-simple">
-    <button type="button" class="btn outline" id="updater-github-trigger" data-updater-open="updater-github-dialog" aria-haspopup="dialog" aria-controls="updater-github-dialog">◉ Visualizar</button>
+    <button type="button" class="btn outline" id="updater-github-trigger" data-updater-open="updater-github-dialog" aria-haspopup="dialog" aria-controls="updater-github-dialog">↻ Verificar novamente</button>
     <button type="button" class="btn primary updater-upload-trigger" data-updater-open="updater-upload-dialog" aria-haspopup="dialog" aria-controls="updater-upload-dialog" <?=($vpsDeploy||!$ready)?'disabled title="Upload direto indisponível neste ambiente"':''?>>Enviar ZIP</button>
   </div>
   <?php if($vpsDeploy): ?><div class="alert info">Modo VPS: o www-data não altera código. A atualização oficial é realizada pelo serviço systemd, com progresso nesta tela; ZIP manual fica desativado.</div><?php endif; ?>
